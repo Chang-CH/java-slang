@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
+import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
+import { classFileToText } from '#utils/Prettify/classfile';
 import * as fs from 'node:fs';
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 export default function main() {
   /**
    * Get options
    */
-  const options = yargs
+  const options = yargs(hideBin(process.argv))
     .usage('$0 <cmd> [args]')
     .option('-f', {
       alias: 'files',
@@ -29,11 +32,14 @@ export default function main() {
       continue;
     }
 
-    console.log(fileName);
-
     const data = fs.readFileSync(fileName, null);
     const view = new DataView(data.buffer);
-    console.log(`magic: ${view.getUint32(0)}`);
+
+    if (options['-p']) {
+      const bscl = new BootstrapClassLoader();
+      const cls = bscl.parseClass(view);
+      console.log(classFileToText(cls));
+    }
   }
 }
 
