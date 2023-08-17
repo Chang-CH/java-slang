@@ -6,6 +6,19 @@ import * as fs from 'node:fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
+/**
+ * Converts a NodeJS Buffer to an ArrayBuffer
+ *
+ * @param buffer nodejs buffer
+ * @returns ArrayBuffer equivalent
+ */
+export function a2ab(buffer: Buffer) {
+  return buffer.buffer.slice(
+    buffer.byteOffset,
+    buffer.byteOffset + buffer.byteLength
+  );
+}
+
 export default function main() {
   /**
    * Get options
@@ -32,8 +45,10 @@ export default function main() {
       continue;
     }
 
-    const data = fs.readFileSync(fileName, null);
-    const view = new DataView(data.buffer);
+    // converts nodejs buffer to ArrayBuffer
+    const buffer = fs.readFileSync(fileName, null);
+    const arraybuffer = a2ab(buffer);
+    const view = new DataView(arraybuffer);
 
     if (options['-p']) {
       const bscl = new BootstrapClassLoader();
