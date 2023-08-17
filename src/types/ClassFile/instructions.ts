@@ -1,4 +1,4 @@
-import { INSTRUCTION_SET } from '../../constants/ClassFile/instructions';
+import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
 
 export interface InstructionType {
   opcode: INSTRUCTION_SET;
