@@ -2,6 +2,7 @@ import { constantTagMap } from '#constants/ClassFile/constants';
 import MemoryArea from '#jvm/components/MemoryArea';
 import { ClassFile } from '#types/ClassFile';
 import { CONSTANT_TAG } from '#types/ClassFile/constants';
+import OsInterface from '#utils/OsInterface';
 import { readAttribute } from './utils/readAttributes';
 import { readConstant } from './utils/readConstants';
 import { readField } from './utils/readField';
@@ -12,9 +13,12 @@ import { readMethod } from './utils/readMethod';
  */
 export default class BootstrapClassLoader {
   private memoryArea: MemoryArea;
+  private os: OsInterface;
+  // TODO: add classpath etc.
 
-  constructor(memoryArea: MemoryArea) {
+  constructor(memoryArea: MemoryArea, os: OsInterface) {
     this.memoryArea = memoryArea;
+    this.os = os;
   }
 
   /**
@@ -159,5 +163,18 @@ export default class BootstrapClassLoader {
   loadClass(cls: ClassFile): void {
     console.error('BootstrapClassLoader.loadClass: not implemented.');
     this.memoryArea.loadClass('temp', cls);
+  }
+
+  /**
+   * Attempts to load a class file
+   * @param className name of class to load
+   */
+  load(className: string): void {
+    // TODO: verify jvm loading path etc.
+    const classFile = this.os.readFile([className]); //FIXME: use classpath instead.
+    let data = this.readClass(classFile);
+    this.prepareClass(data);
+    data = this.linkClass(data);
+    this.loadClass(data);
   }
 }
