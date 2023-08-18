@@ -1,4 +1,5 @@
 import { constantTagMap } from '#constants/ClassFile/constants';
+import MemoryArea from '#jvm/components/MemoryArea';
 import { ClassFile } from '#types/ClassFile';
 import { CONSTANT_TAG } from '#types/ClassFile/constants';
 import { readAttribute } from './utils/readAttributes';
@@ -10,12 +11,18 @@ import { readMethod } from './utils/readMethod';
  * Reads classfile as byte array and loads it into memory area
  */
 export default class BootstrapClassLoader {
+  private memoryArea: MemoryArea;
+
+  constructor(memoryArea: MemoryArea) {
+    this.memoryArea = memoryArea;
+  }
+
   /**
    * Reads a class file to a JS object
    * @param view ArrayBuffer DataView representing the binary class file
    * @returns Object representing the class
    */
-  parseClass(view: DataView): ClassFile {
+  readClass(view: DataView): ClassFile {
     let offset = 0;
 
     const cls: ClassFile = {
@@ -123,5 +130,34 @@ export default class BootstrapClassLoader {
     }
 
     return cls;
+  }
+
+  /**
+   * Prepares the class data by checking jvm constraints
+   * @param cls class data to check
+   * @returns Error, if any
+   */
+  prepareClass(cls: ClassFile): void | Error {
+    console.error('BootstrapClassLoader.prepareClass: not implemented.');
+    return;
+  }
+
+  /**
+   * Resolves symbolic references in the constant pool
+   * @param cls class data to resolve
+   * @returns class data with resolved references
+   */
+  linkClass(cls: ClassFile): ClassFile {
+    console.error('BootstrapClassLoader.linkClass: not implemented.');
+    return cls;
+  }
+
+  /**
+   * Adds the resolved class data to the memory area
+   * @param cls resolved class data
+   */
+  loadClass(cls: ClassFile): void {
+    console.error('BootstrapClassLoader.loadClass: not implemented.');
+    this.memoryArea.loadClass('temp', cls);
   }
 }
