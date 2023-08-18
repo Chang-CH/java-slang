@@ -52,7 +52,7 @@ export default function main() {
 
     if (options['-p']) {
       const bscl = new BootstrapClassLoader();
-      const cls = bscl.parseClass(view);
+      const cls = bscl.readClass(view);
       console.log(classFileToText(cls));
     }
   }
