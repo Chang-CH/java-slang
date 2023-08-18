@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
+import MemoryArea from '#jvm/components/MemoryArea';
 import { classFileToText } from '#utils/Prettify/classfile';
 import * as fs from 'node:fs';
 import yargs from 'yargs';
@@ -51,7 +52,8 @@ export default function main() {
     const view = new DataView(arraybuffer);
 
     if (options['-p']) {
-      const bscl = new BootstrapClassLoader();
+      const memory = new MemoryArea();
+      const bscl = new BootstrapClassLoader(memory);
       const cls = bscl.readClass(view);
       console.log(classFileToText(cls));
     }
