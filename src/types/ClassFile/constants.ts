@@ -1,19 +1,4 @@
-export enum CONSTANT_TAG {
-  CONSTANT_Class,
-  CONSTANT_Fieldref,
-  CONSTANT_Methodref,
-  CONSTANT_InterfaceMethodref,
-  CONSTANT_String,
-  CONSTANT_Integer,
-  CONSTANT_Float,
-  CONSTANT_Long,
-  CONSTANT_Double,
-  CONSTANT_NameAndType,
-  CONSTANT_Utf8,
-  CONSTANT_MethodHandle,
-  CONSTANT_MethodType,
-  CONSTANT_InvokeDynamic,
-}
+import { CONSTANT_TAG } from '#constants/ClassFile/constants';
 
 export interface CONSTANT_Class_info {
   tag: CONSTANT_TAG;

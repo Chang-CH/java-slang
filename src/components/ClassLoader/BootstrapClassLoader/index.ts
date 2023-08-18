@@ -1,7 +1,7 @@
 import { constantTagMap } from '#constants/ClassFile/constants';
 import MemoryArea from '#jvm/components/MemoryArea';
 import { ClassFile } from '#types/ClassFile';
-import { CONSTANT_TAG } from '#types/ClassFile/constants';
+import { CONSTANT_TAG } from '#constants/ClassFile/constants';
 import OsInterface from '#utils/OsInterface';
 import { readAttribute } from './utils/readAttributes';
 import { readConstant } from './utils/readConstants';

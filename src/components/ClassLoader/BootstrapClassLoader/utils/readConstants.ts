@@ -1,3 +1,4 @@
+import { CONSTANT_TAG } from '#constants/ClassFile/constants';
 import {
   CONSTANT_Class_info,
   CONSTANT_Double_info,
@@ -12,7 +13,6 @@ import {
   CONSTANT_Methodref_info,
   CONSTANT_NameAndType_info,
   CONSTANT_String_info,
-  CONSTANT_TAG,
   CONSTANT_Utf8_info,
 } from '#types/ClassFile/constants';
 
