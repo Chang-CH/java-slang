@@ -1,5 +1,5 @@
 import { ConstantType } from '#types/ClassFile/constants';
-import { FieldType } from '#types/ClassFile/fields';
+import { FIELD_FLAGS, FieldType } from '#types/ClassFile/fields';
 import { readAttribute } from './readAttributes';
 
 export function readField(
@@ -44,4 +44,36 @@ export function readField(
     },
     offset,
   };
+}
+
+export function checkPublic(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_PUBLIC) !== 0;
+}
+
+export function checkPrivate(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_PRIVATE) !== 0;
+}
+
+export function checkProtected(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_PROTECTED) !== 0;
+}
+
+export function checkStatic(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_STATIC) !== 0;
+}
+
+export function checkFinal(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_FINAL) !== 0;
+}
+
+export function checkVolatile(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_VOLATILE) !== 0;
+}
+
+export function checkTransient(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_TRANSIENT) !== 0;
+}
+
+export function checkSynthetic(field: FieldType): boolean {
+  return (field.access_flags & FIELD_FLAGS.ACC_SYNTHETIC) !== 0;
 }
