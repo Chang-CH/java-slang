@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsx src/utils/cli -f example/Sample/Sample.class -p"
+    "dev": "npx tsx watch src/utils/cli -f example/InvokeStatic/InvokeStatic.class -p"
   },
   "keywords": [
     "Java",
