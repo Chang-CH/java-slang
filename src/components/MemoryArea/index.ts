@@ -3,13 +3,30 @@ import { InstructionType } from '#types/ClassFile/instructions';
 import { InstructionPointer } from '../ExecutionEngine/NativeThreadGroup/NativeThread/types';
 
 export default class MemoryArea {
+  // Technically the stack and pc registers should be here, but are stored in NativeStack.
+  heap: any;
+  methodArea: {
+    [className: string]: {
+      methods: {
+        [methodName: string]: any;
+      };
+      [others: string]: any;
+    };
+  };
+
+  constructor() {
+    this.heap = {};
+    this.methodArea = {};
+  }
+
   getInstructionAt(pointer: InstructionPointer): InstructionType {
-    console.error('MemoryArea.getInstructionAt: not implemented.');
-    return { opcode: 0, operands: [] };
+    const method =
+      this.methodArea[pointer.className].methods[pointer.methodName];
+    return method.code.code[pointer.pc];
   }
 
   loadClass(className: string, cls: ClassFile): void {
-    console.error('MemoryArea.loadClass: not implemented.');
+    this.methodArea[className] = cls;
     return;
   }
 }

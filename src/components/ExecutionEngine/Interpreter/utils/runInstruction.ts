@@ -8,623 +8,2268 @@ export default function runInstruction(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ): void {
+  let result;
   switch (instruction.opcode) {
     case INSTRUCTION_SET.nop:
-      throw new Error('Instruction nop not implemented!');
-      return;
+      result = run_nop(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aconst_null:
-      throw new Error('Instruction aconst_null not implemented!');
-      return;
+      result = run_aconst_null(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iconst_m1:
-      throw new Error('Instruction iconst_m1 not implemented!');
-      return;
+      result = run_iconst_m1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iconst_0:
-      throw new Error('Instruction iconst_0 not implemented!');
-      return;
+      result = run_iconst_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iconst_1:
-      throw new Error('Instruction iconst_1 not implemented!');
-      return;
+      result = run_iconst_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iconst_2:
-      throw new Error('Instruction iconst_2 not implemented!');
-      return;
+      result = run_iconst_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iconst_3:
-      throw new Error('Instruction iconst_3 not implemented!');
-      return;
+      result = run_iconst_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iconst_4:
-      throw new Error('Instruction iconst_4 not implemented!');
-      return;
+      result = run_iconst_4(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iconst_5:
-      throw new Error('Instruction iconst_5 not implemented!');
-      return;
+      result = run_iconst_5(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lconst_0:
-      throw new Error('Instruction lconst_0 not implemented!');
-      return;
+      result = run_lconst_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lconst_1:
-      throw new Error('Instruction lconst_1 not implemented!');
-      return;
+      result = run_lconst_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fconst_0:
-      throw new Error('Instruction fconst_0 not implemented!');
-      return;
+      result = run_fconst_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fconst_1:
-      throw new Error('Instruction fconst_1 not implemented!');
-      return;
+      result = run_fconst_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fconst_2:
-      throw new Error('Instruction fconst_2 not implemented!');
-      return;
+      result = run_fconst_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dconst_0:
-      throw new Error('Instruction dconst_0 not implemented!');
-      return;
+      result = run_dconst_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dconst_1:
-      throw new Error('Instruction dconst_1 not implemented!');
-      return;
+      result = run_dconst_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.bipush:
-      throw new Error('Instruction bipush not implemented!');
-      return;
+      result = run_bipush(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.sipush:
-      throw new Error('Instruction sipush not implemented!');
-      return;
+      result = run_sipush(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ldc:
-      throw new Error('Instruction ldc not implemented!');
-      return;
+      result = run_ldc(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ldc_w:
-      throw new Error('Instruction ldc_w not implemented!');
-      return;
+      result = run_ldc_w(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ldc2_w:
-      throw new Error('Instruction ldc2_w not implemented!');
-      return;
+      result = run_ldc2_w(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iload:
-      throw new Error('Instruction iload not implemented!');
-      return;
+      result = run_iload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lload:
-      throw new Error('Instruction lload not implemented!');
-      return;
+      result = run_lload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fload:
-      throw new Error('Instruction fload not implemented!');
-      return;
+      result = run_fload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dload:
-      throw new Error('Instruction dload not implemented!');
-      return;
+      result = run_dload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aload:
-      throw new Error('Instruction aload not implemented!');
-      return;
+      result = run_aload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iload_0:
-      throw new Error('Instruction iload_0 not implemented!');
-      return;
+      result = run_iload_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iload_1:
-      throw new Error('Instruction iload_1 not implemented!');
-      return;
+      result = run_iload_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iload_2:
-      throw new Error('Instruction iload_2 not implemented!');
-      return;
+      result = run_iload_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iload_3:
-      throw new Error('Instruction iload_3 not implemented!');
-      return;
+      result = run_iload_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lload_0:
-      throw new Error('Instruction lload_0 not implemented!');
-      return;
+      result = run_lload_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lload_1:
-      throw new Error('Instruction lload_1 not implemented!');
-      return;
+      result = run_lload_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lload_2:
-      throw new Error('Instruction lload_2 not implemented!');
-      return;
+      result = run_lload_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lload_3:
-      throw new Error('Instruction lload_3 not implemented!');
-      return;
+      result = run_lload_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fload_0:
-      throw new Error('Instruction fload_0 not implemented!');
-      return;
+      result = run_fload_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fload_1:
-      throw new Error('Instruction fload_1 not implemented!');
-      return;
+      result = run_fload_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fload_2:
-      throw new Error('Instruction fload_2 not implemented!');
-      return;
+      result = run_fload_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fload_3:
-      throw new Error('Instruction fload_3 not implemented!');
-      return;
+      result = run_fload_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dload_0:
-      throw new Error('Instruction dload_0 not implemented!');
-      return;
+      result = run_dload_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dload_1:
-      throw new Error('Instruction dload_1 not implemented!');
-      return;
+      result = run_dload_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dload_2:
-      throw new Error('Instruction dload_2 not implemented!');
-      return;
+      result = run_dload_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dload_3:
-      throw new Error('Instruction dload_3 not implemented!');
-      return;
+      result = run_dload_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aload_0:
-      throw new Error('Instruction aload_0 not implemented!');
-      return;
+      result = run_aload_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aload_1:
-      throw new Error('Instruction aload_1 not implemented!');
-      return;
+      result = run_aload_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aload_2:
-      throw new Error('Instruction aload_2 not implemented!');
-      return;
+      result = run_aload_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aload_3:
-      throw new Error('Instruction aload_3 not implemented!');
-      return;
+      result = run_aload_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iaload:
-      throw new Error('Instruction iaload not implemented!');
-      return;
+      result = run_iaload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.laload:
-      throw new Error('Instruction laload not implemented!');
-      return;
+      result = run_laload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.faload:
-      throw new Error('Instruction faload not implemented!');
-      return;
+      result = run_faload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.daload:
-      throw new Error('Instruction daload not implemented!');
-      return;
+      result = run_daload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aaload:
-      throw new Error('Instruction aaload not implemented!');
-      return;
+      result = run_aaload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.baload:
-      throw new Error('Instruction baload not implemented!');
-      return;
+      result = run_baload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.caload:
-      throw new Error('Instruction caload not implemented!');
-      return;
+      result = run_caload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.saload:
-      throw new Error('Instruction saload not implemented!');
-      return;
+      result = run_saload(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.istore:
-      throw new Error('Instruction istore not implemented!');
-      return;
+      result = run_istore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lstore:
-      throw new Error('Instruction lstore not implemented!');
-      return;
+      result = run_lstore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fstore:
-      throw new Error('Instruction fstore not implemented!');
-      return;
+      result = run_fstore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dstore:
-      throw new Error('Instruction dstore not implemented!');
-      return;
+      result = run_dstore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.astore:
-      throw new Error('Instruction astore not implemented!');
-      return;
+      result = run_astore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.istore_0:
-      throw new Error('Instruction istore_0 not implemented!');
-      return;
+      result = run_istore_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.istore_1:
-      throw new Error('Instruction istore_1 not implemented!');
-      return;
+      result = run_istore_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.istore_2:
-      throw new Error('Instruction istore_2 not implemented!');
-      return;
+      result = run_istore_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.istore_3:
-      throw new Error('Instruction istore_3 not implemented!');
-      return;
+      result = run_istore_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lstore_0:
-      throw new Error('Instruction lstore_0 not implemented!');
-      return;
+      result = run_lstore_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lstore_1:
-      throw new Error('Instruction lstore_1 not implemented!');
-      return;
+      result = run_lstore_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lstore_2:
-      throw new Error('Instruction lstore_2 not implemented!');
-      return;
+      result = run_lstore_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lstore_3:
-      throw new Error('Instruction lstore_3 not implemented!');
-      return;
+      result = run_lstore_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fstore_0:
-      throw new Error('Instruction fstore_0 not implemented!');
-      return;
+      result = run_fstore_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fstore_1:
-      throw new Error('Instruction fstore_1 not implemented!');
-      return;
+      result = run_fstore_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fstore_2:
-      throw new Error('Instruction fstore_2 not implemented!');
-      return;
+      result = run_fstore_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fstore_3:
-      throw new Error('Instruction fstore_3 not implemented!');
-      return;
+      result = run_fstore_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dstore_0:
-      throw new Error('Instruction dstore_0 not implemented!');
-      return;
+      result = run_dstore_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dstore_1:
-      throw new Error('Instruction dstore_1 not implemented!');
-      return;
+      result = run_dstore_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dstore_2:
-      throw new Error('Instruction dstore_2 not implemented!');
-      return;
+      result = run_dstore_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dstore_3:
-      throw new Error('Instruction dstore_3 not implemented!');
-      return;
+      result = run_dstore_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.astore_0:
-      throw new Error('Instruction astore_0 not implemented!');
-      return;
+      result = run_astore_0(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.astore_1:
-      throw new Error('Instruction astore_1 not implemented!');
-      return;
+      result = run_astore_1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.astore_2:
-      throw new Error('Instruction astore_2 not implemented!');
-      return;
+      result = run_astore_2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.astore_3:
-      throw new Error('Instruction astore_3 not implemented!');
-      return;
+      result = run_astore_3(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iastore:
-      throw new Error('Instruction iastore not implemented!');
-      return;
+      result = run_iastore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lastore:
-      throw new Error('Instruction lastore not implemented!');
-      return;
+      result = run_lastore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fastore:
-      throw new Error('Instruction fastore not implemented!');
-      return;
+      result = run_fastore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dastore:
-      throw new Error('Instruction dastore not implemented!');
-      return;
+      result = run_dastore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.aastore:
-      throw new Error('Instruction aastore not implemented!');
-      return;
+      result = run_aastore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.bastore:
-      throw new Error('Instruction bastore not implemented!');
-      return;
+      result = run_bastore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.castore:
-      throw new Error('Instruction castore not implemented!');
-      return;
+      result = run_castore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.sastore:
-      throw new Error('Instruction sastore not implemented!');
-      return;
+      result = run_sastore(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.pop:
-      throw new Error('Instruction pop not implemented!');
-      return;
+      result = run_pop(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.pop2:
-      throw new Error('Instruction pop2 not implemented!');
-      return;
+      result = run_pop2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dup:
-      throw new Error('Instruction dup not implemented!');
-      return;
+      result = run_dup(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dup_x1:
-      throw new Error('Instruction dup_x1 not implemented!');
-      return;
+      result = run_dup_x1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dup_x2:
-      throw new Error('Instruction dup_x2 not implemented!');
-      return;
+      result = run_dup_x2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dup2:
-      throw new Error('Instruction dup2 not implemented!');
-      return;
+      result = run_dup2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dup2_x1:
-      throw new Error('Instruction dup2_x1 not implemented!');
-      return;
+      result = run_dup2_x1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dup2_x2:
-      throw new Error('Instruction dup2_x2 not implemented!');
-      return;
+      result = run_dup2_x2(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.swap:
-      throw new Error('Instruction swap not implemented!');
-      return;
+      result = run_swap(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iadd:
-      throw new Error('Instruction iadd not implemented!');
-      return;
+      result = run_iadd(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ladd:
-      throw new Error('Instruction ladd not implemented!');
-      return;
+      result = run_ladd(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fadd:
-      throw new Error('Instruction fadd not implemented!');
-      return;
+      result = run_fadd(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dadd:
-      throw new Error('Instruction dadd not implemented!');
-      return;
+      result = run_dadd(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.isub:
-      throw new Error('Instruction isub not implemented!');
-      return;
+      result = run_isub(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lsub:
-      throw new Error('Instruction lsub not implemented!');
-      return;
+      result = run_lsub(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fsub:
-      throw new Error('Instruction fsub not implemented!');
-      return;
+      result = run_fsub(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dsub:
-      throw new Error('Instruction dsub not implemented!');
-      return;
+      result = run_dsub(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.imul:
-      throw new Error('Instruction imul not implemented!');
-      return;
+      result = run_imul(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lmul:
-      throw new Error('Instruction lmul not implemented!');
-      return;
+      result = run_lmul(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fmul:
-      throw new Error('Instruction fmul not implemented!');
-      return;
+      result = run_fmul(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dmul:
-      throw new Error('Instruction dmul not implemented!');
-      return;
+      result = run_dmul(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.idiv:
-      throw new Error('Instruction idiv not implemented!');
-      return;
+      result = run_idiv(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ldiv:
-      throw new Error('Instruction ldiv not implemented!');
-      return;
+      result = run_ldiv(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fdiv:
-      throw new Error('Instruction fdiv not implemented!');
-      return;
+      result = run_fdiv(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ddiv:
-      throw new Error('Instruction ddiv not implemented!');
-      return;
+      result = run_ddiv(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.irem:
-      throw new Error('Instruction irem not implemented!');
-      return;
+      result = run_irem(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lrem:
-      throw new Error('Instruction lrem not implemented!');
-      return;
+      result = run_lrem(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.frem:
-      throw new Error('Instruction frem not implemented!');
-      return;
+      result = run_frem(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.drem:
-      throw new Error('Instruction drem not implemented!');
-      return;
+      result = run_drem(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ineg:
-      throw new Error('Instruction ineg not implemented!');
-      return;
+      result = run_ineg(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lneg:
-      throw new Error('Instruction lneg not implemented!');
-      return;
+      result = run_lneg(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fneg:
-      throw new Error('Instruction fneg not implemented!');
-      return;
+      result = run_fneg(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dneg:
-      throw new Error('Instruction dneg not implemented!');
-      return;
+      result = run_dneg(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ishl:
-      throw new Error('Instruction ishl not implemented!');
-      return;
+      result = run_ishl(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lshl:
-      throw new Error('Instruction lshl not implemented!');
-      return;
+      result = run_lshl(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ishr:
-      throw new Error('Instruction ishr not implemented!');
-      return;
+      result = run_ishr(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lshr:
-      throw new Error('Instruction lshr not implemented!');
-      return;
+      result = run_lshr(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iushr:
-      throw new Error('Instruction iushr not implemented!');
-      return;
+      result = run_iushr(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lushr:
-      throw new Error('Instruction lushr not implemented!');
-      return;
+      result = run_lushr(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iand:
-      throw new Error('Instruction iand not implemented!');
-      return;
+      result = run_iand(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.land:
-      throw new Error('Instruction land not implemented!');
-      return;
+      result = run_land(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ior:
-      throw new Error('Instruction ior not implemented!');
-      return;
+      result = run_ior(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lor:
-      throw new Error('Instruction lor not implemented!');
-      return;
+      result = run_lor(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ixor:
-      throw new Error('Instruction ixor not implemented!');
-      return;
+      result = run_ixor(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lxor:
-      throw new Error('Instruction lxor not implemented!');
-      return;
+      result = run_lxor(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iinc:
-      throw new Error('Instruction iinc not implemented!');
-      return;
+      result = run_iinc(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.i2l:
-      throw new Error('Instruction i2l not implemented!');
-      return;
+      result = run_i2l(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.i2f:
-      throw new Error('Instruction i2f not implemented!');
-      return;
+      result = run_i2f(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.i2d:
-      throw new Error('Instruction i2d not implemented!');
-      return;
+      result = run_i2d(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.l2i:
-      throw new Error('Instruction l2i not implemented!');
-      return;
+      result = run_l2i(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.l2f:
-      throw new Error('Instruction l2f not implemented!');
-      return;
+      result = run_l2f(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.l2d:
-      throw new Error('Instruction l2d not implemented!');
-      return;
+      result = run_l2d(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.f2i:
-      throw new Error('Instruction f2i not implemented!');
-      return;
+      result = run_f2i(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.f2l:
-      throw new Error('Instruction f2l not implemented!');
-      return;
+      result = run_f2l(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.f2d:
-      throw new Error('Instruction f2d not implemented!');
-      return;
+      result = run_f2d(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.d2i:
-      throw new Error('Instruction d2i not implemented!');
-      return;
+      result = run_d2i(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.d2l:
-      throw new Error('Instruction d2l not implemented!');
-      return;
+      result = run_d2l(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.d2f:
-      throw new Error('Instruction d2f not implemented!');
-      return;
+      result = run_d2f(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.i2b:
-      throw new Error('Instruction i2b not implemented!');
-      return;
+      result = run_i2b(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.i2c:
-      throw new Error('Instruction i2c not implemented!');
-      return;
+      result = run_i2c(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.i2s:
-      throw new Error('Instruction i2s not implemented!');
-      return;
+      result = run_i2s(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lcmp:
-      throw new Error('Instruction lcmp not implemented!');
-      return;
+      result = run_lcmp(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fcmpl:
-      throw new Error('Instruction fcmpl not implemented!');
-      return;
+      result = run_fcmpl(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.fcmpg:
-      throw new Error('Instruction fcmpg not implemented!');
-      return;
+      result = run_fcmpg(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dcmpl:
-      throw new Error('Instruction dcmpl not implemented!');
-      return;
+      result = run_dcmpl(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dcmpg:
-      throw new Error('Instruction dcmpg not implemented!');
-      return;
+      result = run_dcmpg(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ifeq:
-      throw new Error('Instruction ifeq not implemented!');
-      return;
+      result = run_ifeq(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ifne:
-      throw new Error('Instruction ifne not implemented!');
-      return;
+      result = run_ifne(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.iflt:
-      throw new Error('Instruction iflt not implemented!');
-      return;
+      result = run_iflt(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ifge:
-      throw new Error('Instruction ifge not implemented!');
-      return;
+      result = run_ifge(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ifgt:
-      throw new Error('Instruction ifgt not implemented!');
-      return;
+      result = run_ifgt(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ifle:
-      throw new Error('Instruction ifle not implemented!');
-      return;
+      result = run_ifle(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_icmpeq:
-      throw new Error('Instruction if_icmpeq not implemented!');
-      return;
+      result = run_if_icmpeq(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_icmpne:
-      throw new Error('Instruction if_icmpne not implemented!');
-      return;
+      result = run_if_icmpne(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_icmplt:
-      throw new Error('Instruction if_icmplt not implemented!');
-      return;
+      result = run_if_icmplt(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_icmpge:
-      throw new Error('Instruction if_icmpge not implemented!');
-      return;
+      result = run_if_icmpge(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_icmpgt:
-      throw new Error('Instruction if_icmpgt not implemented!');
-      return;
+      result = run_if_icmpgt(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_icmple:
-      throw new Error('Instruction if_icmple not implemented!');
-      return;
+      result = run_if_icmple(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_acmpeq:
-      throw new Error('Instruction if_acmpeq not implemented!');
-      return;
+      result = run_if_acmpeq(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.if_acmpne:
-      throw new Error('Instruction if_acmpne not implemented!');
-      return;
+      result = run_if_acmpne(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.goto:
-      throw new Error('Instruction goto not implemented!');
-      return;
+      result = run_goto(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.jsr:
-      throw new Error('Instruction jsr not implemented!');
-      return;
+      result = run_jsr(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ret:
-      throw new Error('Instruction ret not implemented!');
-      return;
+      result = run_ret(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.tableswitch:
-      throw new Error('Instruction tableswitch not implemented!');
-      return;
+      result = run_tableswitch(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lookupswitch:
-      throw new Error('Instruction lookupswitch not implemented!');
-      return;
+      result = run_lookupswitch(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ireturn:
-      throw new Error('Instruction ireturn not implemented!');
-      return;
+      result = run_ireturn(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.lreturn:
-      throw new Error('Instruction lreturn not implemented!');
-      return;
+      result = run_lreturn(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.freturn:
-      throw new Error('Instruction freturn not implemented!');
-      return;
+      result = run_freturn(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.dreturn:
-      throw new Error('Instruction dreturn not implemented!');
-      return;
+      result = run_dreturn(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.areturn:
-      throw new Error('Instruction areturn not implemented!');
-      return;
+      result = run_areturn(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.return:
-      throw new Error('Instruction return not implemented!');
-      return;
+      result = run_return(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.getstatic:
-      throw new Error('Instruction getstatic not implemented!');
-      return;
+      result = run_getstatic(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.putstatic:
-      throw new Error('Instruction putstatic not implemented!');
-      return;
+      result = run_putstatic(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.getfield:
-      throw new Error('Instruction getfield not implemented!');
-      return;
+      result = run_getfield(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.putfield:
-      throw new Error('Instruction putfield not implemented!');
-      return;
+      result = run_putfield(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.invokevirtual:
-      throw new Error('Instruction invokevirtual not implemented!');
-      return;
+      result = run_invokevirtual(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.invokespecial:
-      throw new Error('Instruction invokespecial not implemented!');
-      return;
+      result = run_invokespecial(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.invokestatic:
-      throw new Error('Instruction invokestatic not implemented!');
-      return;
+      result = run_invokestatic(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.invokeinterface:
-      throw new Error('Instruction invokeinterface not implemented!');
-      return;
+      result = run_invokeinterface(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.invokedynamic:
-      throw new Error('Instruction invokedynamic not implemented!');
-      return;
+      result = run_invokedynamic(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.new:
-      throw new Error('Instruction new not implemented!');
-      return;
+      result = run_new(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.newarray:
-      throw new Error('Instruction newarray not implemented!');
-      return;
+      result = run_newarray(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.anewarray:
-      throw new Error('Instruction anewarray not implemented!');
-      return;
+      result = run_anewarray(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.arraylength:
-      throw new Error('Instruction arraylength not implemented!');
-      return;
+      result = run_arraylength(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.athrow:
-      throw new Error('Instruction athrow not implemented!');
-      return;
+      result = run_athrow(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.checkcast:
-      throw new Error('Instruction checkcast not implemented!');
-      return;
+      result = run_checkcast(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.instanceof:
-      throw new Error('Instruction instanceof not implemented!');
-      return;
+      result = run_instanceof(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.monitorenter:
-      throw new Error('Instruction monitorenter not implemented!');
-      return;
+      result = run_monitorenter(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.monitorexit:
-      throw new Error('Instruction monitorexit not implemented!');
-      return;
+      result = run_monitorexit(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.wide:
-      throw new Error('Instruction wide not implemented!');
-      return;
+      result = run_wide(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.multianewarray:
-      throw new Error('Instruction multianewarray not implemented!');
-      return;
+      result = run_multianewarray(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ifnull:
-      throw new Error('Instruction ifnull not implemented!');
-      return;
+      result = run_ifnull(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.ifnonnull:
-      throw new Error('Instruction ifnonnull not implemented!');
-      return;
+      result = run_ifnonnull(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.goto_w:
-      throw new Error('Instruction goto_w not implemented!');
-      return;
+      result = run_goto_w(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.jsr_w:
-      throw new Error('Instruction jsr_w not implemented!');
-      return;
+      result = run_jsr_w(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.breakpoint:
-      throw new Error('Instruction breakpoint not implemented!');
-      return;
+      result = run_breakpoint(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.impdep1:
-      throw new Error('Instruction impdep1 not implemented!');
-      return;
+      result = run_impdep1(thread, memoryArea, instruction);
+      break;
     case INSTRUCTION_SET.impdep2:
-      throw new Error('Instruction impdep2 not implemented!');
-      return;
+      result = run_impdep2(thread, memoryArea, instruction);
+      break;
     default:
       throw new Error('runInstruction: Unknown opcode received!');
   }
+
+  thread.peekStackFrame().pc += 1;
+
+  return result;
+}
+
+function run_nop(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  return;
+}
+
+function run_aconst_null(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iconst_m1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iconst_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iconst_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iconst_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iconst_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iconst_4(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iconst_5(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lconst_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lconst_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fconst_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fconst_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fconst_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dconst_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dconst_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_bipush(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.pushStack(instruction.operands[0]);
+}
+
+function run_sipush(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ldc(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ldc_w(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ldc2_w(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_aload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iload_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.pushStack(thread.loadLocal(0));
+}
+
+function run_iload_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.pushStack(thread.loadLocal(1));
+}
+
+function run_iload_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.pushStack(thread.loadLocal(2));
+}
+
+function run_iload_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.pushStack(thread.loadLocal(3));
+}
+
+function run_lload_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lload_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lload_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lload_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fload_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fload_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fload_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fload_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dload_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dload_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dload_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dload_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_aload_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_aload_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_aload_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_aload_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iaload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_laload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_faload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_daload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_aaload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_baload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_caload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_saload(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_istore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lstore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fstore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dstore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_astore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_istore_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.storeLocal(0, thread.popStack());
+}
+
+function run_istore_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.storeLocal(1, thread.popStack());
+}
+
+function run_istore_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.storeLocal(2, thread.popStack());
+}
+
+function run_istore_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  thread.storeLocal(3, thread.popStack());
+}
+
+function run_lstore_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lstore_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lstore_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lstore_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fstore_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fstore_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fstore_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fstore_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dstore_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dstore_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dstore_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dstore_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_astore_0(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_astore_1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_astore_2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_astore_3(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iastore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lastore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fastore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dastore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_aastore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_bastore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_castore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_sastore(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_pop(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_pop2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dup(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dup_x1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dup_x2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dup2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dup2_x1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dup2_x2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_swap(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iadd(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ladd(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fadd(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dadd(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_isub(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lsub(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fsub(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dsub(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_imul(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lmul(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fmul(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dmul(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_idiv(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ldiv(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fdiv(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ddiv(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_irem(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lrem(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_frem(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_drem(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ineg(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lneg(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fneg(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dneg(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ishl(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lshl(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ishr(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lshr(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iushr(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lushr(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iand(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_land(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ior(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lor(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ixor(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lxor(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iinc(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_i2l(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_i2f(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_i2d(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_l2i(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_l2f(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_l2d(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_f2i(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_f2l(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_f2d(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_d2i(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_d2l(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_d2f(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_i2b(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_i2c(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_i2s(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lcmp(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fcmpl(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_fcmpg(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dcmpl(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dcmpg(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ifeq(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ifne(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_iflt(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ifge(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ifgt(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ifle(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_icmpeq(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_icmpne(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_icmplt(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_icmpge(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_icmpgt(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_icmple(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_acmpeq(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_if_acmpne(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_goto(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_jsr(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ret(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_tableswitch(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lookupswitch(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ireturn(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_lreturn(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_freturn(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_dreturn(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_areturn(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_return(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_getstatic(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_putstatic(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_getfield(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_putfield(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_invokevirtual(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_invokespecial(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_invokestatic(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_invokeinterface(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_invokedynamic(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_new(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_newarray(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_anewarray(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_arraylength(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_athrow(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_checkcast(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_instanceof(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_monitorenter(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_monitorexit(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_wide(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_multianewarray(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ifnull(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_ifnonnull(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_goto_w(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_jsr_w(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_breakpoint(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_impdep1(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
+}
+
+function run_impdep2(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  throw new Error('runInstruction: Not implemented');
 }

@@ -3,3 +3,13 @@ export interface InstructionPointer {
   methodName: string;
   pc: number;
 }
+
+export interface StackFrame {
+  operandStack: any[];
+  className: string;
+  methodName: string;
+  pc: number;
+  this: any;
+  arguments: any[];
+  locals: any[];
+}
