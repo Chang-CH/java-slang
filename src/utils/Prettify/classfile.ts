@@ -89,25 +89,27 @@ function resolveReferences(cls: any) {
   /**
    * Convert methods to string
    */
-  result.methods = cls.methods.map((method: any, index: number) => {
-    // @ts-ignore
-    const methodname = cls.constant_pool[method.name_index].value;
-    // @ts-ignore
-    const descriptor = cls.constant_pool[method.descriptor_index].value;
-    const attributes = method.attributes.map((attribute: any) => {
-      return attribute.code.map(
-        (code: InstructionType) =>
-          `${INSTRUCTION_SET[code.opcode]}    ${code.operands.join(', ')}`
-      );
-    });
-    const flags = method.method_flags;
-    return {
-      flags,
-      methodname,
-      descriptor,
-      attributes,
-    };
-  });
+  result.methods = Object.entries(cls.methods).map(
+    ([name, method], index: number) => {
+      // @ts-ignore
+      const methodname = cls.constant_pool[method.name_index].value;
+      // @ts-ignore
+      const descriptor = cls.constant_pool[method.descriptor_index].value;
+      const attributes = method.attributes.map((attribute: any) => {
+        return attribute.code.map(
+          (code: InstructionType) =>
+            `${INSTRUCTION_SET[code.opcode]}    ${code.operands.join(', ')}`
+        );
+      });
+      const flags = method.method_flags;
+      return {
+        flags,
+        methodname,
+        descriptor,
+        attributes,
+      };
+    }
+  );
 
   result.constant_pool = textConstantPool;
 

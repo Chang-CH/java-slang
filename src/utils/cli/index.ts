@@ -2,7 +2,8 @@
 
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 import MemoryArea from '#jvm/components/MemoryArea';
-import OsInterface from '#utils/OsInterface';
+import JVM from '#jvm/index';
+import OsInterface, { Folder } from '#utils/OsInterface';
 import { classFileToText } from '#utils/Prettify/classfile';
 import * as fs from 'node:fs';
 import yargs from 'yargs';
@@ -29,7 +30,7 @@ export default function main() {
     .usage('$0 <cmd> [args]')
     .option('-f', {
       alias: 'files',
-      describe: 'jsjvm-cli files to include',
+      describe: 'files to include',
       type: 'array',
       demandOption: true,
     })
@@ -41,6 +42,8 @@ export default function main() {
     })
     .help()
     .parseSync();
+
+  const folders: Folder = {};
 
   for (const fileName of options['-f']) {
     if (typeof options === 'number') {
@@ -63,7 +66,13 @@ export default function main() {
       const cls = bscl.readClass(view);
       console.log(classFileToText(cls));
     }
+    folders[fileName] = view;
   }
+
+  const os = new OsInterface(folders);
+  const jvm = new JVM(os);
+  // @ts-ignore
+  jvm.runClass(options['-f'][0]);
 }
 
 main();

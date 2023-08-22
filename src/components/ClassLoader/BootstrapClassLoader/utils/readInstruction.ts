@@ -1,6 +1,8 @@
 import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
 import { InstructionType } from '#types/ClassFile/instructions';
 
+// TODO: read operands as actual values, e.g. bipush as Int8 instead of Uint8
+
 export function readInstruction(
   view: DataView,
   offset: number
@@ -589,7 +591,7 @@ function readbipush(
   view: DataView,
   offset: number
 ): { result: InstructionType; offset: number } {
-  const byte = view.getUint8(offset);
+  const byte = view.getInt8(offset);
   offset += 1;
 
   return {

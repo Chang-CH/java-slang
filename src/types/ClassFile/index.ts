@@ -17,7 +17,9 @@ export interface ClassFile {
   fields_count: number;
   fields: Array<FieldType>;
   methods_count: number;
-  methods: Array<MethodType>;
+  methods: {
+    [methodName: string]: MethodType;
+  };
   attributes_count: number;
   attributes: Array<AttributeType>;
 }

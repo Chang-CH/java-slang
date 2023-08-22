@@ -1,4 +1,4 @@
-import { AttributeType } from './attributes';
+import { AttributeCode, AttributeType } from './attributes';
 
 export interface MethodType {
   access_flags: number;
@@ -6,6 +6,7 @@ export interface MethodType {
   descriptor_index: number;
   attributes_count: number;
   attributes: Array<AttributeType>;
+  code: AttributeCode;
 }
 
 export enum METHOD_FLAGS {

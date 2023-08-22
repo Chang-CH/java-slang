@@ -6,7 +6,7 @@ import OsInterface from '#utils/OsInterface';
 import { readAttribute } from './utils/readAttributes';
 import { readConstant } from './utils/readConstants';
 import { readField } from './utils/readField';
-import { readMethod } from './utils/readMethod';
+import { getMethodName, readMethod } from './utils/readMethod';
 
 /**
  * Reads classfile as byte array and loads it into memory area
@@ -43,7 +43,7 @@ export default class BootstrapClassLoader {
       fields_count: 0,
       fields: [],
       methods_count: 0,
-      methods: [],
+      methods: {},
       attributes_count: 0,
       attributes: [],
     };
@@ -107,14 +107,15 @@ export default class BootstrapClassLoader {
     cls.methods_count = view.getUint16(offset);
     offset += 2;
 
-    cls.methods = [];
+    cls.methods = {};
     for (let i = 0; i < cls.methods_count; i += 1) {
       const { result, offset: resultOffset } = readMethod(
         cls.constant_pool,
         view,
         offset
       );
-      cls.methods.push(result);
+
+      cls.methods[getMethodName(result, cls.constant_pool)] = result;
       offset = resultOffset;
     }
 
@@ -162,19 +163,29 @@ export default class BootstrapClassLoader {
    */
   loadClass(cls: ClassFile): void {
     console.error('BootstrapClassLoader.loadClass: not implemented.');
-    this.memoryArea.loadClass('temp', cls);
+    this.memoryArea.loadClass(this.getClassName(cls), cls);
+  }
+
+  getClassName(cls: ClassFile): string {
+    // @ts-ignore
+    return (
+      // @ts-ignore
+      cls.constant_pool[cls.constant_pool[cls.this_class].name_index].value
+    );
   }
 
   /**
    * Attempts to load a class file
    * @param className name of class to load
    */
-  load(className: string): void {
+  load(className: string, onFinish?: (data: ClassFile) => void): void {
     // TODO: verify jvm loading path etc.
     const classFile = this.os.readFile([className]); //FIXME: use classpath instead.
     let data = this.readClass(classFile);
     this.prepareClass(data);
     data = this.linkClass(data);
     this.loadClass(data);
+
+    onFinish && onFinish(data);
   }
 }
