@@ -1,7 +1,7 @@
 package InvokeStatic;
 
 public class InvokeStatic {
-    private static int addNumbers(int a, int b) {
+    static int addNumbers(int a, int b) {
         return a + b;
     }
 
