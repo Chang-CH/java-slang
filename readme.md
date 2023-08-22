@@ -3,5 +3,5 @@
 Dev:
 
 ```sh
-npm run start -- -- -f Sample/Sample.class
+npm run dev
 ```
