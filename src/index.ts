@@ -20,6 +20,18 @@ export default class JVM {
   }
 
   runClass(filepath: string) {
-    console.warn('JVM.runClass not implemented.');
+    // TODO: check JVM status initialized
+    // convert args to Java String[]
+
+    // FIXME: should use system class loader instead.
+    // should class loader be called by memory area on class not found?
+    this.bootstrapClassLoader.load(filepath, cls => {
+      // @ts-ignore maybe we can check this in prepare step of classloader
+      const nameIndex = cls.constant_pool[cls.this_class].name_index;
+      // @ts-ignore
+      const className = cls.constant_pool[nameIndex].value;
+
+      this.engine.runClass(className);
+    });
   }
 }

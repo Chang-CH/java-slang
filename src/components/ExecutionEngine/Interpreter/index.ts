@@ -1,3 +1,4 @@
+import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
 import MemoryArea from '#jvm/components/MemoryArea';
 import NativeThread from '../NativeThreadGroup/NativeThread';
 import runInstruction from './utils/runInstruction';
@@ -12,11 +13,25 @@ export default class Interpreter {
     this.memoryArea = memoryArea;
   }
 
-  runFor(thread: NativeThread, instructions: number) {
+  runFor(thread: NativeThread, instructions: number, onFinish?: () => void) {
     // TODO: handle exceptions
     const current = thread.getCurrentInstruction();
     const instruction = this.memoryArea.getInstructionAt(current);
     runInstruction(thread, this.memoryArea, instruction);
-    instructions > 0 && this.runFor(thread, instructions - 1);
+
+    console.log(
+      `run ${INSTRUCTION_SET[instruction.opcode]}(${instruction.operands.join(
+        ', '
+      )}): stack: ${thread.stack[thread.stackPointer].operandStack.join(
+        '|'
+      )} , locals: ${thread.stack[thread.stackPointer].locals.join('|')}`
+    );
+
+    if (instructions <= 0) {
+      onFinish && onFinish();
+      return;
+    }
+
+    this.runFor(thread, instructions - 1, onFinish);
   }
 }

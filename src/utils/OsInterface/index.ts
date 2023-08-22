@@ -13,6 +13,17 @@ export default class OsInterface {
   }
 
   readFile(path: string[]): DataView {
-    throw new Error('OsInterface: Not implemented');
+    let currentFolder: Folder | DataView = this.files;
+    for (const folderName of path) {
+      console.log(currentFolder);
+      // @ts-ignore
+      if (!currentFolder[folderName]) {
+        throw new Error(`File not found: ${path.join('/')}`);
+      }
+      // @ts-ignore
+      currentFolder = currentFolder[folderName];
+    }
+    // @ts-ignore
+    return currentFolder;
   }
 }
