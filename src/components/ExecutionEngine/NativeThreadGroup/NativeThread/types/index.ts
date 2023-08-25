@@ -1,3 +1,5 @@
+import { JavaPrimitive } from '#types/DataTypes';
+
 export interface InstructionPointer {
   className: string;
   methodName: string;
@@ -5,11 +7,11 @@ export interface InstructionPointer {
 }
 
 export interface StackFrame {
-  operandStack: any[];
+  operandStack: JavaPrimitive[];
   className: string;
   methodName: string;
   pc: number;
   this: any;
-  arguments: any[];
-  locals: any[];
+  arguments: JavaPrimitive[];
+  locals: JavaPrimitive[];
 }

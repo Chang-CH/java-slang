@@ -25,8 +25,17 @@ export default class MemoryArea {
     return method.code.code[pointer.pc];
   }
 
+  getConstant(className: string, constantIndex: number): any {
+    return this.methodArea[className].constant_pool[constantIndex];
+  }
+
   loadClass(className: string, cls: ClassFile): void {
     this.methodArea[className] = cls;
     return;
+  }
+
+  // TODO: type pointer
+  getReferenceAt(pointer: any) {
+    return this.heap[pointer];
   }
 }

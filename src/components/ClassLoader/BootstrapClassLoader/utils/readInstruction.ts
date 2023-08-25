@@ -604,7 +604,7 @@ function readsipush(
   view: DataView,
   offset: number
 ): { result: InstructionType; offset: number } {
-  const value = view.getUint16(offset);
+  const value = view.getInt16(offset);
   offset += 2;
 
   return {

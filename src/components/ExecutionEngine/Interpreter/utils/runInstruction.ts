@@ -1,6 +1,15 @@
 import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
+import {
+  MAX_BYTE,
+  MAX_INT,
+  MAX_LONG,
+  MIN_BYTE,
+  MIN_INT,
+  MIN_LONG,
+} from '#constants/DataType';
 import MemoryArea from '#jvm/components/MemoryArea';
 import { InstructionType } from '#types/ClassFile/instructions';
+import { JavaPrimitive, JavaType } from '#types/DataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export default function runInstruction(
@@ -647,7 +656,10 @@ function run_aconst_null(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: null,
+    type: JavaType.reference,
+  });
 }
 
 function run_iconst_m1(
@@ -655,7 +667,10 @@ function run_iconst_m1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: -1,
+    type: JavaType.int,
+  });
 }
 
 function run_iconst_0(
@@ -663,7 +678,10 @@ function run_iconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 0,
+    type: JavaType.int,
+  });
 }
 
 function run_iconst_1(
@@ -671,7 +689,10 @@ function run_iconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 1,
+    type: JavaType.int,
+  });
 }
 
 function run_iconst_2(
@@ -679,7 +700,10 @@ function run_iconst_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 2,
+    type: JavaType.int,
+  });
 }
 
 function run_iconst_3(
@@ -687,7 +711,10 @@ function run_iconst_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 3,
+    type: JavaType.int,
+  });
 }
 
 function run_iconst_4(
@@ -695,7 +722,10 @@ function run_iconst_4(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 4,
+    type: JavaType.int,
+  });
 }
 
 function run_iconst_5(
@@ -703,7 +733,10 @@ function run_iconst_5(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 5,
+    type: JavaType.int,
+  });
 }
 
 function run_lconst_0(
@@ -711,7 +744,10 @@ function run_lconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 0n,
+    type: JavaType.long,
+  });
 }
 
 function run_lconst_1(
@@ -719,7 +755,10 @@ function run_lconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 1n,
+    type: JavaType.long,
+  });
 }
 
 function run_fconst_0(
@@ -727,7 +766,10 @@ function run_fconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 0.0,
+    type: JavaType.float,
+  });
 }
 
 function run_fconst_1(
@@ -735,7 +777,10 @@ function run_fconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 1.0,
+    type: JavaType.float,
+  });
 }
 
 function run_fconst_2(
@@ -743,7 +788,10 @@ function run_fconst_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 2.0,
+    type: JavaType.float,
+  });
 }
 
 function run_dconst_0(
@@ -751,7 +799,10 @@ function run_dconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 0.0,
+    type: JavaType.double,
+  });
 }
 
 function run_dconst_1(
@@ -759,7 +810,10 @@ function run_dconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    value: 1.0,
+    type: JavaType.double,
+  });
 }
 
 function run_bipush(
@@ -767,7 +821,7 @@ function run_bipush(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(instruction.operands[0]);
+  thread.pushStack({ value: instruction.operands[0], type: JavaType.int });
 }
 
 function run_sipush(
@@ -775,7 +829,7 @@ function run_sipush(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ value: instruction.operands[0], type: JavaType.int });
 }
 
 function run_ldc(
@@ -783,7 +837,10 @@ function run_ldc(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  console.warn('ldc: class/method reference resolution not implemented');
+  thread.pushStack({
+    ...memoryArea.getConstant(thread.getClassName(), instruction.operands[0]),
+  });
 }
 
 function run_ldc_w(
@@ -791,7 +848,10 @@ function run_ldc_w(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  console.warn('ldc_w: class/method reference resolution not implemented');
+  thread.pushStack({
+    ...memoryArea.getConstant(thread.getClassName(), instruction.operands[0]),
+  });
 }
 
 function run_ldc2_w(
@@ -799,7 +859,9 @@ function run_ldc2_w(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({
+    ...memoryArea.getConstant(thread.getClassName(), instruction.operands[0]),
+  });
 }
 
 function run_iload(
@@ -807,7 +869,7 @@ function run_iload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(instruction.operands[0]) });
 }
 
 function run_lload(
@@ -815,7 +877,7 @@ function run_lload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(instruction.operands[0]) });
 }
 
 function run_fload(
@@ -823,7 +885,7 @@ function run_fload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(instruction.operands[0]) });
 }
 
 function run_dload(
@@ -831,7 +893,7 @@ function run_dload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(instruction.operands[0]) });
 }
 
 function run_aload(
@@ -839,7 +901,7 @@ function run_aload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(instruction.operands[0]) });
 }
 
 function run_iload_0(
@@ -847,7 +909,7 @@ function run_iload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(0));
+  thread.pushStack({ ...thread.loadLocal(0) });
 }
 
 function run_iload_1(
@@ -855,7 +917,7 @@ function run_iload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(1));
+  thread.pushStack({ ...thread.loadLocal(1) });
 }
 
 function run_iload_2(
@@ -863,7 +925,7 @@ function run_iload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(2));
+  thread.pushStack({ ...thread.loadLocal(2) });
 }
 
 function run_iload_3(
@@ -871,7 +933,7 @@ function run_iload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(3));
+  thread.pushStack({ ...thread.loadLocal(3) });
 }
 
 function run_lload_0(
@@ -879,7 +941,7 @@ function run_lload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(0) });
 }
 
 function run_lload_1(
@@ -887,7 +949,7 @@ function run_lload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(1) });
 }
 
 function run_lload_2(
@@ -895,7 +957,7 @@ function run_lload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(2) });
 }
 
 function run_lload_3(
@@ -903,7 +965,7 @@ function run_lload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(3) });
 }
 
 function run_fload_0(
@@ -911,7 +973,7 @@ function run_fload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(0) });
 }
 
 function run_fload_1(
@@ -919,7 +981,7 @@ function run_fload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(1) });
 }
 
 function run_fload_2(
@@ -927,7 +989,7 @@ function run_fload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(2) });
 }
 
 function run_fload_3(
@@ -935,7 +997,7 @@ function run_fload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(3) });
 }
 
 function run_dload_0(
@@ -943,7 +1005,7 @@ function run_dload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(0) });
 }
 
 function run_dload_1(
@@ -951,7 +1013,7 @@ function run_dload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(1) });
 }
 
 function run_dload_2(
@@ -959,7 +1021,7 @@ function run_dload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(2) });
 }
 
 function run_dload_3(
@@ -967,7 +1029,7 @@ function run_dload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(3) });
 }
 
 function run_aload_0(
@@ -975,7 +1037,7 @@ function run_aload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(0) });
 }
 
 function run_aload_1(
@@ -983,7 +1045,7 @@ function run_aload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(1) });
 }
 
 function run_aload_2(
@@ -991,7 +1053,7 @@ function run_aload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(2) });
 }
 
 function run_aload_3(
@@ -999,7 +1061,7 @@ function run_aload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack({ ...thread.loadLocal(3) });
 }
 
 function run_iaload(
@@ -1007,7 +1069,14 @@ function run_iaload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('iaload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_laload(
@@ -1015,7 +1084,14 @@ function run_laload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('laload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_faload(
@@ -1023,7 +1099,14 @@ function run_faload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('faload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_daload(
@@ -1031,7 +1114,14 @@ function run_daload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('daload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_aaload(
@@ -1039,7 +1129,14 @@ function run_aaload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('aaload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_baload(
@@ -1047,7 +1144,14 @@ function run_baload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('baload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_caload(
@@ -1055,7 +1159,14 @@ function run_caload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('caload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_saload(
@@ -1063,7 +1174,14 @@ function run_saload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index: JavaPrimitive = thread.popStack();
+  const arrayref: JavaPrimitive = thread.popStack();
+  // TODO: throw NullPointerException if arrayref is null
+  // TODO: throw ArrayIndexOutOfBoundsException if OOB
+  console.warn('saload: exceptions possibly not thrown');
+  thread.pushStack({
+    ...memoryArea.getReferenceAt(arrayref.value)[index.value],
+  });
 }
 
 function run_istore(
@@ -1071,7 +1189,7 @@ function run_istore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(instruction.operands[0], thread.popStack());
 }
 
 function run_lstore(
@@ -1079,7 +1197,7 @@ function run_lstore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(instruction.operands[0], thread.popStack());
 }
 
 function run_fstore(
@@ -1087,7 +1205,7 @@ function run_fstore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(instruction.operands[0], thread.popStack());
 }
 
 function run_dstore(
@@ -1095,7 +1213,7 @@ function run_dstore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(instruction.operands[0], thread.popStack());
 }
 
 function run_astore(
@@ -1103,7 +1221,7 @@ function run_astore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(instruction.operands[0], thread.popStack());
 }
 
 function run_istore_0(
@@ -1143,7 +1261,7 @@ function run_lstore_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(0, thread.popStack());
 }
 
 function run_lstore_1(
@@ -1151,7 +1269,7 @@ function run_lstore_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(1, thread.popStack());
 }
 
 function run_lstore_2(
@@ -1159,7 +1277,7 @@ function run_lstore_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(2, thread.popStack());
 }
 
 function run_lstore_3(
@@ -1167,7 +1285,7 @@ function run_lstore_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(3, thread.popStack());
 }
 
 function run_fstore_0(
@@ -1175,7 +1293,7 @@ function run_fstore_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(0, thread.popStack());
 }
 
 function run_fstore_1(
@@ -1183,7 +1301,7 @@ function run_fstore_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(1, thread.popStack());
 }
 
 function run_fstore_2(
@@ -1191,7 +1309,7 @@ function run_fstore_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(2, thread.popStack());
 }
 
 function run_fstore_3(
@@ -1199,7 +1317,7 @@ function run_fstore_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(3, thread.popStack());
 }
 
 function run_dstore_0(
@@ -1207,7 +1325,7 @@ function run_dstore_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(0, thread.popStack());
 }
 
 function run_dstore_1(
@@ -1215,7 +1333,7 @@ function run_dstore_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(1, thread.popStack());
 }
 
 function run_dstore_2(
@@ -1223,7 +1341,7 @@ function run_dstore_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(2, thread.popStack());
 }
 
 function run_dstore_3(
@@ -1231,7 +1349,7 @@ function run_dstore_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(3, thread.popStack());
 }
 
 function run_astore_0(
@@ -1239,7 +1357,7 @@ function run_astore_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(0, thread.popStack());
 }
 
 function run_astore_1(
@@ -1247,7 +1365,7 @@ function run_astore_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(1, thread.popStack());
 }
 
 function run_astore_2(
@@ -1255,7 +1373,7 @@ function run_astore_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(2, thread.popStack());
 }
 
 function run_astore_3(
@@ -1263,7 +1381,7 @@ function run_astore_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.storeLocal(3, thread.popStack());
 }
 
 function run_iastore(
@@ -1271,7 +1389,11 @@ function run_iastore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('iastore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_lastore(
@@ -1279,7 +1401,11 @@ function run_lastore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('lastore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_fastore(
@@ -1287,7 +1413,11 @@ function run_fastore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('fastore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_dastore(
@@ -1295,7 +1425,11 @@ function run_dastore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('dastore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_aastore(
@@ -1303,7 +1437,11 @@ function run_aastore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('aastore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_bastore(
@@ -1311,7 +1449,11 @@ function run_bastore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('bastore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_castore(
@@ -1319,7 +1461,11 @@ function run_castore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('castore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_sastore(
@@ -1327,7 +1473,11 @@ function run_sastore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  const index = thread.popStack();
+  const arrayref = thread.popStack();
+  console.warn('sastore: exceptions possibly not thrown');
+  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
 }
 
 function run_pop(
@@ -1335,7 +1485,7 @@ function run_pop(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.popStack();
 }
 
 function run_pop2(
@@ -1343,7 +1493,10 @@ function run_pop2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type !== JavaType.long &&
+    value.type !== JavaType.double &&
+    thread.popStack();
 }
 
 function run_dup(
@@ -1351,7 +1504,9 @@ function run_dup(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  thread.pushStack(value);
+  thread.pushStack({ ...value });
 }
 
 function run_dup_x1(
@@ -1359,7 +1514,11 @@ function run_dup_x1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value1 = thread.popStack();
+  const value2 = thread.popStack();
+  thread.pushStack(value1);
+  thread.pushStack(value2);
+  thread.pushStack({ ...value1 });
 }
 
 function run_dup_x2(
@@ -1367,7 +1526,20 @@ function run_dup_x2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value1 = thread.popStack();
+  const value2 = thread.popStack();
+  if (value2.type === JavaType.long || value2.type === JavaType.double) {
+    thread.pushStack(value1);
+    thread.pushStack(value2);
+    thread.pushStack({ ...value1 });
+    return;
+  }
+
+  const value3 = thread.popStack();
+  thread.pushStack(value1);
+  thread.pushStack(value3);
+  thread.pushStack(value2);
+  thread.pushStack({ ...value1 });
 }
 
 function run_dup2(
@@ -1375,7 +1547,19 @@ function run_dup2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value1 = thread.popStack();
+
+  if (value1.type === JavaType.long || value1.type === JavaType.double) {
+    thread.pushStack(value1);
+    thread.pushStack({ ...value1 });
+    return;
+  }
+
+  const value2 = thread.popStack();
+  thread.pushStack(value2);
+  thread.pushStack(value1);
+  thread.pushStack({ ...value2 });
+  thread.pushStack({ ...value1 });
 }
 
 function run_dup2_x1(
@@ -1383,7 +1567,22 @@ function run_dup2_x1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value1 = thread.popStack();
+  const value2 = thread.popStack();
+
+  if (value1.type === JavaType.long || value1.type === JavaType.double) {
+    thread.pushStack(value1);
+    thread.pushStack(value2);
+    thread.pushStack({ ...value1 });
+    return;
+  }
+
+  const value3 = thread.popStack();
+  thread.pushStack(value2);
+  thread.pushStack(value1);
+  thread.pushStack(value3);
+  thread.pushStack({ ...value2 });
+  thread.pushStack({ ...value1 });
 }
 
 function run_dup2_x2(
@@ -1391,7 +1590,47 @@ function run_dup2_x2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value1 = thread.popStack();
+  const value2 = thread.popStack();
+
+  // Form 2 or 4
+  if (value1.type === JavaType.long || value1.type === JavaType.double) {
+    // Form 4
+    if (value2.type === JavaType.long || value2.type === JavaType.double) {
+      thread.pushStack(value1);
+      thread.pushStack(value2);
+      thread.pushStack({ ...value1 });
+      return;
+    }
+
+    // Form 2
+    const value3 = thread.popStack();
+    thread.pushStack(value1);
+    thread.pushStack(value3);
+    thread.pushStack(value2);
+    thread.pushStack({ ...value1 });
+    return;
+  }
+
+  const value3 = thread.popStack();
+  // Form 3
+  if (value3.type === JavaType.long || value3.type === JavaType.double) {
+    thread.pushStack(value2);
+    thread.pushStack(value1);
+    thread.pushStack(value3);
+    thread.pushStack({ ...value2 });
+    thread.pushStack({ ...value1 });
+    return;
+  }
+
+  // Form 4
+  const value4 = thread.popStack();
+  thread.pushStack(value2);
+  thread.pushStack(value1);
+  thread.pushStack(value4);
+  thread.pushStack(value3);
+  thread.pushStack({ ...value2 });
+  thread.pushStack({ ...value1 });
 }
 
 function run_swap(
@@ -1399,7 +1638,10 @@ function run_swap(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value1 = thread.popStack();
+  const value2 = thread.popStack();
+  thread.pushStack(value1);
+  thread.pushStack(value2);
 }
 
 function run_iadd(
@@ -1407,7 +1649,13 @@ function run_iadd(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value + value2.value) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_ladd(
@@ -1415,7 +1663,12 @@ function run_ladd(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1.value + value2.value),
+    type: JavaType.long,
+  });
 }
 
 function run_fadd(
@@ -1423,7 +1676,12 @@ function run_fadd(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: Math.fround(value1.value + value2.value),
+    type: JavaType.float,
+  });
 }
 
 function run_dadd(
@@ -1431,7 +1689,13 @@ function run_dadd(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  // JS numbers are IEEE754 doubles already
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: value1.value + value2.value,
+    type: JavaType.double,
+  });
 }
 
 function run_isub(
@@ -1439,7 +1703,13 @@ function run_isub(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value - value2.value) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lsub(
@@ -1447,7 +1717,12 @@ function run_lsub(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 - value2),
+    type: JavaType.long,
+  });
 }
 
 function run_fsub(
@@ -1455,7 +1730,12 @@ function run_fsub(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: Math.fround(value1.value - value2.value),
+    type: JavaType.float,
+  });
 }
 
 function run_dsub(
@@ -1463,7 +1743,12 @@ function run_dsub(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: value1.value - value2.value,
+    type: JavaType.double,
+  });
 }
 
 function run_imul(
@@ -1471,7 +1756,13 @@ function run_imul(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value * value2.value) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lmul(
@@ -1479,7 +1770,12 @@ function run_lmul(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 * value2),
+    type: JavaType.long,
+  });
 }
 
 function run_fmul(
@@ -1487,7 +1783,12 @@ function run_fmul(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: Math.fround(value1.value * value2.value),
+    type: JavaType.float,
+  });
 }
 
 function run_dmul(
@@ -1495,7 +1796,12 @@ function run_dmul(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: value1.value * value2.value,
+    type: JavaType.double,
+  });
 }
 
 function run_idiv(
@@ -1503,7 +1809,19 @@ function run_idiv(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1.value === MIN_INT && value2.value === -1) {
+    thread.pushStack(value1);
+    return;
+  }
+
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value / value2.value) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_ldiv(
@@ -1511,7 +1829,12 @@ function run_ldiv(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 / value2),
+    type: JavaType.long,
+  });
 }
 
 function run_fdiv(
@@ -1519,7 +1842,12 @@ function run_fdiv(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: Math.fround(value1.value / value2.value),
+    type: JavaType.float,
+  });
 }
 
 function run_ddiv(
@@ -1527,7 +1855,12 @@ function run_ddiv(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: value1.value / value2.value,
+    type: JavaType.double,
+  });
 }
 
 function run_irem(
@@ -1535,7 +1868,13 @@ function run_irem(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: value1.value % value2.value | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lrem(
@@ -1543,7 +1882,12 @@ function run_lrem(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 % value2),
+    type: JavaType.long,
+  });
 }
 
 function run_frem(
@@ -1551,7 +1895,12 @@ function run_frem(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: Math.fround(value1.value % value2.value),
+    type: JavaType.float,
+  });
 }
 
 function run_drem(
@@ -1559,7 +1908,12 @@ function run_drem(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    value: value1.value % value2.value,
+    type: JavaType.double,
+  });
 }
 
 function run_ineg(
@@ -1567,7 +1921,12 @@ function run_ineg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: -value.value | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lneg(
@@ -1575,7 +1934,11 @@ function run_lneg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, -value),
+    type: JavaType.long,
+  });
 }
 
 function run_fneg(
@@ -1583,7 +1946,11 @@ function run_fneg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  thread.pushStack({
+    value: Math.fround(value.value),
+    type: JavaType.float,
+  });
 }
 
 function run_dneg(
@@ -1591,7 +1958,11 @@ function run_dneg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  thread.pushStack({
+    value: -value.value,
+    type: JavaType.double,
+  });
 }
 
 function run_ishl(
@@ -1599,7 +1970,13 @@ function run_ishl(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value << (value2.value & 0x1f)) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lshl(
@@ -1607,7 +1984,12 @@ function run_lshl(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 << (value2 & 0x3fn)),
+    type: JavaType.long,
+  });
 }
 
 function run_ishr(
@@ -1615,7 +1997,13 @@ function run_ishr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value >> (value2.value & 0x1f)) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lshr(
@@ -1623,7 +2011,12 @@ function run_lshr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: number = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 >> BigInt(value2 & 0x3f)),
+    type: JavaType.long,
+  });
 }
 
 function run_iushr(
@@ -1631,7 +2024,21 @@ function run_iushr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: number = thread.popStack().value & 0x3f;
+  const value1: number = thread.popStack().value;
+
+  if (value1 >= 0) {
+    thread.pushStack({
+      value: (value1 >> value2) | 0,
+      type: JavaType.long,
+    });
+    return;
+  }
+
+  thread.pushStack({
+    value: ((value1 >> value2) + (2 << ~value2)) | 0,
+    type: JavaType.long,
+  });
 }
 
 function run_lushr(
@@ -1639,7 +2046,24 @@ function run_lushr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: number = thread.popStack().value & 0x3f;
+  const value1: bigint = thread.popStack().value;
+
+  if (value1 >= 0) {
+    thread.pushStack({
+      value: BigInt.asIntN(64, value1 >> BigInt(value2)),
+      type: JavaType.long,
+    });
+    return;
+  }
+
+  thread.pushStack({
+    value: BigInt.asIntN(
+      64,
+      (value1 >> BigInt(value2)) + (2n << BigInt(~value2))
+    ),
+    type: JavaType.long,
+  });
 }
 
 function run_iand(
@@ -1647,7 +2071,13 @@ function run_iand(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value & value2.value) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_land(
@@ -1655,7 +2085,12 @@ function run_land(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 & value2),
+    type: JavaType.long,
+  });
 }
 
 function run_ior(
@@ -1663,7 +2098,13 @@ function run_ior(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: value1.value | value2.value | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lor(
@@ -1671,7 +2112,12 @@ function run_lor(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 | value2),
+    type: JavaType.long,
+  });
 }
 
 function run_ixor(
@@ -1679,7 +2125,13 @@ function run_ixor(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  thread.pushStack({
+    // JS bitwise can only return 32-bit ints
+    value: (value1.value ^ value2.value) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_lxor(
@@ -1687,7 +2139,12 @@ function run_lxor(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2: bigint = thread.popStack().value;
+  const value1: bigint = thread.popStack().value;
+  thread.pushStack({
+    value: BigInt.asIntN(64, value1 ^ value2),
+    type: JavaType.long,
+  });
 }
 
 function run_iinc(
@@ -1695,7 +2152,12 @@ function run_iinc(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const index = instruction.operands[0];
+  const constant = instruction.operands[1];
+  thread.storeLocal(index, {
+    value: (thread.loadLocal(index).value + constant) | 0,
+    type: JavaType.int,
+  });
 }
 
 function run_i2l(
@@ -1703,7 +2165,10 @@ function run_i2l(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.long;
+  value.value = BigInt(value.value);
+  thread.pushStack(value);
 }
 
 function run_i2f(
@@ -1711,7 +2176,9 @@ function run_i2f(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.float;
+  thread.pushStack(value);
 }
 
 function run_i2d(
@@ -1719,7 +2186,9 @@ function run_i2d(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.double;
+  thread.pushStack(value);
 }
 
 function run_l2i(
@@ -1727,7 +2196,10 @@ function run_l2i(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.int;
+  value.value = Number(BigInt.asIntN(32, value.value));
+  thread.pushStack(value);
 }
 
 function run_l2f(
@@ -1735,7 +2207,10 @@ function run_l2f(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.float;
+  value.value = Math.fround(Number(value.value));
+  thread.pushStack(value);
 }
 
 function run_l2d(
@@ -1743,7 +2218,10 @@ function run_l2d(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.double;
+  value.value = Number(value.value);
+  thread.pushStack(value);
 }
 
 function run_f2i(
@@ -1751,7 +2229,15 @@ function run_f2i(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.int;
+  const data = value.value;
+  if (Number.isNaN(data)) {
+    value.value = 0;
+  } else {
+    value.value = Math.min(MAX_INT, Math.max(MIN_INT, Math.round(data)));
+  }
+  thread.pushStack(value);
 }
 
 function run_f2l(
@@ -1759,7 +2245,21 @@ function run_f2l(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.long;
+  const data = value.value;
+  if (Number.isNaN(data)) {
+    value.value = 0n;
+  } else {
+    value.value = BigInt(Math.round(data));
+    value.value =
+      value.value > MAX_LONG
+        ? MAX_LONG
+        : value.value < MIN_LONG
+        ? MIN_LONG
+        : value.value;
+  }
+  thread.pushStack(value);
 }
 
 function run_f2d(
@@ -1767,7 +2267,9 @@ function run_f2d(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.double;
+  thread.pushStack(value);
 }
 
 function run_d2i(
@@ -1775,7 +2277,16 @@ function run_d2i(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.int;
+
+  if (Number.isNaN(value)) {
+    value.value = 0;
+  } else {
+    // If too large round to largest int, vice versa.
+    value.value = Math.max(Math.min(Math.round(value.value), MAX_INT), MIN_INT);
+  }
+  thread.pushStack(value);
 }
 
 function run_d2l(
@@ -1783,7 +2294,21 @@ function run_d2l(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.long;
+  const data = value.value;
+  if (Number.isNaN(data)) {
+    value.value = 0n;
+  } else {
+    value.value = BigInt(Math.round(data));
+    value.value =
+      value.value > MAX_LONG
+        ? MAX_LONG
+        : value.value < MIN_LONG
+        ? MIN_LONG
+        : value.value;
+  }
+  thread.pushStack(value);
 }
 
 function run_d2f(
@@ -1791,7 +2316,10 @@ function run_d2f(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.float;
+  value.value = Math.fround(value.value);
+  thread.pushStack(value);
 }
 
 function run_i2b(
@@ -1799,7 +2327,10 @@ function run_i2b(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.byte;
+  value.value = (value.value << 24) >> 24;
+  thread.pushStack(value);
 }
 
 function run_i2c(
@@ -1807,7 +2338,11 @@ function run_i2c(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.char;
+  // TODO: confirm this is correct
+  value.value = String.fromCharCode(value.value & 0xffff);
+  thread.pushStack(value);
 }
 
 function run_i2s(
@@ -1815,7 +2350,10 @@ function run_i2s(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value = thread.popStack();
+  value.type = JavaType.short;
+  value.value = (value.value << 16) >> 16;
+  thread.pushStack(value);
 }
 
 function run_lcmp(
@@ -1823,7 +2361,20 @@ function run_lcmp(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1.value > value2.value) {
+    thread.pushStack({ value: 1, type: JavaType.int });
+    return;
+  }
+
+  if (value1.value < value2.value) {
+    thread.pushStack({ value: -1, type: JavaType.int });
+    return;
+  }
+
+  thread.pushStack({ value: 0, type: JavaType.int });
 }
 
 function run_fcmpl(
@@ -1831,7 +2382,24 @@ function run_fcmpl(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  if (Number.isNaN(value1) || Number.isNaN(value2)) {
+    thread.pushStack(-1);
+    return;
+  }
+
+  if (value1 == value2) {
+    thread.pushStack(0);
+    return;
+  }
+
+  if (value1 > value2) {
+    thread.pushStack(1);
+    return;
+  }
+
+  thread.pushStack(-1);
 }
 
 function run_fcmpg(
@@ -1839,7 +2407,24 @@ function run_fcmpg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  if (Number.isNaN(value1) || Number.isNaN(value2)) {
+    thread.pushStack(1);
+    return;
+  }
+
+  if (value1 == value2) {
+    thread.pushStack(0);
+    return;
+  }
+
+  if (value1 > value2) {
+    thread.pushStack(1);
+    return;
+  }
+
+  thread.pushStack(-1);
 }
 
 function run_dcmpl(
@@ -1847,7 +2432,24 @@ function run_dcmpl(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  if (Number.isNaN(value1) || Number.isNaN(value2)) {
+    thread.pushStack(-1);
+    return;
+  }
+
+  if (value1 == value2) {
+    thread.pushStack(0);
+    return;
+  }
+
+  if (value1 > value2) {
+    thread.pushStack(1);
+    return;
+  }
+
+  thread.pushStack(-1);
 }
 
 function run_dcmpg(
@@ -1855,7 +2457,24 @@ function run_dcmpg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+  if (Number.isNaN(value1) || Number.isNaN(value2)) {
+    thread.pushStack(1);
+    return;
+  }
+
+  if (value1 == value2) {
+    thread.pushStack(0);
+    return;
+  }
+
+  if (value1 > value2) {
+    thread.pushStack(1);
+    return;
+  }
+
+  thread.pushStack(-1);
 }
 
 function run_ifeq(
@@ -2160,6 +2779,9 @@ function run_arraylength(
   instruction: InstructionType
 ) {
   throw new Error('runInstruction: Not implemented');
+  const arrayref = thread.popStack();
+  // TODO: push array length
+  thread.pushStack(arrayref);
 }
 
 function run_athrow(
@@ -2167,6 +2789,7 @@ function run_athrow(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  // TODO: throw Java error
   throw new Error('runInstruction: Not implemented');
 }
 
@@ -2175,6 +2798,7 @@ function run_checkcast(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  // TODO: query type checker.
   throw new Error('runInstruction: Not implemented');
 }
 
