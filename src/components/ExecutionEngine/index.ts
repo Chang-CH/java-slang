@@ -22,11 +22,14 @@ export default class ExecutionEngine {
     this.nativeThreadGroup.addThread(
       new NativeThread({
         operandStack: [],
+        typeStack: [],
         locals: [],
+        localType: [],
         className,
         methodName: 'main([Ljava/lang/String;)V',
         pc: 0,
         arguments: args ?? [],
+        argumentTypes: [],
         this: null,
       })
     );

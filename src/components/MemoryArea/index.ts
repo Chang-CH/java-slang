@@ -1,5 +1,6 @@
 import { ClassFile } from '#types/ClassFile';
 import { InstructionType } from '#types/ClassFile/instructions';
+import { JavaType } from '#types/DataTypes';
 import { InstructionPointer } from '../ExecutionEngine/NativeThreadGroup/NativeThread/types';
 
 export default class MemoryArea {
@@ -25,7 +26,7 @@ export default class MemoryArea {
     return method.code.code[pointer.pc];
   }
 
-  getConstant(className: string, constantIndex: number): any {
+  getConstant(className: string, constantIndex: number): [any, JavaType] {
     return this.methodArea[className].constant_pool[constantIndex];
   }
 

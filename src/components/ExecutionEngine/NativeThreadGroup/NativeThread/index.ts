@@ -1,4 +1,4 @@
-import { JavaPrimitive } from '#types/DataTypes';
+import { JavaPrimitive, JavaType } from '#types/DataTypes';
 import { InstructionPointer, StackFrame } from './types';
 
 export default class NativeThread {
@@ -31,18 +31,20 @@ export default class NativeThread {
     return this.stack[this.stackPointer];
   }
 
-  pushStack(value: any) {
+  pushStack(value: any, type: JavaType) {
     // check for stack overflow?
     this.stack[this.stackPointer].operandStack.push(value);
+    this.stack[this.stackPointer].typeStack.push(type);
   }
 
   popStack() {
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    if (!value) {
+    const type = this.stack?.[this.stackPointer]?.typeStack?.pop();
+    if (value === undefined || type === undefined) {
       throw new Error('JVM Stack underflow');
       // TODO: throw java error
     }
-    return value;
+    return { value, type };
   }
 
   popStackFrame() {
@@ -56,11 +58,11 @@ export default class NativeThread {
     this.stackPointer += 1;
   }
 
-  storeLocal(index: number, value: JavaPrimitive) {
+  storeLocal(index: number, value: any, type: JavaType) {
     this.stack[this.stackPointer].locals[index] = value;
   }
 
-  loadLocal(index: number): JavaPrimitive {
+  loadLocal(index: number): any {
     return this.stack[this.stackPointer].locals[index];
   }
 }

@@ -1,4 +1,4 @@
-import { JavaPrimitive } from '#types/DataTypes';
+import { JavaPrimitive, JavaType } from '#types/DataTypes';
 
 export interface InstructionPointer {
   className: string;
@@ -7,11 +7,14 @@ export interface InstructionPointer {
 }
 
 export interface StackFrame {
-  operandStack: JavaPrimitive[];
+  operandStack: any[];
+  typeStack: JavaType[];
   className: string;
   methodName: string;
   pc: number;
   this: any;
-  arguments: JavaPrimitive[];
-  locals: JavaPrimitive[];
+  arguments: any[];
+  argumentTypes: JavaType[];
+  locals: any[];
+  localType: JavaType[];
 }
