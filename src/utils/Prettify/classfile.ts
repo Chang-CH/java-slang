@@ -96,10 +96,12 @@ function resolveReferences(cls: any) {
       // @ts-ignore
       const descriptor = cls.constant_pool[method.descriptor_index].value;
       const attributes = method.attributes.map((attribute: any) => {
-        return attribute.code.map(
-          (code: InstructionType) =>
-            `${INSTRUCTION_SET[code.opcode]}    ${code.operands.join(', ')}`
-        );
+        return attribute.code
+          .filter(x => x)
+          .map(
+            (code: InstructionType) =>
+              `${INSTRUCTION_SET[code.opcode]}    ${code.operands.join(', ')}`
+          );
       });
       const flags = method.method_flags;
       return {
