@@ -1,4 +1,4 @@
-import { CONSTANT_TAG } from '#constants/ClassFile/constants';
+import { CONSTANT_TAG, constantTagMap } from '#constants/ClassFile/constants';
 import {
   CONSTANT_Class_info,
   CONSTANT_Double_info,
@@ -14,6 +14,7 @@ import {
   CONSTANT_NameAndType_info,
   CONSTANT_String_info,
   CONSTANT_Utf8_info,
+  ConstantType,
 } from '#types/ClassFile/constants';
 
 function readConstantClass(
@@ -300,7 +301,7 @@ function readConstantInvokeDynamic(
   };
 }
 
-export function readConstant(
+function readConstant(
   view: DataView,
   offset: number,
   tag: CONSTANT_TAG
@@ -340,4 +341,38 @@ export function readConstant(
         offset: offset,
       };
   }
+}
+
+export function readConstants(
+  view: DataView,
+  offset: number,
+  constant_pool_count: number
+) {
+  // constant pool 1 indexed, dummy value at index 0
+  const constant_pool: ConstantType[] = [
+    { tag: CONSTANT_TAG.CONSTANT_Class, name_index: 0 },
+  ];
+
+  for (let i = 0; i < constant_pool_count - 1; i += 1) {
+    const tag = constantTagMap[view.getUint8(offset)];
+    offset += 1;
+    const { result, offset: resultOffset } = readConstant(view, offset, tag); // TODO: check index's in readConstant
+    constant_pool.push(result);
+
+    // Longs and doubles take 2 indexes in the constant pool.
+    if (
+      result.tag === CONSTANT_TAG.CONSTANT_Long ||
+      result.tag === CONSTANT_TAG.CONSTANT_Double
+    ) {
+      constant_pool.push(result);
+      i += 1;
+    }
+
+    offset = resultOffset;
+  }
+
+  return {
+    result: constant_pool,
+    offset,
+  };
 }
