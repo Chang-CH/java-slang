@@ -1,6 +1,7 @@
 import { PREDEF_ATTRIB } from '#constants/ClassFile/attributes';
 import { ConstantType, CONSTANT_Utf8_info } from '#types/ClassFile/constants';
-import { readInstruction } from './readInstruction';
+import { InstructionType } from '#types/ClassFile/instructions';
+import { readInstructions } from './readInstruction';
 
 export function readAttribute(
   constPool: Array<ConstantType>,
@@ -232,13 +233,8 @@ function readAttributeCode(
     throw new Error('Class format error: Code attribute invalid length');
   }
 
-  const end = offset + code_length;
-  const code = [];
-  while (offset < end) {
-    const { result, offset: resultOffset } = readInstruction(view, offset);
-    code.push(result);
-    offset = resultOffset;
-  }
+  let code: InstructionType[] = [];
+  ({ result: code, offset } = readInstructions(view, offset, code_length));
 
   const exception_table_length = view.getUint16(offset);
   offset += 2;
