@@ -2474,8 +2474,6 @@ function readinvokedynamic(
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  console.log(indexbyte);
-
   const zero1 = view.getUint8(offset);
   if (zero1 !== 0) {
     throw new Error('invokedynamic third byte must be 0');
