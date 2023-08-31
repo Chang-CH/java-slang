@@ -1,9 +1,25 @@
 import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
 import { InstructionType } from '#types/ClassFile/instructions';
 
-// TODO: read operands as actual values, e.g. bipush as Int8 instead of Uint8
+export function readInstructions(
+  view: DataView,
+  offset: number,
+  code_length: number
+) {
+  const initial = offset;
+  const end = offset + code_length;
+  const code: InstructionType[] = [];
+  while (offset < end) {
+    ({ result: code[offset - initial], offset } = readInstruction(
+      view,
+      offset
+    ));
+  }
 
-export function readInstruction(
+  return { result: code, offset };
+}
+
+function readInstruction(
   view: DataView,
   offset: number
 ): { result: InstructionType; offset: number } {
@@ -2188,7 +2204,8 @@ function readgoto(
   view: DataView,
   offset: number
 ): { result: InstructionType; offset: number } {
-  const branchbyte = view.getInt16(offset);
+  const branchbyte = view.getUint16(offset);
+  console.log(branchbyte + 1);
   offset += 2;
 
   return {
