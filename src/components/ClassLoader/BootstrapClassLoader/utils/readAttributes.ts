@@ -19,7 +19,6 @@ export function readAttribute(
 
   // @ts-ignore FIXME: check type is predef
   const Attrib: number = PREDEF_ATTRIB[constant_attribute_name.value];
-
   const attribute_length = view.getUint32(offset);
   offset += 4;
 
@@ -294,7 +293,7 @@ function readAttributeStackMapTable(
   view: DataView,
   offset: number
 ) {
-  console.warn('readTODO: AttributeStackMapTable is not implemented!');
+  console.warn('TODO: AttributeStackMapTable is not implemented!');
   const info = [];
 
   for (let i = 0; i < attribute_length; i += 1) {
