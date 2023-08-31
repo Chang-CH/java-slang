@@ -4,7 +4,7 @@ import { ClassFile } from '#types/ClassFile';
 import { CONSTANT_TAG } from '#constants/ClassFile/constants';
 import OsInterface from '#utils/OsInterface';
 import { readAttribute } from './utils/readAttributes';
-import { readConstant } from './utils/readConstants';
+import { readConstants } from './utils/readConstants';
 import { readField } from './utils/readField';
 import { getMethodName, readMethod } from './utils/readMethod';
 
@@ -61,14 +61,12 @@ export default class BootstrapClassLoader {
     offset += 2;
 
     // constant pool is 1 indexed
-    cls.constant_pool = [{ tag: CONSTANT_TAG.CONSTANT_Class, name_index: 0 }];
-    for (let i = 0; i < cls.constant_pool_count - 1; i += 1) {
-      const tag = constantTagMap[view.getUint8(offset)];
-      offset += 1;
-      const { result, offset: resultOffset } = readConstant(view, offset, tag); // TODO: check index's in readConstant
-      cls.constant_pool.push(result);
-      offset = resultOffset;
-    }
+
+    ({ result: cls.constant_pool, offset } = readConstants(
+      view,
+      offset,
+      cls.constant_pool_count
+    ));
 
     cls.access_flags = view.getUint16(offset);
     offset += 2;
