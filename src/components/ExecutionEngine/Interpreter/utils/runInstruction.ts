@@ -9,7 +9,6 @@ import {
 } from '#constants/DataType';
 import MemoryArea from '#jvm/components/MemoryArea';
 import { InstructionType } from '#types/ClassFile/instructions';
-import { JavaPrimitive, JavaType } from '#types/DataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export default function runInstruction(
@@ -637,9 +636,6 @@ export default function runInstruction(
     default:
       throw new Error('runInstruction: Unknown opcode received!');
   }
-
-  thread.peekStackFrame().pc += 1;
-
   return result;
 }
 
@@ -648,6 +644,7 @@ function run_nop(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   return;
 }
 
@@ -656,7 +653,8 @@ function run_aconst_null(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(null, JavaType.reference);
+  thread.pushStack(null);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iconst_m1(
@@ -664,7 +662,8 @@ function run_iconst_m1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(-1, JavaType.int);
+  thread.pushStack(-1);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iconst_0(
@@ -672,7 +671,8 @@ function run_iconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(0, JavaType.int);
+  thread.pushStack(0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iconst_1(
@@ -680,7 +680,8 @@ function run_iconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(1, JavaType.int);
+  thread.pushStack(1);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iconst_2(
@@ -688,7 +689,8 @@ function run_iconst_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(2, JavaType.int);
+  thread.pushStack(2);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iconst_3(
@@ -696,7 +698,8 @@ function run_iconst_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(3, JavaType.int);
+  thread.pushStack(3);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iconst_4(
@@ -704,7 +707,8 @@ function run_iconst_4(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(4, JavaType.int);
+  thread.pushStack(4);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iconst_5(
@@ -712,7 +716,8 @@ function run_iconst_5(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(5, JavaType.int);
+  thread.pushStack(5);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lconst_0(
@@ -720,7 +725,8 @@ function run_lconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(0n, JavaType.long);
+  thread.pushStackWide(0n);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lconst_1(
@@ -728,7 +734,8 @@ function run_lconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(1n, JavaType.long);
+  thread.pushStackWide(1n);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fconst_0(
@@ -736,7 +743,8 @@ function run_fconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(0.0, JavaType.float);
+  thread.pushStack(0.0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fconst_1(
@@ -744,7 +752,8 @@ function run_fconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(1.0, JavaType.float);
+  thread.pushStack(1.0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fconst_2(
@@ -752,7 +761,8 @@ function run_fconst_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(2.0, JavaType.float);
+  thread.pushStack(2.0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dconst_0(
@@ -760,7 +770,8 @@ function run_dconst_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(0.0, JavaType.double);
+  thread.pushStackWide(0.0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dconst_1(
@@ -768,7 +779,8 @@ function run_dconst_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(1.0, JavaType.double);
+  thread.pushStackWide(1.0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_bipush(
@@ -776,7 +788,8 @@ function run_bipush(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(instruction.operands[0], JavaType.int);
+  thread.pushStack(instruction.operands[0]);
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_sipush(
@@ -784,7 +797,8 @@ function run_sipush(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(instruction.operands[0], JavaType.int);
+  thread.pushStack(instruction.operands[0]);
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ldc(
@@ -794,8 +808,9 @@ function run_ldc(
 ) {
   console.warn('ldc: class/method reference resolution not implemented');
   thread.pushStack(
-    ...memoryArea.getConstant(thread.getClassName(), instruction.operands[0])
+    memoryArea.getConstant(thread.getClassName(), instruction.operands[0])
   );
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_ldc_w(
@@ -804,9 +819,10 @@ function run_ldc_w(
   instruction: InstructionType
 ) {
   console.warn('ldc_w: class/method reference resolution not implemented');
-  thread.pushStack(
-    ...memoryArea.getConstant(thread.getClassName(), instruction.operands[0])
+  thread.pushStackWide(
+    memoryArea.getConstantWide(thread.getClassName(), instruction.operands[0])
   );
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ldc2_w(
@@ -814,9 +830,10 @@ function run_ldc2_w(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(
-    ...memoryArea.getConstant(thread.getClassName(), instruction.operands[0])
+  thread.pushStackWide(
+    memoryArea.getConstantWide(thread.getClassName(), instruction.operands[0])
   );
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_iload(
@@ -824,7 +841,8 @@ function run_iload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(instruction.operands[0]), JavaType.int);
+  thread.pushStack(thread.loadLocal(instruction.operands[0]));
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_lload(
@@ -832,7 +850,8 @@ function run_lload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(instruction.operands[0]), JavaType.long);
+  thread.pushStackWide(thread.loadLocalWide(instruction.operands[0]));
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_fload(
@@ -840,7 +859,8 @@ function run_fload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(instruction.operands[0]), JavaType.float);
+  thread.pushStack(thread.loadLocal(instruction.operands[0]));
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_dload(
@@ -848,7 +868,8 @@ function run_dload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(instruction.operands[0]), JavaType.double);
+  thread.pushStackWide(thread.loadLocalWide(instruction.operands[0]));
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_aload(
@@ -856,10 +877,8 @@ function run_aload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(
-    thread.loadLocal(instruction.operands[0]),
-    JavaType.reference
-  );
+  thread.pushStack(thread.loadLocal(instruction.operands[0]));
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_iload_0(
@@ -867,7 +886,8 @@ function run_iload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(0), JavaType.int);
+  thread.pushStack(thread.loadLocal(0));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iload_1(
@@ -875,7 +895,8 @@ function run_iload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(1), JavaType.int);
+  thread.pushStack(thread.loadLocal(1));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iload_2(
@@ -883,7 +904,8 @@ function run_iload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(2), JavaType.int);
+  thread.pushStack(thread.loadLocal(2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iload_3(
@@ -891,7 +913,8 @@ function run_iload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(3), JavaType.int);
+  thread.pushStack(thread.loadLocal(3));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lload_0(
@@ -899,7 +922,8 @@ function run_lload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(0), JavaType.long);
+  thread.pushStackWide(thread.loadLocalWide(0));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lload_1(
@@ -907,7 +931,8 @@ function run_lload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(1), JavaType.long);
+  thread.pushStackWide(thread.loadLocalWide(1));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lload_2(
@@ -915,7 +940,8 @@ function run_lload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(2), JavaType.long);
+  thread.pushStackWide(thread.loadLocalWide(2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lload_3(
@@ -923,7 +949,8 @@ function run_lload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(3), JavaType.long);
+  thread.pushStackWide(thread.loadLocalWide(3));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fload_0(
@@ -931,7 +958,8 @@ function run_fload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(0), JavaType.float);
+  thread.pushStack(thread.loadLocal(0));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fload_1(
@@ -939,7 +967,8 @@ function run_fload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(1), JavaType.float);
+  thread.pushStack(thread.loadLocal(1));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fload_2(
@@ -947,7 +976,8 @@ function run_fload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(2), JavaType.float);
+  thread.pushStack(thread.loadLocal(2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fload_3(
@@ -955,7 +985,8 @@ function run_fload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(3), JavaType.float);
+  thread.pushStack(thread.loadLocal(3));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dload_0(
@@ -963,7 +994,8 @@ function run_dload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(0), JavaType.double);
+  thread.pushStackWide(thread.loadLocalWide(0));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dload_1(
@@ -971,7 +1003,8 @@ function run_dload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(1), JavaType.double);
+  thread.pushStackWide(thread.loadLocalWide(1));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dload_2(
@@ -979,7 +1012,8 @@ function run_dload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(2), JavaType.double);
+  thread.pushStackWide(thread.loadLocalWide(2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dload_3(
@@ -987,7 +1021,8 @@ function run_dload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(3), JavaType.double);
+  thread.pushStackWide(thread.loadLocalWide(3));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_aload_0(
@@ -995,7 +1030,8 @@ function run_aload_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(0), JavaType.reference);
+  thread.pushStack(thread.loadLocal(0));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_aload_1(
@@ -1003,7 +1039,8 @@ function run_aload_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(1), JavaType.reference);
+  thread.pushStack(thread.loadLocal(1));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_aload_2(
@@ -1011,7 +1048,8 @@ function run_aload_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(2), JavaType.reference);
+  thread.pushStack(thread.loadLocal(2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_aload_3(
@@ -1019,7 +1057,8 @@ function run_aload_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStack(thread.loadLocal(3), JavaType.reference);
+  thread.pushStack(thread.loadLocal(3));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iaload(
@@ -1027,12 +1066,13 @@ function run_iaload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('iaload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index], JavaType.int);
+  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_laload(
@@ -1040,12 +1080,13 @@ function run_laload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('laload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index], JavaType.long);
+  thread.pushStackWide(memoryArea.getReferenceWideAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_faload(
@@ -1053,12 +1094,13 @@ function run_faload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('faload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index], JavaType.float);
+  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_daload(
@@ -1066,12 +1108,13 @@ function run_daload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('daload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index], JavaType.double);
+  thread.pushStackWide(memoryArea.getReferenceWideAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_aaload(
@@ -1079,15 +1122,13 @@ function run_aaload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('aaload: exceptions possibly not thrown');
-  thread.pushStack(
-    memoryArea.getReferenceAt(arrayref)[index],
-    JavaType.reference
-  );
+  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_baload(
@@ -1095,15 +1136,13 @@ function run_baload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('baload: exceptions possibly not thrown');
-  thread.pushStack(
-    memoryArea.getReferenceAt(arrayref)[index],
-    JavaType.reference
-  );
+  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_caload(
@@ -1111,12 +1150,13 @@ function run_caload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('caload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index], JavaType.char);
+  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_saload(
@@ -1124,12 +1164,13 @@ function run_saload(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const index: number = thread.popStack().value;
-  const arrayref: any = thread.popStack().value;
+  const index: number = thread.popStack();
+  const arrayref: any = thread.popStack();
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('saload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index], JavaType.short);
+  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_istore(
@@ -1137,11 +1178,8 @@ function run_istore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.storeLocal(
-    instruction.operands[0],
-    thread.popStack().value,
-    JavaType.int
-  );
+  thread.storeLocal(instruction.operands[0], thread.popStack());
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_lstore(
@@ -1149,11 +1187,8 @@ function run_lstore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.storeLocal(
-    instruction.operands[0],
-    thread.popStack().value,
-    JavaType.long
-  );
+  thread.storeLocalWide(instruction.operands[0], thread.popStack());
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_fstore(
@@ -1161,11 +1196,8 @@ function run_fstore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.storeLocal(
-    instruction.operands[0],
-    thread.popStack().value,
-    JavaType.float
-  );
+  thread.storeLocal(instruction.operands[0], thread.popStack());
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_dstore(
@@ -1173,11 +1205,8 @@ function run_dstore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.storeLocal(
-    instruction.operands[0],
-    thread.popStack().value,
-    JavaType.double
-  );
+  thread.storeLocalWide(instruction.operands[0], thread.popStackWide());
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_astore(
@@ -1185,11 +1214,8 @@ function run_astore(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.storeLocal(
-    instruction.operands[0],
-    thread.popStack().value,
-    JavaType.reference
-  );
+  thread.storeLocal(instruction.operands[0], thread.popStack());
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_istore_0(
@@ -1198,7 +1224,8 @@ function run_istore_0(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(0, value.value, value.type);
+  thread.storeLocal(0, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_istore_1(
@@ -1207,7 +1234,8 @@ function run_istore_1(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(1, value.value, value.type);
+  thread.storeLocal(1, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_istore_2(
@@ -1216,7 +1244,8 @@ function run_istore_2(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(2, value.value, value.type);
+  thread.storeLocal(2, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_istore_3(
@@ -1225,7 +1254,8 @@ function run_istore_3(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(3, value.value, value.type);
+  thread.storeLocal(3, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lstore_0(
@@ -1234,7 +1264,8 @@ function run_lstore_0(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(0, value.value, value.type);
+  thread.storeLocalWide(0, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lstore_1(
@@ -1243,7 +1274,8 @@ function run_lstore_1(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(1, value.value, value.type);
+  thread.storeLocalWide(1, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lstore_2(
@@ -1252,7 +1284,8 @@ function run_lstore_2(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(2, value.value, value.type);
+  thread.storeLocalWide(2, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lstore_3(
@@ -1261,7 +1294,8 @@ function run_lstore_3(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(3, value.value, value.type);
+  thread.storeLocalWide(3, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fstore_0(
@@ -1270,7 +1304,8 @@ function run_fstore_0(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(0, value.value, value.type);
+  thread.storeLocal(0, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fstore_1(
@@ -1279,7 +1314,8 @@ function run_fstore_1(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(1, value.value, value.type);
+  thread.storeLocal(1, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fstore_2(
@@ -1288,7 +1324,8 @@ function run_fstore_2(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(2, value.value, value.type);
+  thread.storeLocal(2, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fstore_3(
@@ -1297,7 +1334,8 @@ function run_fstore_3(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(3, value.value, value.type);
+  thread.storeLocal(3, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dstore_0(
@@ -1305,8 +1343,9 @@ function run_dstore_0(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  thread.storeLocal(0, value.value, value.type);
+  const value = thread.popStackWide();
+  thread.storeLocalWide(0, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dstore_1(
@@ -1314,8 +1353,9 @@ function run_dstore_1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  thread.storeLocal(1, value.value, value.type);
+  const value = thread.popStackWide();
+  thread.storeLocalWide(1, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dstore_2(
@@ -1323,8 +1363,9 @@ function run_dstore_2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  thread.storeLocal(2, value.value, value.type);
+  const value = thread.popStackWide();
+  thread.storeLocalWide(2, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dstore_3(
@@ -1332,8 +1373,9 @@ function run_dstore_3(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  thread.storeLocal(3, value.value, value.type);
+  const value = thread.popStackWide();
+  thread.storeLocalWide(3, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_astore_0(
@@ -1342,7 +1384,8 @@ function run_astore_0(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(0, value.value, value.type);
+  thread.storeLocal(0, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_astore_1(
@@ -1351,7 +1394,8 @@ function run_astore_1(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(1, value.value, value.type);
+  thread.storeLocal(1, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_astore_2(
@@ -1360,7 +1404,8 @@ function run_astore_2(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(2, value.value, value.type);
+  thread.storeLocal(2, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_astore_3(
@@ -1369,7 +1414,8 @@ function run_astore_3(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.storeLocal(3, value.value, value.type);
+  thread.storeLocal(3, value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iastore(
@@ -1381,7 +1427,8 @@ function run_iastore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('iastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lastore(
@@ -1393,7 +1440,8 @@ function run_lastore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('lastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fastore(
@@ -1405,7 +1453,8 @@ function run_fastore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('fastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dastore(
@@ -1417,7 +1466,8 @@ function run_dastore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('dastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_aastore(
@@ -1429,7 +1479,8 @@ function run_aastore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('aastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_bastore(
@@ -1441,7 +1492,8 @@ function run_bastore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('bastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_castore(
@@ -1453,7 +1505,8 @@ function run_castore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('castore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_sastore(
@@ -1465,7 +1518,8 @@ function run_sastore(
   const index = thread.popStack();
   const arrayref = thread.popStack();
   console.warn('sastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref.value)[index.value] = value;
+  memoryArea.getReferenceAt(arrayref)[index] = value;
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_pop(
@@ -1474,6 +1528,7 @@ function run_pop(
   instruction: InstructionType
 ) {
   thread.popStack();
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_pop2(
@@ -1481,10 +1536,8 @@ function run_pop2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type !== JavaType.long &&
-    value.type !== JavaType.double &&
-    thread.popStack();
+  thread.popStackWide();
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dup(
@@ -1493,8 +1546,9 @@ function run_dup(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.pushStack(value.value, value.type);
-  thread.pushStack(value.value, value.type);
+  thread.pushStack(value);
+  thread.pushStack(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dup_x1(
@@ -1504,9 +1558,10 @@ function run_dup_x1(
 ) {
   const value1 = thread.popStack();
   const value2 = thread.popStack();
-  thread.pushStack(value1.value, value1.type);
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
+  thread.pushStack(value1);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dup_x2(
@@ -1514,20 +1569,14 @@ function run_dup_x2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value1 = thread.popStack();
   const value2 = thread.popStack();
-  if (value2.type === JavaType.long || value2.type === JavaType.double) {
-    thread.pushStack(value1.value, value1.type);
-    thread.pushStack(value2.value, value2.type);
-    thread.pushStack(value1.value, value1.type);
-    return;
-  }
-
   const value3 = thread.popStack();
-  thread.pushStack(value1.value, value1.type);
-  thread.pushStack(value3.value, value3.type);
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
+  thread.pushStack(value1);
+  thread.pushStack(value3);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
 }
 
 function run_dup2(
@@ -1535,19 +1584,13 @@ function run_dup2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value1 = thread.popStack();
-
-  if (value1.type === JavaType.long || value1.type === JavaType.double) {
-    thread.pushStack(value1.value, value1.type);
-    thread.pushStack(value1.value, value1.type);
-    return;
-  }
-
   const value2 = thread.popStack();
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
 }
 
 function run_dup2_x1(
@@ -1555,22 +1598,15 @@ function run_dup2_x1(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value1 = thread.popStack();
   const value2 = thread.popStack();
-
-  if (value1.type === JavaType.long || value1.type === JavaType.double) {
-    thread.pushStack(value1.value, value1.type);
-    thread.pushStack(value2.value, value2.type);
-    thread.pushStack(value1.value, value1.type);
-    return;
-  }
-
   const value3 = thread.popStack();
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
-  thread.pushStack(value3.value, value3.type);
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
+  thread.pushStack(value3);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
 }
 
 function run_dup2_x2(
@@ -1578,47 +1614,17 @@ function run_dup2_x2(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value1 = thread.popStack();
   const value2 = thread.popStack();
-
-  // Form 2 or 4
-  if (value1.type === JavaType.long || value1.type === JavaType.double) {
-    // Form 4
-    if (value2.type === JavaType.long || value2.type === JavaType.double) {
-      thread.pushStack(value1.value, value1.type);
-      thread.pushStack(value2.value, value2.type);
-      thread.pushStack(value1.value, value1.type);
-      return;
-    }
-
-    // Form 2
-    const value3 = thread.popStack();
-    thread.pushStack(value1.value, value1.type);
-    thread.pushStack(value3.value, value3.type);
-    thread.pushStack(value2.value, value2.type);
-    thread.pushStack(value1.value, value1.type);
-    return;
-  }
-
   const value3 = thread.popStack();
-  // Form 3
-  if (value3.type === JavaType.long || value3.type === JavaType.double) {
-    thread.pushStack(value2.value, value2.type);
-    thread.pushStack(value1.value, value1.type);
-    thread.pushStack(value3.value, value3.type);
-    thread.pushStack(value2.value, value2.type);
-    thread.pushStack(value1.value, value1.type);
-    return;
-  }
-
-  // Form 4
   const value4 = thread.popStack();
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
-  thread.pushStack(value4.value, value4.type);
-  thread.pushStack(value3.value, value3.type);
-  thread.pushStack(value2.value, value2.type);
-  thread.pushStack(value1.value, value1.type);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
+  thread.pushStack(value4);
+  thread.pushStack(value3);
+  thread.pushStack(value2);
+  thread.pushStack(value1);
 }
 
 function run_swap(
@@ -1626,10 +1632,11 @@ function run_swap(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value1 = thread.popStack();
   const value2 = thread.popStack();
-  thread.pushStack(value1.value, value1.type);
-  thread.pushStack(value2.value, value2.type);
+  thread.pushStack(value1);
+  thread.pushStack(value2);
 }
 
 function run_iadd(
@@ -1639,11 +1646,9 @@ function run_iadd(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value + value2.value) | 0,
-    JavaType.int
-  );
+  // JS bitwise can only return 32-bit ints
+  thread.pushStack((value1 + value2) | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_ladd(
@@ -1653,10 +1658,8 @@ function run_ladd(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    BigInt.asIntN(64, value1.value + value2.value),
-    JavaType.long
-  );
+  thread.pushStackWide(BigInt.asIntN(64, value1 + value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fadd(
@@ -1666,7 +1669,8 @@ function run_fadd(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(Math.fround(value1.value + value2.value), JavaType.float);
+  thread.pushStack(Math.fround(value1 + value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dadd(
@@ -1675,9 +1679,10 @@ function run_dadd(
   instruction: InstructionType
 ) {
   // JS numbers are IEEE754 doubles already
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  thread.pushStack(value1.value + value2.value, JavaType.double);
+  const value2 = thread.popStackWide();
+  const value1 = thread.popStackWide();
+  thread.pushStackWide(value1 + value2);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_isub(
@@ -1687,11 +1692,9 @@ function run_isub(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value - value2.value) | 0,
-    JavaType.int
-  );
+  // JS bitwise can only return 32-bit ints
+  thread.pushStack((value1 - value2) | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lsub(
@@ -1699,9 +1702,10 @@ function run_lsub(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, value1 - value2), JavaType.long);
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 - value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fsub(
@@ -1711,7 +1715,8 @@ function run_fsub(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(Math.fround(value1.value - value2.value), JavaType.float);
+  thread.pushStack(Math.fround(value1 - value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dsub(
@@ -1721,7 +1726,8 @@ function run_dsub(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(value1.value - value2.value, JavaType.double);
+  thread.pushStackWide(value1 - value2);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_imul(
@@ -1731,11 +1737,9 @@ function run_imul(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value * value2.value) | 0,
-    JavaType.int
-  );
+  // JS bitwise can only return 32-bit ints
+  thread.pushStack((value1 * value2) | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lmul(
@@ -1743,9 +1747,10 @@ function run_lmul(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, value1 * value2), JavaType.long);
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 * value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fmul(
@@ -1755,7 +1760,8 @@ function run_fmul(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(Math.fround(value1.value * value2.value), JavaType.float);
+  thread.pushStack(Math.fround(value1 * value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dmul(
@@ -1765,7 +1771,8 @@ function run_dmul(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(value1.value * value2.value, JavaType.double);
+  thread.pushStackWide(value1 * value2);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_idiv(
@@ -1773,19 +1780,16 @@ function run_idiv(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value2 = thread.popStack();
   const value1 = thread.popStack();
 
-  if (value1.value === MIN_INT && value2.value === -1) {
-    thread.pushStack(value1.value, value1.type);
+  if (value1 === MIN_INT && value2 === -1) {
+    thread.pushStack(value1);
     return;
   }
 
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value / value2.value) | 0,
-    JavaType.int
-  );
+  thread.pushStack((value1 / value2) | 0);
 }
 
 function run_ldiv(
@@ -1793,9 +1797,10 @@ function run_ldiv(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, value1 / value2), JavaType.long);
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 / value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fdiv(
@@ -1805,7 +1810,8 @@ function run_fdiv(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(Math.fround(value1.value / value2.value), JavaType.float);
+  thread.pushStack(Math.fround(value1 / value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_ddiv(
@@ -1815,7 +1821,8 @@ function run_ddiv(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(value1.value / value2.value, JavaType.double);
+  thread.pushStackWide(value1 / value2);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_irem(
@@ -1825,11 +1832,9 @@ function run_irem(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    value1.value % value2.value | 0,
-    JavaType.int
-  );
+  // JS bitwise can only return 32-bit ints
+  thread.pushStack(value1 % value2 | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lrem(
@@ -1837,9 +1842,10 @@ function run_lrem(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, value1 % value2), JavaType.long);
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 % value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_frem(
@@ -1849,7 +1855,8 @@ function run_frem(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(Math.fround(value1.value % value2.value), JavaType.float);
+  thread.pushStack(Math.fround(value1 % value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_drem(
@@ -1859,7 +1866,8 @@ function run_drem(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(value1.value % value2.value, JavaType.double);
+  thread.pushStackWide(value1 % value2);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_ineg(
@@ -1868,11 +1876,8 @@ function run_ineg(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    -value.value | 0,
-    JavaType.int
-  );
+  thread.pushStack(-value | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lneg(
@@ -1880,8 +1885,9 @@ function run_lneg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, -value), JavaType.long);
+  const value: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, -value));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_fneg(
@@ -1890,7 +1896,8 @@ function run_fneg(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.pushStack(Math.fround(value.value), JavaType.float);
+  thread.pushStack(Math.fround(value));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_dneg(
@@ -1899,7 +1906,8 @@ function run_dneg(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  thread.pushStack(-value.value, JavaType.double);
+  thread.pushStackWide(-value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_ishl(
@@ -1909,11 +1917,8 @@ function run_ishl(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value << (value2.value & 0x1f)) | 0,
-    JavaType.int
-  );
+  thread.pushStack((value1 << (value2 & 0x1f)) | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lshl(
@@ -1921,12 +1926,10 @@ function run_lshl(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(
-    BigInt.asIntN(64, value1 << (value2 & 0x3fn)),
-    JavaType.long
-  );
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 << (value2 & 0x3fn)));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_ishr(
@@ -1936,11 +1939,8 @@ function run_ishr(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value >> (value2.value & 0x1f)) | 0,
-    JavaType.int
-  );
+  thread.pushStack((value1 >> (value2 & 0x1f)) | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lshr(
@@ -1948,12 +1948,10 @@ function run_lshr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: number = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(
-    BigInt.asIntN(64, value1 >> BigInt(value2 & 0x3f)),
-    JavaType.long
-  );
+  const value2: number = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 >> BigInt(value2 & 0x3f)));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iushr(
@@ -1961,15 +1959,16 @@ function run_iushr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: number = thread.popStack().value & 0x3f;
-  const value1: number = thread.popStack().value;
+  thread.peekStackFrame().pc += 1;
+  const value2: number = thread.popStack() & 0x3f;
+  const value1: number = thread.popStack();
 
   if (value1 >= 0) {
-    thread.pushStack((value1 >> value2) | 0, JavaType.long);
+    thread.pushStack((value1 >> value2) | 0);
     return;
   }
 
-  thread.pushStack(((value1 >> value2) + (2 << ~value2)) | 0, JavaType.long);
+  thread.pushStack(((value1 >> value2) + (2 << ~value2)) | 0);
 }
 
 function run_lushr(
@@ -1977,20 +1976,17 @@ function run_lushr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: number = thread.popStack().value & 0x3f;
-  const value1: bigint = thread.popStack().value;
+  thread.peekStackFrame().pc += 1;
+  const value2: number = thread.popStack() & 0x3f;
+  const value1: bigint = thread.popStack();
 
   if (value1 >= 0) {
-    thread.pushStack(
-      BigInt.asIntN(64, value1 >> BigInt(value2)),
-      JavaType.long
-    );
+    thread.pushStackWide(BigInt.asIntN(64, value1 >> BigInt(value2)));
     return;
   }
 
-  thread.pushStack(
-    BigInt.asIntN(64, (value1 >> BigInt(value2)) + (2n << BigInt(~value2))),
-    JavaType.long
+  thread.pushStackWide(
+    BigInt.asIntN(64, (value1 >> BigInt(value2)) + (2n << BigInt(~value2)))
   );
 }
 
@@ -2001,11 +1997,8 @@ function run_iand(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value & value2.value) | 0,
-    JavaType.int
-  );
+  thread.pushStack((value1 & value2) | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_land(
@@ -2013,9 +2006,10 @@ function run_land(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, value1 & value2), JavaType.long);
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 & value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_ior(
@@ -2025,11 +2019,8 @@ function run_ior(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    value1.value | value2.value | 0,
-    JavaType.int
-  );
+  thread.pushStack(value1 | value2 | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lor(
@@ -2037,9 +2028,10 @@ function run_lor(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, value1 | value2), JavaType.long);
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 | value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_ixor(
@@ -2049,11 +2041,8 @@ function run_ixor(
 ) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  thread.pushStack(
-    // JS bitwise can only return 32-bit ints
-    (value1.value ^ value2.value) | 0,
-    JavaType.int
-  );
+  thread.pushStack((value1 ^ value2) | 0);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lxor(
@@ -2061,9 +2050,10 @@ function run_lxor(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2: bigint = thread.popStack().value;
-  const value1: bigint = thread.popStack().value;
-  thread.pushStack(BigInt.asIntN(64, value1 ^ value2), JavaType.long);
+  const value2: bigint = thread.popStack();
+  const value1: bigint = thread.popStack();
+  thread.pushStackWide(BigInt.asIntN(64, value1 ^ value2));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_iinc(
@@ -2073,11 +2063,8 @@ function run_iinc(
 ) {
   const index = instruction.operands[0];
   const constant = instruction.operands[1];
-  thread.storeLocal(
-    index,
-    (thread.loadLocal(index).value + constant) | 0,
-    JavaType.int
-  );
+  thread.storeLocal(index, (thread.loadLocal(index) + constant) | 0);
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_i2l(
@@ -2086,9 +2073,8 @@ function run_i2l(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  value.type = JavaType.long;
-  value.value = BigInt(value.value);
-  thread.pushStack(value.value, value.type);
+  thread.pushStackWide(BigInt(value));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_i2f(
@@ -2096,9 +2082,7 @@ function run_i2f(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.float;
-  thread.pushStack(value.value, value.type);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_i2d(
@@ -2107,8 +2091,8 @@ function run_i2d(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  value.type = JavaType.double;
-  thread.pushStack(value.value, value.type);
+  thread.pushStackWide(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_l2i(
@@ -2117,9 +2101,8 @@ function run_l2i(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  value.type = JavaType.int;
-  value.value = Number(BigInt.asIntN(32, value.value));
-  thread.pushStack(value.value, value.type);
+  thread.pushStack(Number(BigInt.asIntN(32, value)));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_l2f(
@@ -2128,9 +2111,8 @@ function run_l2f(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  value.type = JavaType.float;
-  value.value = Math.fround(Number(value.value));
-  thread.pushStack(value.value, value.type);
+  thread.pushStack(Math.fround(Number(value)));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_l2d(
@@ -2139,9 +2121,8 @@ function run_l2d(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  value.type = JavaType.double;
-  value.value = Number(value.value);
-  thread.pushStack(value.value, value.type);
+  thread.pushStack(Number(value));
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_f2i(
@@ -2149,15 +2130,14 @@ function run_f2i(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.int;
-  const data = value.value;
-  if (Number.isNaN(data)) {
-    value.value = 0;
+  let value = thread.popStack();
+  if (Number.isNaN(value)) {
+    value = 0;
   } else {
-    value.value = Math.min(MAX_INT, Math.max(MIN_INT, Math.round(data)));
+    value = Math.min(MAX_INT, Math.max(MIN_INT, Math.round(value)));
   }
-  thread.pushStack(value.value, value.type);
+  thread.pushStack(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_f2l(
@@ -2165,21 +2145,15 @@ function run_f2l(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.long;
-  const data = value.value;
-  if (Number.isNaN(data)) {
-    value.value = 0n;
+  let value = thread.popStack();
+  if (Number.isNaN(value)) {
+    value = 0n;
   } else {
-    value.value = BigInt(Math.round(data));
-    value.value =
-      value.value > MAX_LONG
-        ? MAX_LONG
-        : value.value < MIN_LONG
-        ? MIN_LONG
-        : value.value;
+    value = BigInt(Math.round(value));
+    value = value > MAX_LONG ? MAX_LONG : value < MIN_LONG ? MIN_LONG : value;
   }
-  thread.pushStack(value.value, value.type);
+  thread.pushStackWide(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_f2d(
@@ -2188,8 +2162,8 @@ function run_f2d(
   instruction: InstructionType
 ) {
   const value = thread.popStack();
-  value.type = JavaType.double;
-  thread.pushStack(value.value, value.type);
+  thread.pushStackWide(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_d2i(
@@ -2197,16 +2171,15 @@ function run_d2i(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.int;
-
+  let value = thread.popStackWide();
   if (Number.isNaN(value)) {
-    value.value = 0;
+    value = 0;
   } else {
     // If too large round to largest int, vice versa.
-    value.value = Math.max(Math.min(Math.round(value.value), MAX_INT), MIN_INT);
+    value = Math.max(Math.min(Math.round(value), MAX_INT), MIN_INT);
   }
-  thread.pushStack(value.value, value.type);
+  thread.pushStack(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_d2l(
@@ -2214,21 +2187,15 @@ function run_d2l(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.long;
-  const data = value.value;
-  if (Number.isNaN(data)) {
-    value.value = 0n;
+  let value = thread.popStackWide();
+  if (Number.isNaN(value)) {
+    value = 0n;
   } else {
-    value.value = BigInt(Math.round(data));
-    value.value =
-      value.value > MAX_LONG
-        ? MAX_LONG
-        : value.value < MIN_LONG
-        ? MIN_LONG
-        : value.value;
+    value = BigInt(Math.round(value));
+    value = value > MAX_LONG ? MAX_LONG : value < MIN_LONG ? MIN_LONG : value;
   }
-  thread.pushStack(value.value, value.type);
+  thread.pushStackWide(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_d2f(
@@ -2236,10 +2203,10 @@ function run_d2f(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.float;
-  value.value = Math.fround(value.value);
-  thread.pushStack(value.value, value.type);
+  let value = thread.popStackWide();
+  value = Math.fround(value);
+  thread.pushStack(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_i2b(
@@ -2247,10 +2214,10 @@ function run_i2b(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.byte;
-  value.value = (value.value << 24) >> 24;
-  thread.pushStack(value.value, value.type);
+  let value = thread.popStack();
+  value = (value << 24) >> 24;
+  thread.pushStack(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_i2c(
@@ -2258,11 +2225,11 @@ function run_i2c(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.char;
+  let value = thread.popStack();
   // TODO: confirm this is correct
-  value.value = String.fromCharCode(value.value & 0xffff);
-  thread.pushStack(value.value, value.type);
+  value = String.fromCharCode(value & 0xffff);
+  thread.pushStack(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_i2s(
@@ -2270,10 +2237,10 @@ function run_i2s(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value = thread.popStack();
-  value.type = JavaType.short;
-  value.value = (value.value << 16) >> 16;
-  thread.pushStack(value.value, value.type);
+  let value = thread.popStack();
+  value = (value << 16) >> 16;
+  thread.pushStack(value);
+  thread.peekStackFrame().pc += 1;
 }
 
 function run_lcmp(
@@ -2281,20 +2248,21 @@ function run_lcmp(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  thread.peekStackFrame().pc += 1;
+  const value2 = thread.popStackWide();
+  const value1 = thread.popStackWide();
 
-  if (value1.value > value2.value) {
-    thread.pushStack(1, JavaType.int);
+  if (value1 > value2) {
+    thread.pushStack(1);
     return;
   }
 
-  if (value1.value < value2.value) {
-    thread.pushStack(-1, JavaType.int);
+  if (value1 < value2) {
+    thread.pushStack(-1);
     return;
   }
 
-  thread.pushStack(0, JavaType.int);
+  thread.pushStack(0);
 }
 
 function run_fcmpl(
@@ -2302,24 +2270,25 @@ function run_fcmpl(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(-1, JavaType.int);
+    thread.pushStack(-1);
     return;
   }
 
   if (value1 == value2) {
-    thread.pushStack(0, JavaType.int);
+    thread.pushStack(0);
     return;
   }
 
   if (value1 > value2) {
-    thread.pushStack(1, JavaType.int);
+    thread.pushStack(1);
     return;
   }
 
-  thread.pushStack(-1, JavaType.int);
+  thread.pushStack(-1);
 }
 
 function run_fcmpg(
@@ -2327,24 +2296,25 @@ function run_fcmpg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  thread.peekStackFrame().pc += 1;
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(1, JavaType.int);
+    thread.pushStack(1);
     return;
   }
 
   if (value1 == value2) {
-    thread.pushStack(0, JavaType.int);
+    thread.pushStack(0);
     return;
   }
 
   if (value1 > value2) {
-    thread.pushStack(1, JavaType.int);
+    thread.pushStack(1);
     return;
   }
 
-  thread.pushStack(-1, JavaType.int);
+  thread.pushStack(-1);
 }
 
 function run_dcmpl(
@@ -2352,24 +2322,25 @@ function run_dcmpl(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  thread.peekStackFrame().pc += 1;
+  const value2 = thread.popStackWide();
+  const value1 = thread.popStackWide();
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(-1, JavaType.int);
+    thread.pushStack(-1);
     return;
   }
 
   if (value1 == value2) {
-    thread.pushStack(0, JavaType.int);
+    thread.pushStack(0);
     return;
   }
 
   if (value1 > value2) {
-    thread.pushStack(1, JavaType.int);
+    thread.pushStack(1);
     return;
   }
 
-  thread.pushStack(-1, JavaType.int);
+  thread.pushStack(-1);
 }
 
 function run_dcmpg(
@@ -2377,24 +2348,25 @@ function run_dcmpg(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  thread.peekStackFrame().pc += 1;
+  const value2 = thread.popStackWide();
+  const value1 = thread.popStackWide();
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(1, JavaType.int);
+    thread.pushStack(1);
     return;
   }
 
   if (value1 == value2) {
-    thread.pushStack(0, JavaType.int);
+    thread.pushStack(0);
     return;
   }
 
   if (value1 > value2) {
-    thread.pushStack(1, JavaType.int);
+    thread.pushStack(1);
     return;
   }
 
-  thread.pushStack(-1, JavaType.int);
+  thread.pushStack(-1);
 }
 
 function run_ifeq(
@@ -2402,7 +2374,11 @@ function run_ifeq(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  if (thread.popStack() === 0) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ifne(
@@ -2410,7 +2386,11 @@ function run_ifne(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  if (thread.popStack() !== 0) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_iflt(
@@ -2418,7 +2398,11 @@ function run_iflt(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  if (thread.popStack() < 0) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ifge(
@@ -2426,7 +2410,11 @@ function run_ifge(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  if (thread.popStack() >= 0) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ifgt(
@@ -2434,7 +2422,11 @@ function run_ifgt(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  if (thread.popStack() > 0) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ifle(
@@ -2442,7 +2434,11 @@ function run_ifle(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  if (thread.popStack() <= 0) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_icmpeq(
@@ -2450,7 +2446,14 @@ function run_if_icmpeq(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 === value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_icmpne(
@@ -2458,7 +2461,14 @@ function run_if_icmpne(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 !== value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_icmplt(
@@ -2466,7 +2476,14 @@ function run_if_icmplt(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 < value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_icmpge(
@@ -2474,7 +2491,14 @@ function run_if_icmpge(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 >= value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_icmpgt(
@@ -2482,7 +2506,14 @@ function run_if_icmpgt(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 > value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_icmple(
@@ -2490,7 +2521,14 @@ function run_if_icmple(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 <= value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_acmpeq(
@@ -2498,7 +2536,14 @@ function run_if_acmpeq(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 === value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_if_acmpne(
@@ -2506,7 +2551,14 @@ function run_if_acmpne(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const value2 = thread.popStack();
+  const value1 = thread.popStack();
+
+  if (value1 !== value2) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_goto(
@@ -2514,7 +2566,7 @@ function run_goto(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.peekStackFrame().pc += instruction.operands[0];
 }
 
 function run_jsr(
@@ -2522,7 +2574,8 @@ function run_jsr(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStack(instruction.operands[0]);
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ret(
@@ -2530,7 +2583,10 @@ function run_ret(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.peekStackFrame().pc += 2;
+  const retAddr = thread.loadLocal(instruction.operands[0]);
+  // TODO: update pc to retAddr
+  throw new Error('runInstruction: ret not implemented');
 }
 
 function run_tableswitch(
@@ -2554,7 +2610,9 @@ function run_ireturn(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const ret = thread.popStack();
+  thread.popStackFrame();
+  thread.pushStack(ret);
 }
 
 function run_lreturn(
@@ -2562,7 +2620,9 @@ function run_lreturn(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const ret = thread.popStackWide();
+  thread.popStackFrame();
+  thread.pushStackWide(ret);
 }
 
 function run_freturn(
@@ -2570,7 +2630,9 @@ function run_freturn(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const ret = thread.popStack();
+  thread.popStackFrame();
+  thread.pushStack(ret);
 }
 
 function run_dreturn(
@@ -2578,7 +2640,9 @@ function run_dreturn(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const ret = thread.popStackWide();
+  thread.popStackFrame();
+  thread.pushStackWide(ret);
 }
 
 function run_areturn(
@@ -2586,7 +2650,9 @@ function run_areturn(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const ret = thread.popStack();
+  thread.popStackFrame();
+  thread.pushStack(ret);
 }
 
 function run_return(
@@ -2594,7 +2660,7 @@ function run_return(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.popStackFrame();
 }
 
 function run_getstatic(
@@ -2701,7 +2767,7 @@ function run_arraylength(
   throw new Error('runInstruction: Not implemented');
   const arrayref = thread.popStack();
   // TODO: push array length
-  thread.pushStack(arrayref, JavaType.int);
+  thread.pushStack(arrayref);
 }
 
 function run_athrow(
@@ -2783,7 +2849,7 @@ function run_goto_w(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.peekStackFrame().pc += instruction.operands[0];
 }
 
 function run_jsr_w(
@@ -2791,7 +2857,8 @@ function run_jsr_w(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  thread.pushStackWide(instruction.operands[0]);
+  thread.peekStackFrame().pc += 5;
 }
 
 function run_breakpoint(

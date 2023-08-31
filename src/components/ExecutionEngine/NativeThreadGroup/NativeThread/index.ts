@@ -1,4 +1,3 @@
-import { JavaPrimitive, JavaType } from '#types/DataTypes';
 import { InstructionPointer, StackFrame } from './types';
 
 export default class NativeThread {
@@ -10,8 +9,13 @@ export default class NativeThread {
     this.stackPointer = 0;
   }
 
-  getCurrentInstruction(): InstructionPointer {
-    const currentFrame = this.stack[this.stackPointer];
+  getCurrentInstruction(): InstructionPointer | undefined {
+    const currentFrame = this.stack?.[this.stackPointer];
+
+    if (!currentFrame) {
+      return;
+    }
+
     return {
       className: currentFrame.className,
       methodName: currentFrame.methodName,
@@ -31,20 +35,34 @@ export default class NativeThread {
     return this.stack[this.stackPointer];
   }
 
-  pushStack(value: any, type: JavaType) {
+  pushStack(value: any) {
     // check for stack overflow?
     this.stack[this.stackPointer].operandStack.push(value);
-    this.stack[this.stackPointer].typeStack.push(type);
+  }
+
+  pushStackWide(value: any) {
+    // check for stack overflow?
+    this.stack[this.stackPointer].operandStack.push(value);
+    this.stack[this.stackPointer].operandStack.push(value);
+  }
+
+  popStackWide() {
+    this.stack?.[this.stackPointer]?.operandStack?.pop();
+    const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
+    if (value === undefined) {
+      throw new Error('JVM Stack underflow');
+      // TODO: throw java error
+    }
+    return value;
   }
 
   popStack() {
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    const type = this.stack?.[this.stackPointer]?.typeStack?.pop();
-    if (value === undefined || type === undefined) {
+    if (value === undefined) {
       throw new Error('JVM Stack underflow');
       // TODO: throw java error
     }
-    return { value, type };
+    return value;
   }
 
   popStackFrame() {
@@ -58,11 +76,19 @@ export default class NativeThread {
     this.stackPointer += 1;
   }
 
-  storeLocal(index: number, value: any, type: JavaType) {
+  storeLocal(index: number, value: any) {
+    this.stack[this.stackPointer].locals[index] = value;
+  }
+
+  storeLocalWide(index: number, value: any) {
     this.stack[this.stackPointer].locals[index] = value;
   }
 
   loadLocal(index: number): any {
+    return this.stack[this.stackPointer].locals[index];
+  }
+
+  loadLocalWide(index: number): any {
     return this.stack[this.stackPointer].locals[index];
   }
 }

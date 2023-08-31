@@ -14,11 +14,15 @@ export default class Interpreter {
   }
 
   runFor(thread: NativeThread, instructions: number, onFinish?: () => void) {
+    let isFinished = false;
     for (let i = 0; i < instructions; i++) {
       const current = thread.getCurrentInstruction();
+      if (!current) {
+        isFinished = true;
+        break;
+      }
+
       const instruction = this.memoryArea.getInstructionAt(current);
-      // TODO: handle exceptions
-      runInstruction(thread, this.memoryArea, instruction);
       console.log(
         `run ${INSTRUCTION_SET[instruction.opcode]}(${instruction.operands.join(
           ', '
@@ -26,7 +30,13 @@ export default class Interpreter {
           '|'
         )} , locals: ${thread.stack[thread.stackPointer].locals.join('|')}`
       );
+
+      // TODO: handle exceptions
+      runInstruction(thread, this.memoryArea, instruction);
     }
-    onFinish && onFinish();
+
+    if (isFinished) {
+      onFinish && onFinish();
+    }
   }
 }
