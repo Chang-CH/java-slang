@@ -60,8 +60,6 @@ export default class BootstrapClassLoader {
     cls.constant_pool_count = view.getUint16(offset);
     offset += 2;
 
-    // constant pool is 1 indexed
-
     ({ result: cls.constant_pool, offset } = readConstants(
       view,
       offset,
