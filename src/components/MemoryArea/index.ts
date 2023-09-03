@@ -26,11 +26,11 @@ export default class MemoryArea {
   }
 
   getConstant(className: string, constantIndex: number): any {
-    return this.methodArea[className].constant_pool[constantIndex].value;
+    return this.methodArea[className].constant_pool[constantIndex];
   }
 
   getConstantWide(className: string, constantIndex: number): any {
-    return this.methodArea[className].constant_pool[constantIndex].value;
+    return this.methodArea[className].constant_pool[constantIndex];
   }
 
   loadClass(className: string, cls: ClassFile): void {

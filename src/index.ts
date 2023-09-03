@@ -30,7 +30,6 @@ export default class JVM {
       const nameIndex = cls.constant_pool[cls.this_class].name_index;
       // @ts-ignore
       const className = cls.constant_pool[nameIndex].value;
-
       this.engine.runClass(className);
     });
   }

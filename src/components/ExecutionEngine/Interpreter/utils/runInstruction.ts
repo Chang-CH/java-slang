@@ -8,7 +8,13 @@ import {
   MIN_LONG,
 } from '#constants/DataType';
 import MemoryArea from '#jvm/components/MemoryArea';
+import {
+  CONSTANT_Methodref_info,
+  CONSTANT_NameAndType_info,
+} from '#types/ClassFile/constants';
 import { InstructionType } from '#types/ClassFile/instructions';
+import { JavaArray, JavaReference } from '#types/DataTypes';
+import { readMethodDescriptor } from '.';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export default function runInstruction(
@@ -808,7 +814,7 @@ function run_ldc(
 ) {
   console.warn('ldc: class/method reference resolution not implemented');
   thread.pushStack(
-    memoryArea.getConstant(thread.getClassName(), instruction.operands[0])
+    memoryArea.getConstant(thread.getClassName(), instruction.operands[0]).value
   );
   thread.peekStackFrame().pc += 2;
 }
@@ -821,6 +827,7 @@ function run_ldc_w(
   console.warn('ldc_w: class/method reference resolution not implemented');
   thread.pushStackWide(
     memoryArea.getConstantWide(thread.getClassName(), instruction.operands[0])
+      .value
   );
   thread.peekStackFrame().pc += 3;
 }
@@ -832,6 +839,7 @@ function run_ldc2_w(
 ) {
   thread.pushStackWide(
     memoryArea.getConstantWide(thread.getClassName(), instruction.operands[0])
+      .value
   );
   thread.peekStackFrame().pc += 3;
 }
@@ -1425,9 +1433,9 @@ function run_iastore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('iastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1438,9 +1446,9 @@ function run_lastore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('lastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1451,9 +1459,9 @@ function run_fastore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('fastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1464,9 +1472,9 @@ function run_dastore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('dastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1477,9 +1485,9 @@ function run_aastore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('aastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1490,9 +1498,9 @@ function run_bastore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('bastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1503,9 +1511,9 @@ function run_castore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('castore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1516,9 +1524,9 @@ function run_sastore(
 ) {
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack();
+  const arrayref = thread.popStack() as JavaArray;
   console.warn('sastore: exceptions possibly not thrown');
-  memoryArea.getReferenceAt(arrayref)[index] = value;
+  arrayref.set(index, value);
   thread.peekStackFrame().pc += 1;
 }
 
@@ -2708,7 +2716,48 @@ function run_invokespecial(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const invoker = thread.getClassName();
+  const methodRef = memoryArea.getConstant(
+    invoker,
+    instruction.operands[0]
+  ) as CONSTANT_Methodref_info;
+  const className = memoryArea.getConstant(invoker, methodRef.class_index);
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    methodRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const methodName = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.name_index
+  ).value;
+  const methodDescriptor = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.descriptor_index
+  ).value;
+
+  // Get arguments
+  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
+      args[i] = thread.popStackWide();
+      continue;
+    }
+    args[i] = thread.popStack();
+  }
+
+  const thisObj = thread.popStack();
+  thread.peekStackFrame().pc += 3;
+  console.warn('invokespecial: method lookup logic not implemented');
+  thread.pushStackFrame({
+    className,
+    operandStack: [],
+    methodName: methodName + methodDescriptor,
+    pc: 0,
+    this: thisObj,
+    arguments: args,
+    locals: [thisObj],
+  });
 }
 
 function run_invokestatic(
@@ -2716,7 +2765,50 @@ function run_invokestatic(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const invoker = thread.getClassName();
+  const methodRef = memoryArea.getConstant(
+    invoker,
+    instruction.operands[0]
+  ) as CONSTANT_Methodref_info;
+
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, methodRef.class_index).name_index
+  ).value;
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    methodRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const methodName = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.name_index
+  ).value;
+  const methodDescriptor = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.descriptor_index
+  ).value;
+
+  // Get arguments
+  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
+      args[i] = thread.popStackWide();
+      continue;
+    }
+    args[i] = thread.popStack();
+  }
+
+  thread.peekStackFrame().pc += 3;
+  thread.pushStackFrame({
+    className,
+    operandStack: [],
+    methodName: methodName + methodDescriptor,
+    pc: 0,
+    this: null,
+    arguments: args,
+    locals: args,
+  });
 }
 
 function run_invokeinterface(
@@ -2740,7 +2832,12 @@ function run_new(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const type = instruction.operands[0];
+  console.warn('new: does not Resolve/initialize class if not already done so');
+  console.warn('new: fields not initialized to defaults');
+  const objectref = new JavaReference(type);
+  thread.pushStack(objectref);
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_newarray(
@@ -2748,7 +2845,11 @@ function run_newarray(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const count = thread.popStack();
+  const type = instruction.operands[0];
+  const arrayref = new JavaArray(count, type);
+  thread.pushStack(arrayref);
+  thread.peekStackFrame().pc += 2;
 }
 
 function run_anewarray(
@@ -2756,7 +2857,11 @@ function run_anewarray(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const count = thread.popStack();
+  const type = instruction.operands[0];
+  const arrayref = new JavaArray(count, type);
+  thread.pushStack(arrayref);
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_arraylength(
@@ -2764,10 +2869,8 @@ function run_arraylength(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
-  const arrayref = thread.popStack();
-  // TODO: push array length
-  thread.pushStack(arrayref);
+  const arrayref = thread.popStack() as JavaArray;
+  thread.pushStack(arrayref.len());
 }
 
 function run_athrow(
