@@ -2205,7 +2205,6 @@ function readgoto(
   offset: number
 ): { result: InstructionType; offset: number } {
   const branchbyte = view.getUint16(offset);
-  console.log(branchbyte + 1);
   offset += 2;
 
   return {
@@ -2421,7 +2420,7 @@ function readinvokevirtual(
   offset += 2;
 
   return {
-    result: { opcode: INSTRUCTION_SET.invokespecial, operands: [indexbyte] },
+    result: { opcode: INSTRUCTION_SET.invokevirtual, operands: [indexbyte] },
     offset,
   };
 }
@@ -2449,7 +2448,7 @@ function readinvokestatic(
   offset += 2;
 
   return {
-    result: { opcode: INSTRUCTION_SET.invokespecial, operands: [indexbyte] },
+    result: { opcode: INSTRUCTION_SET.invokestatic, operands: [indexbyte] },
     offset,
   };
 }
@@ -2476,7 +2475,7 @@ function readinvokeinterface(
 
   return {
     result: {
-      opcode: INSTRUCTION_SET.invokespecial,
+      opcode: INSTRUCTION_SET.invokeinterface,
       operands: [indexbyte, count],
     },
     offset,
