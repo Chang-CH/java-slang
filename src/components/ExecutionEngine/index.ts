@@ -19,20 +19,19 @@ export default class ExecutionEngine {
 
   runClass(className: string, args?: any[]) {
     console.warn('ExecutionEngine.runClass not implemented.');
-    this.nativeThreadGroup.addThread(
-      new NativeThread({
-        operandStack: [],
-        typeStack: [],
-        locals: [],
-        localType: [],
-        className,
-        methodName: 'main([Ljava/lang/String;)V',
-        pc: 0,
-        arguments: args ?? [],
-        argumentTypes: [],
-        this: null,
-      })
-    );
+    const mainThread = new NativeThread({
+      operandStack: [],
+      locals: [],
+      className,
+      methodName: 'main([Ljava/lang/String;)V',
+      pc: 0,
+      arguments: args ?? [],
+      this: null,
+    });
+    // objectRef this
+    // mainThread.pushStack(null);
+    // TODO: pushstack string args
+    this.nativeThreadGroup.addThread(mainThread);
 
     this.interpreter.runFor(this.nativeThreadGroup.getThread(), 1000, () =>
       console.log('thread finished')
