@@ -2708,7 +2708,48 @@ function run_invokevirtual(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const invoker = thread.getClassName();
+  const methodRef = memoryArea.getConstant(
+    invoker,
+    instruction.operands[0]
+  ) as CONSTANT_Methodref_info;
+  const className = memoryArea.getConstant(invoker, methodRef.class_index);
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    methodRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const methodName = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.name_index
+  ).value;
+  const methodDescriptor = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.descriptor_index
+  ).value;
+
+  // Get arguments
+  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
+      args[i] = thread.popStackWide();
+      continue;
+    }
+    args[i] = thread.popStack();
+  }
+
+  const thisObj = thread.popStack();
+  thread.peekStackFrame().pc += 3;
+  console.warn('invokevirtual: method lookup procedure not implemented');
+  thread.pushStackFrame({
+    className,
+    operandStack: [],
+    methodName: methodName + methodDescriptor,
+    pc: 0,
+    this: thisObj,
+    arguments: args,
+    locals: [thisObj],
+  });
 }
 
 function run_invokespecial(
@@ -2748,7 +2789,7 @@ function run_invokespecial(
 
   const thisObj = thread.popStack();
   thread.peekStackFrame().pc += 3;
-  console.warn('invokespecial: method lookup logic not implemented');
+  console.warn('invokespecial: method lookup procedure not implemented');
   thread.pushStackFrame({
     className,
     operandStack: [],
@@ -2816,7 +2857,48 @@ function run_invokeinterface(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const invoker = thread.getClassName();
+  const methodRef = memoryArea.getConstant(
+    invoker,
+    instruction.operands[0]
+  ) as CONSTANT_Methodref_info;
+  const className = memoryArea.getConstant(invoker, methodRef.class_index);
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    methodRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const methodName = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.name_index
+  ).value;
+  const methodDescriptor = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.descriptor_index
+  ).value;
+
+  // Get arguments
+  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
+      args[i] = thread.popStackWide();
+      continue;
+    }
+    args[i] = thread.popStack();
+  }
+
+  const thisObj = thread.popStack();
+  thread.peekStackFrame().pc += 3;
+  console.warn('invokespecial: method lookup procedure not implemented');
+  thread.pushStackFrame({
+    className,
+    operandStack: [],
+    methodName: methodName + methodDescriptor,
+    pc: 0,
+    this: thisObj,
+    arguments: args,
+    locals: [thisObj],
+  });
 }
 
 function run_invokedynamic(
@@ -2824,7 +2906,8 @@ function run_invokedynamic(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  // We should not need this, Java compiler should not produce this opcode
+  throw new Error('invokeDynamic: Not implemented');
 }
 
 function run_new(
@@ -2835,7 +2918,7 @@ function run_new(
   const type = instruction.operands[0];
   console.warn('new: does not Resolve/initialize class if not already done so');
   console.warn('new: fields not initialized to defaults');
-  const objectref = new JavaReference(type);
+  const objectref = new JavaReference(type, {});
   thread.pushStack(objectref);
   thread.peekStackFrame().pc += 3;
 }
@@ -2936,7 +3019,12 @@ function run_ifnull(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const ref = thread.popStack() as JavaReference;
+  if (ref === null) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_ifnonnull(
@@ -2944,7 +3032,12 @@ function run_ifnonnull(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const ref = thread.popStack() as JavaReference;
+  if (ref !== null) {
+    thread.peekStackFrame().pc += instruction.operands[0];
+    return;
+  }
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_goto_w(

@@ -67,9 +67,9 @@ export class JavaReference {
     [key: string]: any;
   };
 
-  constructor(cls: string) {
+  constructor(cls: string, fields: { [key: string]: any }) {
     this.cls = cls;
-    this.fields = {};
+    this.fields = fields;
   }
 
   getField(name: string) {
