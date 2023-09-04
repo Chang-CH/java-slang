@@ -15,7 +15,6 @@ export default class OsInterface {
   readFile(path: string[]): DataView {
     let currentFolder: Folder | DataView = this.files;
     for (const folderName of path) {
-      console.log(currentFolder);
       // @ts-ignore
       if (!currentFolder[folderName]) {
         throw new Error(`File not found: ${path.join('/')}`);

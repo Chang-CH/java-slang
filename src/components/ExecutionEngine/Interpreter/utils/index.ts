@@ -25,6 +25,8 @@ function readFieldDescriptor(descriptor: string, index: number) {
       const sub = descriptor.substring(index);
       const end = sub.indexOf(';');
       return { type: JavaType.REFERENCE, index: index + end + 1 };
+    case JavaType.VOID:
+      return { type: JavaType.VOID, index: index + 1 };
     default:
       throw new Error(`Unknown type ${descriptor[index]}`);
   }

@@ -105,4 +105,5 @@ export enum JavaType {
   BOOLEAN = 'Z',
   REFERENCE = 'L',
   ARRAY = '[',
+  VOID = 'V',
 }

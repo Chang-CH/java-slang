@@ -9,6 +9,7 @@ import {
 } from '#constants/DataType';
 import MemoryArea from '#jvm/components/MemoryArea';
 import {
+  CONSTANT_Fieldref_info,
   CONSTANT_Methodref_info,
   CONSTANT_NameAndType_info,
 } from '#types/ClassFile/constants';
@@ -1079,7 +1080,7 @@ function run_iaload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('iaload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.pushStack(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1093,7 +1094,7 @@ function run_laload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('laload: exceptions possibly not thrown');
-  thread.pushStackWide(memoryArea.getReferenceWideAt(arrayref)[index]);
+  thread.pushStackWide(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1107,7 +1108,7 @@ function run_faload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('faload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.pushStack(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1121,7 +1122,7 @@ function run_daload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('daload: exceptions possibly not thrown');
-  thread.pushStackWide(memoryArea.getReferenceWideAt(arrayref)[index]);
+  thread.pushStackWide(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1135,7 +1136,7 @@ function run_aaload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('aaload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.pushStack(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1149,7 +1150,7 @@ function run_baload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('baload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.pushStack(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1163,7 +1164,7 @@ function run_caload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('caload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.pushStack(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -1177,7 +1178,7 @@ function run_saload(
   // TODO: throw NullPointerException if arrayref is null
   // TODO: throw ArrayIndexOutOfBoundsException if OOB
   console.warn('saload: exceptions possibly not thrown');
-  thread.pushStack(memoryArea.getReferenceAt(arrayref)[index]);
+  thread.pushStack(arrayref.get(index));
   thread.peekStackFrame().pc += 1;
 }
 
@@ -2700,7 +2701,33 @@ function run_putfield(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const invoker = thread.getClassName();
+  const value = thread.popStack();
+  const obj = thread.popStack() as JavaReference;
+  const fieldRef = memoryArea.getConstant(
+    thread.getClassName(),
+    instruction.operands[0]
+  ) as CONSTANT_Fieldref_info;
+
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, fieldRef.class_index).name_index
+  ).value;
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    fieldRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const fieldName = memoryArea.getConstant(
+    className,
+    name_and_type_index.name_index
+  ).value;
+  const fieldType = memoryArea.getConstant(
+    className,
+    name_and_type_index.name_index
+  ).value;
+
+  obj.putField(fieldName, value);
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_invokevirtual(
@@ -2713,7 +2740,10 @@ function run_invokevirtual(
     invoker,
     instruction.operands[0]
   ) as CONSTANT_Methodref_info;
-  const className = memoryArea.getConstant(invoker, methodRef.class_index);
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, methodRef.class_index).name_index
+  ).value;
   const name_and_type_index = memoryArea.getConstant(
     invoker,
     methodRef.name_and_type_index
@@ -2762,7 +2792,10 @@ function run_invokespecial(
     invoker,
     instruction.operands[0]
   ) as CONSTANT_Methodref_info;
-  const className = memoryArea.getConstant(invoker, methodRef.class_index);
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, methodRef.class_index).name_index
+  ).value;
   const name_and_type_index = memoryArea.getConstant(
     invoker,
     methodRef.name_and_type_index
@@ -2797,7 +2830,7 @@ function run_invokespecial(
     pc: 0,
     this: thisObj,
     arguments: args,
-    locals: [thisObj],
+    locals: [thisObj, ...args],
   });
 }
 
@@ -2862,7 +2895,10 @@ function run_invokeinterface(
     invoker,
     instruction.operands[0]
   ) as CONSTANT_Methodref_info;
-  const className = memoryArea.getConstant(invoker, methodRef.class_index);
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, methodRef.class_index).name_index
+  ).value;
   const name_and_type_index = memoryArea.getConstant(
     invoker,
     methodRef.name_and_type_index
@@ -2915,10 +2951,15 @@ function run_new(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  const invoker = thread.getClassName();
   const type = instruction.operands[0];
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, type).name_index
+  ).value;
   console.warn('new: does not Resolve/initialize class if not already done so');
   console.warn('new: fields not initialized to defaults');
-  const objectref = new JavaReference(type, {});
+  const objectref = new JavaReference(className, {});
   thread.pushStack(objectref);
   thread.peekStackFrame().pc += 3;
 }
@@ -2940,9 +2981,13 @@ function run_anewarray(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  const invoker = thread.getClassName();
   const count = thread.popStack();
-  const type = instruction.operands[0];
-  const arrayref = new JavaArray(count, type);
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, instruction.operands[0]).name_index
+  ).value;
+  const arrayref = new JavaArray(count, className);
   thread.pushStack(arrayref);
   thread.peekStackFrame().pc += 3;
 }
