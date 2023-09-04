@@ -39,7 +39,6 @@ export function readField(
       access_flags,
       name_index,
       descriptor_index,
-      attributes_count,
       attributes,
     },
     offset,

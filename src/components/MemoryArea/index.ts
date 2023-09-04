@@ -35,18 +35,13 @@ export default class MemoryArea {
       access_flags: 0x0100,
       name_index: 0,
       descriptor_index: 0,
-      attributes_count: 0,
       attributes: [],
       code: {
         attribute_name_index: 0,
-        attributes_count: 0,
-        attribute_length: 0,
         attributes: [],
         max_stack: 0,
         max_locals: 0,
-        code_length: 0,
         code: [],
-        exception_table_length: 0,
         exception_table: [],
       },
     };
@@ -58,7 +53,6 @@ export default class MemoryArea {
   getInstructionAt(pointer: InstructionPointer): InstructionType | Function {
     const method =
       this.methodArea[pointer.className].methods[pointer.methodName];
-
     if (checkNative(method)) {
       return this.jni.getNativeMethod(pointer.className, pointer.methodName);
     }

@@ -1,4 +1,5 @@
 import { PREDEF_ATTRIB } from '#constants/ClassFile/attributes';
+import { AttributeCode, ExceptionType } from '#types/ClassFile/attributes';
 import { ConstantType, CONSTANT_Utf8_info } from '#types/ClassFile/constants';
 import { InstructionType } from '#types/ClassFile/instructions';
 import { readInstructions } from './readInstruction';
@@ -208,7 +209,6 @@ function readAttributeConstantValue(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       constantvalue_index,
     },
     offset,
@@ -221,7 +221,10 @@ function readAttributeCode(
   attribute_length: number,
   view: DataView,
   offset: number
-) {
+): {
+  result: AttributeCode;
+  offset: number;
+} {
   const max_stack = view.getUint16(offset);
   offset += 2;
   const max_locals = view.getUint16(offset);
@@ -239,7 +242,7 @@ function readAttributeCode(
   const exception_table_length = view.getUint16(offset);
   offset += 2;
 
-  const exception_table = [];
+  const exception_table: ExceptionType[] = [];
   for (let i = 0; i < exception_table_length; i++) {
     const start_pc = view.getUint16(offset);
     offset += 2;
@@ -249,7 +252,7 @@ function readAttributeCode(
     offset += 2;
     const catch_type = view.getUint16(offset);
     offset += 2;
-    exception_table.push([start_pc, end_pc, handler_pc, catch_type]);
+    exception_table.push({ start_pc, end_pc, handler_pc, catch_type });
   }
 
   const attributes_count = view.getUint16(offset);
@@ -269,19 +272,16 @@ function readAttributeCode(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       max_stack,
       max_locals,
-      code_length,
       code,
-      exception_table_length,
       exception_table,
-      attributes_count,
       attributes,
     },
     offset,
   };
 }
+
 function readAttributeStackMapTable(
   constantPool: Array<ConstantType>,
   attribute_name_index: number,
@@ -300,7 +300,6 @@ function readAttributeStackMapTable(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -324,7 +323,6 @@ function readAttributeExceptions(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -348,7 +346,6 @@ function readAttributeInnerClasses(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -372,7 +369,6 @@ function readAttributeEnclosingMethod(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -396,7 +392,6 @@ function readAttributeSynthetic(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -420,7 +415,6 @@ function readAttributeSignature(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -444,7 +438,6 @@ function readAttributeSourceFile(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -468,7 +461,6 @@ function readAttributeSourceDebugExtension(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -499,7 +491,6 @@ function readAttributeLineNumberTable(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       line_number_table_length,
       line_number_table,
     },
@@ -524,7 +515,6 @@ function readAttributeLocalVariableTable(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -548,7 +538,6 @@ function readAttributeLocalVariableTypeTable(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -572,7 +561,6 @@ function readAttributeDeprecated(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -598,7 +586,6 @@ function readAttributeRuntimeVisibleAnnotations(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -624,7 +611,6 @@ function readAttributeRuntimeInvisibleAnnotations(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -650,7 +636,6 @@ function readAttributeRuntimeVisibleParameterAnnotations(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -676,7 +661,6 @@ function readAttributeRuntimeInvisibleParameterAnnotations(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -700,7 +684,6 @@ function readAttributeAnnotationDefault(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -724,7 +707,6 @@ function readAttributeBootstrapMethods(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,
@@ -749,7 +731,6 @@ function readAttributeGeneric(
   return {
     result: {
       attribute_name_index,
-      attribute_length,
       info,
     },
     offset,

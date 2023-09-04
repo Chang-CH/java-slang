@@ -7,6 +7,10 @@ import { readAttribute } from './utils/readAttributes';
 import { readConstants } from './utils/readConstants';
 import { readField } from './utils/readField';
 import { getMethodName, readMethod } from './utils/readMethod';
+import {
+  CONSTANT_Class_info,
+  CONSTANT_Utf8_info,
+} from '#types/ClassFile/constants';
 
 /**
  * Reads classfile as byte array and loads it into memory area
@@ -33,18 +37,13 @@ export default class BootstrapClassLoader {
       magic: 0,
       minor_version: 0,
       major_version: 0,
-      constant_pool_count: 0,
       constant_pool: [],
       access_flags: 0,
-      this_class: 0,
-      super_class: 0,
-      interfaces_count: 0,
+      this_class: '',
+      super_class: '',
       interfaces: [],
-      fields_count: 0,
       fields: [],
-      methods_count: 0,
       methods: {},
-      attributes_count: 0,
       attributes: [],
     };
 
@@ -57,40 +56,52 @@ export default class BootstrapClassLoader {
     cls.major_version = view.getUint16(offset);
     offset += 2;
 
-    cls.constant_pool_count = view.getUint16(offset);
+    const constant_pool_count = view.getUint16(offset);
     offset += 2;
 
     ({ result: cls.constant_pool, offset } = readConstants(
       view,
       offset,
-      cls.constant_pool_count
+      constant_pool_count
     ));
 
     cls.access_flags = view.getUint16(offset);
     offset += 2;
 
-    cls.this_class = view.getUint16(offset);
+    const classIndex = cls.constant_pool[
+      view.getUint16(offset)
+    ] as CONSTANT_Class_info;
+    const className = cls.constant_pool[
+      classIndex.name_index
+    ] as CONSTANT_Utf8_info;
+    cls.this_class = className.value;
     offset += 2;
 
-    cls.super_class = view.getUint16(offset);
+    const superClassIndex = cls.constant_pool[
+      view.getUint16(offset)
+    ] as CONSTANT_Class_info;
+    const superClassName = cls.constant_pool[
+      superClassIndex.name_index
+    ] as CONSTANT_Utf8_info;
+    cls.super_class = superClassName.value;
     offset += 2;
 
-    cls.interfaces_count = view.getUint16(offset);
+    const interfaces_count = view.getUint16(offset);
     offset += 2;
 
     // TODO: check interfaces 1 indexed.
     cls.interfaces = [];
-    for (let i = 0; i < cls.interfaces_count; i += 1) {
+    for (let i = 0; i < interfaces_count; i += 1) {
       cls.interfaces.push(view.getUint16(offset));
       // TODO: check index ok
       offset += 2;
     }
 
-    cls.fields_count = view.getUint16(offset);
+    const fields_count = view.getUint16(offset);
     offset += 2;
 
     cls.fields = [];
-    for (let i = 0; i < cls.fields_count; i += 1) {
+    for (let i = 0; i < fields_count; i += 1) {
       const { result, offset: resultOffset } = readField(
         cls.constant_pool,
         view,
@@ -100,11 +111,11 @@ export default class BootstrapClassLoader {
       offset = resultOffset;
     }
 
-    cls.methods_count = view.getUint16(offset);
+    const methods_count = view.getUint16(offset);
     offset += 2;
 
     cls.methods = {};
-    for (let i = 0; i < cls.methods_count; i += 1) {
+    for (let i = 0; i < methods_count; i += 1) {
       const { result, offset: resultOffset } = readMethod(
         cls.constant_pool,
         view,
@@ -115,12 +126,12 @@ export default class BootstrapClassLoader {
       offset = resultOffset;
     }
 
-    cls.attributes_count = view.getUint16(offset);
+    const attributes_count = view.getUint16(offset);
     offset += 2;
 
     cls.attributes = [];
     // TODO: get attributes
-    for (let i = 0; i < cls.attributes_count; i += 1) {
+    for (let i = 0; i < attributes_count; i += 1) {
       const { result, offset: resultOffset } = readAttribute(
         cls.constant_pool,
         view,
@@ -139,7 +150,7 @@ export default class BootstrapClassLoader {
    * @returns Error, if any
    */
   prepareClass(cls: ClassFile): void | Error {
-    console.error('BootstrapClassLoader.prepareClass: not implemented.');
+    console.warn('BootstrapClassLoader.prepareClass: not implemented.');
     return;
   }
 
@@ -149,7 +160,7 @@ export default class BootstrapClassLoader {
    * @returns class data with resolved references
    */
   linkClass(cls: ClassFile): ClassFile {
-    console.error('BootstrapClassLoader.linkClass: not implemented.');
+    console.warn('BootstrapClassLoader.linkClass: not implemented.');
     return cls;
   }
 
@@ -158,16 +169,12 @@ export default class BootstrapClassLoader {
    * @param cls resolved class data
    */
   loadClass(cls: ClassFile): void {
-    console.error('BootstrapClassLoader.loadClass: not implemented.');
+    console.warn('BootstrapClassLoader.loadClass: not implemented.');
     this.memoryArea.loadClass(this.getClassName(cls), cls);
   }
 
   getClassName(cls: ClassFile): string {
-    // @ts-ignore
-    return (
-      // @ts-ignore
-      cls.constant_pool[cls.constant_pool[cls.this_class].name_index].value
-    );
+    return cls.this_class;
   }
 
   /**

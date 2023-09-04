@@ -29,10 +29,7 @@ export default class JVM {
     // FIXME: should use system class loader instead.
     // should class loader be called by memory area on class not found?
     this.bootstrapClassLoader.load(filepath, cls => {
-      // @ts-ignore maybe we can check this in prepare step of classloader
-      const nameIndex = cls.constant_pool[cls.this_class].name_index;
-      // @ts-ignore
-      const className = cls.constant_pool[nameIndex].value;
+      const className = cls.this_class;
       this.engine.runClass(className);
     });
   }

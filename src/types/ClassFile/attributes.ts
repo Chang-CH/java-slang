@@ -6,7 +6,6 @@ export interface AttributeType {
 
 export interface AttributeConstantValue {
   attribute_name_index: number;
-  attribute_length: number;
   constantvalue_index: number;
 }
 
@@ -19,14 +18,10 @@ export interface ExceptionType {
 
 export interface AttributeCode {
   attribute_name_index: number;
-  attribute_length: number;
   max_stack: number;
   max_locals: number;
-  code_length: number;
   code: Array<InstructionType>;
-  exception_table_length: number;
   exception_table: Array<ExceptionType>;
-  attributes_count: number;
   attributes: Array<AttributeType>;
 }
 
@@ -113,9 +108,7 @@ export interface append_frame {
 export interface full_frame {
   frame_type: number /* 255 */;
   offset_delta: number;
-  number_of_locals: number;
   locals: Array<verification_type_info>;
-  number_of_stack_items: number;
   stack: Array<verification_type_info>;
 }
 
@@ -130,21 +123,16 @@ export type stack_map_frame =
 
 export interface AttributeStackMapTable {
   attribute_name_index: number;
-  attribute_length: number;
-  number_of_entries: number;
   entries: Array<stack_map_frame>;
 }
+
 export interface AttributeExceptions {
   attribute_name_index: number;
-  attribute_length: number;
-  number_of_exceptions: number;
   exception_index_table: Array<number>;
 }
 
 export interface AttributeInnerClasses {
   attribute_name_index: number;
-  attribute_length: number;
-  number_of_classes: number;
   classes: Array<{
     inner_class_info_index: number;
     outer_class_info_index: number;
@@ -152,44 +140,43 @@ export interface AttributeInnerClasses {
     inner_class_access_flags: number;
   }>;
 }
+
 export interface AttributeEnclosingMethod {
   attribute_name_index: number;
-  attribute_length: number;
   class_index: number;
   method_index: number;
 }
+
 export interface AttributeSynthetic {
   attribute_name_index: number;
-  attribute_length: number;
 }
 
 export interface AttributeSignature {
   attribute_name_index: number;
-  attribute_length: number;
   signature_index: number;
 }
+
 export interface AttributeSourceFile {
   attribute_name_index: number;
-  attribute_length: number;
   sourcefile_index: number;
 }
+
 export interface AttributeSourceDebugExtension {
   attribute_name_index: number;
-  attribute_length: number;
   debug_extension: Array<number>; // TODO: maybe store as utf-8 string?
 }
+
 export interface AttributeLineNumberTable {
   attribute_name_index: number;
-  attribute_length: number;
   line_number_table_length: number;
   line_number_table: Array<{
     start_pc: number;
     line_number: number;
   }>;
 }
+
 export interface AttributeLocalVariableTable {
   attribute_name_index: number;
-  attribute_length: number;
   local_variable_table_length: number;
   local_variable_table: Array<{
     start_pc: number;
@@ -199,9 +186,9 @@ export interface AttributeLocalVariableTable {
     index: number;
   }>;
 }
+
 export interface AttributeLocalVariableTypeTable {
   attribute_name_index: number;
-  attribute_length: number;
   local_variable_type_table_length: number;
   local_variable_type_table: Array<{
     start_pc: number;
@@ -211,9 +198,9 @@ export interface AttributeLocalVariableTypeTable {
     index: number;
   }>;
 }
+
 export interface AttributeDeprecated {
   attribute_name_index: number;
-  attribute_length: number;
 }
 
 /**
