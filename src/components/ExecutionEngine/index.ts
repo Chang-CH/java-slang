@@ -36,8 +36,9 @@ export default class ExecutionEngine {
     // TODO: pushstack string args
     this.nativeThreadGroup.addThread(mainThread);
 
-    this.interpreter.runFor(this.nativeThreadGroup.getThread(), 1000, () =>
-      console.log('thread finished')
-    );
+    this.interpreter.runFor(this.nativeThreadGroup.getThread(), 1000, () => {
+      console.debug('finished');
+      process.exit();
+    });
   }
 }

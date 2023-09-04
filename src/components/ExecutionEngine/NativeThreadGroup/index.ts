@@ -15,7 +15,7 @@ export default class NativeThreadGroup {
    */
   getThread() {
     // TODO: check daemon threads
-    console.error('NativeThreadGroup.getThread: not implemented.');
+    console.warn('NativeThreadGroup.getThread: not implemented.');
     return this.threads[0];
   }
 }

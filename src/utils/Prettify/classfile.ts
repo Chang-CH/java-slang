@@ -8,7 +8,6 @@ import { METHOD_FLAGS } from '#types/ClassFile/methods';
 /**
  * Parses the class file to replace references with actual values.
  * TODO: replicate javap -v output
- * TODO: add interface for prettified class file
  *
  * @param cls classfile object output during bscl parse stage
  * @returns stringified classfile
@@ -49,10 +48,8 @@ function resolveReferences(cls: any) {
     major_version: cls.major_version,
     minor_version: cls.minor_version,
     constant_pool: [],
-    classIndex: -1,
-    className: '',
-    superIndex: -1,
-    superName: '',
+    className: cls.this_class,
+    superName: cls.super_class,
     methods: [],
   };
 
@@ -62,29 +59,12 @@ function resolveReferences(cls: any) {
   const textConstantPool = cls.constant_pool.map(
     (constant: any, index: number) => {
       const { tag, ...rest } = constant;
-      return `#${index} = ${CONSTANT_TAG[constant.tag]}    ${Object.values(
-        rest
-      ).join(' ')}`;
+      return (
+        `#${index} = ${CONSTANT_TAG[constant.tag]}`.padEnd(40) +
+        `${Object.values(rest).join(' ')}`
+      );
     }
   );
-
-  /**
-   * Resolve classname and superclass name
-   */
-  result.classIndex = cls.this_class;
-  result.className =
-    cls.constant_pool[
-      // @ts-ignore
-      cls.constant_pool[cls.this_class].name_index
-      // @ts-ignore
-    ].value;
-  result.superIndex = cls.super_class;
-  result.superName =
-    cls.constant_pool[
-      // @ts-ignore
-      cls.constant_pool[cls.super_class].name_index
-      // @ts-ignore
-    ].value;
 
   /**
    * Convert methods to string
@@ -100,7 +80,8 @@ function resolveReferences(cls: any) {
           .filter(x => x)
           .map(
             (code: InstructionType) =>
-              `${INSTRUCTION_SET[code.opcode]}    ${code.operands.join(', ')}`
+              `${INSTRUCTION_SET[code.opcode]}`.padEnd(15) +
+              ` ${code.operands.join(', ')}`
           );
       });
       const flags = method.method_flags;
@@ -135,11 +116,11 @@ function getAllFlags(cls: any) {
     if (flags & FIELD_FLAGS.ACC_ENUM) fieldflags.push('ACC_ENUM');
 
     // @ts-ignore
-    field.field_flags = fieldflags;
+    cls.fields[index].field_flags = fieldflags;
   }
 
-  for (let index = 0; index < (cls?.methods?.length ?? 0); index++) {
-    const method = cls.methods[index];
+  for (const key of Object.keys(cls.methods)) {
+    const method = cls.methods[key];
     const flags = method.access_flags;
 
     const methodflags = [];
@@ -158,7 +139,7 @@ function getAllFlags(cls: any) {
     if (flags & METHOD_FLAGS.ACC_SYNTHETIC) methodflags.push('ACC_SYNTHETIC');
 
     // @ts-ignore
-    method.method_flags = methodflags;
+    cls.methods[key].method_flags = methodflags;
   }
 
   return cls;

@@ -26,7 +26,10 @@ export default class Interpreter {
       let instruction = this.memoryArea.getInstructionAt(current);
       // is native
       if (typeof instruction === 'function') {
-        console.log(`JNI: ${current.className}.${current.methodName}`);
+        console.debug(
+          `[Native] JNI:`.padEnd(20) +
+            ` ${current.className}.${current.methodName}`
+        );
         const result = instruction(
           thread,
           this.memoryArea,
@@ -41,12 +44,17 @@ export default class Interpreter {
 
       instruction = instruction as InstructionType;
 
-      console.log(
-        `run ${INSTRUCTION_SET[instruction.opcode]}(${instruction.operands.join(
-          ', '
-        )}): stack: ${thread.stack[thread.stackPointer].operandStack.join(
-          '|'
-        )} , locals: ${thread.stack[thread.stackPointer].locals.join('|')}`
+      console.debug(
+        `#${current.pc}`.padEnd(4) +
+          `${INSTRUCTION_SET[instruction.opcode]}(${instruction.operands.join(
+            ', '
+          )})`.padEnd(20) +
+          ` locals: [${thread.stack[thread.stackPointer].locals.join(
+            ','
+          )}]`.padEnd(40) +
+          ` stack: [${thread.stack[thread.stackPointer].operandStack.join(
+            ','
+          )}] ->`
       );
 
       // TODO: handle exceptions

@@ -41,14 +41,28 @@ export default function main() {
       type: 'boolean',
       demandOption: false,
     })
-    .option('-nowarn', {
+    .option('nowarn', {
       alias: 'nowarn',
       describe: 'hides warning messages',
       type: 'boolean',
       demandOption: false,
     })
+    .option('nodebug', {
+      alias: 'nodebug',
+      describe: 'hides debug messages',
+      type: 'boolean',
+      demandOption: false,
+    })
     .help()
     .parseSync();
+
+  if (options['nowarn']) {
+    console.warn = () => {};
+  }
+
+  if (options['nodebug']) {
+    console.debug = () => {};
+  }
 
   const folders: Folder = {};
 
@@ -71,7 +85,7 @@ export default function main() {
 
       const bscl = new BootstrapClassLoader(memory, os);
       const cls = bscl.readClass(view);
-      console.log(classFileToText(cls));
+      console.debug(classFileToText(cls));
     }
     folders[fileName] = view;
   }
