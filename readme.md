@@ -1,5 +1,3 @@
-# Lorem Ipsum
-
 Dev:
 
 ```sh
