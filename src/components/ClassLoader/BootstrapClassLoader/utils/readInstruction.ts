@@ -2204,7 +2204,7 @@ function readgoto(
   view: DataView,
   offset: number
 ): { result: InstructionType; offset: number } {
-  const branchbyte = view.getUint16(offset);
+  const branchbyte = view.getInt16(offset);
   offset += 2;
 
   return {
