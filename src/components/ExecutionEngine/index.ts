@@ -1,4 +1,5 @@
 import OsInterface from '#utils/OsInterface';
+import { JNI } from '../JNI';
 import MemoryArea from '../MemoryArea';
 import Interpreter from './Interpreter';
 import NativeThreadGroup from './NativeThreadGroup';
@@ -9,8 +10,10 @@ export default class ExecutionEngine {
   nativeThreadGroup: NativeThreadGroup;
   os: OsInterface;
   interpreter: Interpreter;
+  jni: JNI;
 
-  constructor(memoryArea: MemoryArea, os: OsInterface) {
+  constructor(memoryArea: MemoryArea, os: OsInterface, jni: JNI) {
+    this.jni = jni;
     this.memoryArea = memoryArea;
     this.os = os;
     this.nativeThreadGroup = new NativeThreadGroup();

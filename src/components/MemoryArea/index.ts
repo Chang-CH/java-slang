@@ -1,6 +1,9 @@
 import { ClassFile } from '#types/ClassFile';
 import { InstructionType } from '#types/ClassFile/instructions';
+import { MethodType } from '#types/ClassFile/methods';
+import { checkNative } from '../ClassLoader/BootstrapClassLoader/utils/readMethod';
 import { InstructionPointer } from '../ExecutionEngine/NativeThreadGroup/NativeThread/types';
+import { JNI } from '../JNI';
 
 export default class MemoryArea {
   // Technically the stack and pc registers should be here, but are stored in NativeStack.
@@ -8,20 +11,58 @@ export default class MemoryArea {
   methodArea: {
     [className: string]: {
       methods: {
-        [methodName: string]: any;
+        [methodName: string]: MethodType;
       };
       [others: string]: any;
     };
   };
+  jni: JNI;
 
-  constructor() {
+  constructor(jni: JNI) {
     this.heap = {};
     this.methodArea = {};
+
+    // TODO: remove hardcoded natives
+    const obj: {
+      methods: {
+        [methodName: string]: MethodType;
+      };
+      [others: string]: any;
+    } = {
+      methods: {},
+    };
+    obj.methods['<init>()V'] = {
+      access_flags: 0x0100,
+      name_index: 0,
+      descriptor_index: 0,
+      attributes_count: 0,
+      attributes: [],
+      code: {
+        attribute_name_index: 0,
+        attributes_count: 0,
+        attribute_length: 0,
+        attributes: [],
+        max_stack: 0,
+        max_locals: 0,
+        code_length: 0,
+        code: [],
+        exception_table_length: 0,
+        exception_table: [],
+      },
+    };
+    this.methodArea['java/lang/Object'] = obj;
+
+    this.jni = jni;
   }
 
-  getInstructionAt(pointer: InstructionPointer): InstructionType {
+  getInstructionAt(pointer: InstructionPointer): InstructionType | Function {
     const method =
       this.methodArea[pointer.className].methods[pointer.methodName];
+
+    if (checkNative(method)) {
+      return this.jni.getNativeMethod(pointer.className, pointer.methodName);
+    }
+
     return method.code.code[pointer.pc];
   }
 

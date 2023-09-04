@@ -1,6 +1,7 @@
 import OsInterface from '#utils/OsInterface';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
+import { JNI } from './components/JNI';
 import MemoryArea from './components/MemoryArea';
 
 export default class JVM {
@@ -8,15 +9,17 @@ export default class JVM {
   bootstrapClassLoader: BootstrapClassLoader;
   engine: ExecutionEngine;
   os: OsInterface;
+  jni: JNI;
 
   constructor(os: OsInterface) {
-    this.memoryArea = new MemoryArea();
+    this.memoryArea = new MemoryArea(new JNI());
     this.os = os;
     this.bootstrapClassLoader = new BootstrapClassLoader(
       this.memoryArea,
       this.os
     );
-    this.engine = new ExecutionEngine(this.memoryArea, this.os);
+    this.jni = new JNI();
+    this.engine = new ExecutionEngine(this.memoryArea, this.os, this.jni);
   }
 
   runClass(filepath: string) {
