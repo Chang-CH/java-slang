@@ -10,6 +10,5 @@ export interface StackFrame {
   methodName: string;
   pc: number;
   this: any;
-  arguments: any[];
   locals: any[];
 }
