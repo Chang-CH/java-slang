@@ -12,9 +12,13 @@ export interface ClassFile {
   this_class: string;
   super_class: string;
   interfaces: Array<string>;
-  fields: Array<FieldType>;
+  fields: {
+    [fieldName: string]: FieldType;
+  };
   methods: {
     [methodName: string]: MethodType;
   };
   attributes: Array<AttributeType>;
 }
+
+// Classdata in memory area should have reference to its loader.

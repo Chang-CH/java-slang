@@ -2694,6 +2694,32 @@ function run_getfield(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  // const invoker = thread.getClassName();
+  // const obj = thread.popStack() as JavaReference;
+  // const fieldRef = memoryArea.getConstant(
+  //   thread.getClassName(),
+  //   instruction.operands[0]
+  // ) as CONSTANT_Fieldref_info;
+
+  // const className = memoryArea.getConstant(
+  //   invoker,
+  //   memoryArea.getConstant(invoker, fieldRef.class_index).name_index
+  // ).value;
+  // const name_and_type_index = memoryArea.getConstant(
+  //   invoker,
+  //   fieldRef.name_and_type_index
+  // ) as CONSTANT_NameAndType_info;
+  // const fieldName = memoryArea.getConstant(
+  //   className,
+  //   name_and_type_index.name_index
+  // ).value;
+  // const fieldType = memoryArea.getConstant(
+  //   className,
+  //   name_and_type_index.name_index
+  // ).value;
+
+  // obj.getField(fieldName);
+  // thread.peekStackFrame().pc += 3;
   throw new Error('runInstruction: Not implemented');
 }
 
@@ -2727,7 +2753,7 @@ function run_putfield(
     name_and_type_index.name_index
   ).value;
 
-  obj.putField(fieldName, value);
+  obj.putField(fieldName + fieldType, value);
   thread.peekStackFrame().pc += 3;
 }
 
@@ -3029,7 +3055,7 @@ function run_checkcast(
   );
 
   // recursive checkcast.
-  console.warn('checkcast: not implemented');
+  throw new Error('runInstruction: Not implemented');
 }
 
 function run_instanceof(
