@@ -11,7 +11,7 @@ export interface ClassFile {
   access_flags: number;
   this_class: string;
   super_class: string;
-  interfaces: Array<number>;
+  interfaces: Array<string>;
   fields: Array<FieldType>;
   methods: {
     [methodName: string]: MethodType;
