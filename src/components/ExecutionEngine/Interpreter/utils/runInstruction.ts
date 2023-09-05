@@ -9,6 +9,7 @@ import {
 } from '#constants/DataType';
 import MemoryArea from '#jvm/components/MemoryArea';
 import {
+  CONSTANT_Class_info,
   CONSTANT_Fieldref_info,
   CONSTANT_Methodref_info,
   CONSTANT_NameAndType_info,
@@ -2777,7 +2778,6 @@ function run_invokevirtual(
     methodName: methodName + methodDescriptor,
     pc: 0,
     this: thisObj,
-    arguments: args,
     locals: [thisObj],
   });
 }
@@ -2829,7 +2829,6 @@ function run_invokespecial(
     methodName: methodName + methodDescriptor,
     pc: 0,
     this: thisObj,
-    arguments: args,
     locals: [thisObj, ...args],
   });
 }
@@ -2880,7 +2879,6 @@ function run_invokestatic(
     methodName: methodName + methodDescriptor,
     pc: 0,
     this: null,
-    arguments: args,
     locals: args,
   });
 }
@@ -2932,7 +2930,6 @@ function run_invokeinterface(
     methodName: methodName + methodDescriptor,
     pc: 0,
     this: thisObj,
-    arguments: args,
     locals: [thisObj],
   });
 }
@@ -3007,6 +3004,7 @@ function run_athrow(
   instruction: InstructionType
 ) {
   // TODO: throw Java error
+  // TODO: parse exception handlers
   throw new Error('runInstruction: Not implemented');
 }
 
@@ -3015,8 +3013,23 @@ function run_checkcast(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  // TODO: query type checker.
-  throw new Error('runInstruction: Not implemented');
+  if (thread.popStack() === null) {
+    thread.pushStack(null);
+    thread.peekStackFrame().pc += 3;
+    return;
+  }
+
+  const resolvedType = memoryArea.getConstant(
+    thread.getClassName(),
+    instruction.operands[0]
+  ) as CONSTANT_Class_info;
+  const className = memoryArea.getConstant(
+    thread.getClassName(),
+    resolvedType.name_index
+  );
+
+  // recursive checkcast.
+  console.warn('checkcast: not implemented');
 }
 
 function run_instanceof(
