@@ -20,7 +20,7 @@ export interface AttributeCode {
   attribute_name_index: number;
   max_stack: number;
   max_locals: number;
-  code: Array<InstructionType>;
+  code: DataView;
   exception_table: Array<ExceptionType>;
   attributes: Array<AttributeType>;
 }
