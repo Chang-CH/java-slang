@@ -91,4 +91,25 @@ export default class NativeThread {
   loadLocalWide(index: number): any {
     return this.stack[this.stackPointer].locals[index];
   }
+
+  throwNewException(cls: string, msg: string) {
+    // TODO: push msg to stack
+    this.pushStackFrame({
+      operandStack: [],
+      className: cls,
+      methodName: '<init>(Ljava/lang/String;)V',
+      pc: 0,
+      this: undefined,
+      locals: [],
+    });
+    const exceptionObj = this.popStack();
+    this.pushStackFrame({
+      operandStack: [],
+      className: '',
+      methodName: 'dispatchUncaughtException(Ljava/lang/Throwable;)V',
+      pc: 0,
+      this: undefined,
+      locals: [, exceptionObj],
+    });
+  }
 }
