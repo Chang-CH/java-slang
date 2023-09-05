@@ -88,11 +88,15 @@ export default class BootstrapClassLoader {
 
     const interfaces_count = view.getUint16(offset);
     offset += 2;
-
-    // TODO: check interfaces 1 indexed.
     cls.interfaces = [];
     for (let i = 0; i < interfaces_count; i += 1) {
-      cls.interfaces.push(view.getUint16(offset));
+      const interface_idx = cls.constant_pool[
+        view.getUint16(offset)
+      ] as CONSTANT_Class_info;
+      const className = cls.constant_pool[
+        interface_idx.name_index
+      ] as CONSTANT_Utf8_info;
+      cls.interfaces.push(className.value);
       // TODO: check index ok
       offset += 2;
     }
