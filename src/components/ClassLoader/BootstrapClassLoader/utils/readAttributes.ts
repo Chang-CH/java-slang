@@ -236,8 +236,8 @@ function readAttributeCode(
     throw new Error('Class format error: Code attribute invalid length');
   }
 
-  let code: InstructionType[] = [];
-  ({ result: code, offset } = readInstructions(view, offset, code_length));
+  const code = new DataView(view.buffer, offset, code_length);
+  offset += code_length;
 
   const exception_table_length = view.getUint16(offset);
   offset += 2;

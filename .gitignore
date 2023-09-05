@@ -131,3 +131,6 @@ dist
 
 #build output
 bin/*
+
+#java natives
+natives/*

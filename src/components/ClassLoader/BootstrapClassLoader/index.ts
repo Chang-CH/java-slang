@@ -42,7 +42,7 @@ export default class BootstrapClassLoader {
       this_class: '',
       super_class: '',
       interfaces: [],
-      fields: [],
+      fields: {},
       methods: {},
       attributes: [],
     };
@@ -104,14 +104,20 @@ export default class BootstrapClassLoader {
     const fields_count = view.getUint16(offset);
     offset += 2;
 
-    cls.fields = [];
+    cls.fields = {};
     for (let i = 0; i < fields_count; i += 1) {
       const { result, offset: resultOffset } = readField(
         cls.constant_pool,
         view,
         offset
       );
-      cls.fields.push(result);
+      const fieldName = cls.constant_pool[
+        result.name_index
+      ] as CONSTANT_Utf8_info;
+      const fieldDesc = cls.constant_pool[
+        result.descriptor_index
+      ] as CONSTANT_Utf8_info;
+      cls.fields[fieldName.value + fieldDesc.value] = result;
       offset = resultOffset;
     }
 

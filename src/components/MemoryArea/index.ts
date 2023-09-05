@@ -4,6 +4,7 @@ import { MethodType } from '#types/ClassFile/methods';
 import { checkNative } from '../ClassLoader/BootstrapClassLoader/utils/readMethod';
 import { InstructionPointer } from '../ExecutionEngine/NativeThreadGroup/NativeThread/types';
 import { JNI } from '../JNI';
+import { readInstruction, readInstructions } from './utils/readInstruction';
 
 export default class MemoryArea {
   // Technically the stack and pc registers should be here, but are stored in NativeStack.
@@ -41,7 +42,7 @@ export default class MemoryArea {
         attributes: [],
         max_stack: 0,
         max_locals: 0,
-        code: [],
+        code: new DataView(new ArrayBuffer(0)),
         exception_table: [],
       },
     };
@@ -57,7 +58,7 @@ export default class MemoryArea {
       return this.jni.getNativeMethod(pointer.className, pointer.methodName);
     }
 
-    return method.code.code[pointer.pc];
+    return readInstruction(method.code.code, pointer.pc);
   }
 
   getConstant(className: string, constantIndex: number): any {
