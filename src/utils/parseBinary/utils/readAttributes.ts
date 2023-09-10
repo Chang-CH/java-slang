@@ -1,8 +1,6 @@
 import { PREDEF_ATTRIB } from '#constants/ClassFile/attributes';
 import { AttributeCode, ExceptionType } from '#types/ClassFile/attributes';
 import { ConstantType, CONSTANT_Utf8_info } from '#types/ClassFile/constants';
-import { InstructionType } from '#types/ClassFile/instructions';
-import { readInstructions } from './readInstruction';
 
 export function readAttribute(
   constPool: Array<ConstantType>,
@@ -696,18 +694,33 @@ function readAttributeBootstrapMethods(
   view: DataView,
   offset: number
 ) {
-  console.warn('readAttTODO: ributeBootstrapMethods is not implemented!');
-  const info = [];
+  console.warn('TODO: readAttributeBootstrapMethods is not implemented!');
+  const num_bootstrap_methods = view.getUint16(offset);
+  offset += 2;
 
-  for (let i = 0; i < attribute_length; i += 1) {
-    info.push(view.getUint8(offset));
-    offset += 1;
+  const bootstrap_methods = [];
+
+  for (let i = 0; i < num_bootstrap_methods; i += 1) {
+    const bootstrap_method_ref = view.getUint16(offset);
+    offset += 2;
+    const num_bootstrap_arguments = view.getUint16(offset);
+    offset += 2;
+    const bsArgs = [];
+
+    for (let j = 0; j < num_bootstrap_arguments; j += 1) {
+      bsArgs.push(view.getUint16(offset));
+      offset += 2;
+    }
+    bootstrap_methods.push({
+      bootstrap_method_ref,
+      bsArgs,
+    });
   }
 
   return {
     result: {
       attribute_name_index,
-      info,
+      bootstrap_methods,
     },
     offset,
   };

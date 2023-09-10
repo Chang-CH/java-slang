@@ -18,7 +18,7 @@ export function readMethod(
   offset += 2;
 
   const attributes = [];
-  let code: AttributeCode | undefined;
+  let code: AttributeCode | null | undefined;
 
   for (let i = 0; i < attributes_count; i += 1) {
     const { result, offset: resultOffset } = readAttribute(
@@ -35,7 +35,8 @@ export function readMethod(
   }
 
   if (!code) {
-    throw new Error('Method has no code attribute');
+    // native code
+    code = null;
   }
 
   return {

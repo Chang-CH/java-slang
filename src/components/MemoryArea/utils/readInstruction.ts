@@ -1482,14 +1482,14 @@ function readmultianewarray(view: DataView, offset: number): InstructionType {
 }
 
 function readifnull(view: DataView, offset: number): InstructionType {
-  const branchbyte = view.getUint16(offset);
+  const branchbyte = view.getInt16(offset);
   offset += 2;
 
   return { opcode: INSTRUCTION_SET.ifnull, operands: [branchbyte] };
 }
 
 function readifnonnull(view: DataView, offset: number): InstructionType {
-  const branchbyte = view.getUint16(offset);
+  const branchbyte = view.getInt16(offset);
   offset += 2;
 
   return { opcode: INSTRUCTION_SET.ifnonnull, operands: [branchbyte] };
