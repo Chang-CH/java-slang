@@ -1,5 +1,6 @@
 import OsInterface from '#utils/OsInterface';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
+import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
 import { JNI } from './components/JNI';
 import MemoryArea from './components/MemoryArea';
@@ -7,6 +8,7 @@ import MemoryArea from './components/MemoryArea';
 export default class JVM {
   memoryArea: MemoryArea;
   bootstrapClassLoader: BootstrapClassLoader;
+  applicationClassLoader: ClassLoader;
   engine: ExecutionEngine;
   os: OsInterface;
   jni: JNI;
@@ -16,7 +18,14 @@ export default class JVM {
     this.os = os;
     this.bootstrapClassLoader = new BootstrapClassLoader(
       this.memoryArea,
-      this.os
+      this.os,
+      'natives'
+    );
+    this.applicationClassLoader = new ClassLoader(
+      this.memoryArea,
+      this.os,
+      '',
+      this.bootstrapClassLoader
     );
     this.jni = new JNI();
     this.engine = new ExecutionEngine(this.memoryArea, this.os, this.jni);
@@ -28,7 +37,7 @@ export default class JVM {
 
     // FIXME: should use system class loader instead.
     // should class loader be called by memory area on class not found?
-    this.bootstrapClassLoader.load(filepath, cls => {
+    this.applicationClassLoader.load(filepath, cls => {
       const className = cls.this_class;
       this.engine.runClass(className);
     });

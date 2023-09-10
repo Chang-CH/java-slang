@@ -1,64 +1,51 @@
+import { ClassData } from '#types/ClassData';
 import { ClassFile } from '#types/ClassFile';
 import { InstructionType } from '#types/ClassFile/instructions';
 import { MethodType } from '#types/ClassFile/methods';
-import { checkNative } from '../ClassLoader/BootstrapClassLoader/utils/readMethod';
+import { checkNative } from '../../utils/parseBinary/utils/readMethod';
+import NativeThread from '../ExecutionEngine/NativeThreadGroup/NativeThread';
 import { InstructionPointer } from '../ExecutionEngine/NativeThreadGroup/NativeThread/types';
 import { JNI } from '../JNI';
-import { readInstruction, readInstructions } from './utils/readInstruction';
+import { readInstruction } from './utils/readInstruction';
 
 export default class MemoryArea {
   // Technically the stack and pc registers should be here, but are stored in NativeStack.
   heap: any;
   methodArea: {
-    [className: string]: {
-      methods: {
-        [methodName: string]: MethodType;
-      };
-      [others: string]: any;
-    };
+    [className: string]: ClassData;
   };
   jni: JNI;
 
   constructor(jni: JNI) {
     this.heap = {};
     this.methodArea = {};
-
-    // TODO: remove hardcoded natives
-    const obj: {
-      methods: {
-        [methodName: string]: MethodType;
-      };
-      [others: string]: any;
-    } = {
-      methods: {},
-    };
-    obj.methods['<init>()V'] = {
-      access_flags: 0x0100,
-      name_index: 0,
-      descriptor_index: 0,
-      attributes: [],
-      code: {
-        attribute_name_index: 0,
-        attributes: [],
-        max_stack: 0,
-        max_locals: 0,
-        code: new DataView(new ArrayBuffer(0)),
-        exception_table: [],
-      },
-    };
-    this.methodArea['java/lang/Object'] = obj;
-
     this.jni = jni;
   }
 
-  getInstructionAt(pointer: InstructionPointer): InstructionType | Function {
+  getInstructionAt(
+    thread: NativeThread,
+    pointer: InstructionPointer
+  ): InstructionType | Function {
+    // class not loaded
+    if (!this.methodArea[pointer.className]) {
+      throw new Error('class not loaded');
+    }
+
     const method =
       this.methodArea[pointer.className].methods[pointer.methodName];
-    if (checkNative(method)) {
+
+    if (checkNative(method) || !method.code) {
       return this.jni.getNativeMethod(pointer.className, pointer.methodName);
     }
 
     return readInstruction(method.code.code, pointer.pc);
+  }
+
+  getClass(className: string, onError?: (e: Error) => void): ClassData {
+    if (!this.methodArea[className]) {
+      onError && onError(new Error('class not loaded'));
+    }
+    return this.methodArea[className];
   }
 
   getConstant(className: string, constantIndex: number): any {
@@ -69,7 +56,23 @@ export default class MemoryArea {
     return this.methodArea[className].constant_pool[constantIndex];
   }
 
-  loadClass(className: string, cls: ClassFile): void {
+  getStatic(className: string, fieldName: string): any {
+    return this.methodArea[className].fields[fieldName].data;
+  }
+
+  getStaticWide(className: string, fieldName: string): any {
+    return this.methodArea[className].fields[fieldName].data;
+  }
+
+  putStatic(className: string, fieldName: string, value: any): void {
+    this.methodArea[className].fields[fieldName].data = value;
+  }
+
+  putStaticWide(className: string, fieldName: string, value: any): void {
+    this.methodArea[className].fields[fieldName].data = value;
+  }
+
+  loadClass(className: string, cls: ClassData): void {
     this.methodArea[className] = cls;
     return;
   }
