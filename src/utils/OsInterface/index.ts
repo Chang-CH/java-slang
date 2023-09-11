@@ -1,3 +1,9 @@
+import { ClassFile } from '#types/ClassFile';
+import { classFileToText } from '#utils/Prettify/classfile';
+import { a2ab } from '#utils/cli';
+import parseBin from '#utils/parseBinary';
+import * as fs from 'node:fs';
+
 export interface Folder {
   [name: string]: Folder | DataView;
 }
@@ -12,17 +18,33 @@ export default class OsInterface {
     this.files = initialFiles;
   }
 
-  readFile(path: string[]): DataView {
+  readFile(path: string): ClassFile {
+    // TODO: remove hardcoded natives path
+    if (path.startsWith('natives')) {
+      // converts nodejs buffer to ArrayBuffer
+      const buffer = fs.readFileSync(path + '.class', null);
+      const arraybuffer = a2ab(buffer);
+      const view = new DataView(arraybuffer);
+      const res = parseBin(view);
+      return res;
+    }
+
+    const pathArray = [path];
+
     let currentFolder: Folder | DataView = this.files;
-    for (const folderName of path) {
+    for (const folderName of pathArray) {
       // @ts-ignore
       if (!currentFolder[folderName]) {
-        throw new Error(`File not found: ${path.join('/')}`);
+        throw new Error(`File not found: ${pathArray.join('/')}`);
       }
       // @ts-ignore
       currentFolder = currentFolder[folderName];
     }
-    // @ts-ignore
-    return currentFolder;
+
+    if (currentFolder instanceof DataView) {
+      return parseBin(currentFolder);
+    }
+
+    throw new Error('File is not a class file');
   }
 }
