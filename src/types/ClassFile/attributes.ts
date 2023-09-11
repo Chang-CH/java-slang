@@ -1,5 +1,3 @@
-import { InstructionType } from './instructions';
-
 export interface AttributeType {
   [key: string]: any;
 }
@@ -213,4 +211,16 @@ export interface AnnotationType {
     element_name_index: number;
     value: number;
   }>;
+}
+
+export interface AttributeBootstrapMethods {
+  attribute_name_index: number;
+  num_bootstrap_methods: number;
+  bootstrap_methods: Array<BootstrapMethod>;
+}
+
+export interface BootstrapMethod {
+  bootstrap_method_ref: number;
+  num_bootstrap_arguments: number;
+  bootstrap_arguments: Array<number>;
 }
