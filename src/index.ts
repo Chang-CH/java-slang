@@ -29,6 +29,17 @@ export default class JVM {
     );
     this.jni = new JNI();
     this.engine = new ExecutionEngine(this.memoryArea, this.os, this.jni);
+
+    // Load class if not loaded
+    this.memoryArea.getClass('java/lang/Thread', e => {
+      this.applicationClassLoader.load(
+        'java/lang/Thread',
+        () => {},
+        e => {
+          throw e;
+        }
+      );
+    });
   }
 
   runClass(filepath: string) {
