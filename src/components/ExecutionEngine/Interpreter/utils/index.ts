@@ -1,6 +1,6 @@
 import { JavaType } from '#types/DataTypes';
 
-function readFieldDescriptor(descriptor: string, index: number) {
+export function readFieldDescriptor(descriptor: string, index: number) {
   switch (descriptor[index]) {
     case JavaType.BYTE:
       return { type: JavaType.BYTE, index: index + 1 };
@@ -49,4 +49,8 @@ export function readMethodDescriptor(desc: string) {
     args: argTypes,
     ret: retType,
   };
+}
+
+export function getField(ref: any, fieldName: string, type: JavaType) {
+  ref.getField(fieldName, type);
 }
