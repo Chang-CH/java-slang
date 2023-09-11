@@ -23,7 +23,7 @@ export default class Interpreter {
         break;
       }
 
-      let instruction = this.memoryArea.getInstructionAt(current);
+      let instruction = this.memoryArea.getInstructionAt(thread, current);
       // is native
       if (typeof instruction === 'function') {
         console.debug(
@@ -36,25 +36,21 @@ export default class Interpreter {
           thread.peekStackFrame().locals
         );
         thread.popStackFrame();
-        if (result) {
+        if (result !== undefined) {
           thread.pushStack(result);
         }
         continue;
       }
-
-      instruction = instruction as InstructionType;
 
       console.debug(
         `#${current.pc}`.padEnd(4) +
           `${INSTRUCTION_SET[instruction.opcode]}(${instruction.operands.join(
             ', '
           )})`.padEnd(20) +
-          ` locals: [${thread.stack[thread.stackPointer].locals.join(
-            ','
-          )}]`.padEnd(40) +
-          ` stack: [${thread.stack[thread.stackPointer].operandStack.join(
-            ','
-          )}] ->`
+          ` locals: [${thread.peekStackFrame().locals.join(',')}]`.padEnd(40) +
+          ` stack: [${thread.peekStackFrame().operandStack.join(',')}]:${
+            thread.peekStackFrame().operandStack.length
+          } ->`
       );
 
       // TODO: handle exceptions

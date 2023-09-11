@@ -1,3 +1,4 @@
+import { CONSTANT_TAG } from '#constants/ClassFile/constants';
 import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
 import {
   MAX_BYTE,
@@ -13,9 +14,11 @@ import {
   CONSTANT_Fieldref_info,
   CONSTANT_Methodref_info,
   CONSTANT_NameAndType_info,
+  CONSTANT_Utf8_info,
 } from '#types/ClassFile/constants';
 import { InstructionType } from '#types/ClassFile/instructions';
-import { JavaArray, JavaReference } from '#types/DataTypes';
+import { ClassReference, JavaArray, JavaReference } from '#types/DataTypes';
+import { stringifyCode } from '#utils/Prettify/classfile';
 import { readMethodDescriptor } from '.';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
@@ -814,10 +817,34 @@ function run_ldc(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  console.warn('ldc: class/method reference resolution not implemented');
-  thread.pushStack(
-    memoryArea.getConstant(thread.getClassName(), instruction.operands[0]).value
+  const item = memoryArea.getConstant(
+    thread.getClassName(),
+    instruction.operands[0]
   );
+  if (
+    item.tag === CONSTANT_TAG.CONSTANT_Methodref ||
+    item.tag === CONSTANT_TAG.CONSTANT_MethodType
+  ) {
+    console.debug('ldc: method reference resolution not implemented');
+    thread.pushStack(item);
+    thread.peekStackFrame().pc += 2;
+    return;
+  }
+
+  if (item.tag === CONSTANT_TAG.CONSTANT_Class) {
+    const className = memoryArea.getConstant(
+      thread.getClassName(),
+      item.name_index
+    ) as CONSTANT_Utf8_info;
+
+    const classdata = memoryArea.getClass(className.value);
+    const classRef = new ClassReference(className.value, classdata);
+    thread.pushStack(classRef);
+    thread.peekStackFrame().pc += 2;
+    return;
+  }
+
+  thread.pushStack(item.value);
   thread.peekStackFrame().pc += 2;
 }
 
@@ -2678,7 +2705,66 @@ function run_getstatic(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
+  const invoker = thread.getClassName();
+  const fieldRef = memoryArea.getConstant(
+    invoker,
+    instruction.operands[0]
+  ) as CONSTANT_Fieldref_info;
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, fieldRef.class_index).name_index
+  ).value;
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
+
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    fieldRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const fieldName = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.name_index
+  ).value;
+  const fieldType = memoryArea.getConstant(
+    invoker,
+    name_and_type_index.descriptor_index
+  ).value;
+
+  // FIXME: in theory it is legal to have 2 same field name, different type
+  if (fieldType === 'J' || fieldType === 'D') {
+    thread.pushStackWide(
+      memoryArea.getStaticWide(className, fieldName + fieldType)
+    );
+  } else {
+    thread.pushStack(memoryArea.getStatic(className, fieldName + fieldType));
+  }
+
+  thread.peekStackFrame().pc += 3;
 }
 
 function run_putstatic(
@@ -2686,60 +2772,44 @@ function run_putstatic(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  throw new Error('runInstruction: Not implemented');
-}
-
-function run_getfield(
-  thread: NativeThread,
-  memoryArea: MemoryArea,
-  instruction: InstructionType
-) {
-  // const invoker = thread.getClassName();
-  // const obj = thread.popStack() as JavaReference;
-  // const fieldRef = memoryArea.getConstant(
-  //   thread.getClassName(),
-  //   instruction.operands[0]
-  // ) as CONSTANT_Fieldref_info;
-
-  // const className = memoryArea.getConstant(
-  //   invoker,
-  //   memoryArea.getConstant(invoker, fieldRef.class_index).name_index
-  // ).value;
-  // const name_and_type_index = memoryArea.getConstant(
-  //   invoker,
-  //   fieldRef.name_and_type_index
-  // ) as CONSTANT_NameAndType_info;
-  // const fieldName = memoryArea.getConstant(
-  //   className,
-  //   name_and_type_index.name_index
-  // ).value;
-  // const fieldType = memoryArea.getConstant(
-  //   className,
-  //   name_and_type_index.name_index
-  // ).value;
-
-  // obj.getField(fieldName);
-  // thread.peekStackFrame().pc += 3;
-  throw new Error('runInstruction: Not implemented');
-}
-
-function run_putfield(
-  thread: NativeThread,
-  memoryArea: MemoryArea,
-  instruction: InstructionType
-) {
   const invoker = thread.getClassName();
-  const value = thread.popStack();
-  const obj = thread.popStack() as JavaReference;
   const fieldRef = memoryArea.getConstant(
-    thread.getClassName(),
+    invoker,
     instruction.operands[0]
   ) as CONSTANT_Fieldref_info;
-
   const className = memoryArea.getConstant(
     invoker,
     memoryArea.getConstant(invoker, fieldRef.class_index).name_index
   ).value;
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
+
   const name_and_type_index = memoryArea.getConstant(
     invoker,
     fieldRef.name_and_type_index
@@ -2750,10 +2820,155 @@ function run_putfield(
   ).value;
   const fieldType = memoryArea.getConstant(
     className,
-    name_and_type_index.name_index
+    name_and_type_index.descriptor_index
   ).value;
 
-  obj.putField(fieldName + fieldType, value);
+  // FIXME: in theory it is legal to have 2 same field name, different type
+  if (fieldType === 'J' || fieldType === 'D') {
+    const value = thread.popStackWide();
+    memoryArea.putStaticWide(className, fieldName + fieldType, value);
+  } else {
+    const value = thread.popStack();
+    memoryArea.putStatic(className, fieldName + fieldType, value);
+  }
+  thread.peekStackFrame().pc += 3;
+}
+
+function run_getfield(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  const invoker = thread.getClassName();
+  const obj = thread.popStack() as JavaReference;
+  const fieldRef = memoryArea.getConstant(
+    thread.getClassName(),
+    instruction.operands[0]
+  ) as CONSTANT_Fieldref_info;
+
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, fieldRef.class_index).name_index
+  ).value;
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
+
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    fieldRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const fieldName = memoryArea.getConstant(
+    className,
+    name_and_type_index.name_index
+  ).value;
+  const fieldType = memoryArea.getConstant(
+    className,
+    name_and_type_index.descriptor_index
+  ).value;
+
+  console.debug('getfield', className, fieldName, fieldType);
+
+  if (fieldType === 'J' || fieldType === 'D') {
+    thread.pushStackWide(obj.getFieldWide(fieldName + fieldType));
+  } else {
+    thread.pushStack(obj.getField(fieldName + fieldType));
+  }
+  thread.peekStackFrame().pc += 3;
+}
+
+function run_putfield(
+  thread: NativeThread,
+  memoryArea: MemoryArea,
+  instruction: InstructionType
+) {
+  const invoker = thread.getClassName();
+  const fieldRef = memoryArea.getConstant(
+    thread.getClassName(),
+    instruction.operands[0]
+  ) as CONSTANT_Fieldref_info;
+
+  const className = memoryArea.getConstant(
+    invoker,
+    memoryArea.getConstant(invoker, fieldRef.class_index).name_index
+  ).value;
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
+
+  const name_and_type_index = memoryArea.getConstant(
+    invoker,
+    fieldRef.name_and_type_index
+  ) as CONSTANT_NameAndType_info;
+  const fieldName = memoryArea.getConstant(
+    className,
+    name_and_type_index.name_index
+  ).value;
+  const fieldType = memoryArea.getConstant(
+    className,
+    name_and_type_index.descriptor_index
+  ).value;
+
+  // FIXME: in theory it is legal to have 2 same field name, different type
+  if (fieldType === 'J' || fieldType === 'D') {
+    const value = thread.popStackWide();
+    const obj = thread.popStack() as JavaReference;
+    obj.putFieldWide(fieldName + fieldType, value);
+  } else {
+    const value = thread.popStack();
+    const obj = thread.popStack() as JavaReference;
+    obj.putField(fieldName + fieldType, value);
+  }
+
+  // FIXME: load class if not loaded
   thread.peekStackFrame().pc += 3;
 }
 
@@ -2797,7 +3012,7 @@ function run_invokevirtual(
 
   const thisObj = thread.popStack();
   thread.peekStackFrame().pc += 3;
-  console.warn('invokevirtual: method lookup procedure not implemented');
+
   thread.pushStackFrame({
     className,
     operandStack: [],
@@ -2806,6 +3021,34 @@ function run_invokevirtual(
     this: thisObj,
     locals: [thisObj],
   });
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
 }
 
 function run_invokespecial(
@@ -2848,7 +3091,7 @@ function run_invokespecial(
 
   const thisObj = thread.popStack();
   thread.peekStackFrame().pc += 3;
-  console.warn('invokespecial: method lookup procedure not implemented');
+
   thread.pushStackFrame({
     className,
     operandStack: [],
@@ -2857,6 +3100,34 @@ function run_invokespecial(
     this: thisObj,
     locals: [thisObj, ...args],
   });
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
 }
 
 function run_invokestatic(
@@ -2899,6 +3170,7 @@ function run_invokestatic(
   }
 
   thread.peekStackFrame().pc += 3;
+
   thread.pushStackFrame({
     className,
     operandStack: [],
@@ -2907,6 +3179,34 @@ function run_invokestatic(
     this: null,
     locals: args,
   });
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
 }
 
 function run_invokeinterface(
@@ -2949,7 +3249,18 @@ function run_invokeinterface(
 
   const thisObj = thread.popStack();
   thread.peekStackFrame().pc += 3;
-  console.warn('invokespecial: method lookup procedure not implemented');
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+
   thread.pushStackFrame({
     className,
     operandStack: [],
@@ -2965,8 +3276,18 @@ function run_invokedynamic(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  // We should not need this, Java compiler should not produce this opcode
-  throw new Error('invokeDynamic: Not implemented');
+  // Mainly used by Java8 natives
+  const invoker = thread.getClassName();
+  const callSiteSpecifier = memoryArea.getConstant(
+    invoker,
+    instruction.operands[0]
+  );
+
+  // resolve call site specifier
+  const methodHandle = console.debug(callSiteSpecifier);
+  console.debug(memoryArea.getClass(invoker));
+
+  throw new Error('invokedynamic: not implemented');
 }
 
 function run_new(
@@ -2980,7 +3301,35 @@ function run_new(
     invoker,
     memoryArea.getConstant(invoker, type).name_index
   ).value;
-  console.warn('new: does not Resolve/initialize class if not already done so');
+
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    memoryArea.getClass(invoker).loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+
+  // Class not initialized, initialize it.
+  if (!memoryArea.getClass(className).isInitialized) {
+    if (memoryArea.getClass(className).methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        className,
+        methodName: '<clinit>()V',
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      memoryArea.getClass(className).isInitialized = true;
+      return;
+    }
+    memoryArea.getClass(className).isInitialized = true;
+  }
+
   console.warn('new: fields not initialized to defaults');
   const objectref = new JavaReference(className, {});
   thread.pushStack(objectref);
@@ -3029,9 +3378,11 @@ function run_athrow(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  const exception = thread.popStack();
+  thread.throwException(memoryArea, exception);
   // TODO: throw Java error
   // TODO: parse exception handlers
-  throw new Error('runInstruction: Not implemented');
+  // throw new Error('runInstruction: Not implemented');
 }
 
 function run_checkcast(
@@ -3063,6 +3414,40 @@ function run_instanceof(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
+  const ref = thread.popStack();
+  const cls = memoryArea.getConstant(
+    thread.getClassName(),
+    instruction.operands[0]
+  );
+
+  if (ref === null) {
+    thread.pushStack(0);
+    thread.peekStackFrame().pc += 3;
+    return;
+  }
+
+  if (cls.tag === CONSTANT_TAG.CONSTANT_Class) {
+    const refClass = memoryArea.getConstant(
+      thread.getClassName(),
+      cls.name_index
+    ) as CONSTANT_Utf8_info;
+    const refClsName = refClass.value;
+
+    const clsData = memoryArea.getClass(ref.cls);
+
+    if (
+      refClsName === clsData.this_class ||
+      clsData.interfaces.includes(refClsName)
+    ) {
+      thread.pushStack(1);
+    } else {
+      thread.pushStack(0);
+    }
+    console.error('Instanceof: not checking superclasses');
+    thread.peekStackFrame().pc += 3;
+    return;
+  }
+
   throw new Error('runInstruction: Not implemented');
 }
 

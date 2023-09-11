@@ -5,6 +5,7 @@ export interface FieldType {
   name_index: number;
   descriptor_index: number;
   attributes: Array<AttributeType>;
+  data?: any;
 }
 
 export enum FIELD_FLAGS {

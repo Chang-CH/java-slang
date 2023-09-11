@@ -1,3 +1,5 @@
+import MemoryArea from '#jvm/components/MemoryArea';
+import { JavaReference } from '#types/DataTypes';
 import { InstructionPointer, StackFrame } from './types';
 
 export default class NativeThread {
@@ -47,6 +49,10 @@ export default class NativeThread {
   }
 
   popStackWide() {
+    if (this.stack?.[this.stackPointer]?.operandStack?.length <= 1) {
+      throw new Error('JVM Stack underflow');
+      // TODO: throw java error
+    }
     this.stack?.[this.stackPointer]?.operandStack?.pop();
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
     if (value === undefined) {
@@ -57,16 +63,16 @@ export default class NativeThread {
   }
 
   popStack() {
-    const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    if (value === undefined) {
+    if (this.stack?.[this.stackPointer]?.operandStack?.length <= 0) {
       throw new Error('JVM Stack underflow');
       // TODO: throw java error
     }
+    const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
     return value;
   }
 
   popStackFrame() {
-    this.stack.pop();
+    const sf = this.stack.pop();
     this.stackPointer -= 1;
     // TODO: remove thread from threadpool?
   }
@@ -92,24 +98,77 @@ export default class NativeThread {
     return this.stack[this.stackPointer].locals[index];
   }
 
-  throwNewException(cls: string, msg: string) {
-    // TODO: push msg to stack
-    this.pushStackFrame({
-      operandStack: [],
-      className: cls,
-      methodName: '<init>(Ljava/lang/String;)V',
-      pc: 0,
-      this: undefined,
-      locals: [],
+  throwNewException(className: string, memoryArea: MemoryArea, msg: string) {
+    const invoker = this.getClassName();
+
+    // Load class if not loaded
+    memoryArea.getClass(className, e => {
+      memoryArea.getClass(invoker).loader.load(
+        className,
+        () => {},
+        e => {
+          throw e;
+        }
+      );
     });
-    const exceptionObj = this.popStack();
+    // Class not initialized, initialize it.
+    if (!memoryArea.getClass(className).isInitialized) {
+      if (memoryArea.getClass(className).methods['<clinit>()V']) {
+        this.pushStackFrame({
+          className,
+          methodName: '<clinit>()V',
+          pc: 0,
+          operandStack: [],
+          this: null,
+          locals: [],
+        });
+        memoryArea.getClass(className).isInitialized = true;
+        return;
+      }
+      memoryArea.getClass(className).isInitialized = true;
+    }
+
+    // Initialize exception
+    // TODO: push msg to stack
+    // this.pushStackFrame({
+    //   operandStack: [],
+    //   className: className,
+    //   methodName: '<init>(Ljava/lang/String;)V',
+    //   pc: 0,
+    //   this: undefined,
+    //   locals: [],
+    // });
+    const objectref = new JavaReference(className, {});
+    this.throwException(memoryArea, objectref);
+  }
+
+  throwException(memoryArea: MemoryArea, exception: any) {
+    // Find a stackframe with appropriate exception handlers
+    while (this.stack.length > 0) {
+      const instruction = this.getCurrentInstruction();
+
+      if (!instruction) {
+        this.popStackFrame();
+        continue;
+      }
+
+      const { className, methodName } = instruction;
+      const eTable =
+        memoryArea.getClass(className)?.methods[methodName]?.code
+          ?.exception_table;
+
+      // TODO: check if exception is handled
+      this.popStackFrame();
+    }
+
+    // Unhandled exception.
     this.pushStackFrame({
       operandStack: [],
-      className: '',
+      className: 'java/lang/Thread',
       methodName: 'dispatchUncaughtException(Ljava/lang/Throwable;)V',
       pc: 0,
-      this: undefined,
-      locals: [, exceptionObj],
+      this: this,
+      locals: [this, exception],
     });
   }
 }

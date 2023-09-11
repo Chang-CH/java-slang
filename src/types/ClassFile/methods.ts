@@ -5,7 +5,7 @@ export interface MethodType {
   name_index: number;
   descriptor_index: number;
   attributes: Array<AttributeType>;
-  code: AttributeCode;
+  code: AttributeCode | null; // native methods have no code
 }
 
 export enum METHOD_FLAGS {

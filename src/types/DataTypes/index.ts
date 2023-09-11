@@ -1,3 +1,5 @@
+import { ClassData } from '#types/ClassData';
+
 export class JavaArray {
   type: string | ArrayType;
   length: number;
@@ -61,6 +63,38 @@ export class JavaArray {
   }
 }
 
+export class ClassReference {
+  cls: string;
+  data: ClassData;
+
+  constructor(cls: string, data: ClassData) {
+    this.cls = cls;
+    this.data = data;
+  }
+
+  getField(name: string) {
+    console.debug(`class getField: ${name}`);
+    // console.debug(this.data.fields);
+    // TODO: check class field resolution
+    return this.data.fields[name] ?? null; // FIXME: temporary fix until class field resolution is implemented
+  }
+
+  getFieldWide(name: string) {
+    // TODO: check key exists in fields
+    // return this.fields[name];
+  }
+
+  putField(name: string, value: any) {
+    // TODO: check key exists in fields
+    // this.fields[name] = value;
+  }
+
+  putFieldWide(name: string, value: any) {
+    // TODO: check key exists in fields
+    // this.fields[name] = value;
+  }
+}
+
 export class JavaReference {
   cls: string;
   fields: {
@@ -77,7 +111,17 @@ export class JavaReference {
     return this.fields[name];
   }
 
+  getFieldWide(name: string) {
+    // TODO: check key exists in fields
+    return this.fields[name];
+  }
+
   putField(name: string, value: any) {
+    // TODO: check key exists in fields
+    this.fields[name] = value;
+  }
+
+  putFieldWide(name: string, value: any) {
     // TODO: check key exists in fields
     this.fields[name] = value;
   }

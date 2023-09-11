@@ -20,5 +20,3 @@ export interface ClassFile {
   };
   attributes: Array<AttributeType>;
 }
-
-// Classdata in memory area should have reference to its loader.
