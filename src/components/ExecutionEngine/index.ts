@@ -28,7 +28,6 @@ export default class ExecutionEngine {
       className,
       methodName: 'main([Ljava/lang/String;)V',
       pc: 0,
-      arguments: args ?? [],
       this: null,
     });
     // objectRef this
