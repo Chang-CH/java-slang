@@ -14,7 +14,7 @@ public class Fibonnacci {
     }
 
     public static void main(String args[]) {
-        int n = 9;
+        int n = 5;
         fib(n);
     }
 };

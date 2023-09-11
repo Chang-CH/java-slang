@@ -6,6 +6,7 @@ import MemoryArea from '#jvm/components/MemoryArea';
 import JVM from '#jvm/index';
 import OsInterface, { Folder } from '#utils/OsInterface';
 import { classFileToText } from '#utils/Prettify/classfile';
+import parseBin from '#utils/parseBinary';
 import * as fs from 'node:fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -83,8 +84,8 @@ export default function main() {
         Sample: view,
       });
 
-      const bscl = new BootstrapClassLoader(memory, os);
-      const cls = bscl.readClass(view);
+      const bscl = new BootstrapClassLoader(memory, os, 'natives');
+      const cls = parseBin(view);
       console.debug(classFileToText(cls));
     }
     folders[fileName] = view;

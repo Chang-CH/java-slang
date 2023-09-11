@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc",
     "test": "jest",
-    "dev": "npx tsx watch src/utils/cli -f example/InvokeStatic/InvokeStatic.class -p"
+    "dev": "npx tsx watch src/utils/cli -f example/Exception/Exception.class -p --nowarn"
   },
   "keywords": [
     "Java",
