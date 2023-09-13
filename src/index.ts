@@ -2,6 +2,7 @@ import OsInterface from '#utils/OsInterface';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
+import { tryLoad } from './components/ExecutionEngine/Interpreter/utils';
 import { JNI } from './components/JNI';
 import MemoryArea from './components/MemoryArea';
 
@@ -30,7 +31,7 @@ export default class JVM {
     this.jni = new JNI();
     this.engine = new ExecutionEngine(this.memoryArea, this.os, this.jni);
 
-    // Load class if not loaded
+    // Load thread class manually
     this.memoryArea.getClass('java/lang/Thread', e => {
       this.applicationClassLoader.load(
         'java/lang/Thread',
