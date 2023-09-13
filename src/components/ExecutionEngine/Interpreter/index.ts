@@ -1,36 +1,42 @@
 import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
+import { JNI } from '#jvm/components/JNI';
 import MemoryArea from '#jvm/components/MemoryArea';
-import { InstructionType } from '#types/ClassFile/instructions';
 import NativeThread from '../NativeThreadGroup/NativeThread';
-import runInstruction from './utils/runInstruction';
+import runInstruction from './utils/instructions';
 
 /**
  * Executes the instructions at the thread's current program counter.
  */
 export default class Interpreter {
   private memoryArea: MemoryArea;
+  private jni: JNI;
 
-  constructor(memoryArea: MemoryArea) {
+  constructor(memoryArea: MemoryArea, jni: JNI) {
     this.memoryArea = memoryArea;
+    this.jni = jni;
   }
 
   runFor(thread: NativeThread, instructions: number, onFinish?: () => void) {
     let isFinished = false;
     for (let i = 0; i < instructions; i++) {
       const current = thread.getCurrentInstruction();
+
       if (!current) {
         isFinished = true;
         break;
       }
 
-      let instruction = this.memoryArea.getInstructionAt(thread, current);
       // is native
-      if (typeof instruction === 'function') {
+      if (current.native) {
+        const nativeMethod = this.jni.getNativeMethod(
+          current.className,
+          current.methodName
+        );
         console.debug(
           `[Native] JNI:`.padEnd(20) +
             ` ${current.className}.${current.methodName}`
         );
-        const result = instruction(
+        const result = nativeMethod(
           thread,
           this.memoryArea,
           thread.peekStackFrame().locals
@@ -43,8 +49,9 @@ export default class Interpreter {
       }
 
       console.debug(
-        `#${current.pc}`.padEnd(4) +
-          `${INSTRUCTION_SET[instruction.opcode]}(${instruction.operands.join(
+        // `[${thread.getClassName()}.${thread.getMethodName()}]` +
+        `#${thread.getPC()}`.padEnd(4) +
+          `${INSTRUCTION_SET[current.opcode]}(${current.operands.join(
             ', '
           )})`.padEnd(20) +
           ` locals: [${thread.peekStackFrame().locals.join(',')}]`.padEnd(40) +
@@ -54,7 +61,7 @@ export default class Interpreter {
       );
 
       // TODO: handle exceptions
-      runInstruction(thread, this.memoryArea, instruction);
+      runInstruction(thread, this.memoryArea, current);
     }
 
     if (isFinished) {

@@ -1,4 +1,5 @@
-import { CONSTANT_TAG } from '#constants/ClassFile/constants';
+// @ts-nocheck
+import { constantTag } from '#constants/ClassFile/constants';
 import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
 import { readInstruction } from '#jvm/components/MemoryArea/utils/readInstruction';
 import { ClassFile } from '#types/ClassFile';
@@ -63,7 +64,7 @@ function resolveReferences(cls: any) {
     (constant: any, index: number) => {
       const { tag, ...rest } = constant;
       return (
-        `#${index} = ${CONSTANT_TAG[constant.tag]}`.padEnd(40) +
+        `#${index} = ${constantTag[constant.tag]}`.padEnd(40) +
         `${Object.values(rest).join(' ')}`
       );
     }
@@ -74,8 +75,8 @@ function resolveReferences(cls: any) {
    */
   result.methods = Object.entries(cls.methods).map(
     ([name, method], index: number) => {
-      const methodname = cls.constant_pool[method.name_index].value;
-      const descriptor = cls.constant_pool[method.descriptor_index].value;
+      const methodname = method.name;
+      const descriptor = method.descriptor;
       const attributes = method.attributes.map((attribute: any) => {
         if (attribute.code === undefined) {
           return [];

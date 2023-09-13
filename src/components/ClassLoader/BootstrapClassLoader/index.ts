@@ -1,5 +1,5 @@
 import MemoryArea from '#jvm/components/MemoryArea';
-import { ClassData } from '#types/ClassData';
+import { ClassRef } from '#types/ClassRef';
 import OsInterface from '#utils/OsInterface';
 import AbstractClassLoader from '..';
 
@@ -20,7 +20,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
    */
   load(
     className: string,
-    onFinish?: (classData: ClassData) => void,
+    onFinish?: (classData: ClassRef) => void,
     onError?: (error: Error) => void
   ): void {
     if (this.memoryArea.getClass(className)) {

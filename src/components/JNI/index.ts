@@ -1,5 +1,3 @@
-import obj from './java_lang_Object';
-import cls from './java_lang_Class';
 import { readFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { ArrayType, JavaArray, JavaType } from '#types/DataTypes';
 export class JNI {
@@ -12,7 +10,14 @@ export class JNI {
   };
 
   constructor() {
-    this.classes = {};
+    this.classes = {
+      'java/lang/Thread$UncaughtExceptionHandler': {
+        methods: {
+          'uncaughtException(Ljava/lang/Thread;Ljava/lang/Throwable;)V':
+            () => {},
+        },
+      },
+    };
   }
 
   getNativeMethod(className: string, methodName: string) {

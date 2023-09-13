@@ -1,5 +1,5 @@
 import MemoryArea from '#jvm/components/MemoryArea';
-import { ClassData } from '#types/ClassData';
+import { ClassRef } from '#types/ClassRef';
 import { ClassFile } from '#types/ClassFile';
 import OsInterface from '#utils/OsInterface';
 import parseBin from '#utils/parseBinary';
@@ -30,7 +30,7 @@ export default abstract class AbstractClassLoader {
    * @param cls class data to resolve
    * @returns class data with resolved references
    */
-  linkClass(cls: ClassFile): ClassData {
+  linkClass(cls: ClassFile): ClassRef {
     const data = {
       ...cls,
       loader: this,
@@ -43,12 +43,12 @@ export default abstract class AbstractClassLoader {
    * Adds the resolved class data to the memory area
    * @param cls resolved class data
    */
-  loadClass(cls: ClassData): void {
+  loadClass(cls: ClassRef): void {
     console.warn('BootstrapClassLoader.loadClass: not implemented.');
     this.memoryArea.loadClass(this.getClassName(cls), cls);
   }
 
-  getClassName(cls: ClassData): string {
+  getClassName(cls: ClassRef): string {
     return cls.this_class;
   }
 
@@ -58,7 +58,7 @@ export default abstract class AbstractClassLoader {
    */
   abstract load(
     className: string,
-    onFinish?: (classData: ClassData) => void,
+    onFinish?: (classData: ClassRef) => void,
     onError?: (error: Error) => void
   ): void;
 }

@@ -1,7 +1,5 @@
 import { ClassFile } from '#types/ClassFile';
-import { classFileToText } from '#utils/Prettify/classfile';
-import { a2ab } from '#utils/cli';
-import parseBin from '#utils/parseBinary';
+import parseBin, { a2ab } from '#utils/parseBinary';
 import * as fs from 'node:fs';
 
 export interface Folder {

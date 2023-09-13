@@ -1,27 +1,27 @@
-import { CONSTANT_TAG, constantTagMap } from '#constants/ClassFile/constants';
+import { constantTag, constantTagMap } from '#constants/ClassFile/constants';
 import {
-  CONSTANT_Class_info,
-  CONSTANT_Double_info,
-  CONSTANT_Fieldref_info,
-  CONSTANT_Float_info,
-  CONSTANT_Integer_info,
-  CONSTANT_InterfaceMethodref_info,
-  CONSTANT_InvokeDynamic_info,
-  CONSTANT_Long_info,
-  CONSTANT_MethodHandle_info,
-  CONSTANT_MethodType_info,
-  CONSTANT_Methodref_info,
-  CONSTANT_NameAndType_info,
-  CONSTANT_String_info,
-  CONSTANT_Utf8_info,
+  constant_Class_info,
+  constant_Double_info,
+  constant_Fieldref_info,
+  constant_Float_info,
+  constant_Integer_info,
+  constant_InterfaceMethodref_info,
+  constant_InvokeDynamic_info,
+  constant_Long_info,
+  constant_MethodHandle_info,
+  constant_MethodType_info,
+  constant_Methodref_info,
+  constant_NameAndType_info,
+  constant_String_info,
+  constant_Utf8_info,
   ConstantType,
 } from '#types/ClassFile/constants';
 
 function readConstantClass(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Class_info; offset: number } {
+  tag: constantTag
+): { result: constant_Class_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const name_index = view.getUint16(offset);
   offset += 2;
@@ -38,8 +38,8 @@ function readConstantClass(
 function readConstantFieldref(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Fieldref_info; offset: number } {
+  tag: constantTag
+): { result: constant_Fieldref_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const class_index = view.getUint16(offset);
   offset += 2;
@@ -61,8 +61,8 @@ function readConstantFieldref(
 function readConstantMethodref(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Methodref_info; offset: number } {
+  tag: constantTag
+): { result: constant_Methodref_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const class_index = view.getUint16(offset);
   offset += 2;
@@ -84,8 +84,8 @@ function readConstantMethodref(
 function readConstantInterfaceMethodref(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_InterfaceMethodref_info; offset: number } {
+  tag: constantTag
+): { result: constant_InterfaceMethodref_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const class_index = view.getUint16(offset);
   offset += 2;
@@ -107,8 +107,8 @@ function readConstantInterfaceMethodref(
 function readConstantString(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_String_info; offset: number } {
+  tag: constantTag
+): { result: constant_String_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const string_index = view.getUint16(offset);
   offset += 2;
@@ -125,8 +125,8 @@ function readConstantString(
 function readConstantInteger(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Integer_info; offset: number } {
+  tag: constantTag
+): { result: constant_Integer_info; offset: number } {
   const value = view.getUint32(offset);
   offset += 4;
 
@@ -142,8 +142,8 @@ function readConstantInteger(
 function readConstantFloat(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Float_info; offset: number } {
+  tag: constantTag
+): { result: constant_Float_info; offset: number } {
   const value = view.getFloat32(offset);
   offset += 4;
 
@@ -159,8 +159,8 @@ function readConstantFloat(
 function readConstantLong(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Long_info; offset: number } {
+  tag: constantTag
+): { result: constant_Long_info; offset: number } {
   const value = view.getBigUint64(offset);
   offset += 8;
 
@@ -176,8 +176,8 @@ function readConstantLong(
 function readConstantDouble(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Double_info; offset: number } {
+  tag: constantTag
+): { result: constant_Double_info; offset: number } {
   const value = view.getFloat64(offset);
   offset += 8;
 
@@ -193,8 +193,8 @@ function readConstantDouble(
 function readConstantNameAndType(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_NameAndType_info; offset: number } {
+  tag: constantTag
+): { result: constant_NameAndType_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const name_index = view.getUint16(offset);
   offset += 2;
@@ -215,8 +215,8 @@ function readConstantNameAndType(
 function readConstantUtf8(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_Utf8_info; offset: number } {
+  tag: constantTag
+): { result: constant_Utf8_info; offset: number } {
   const length = view.getUint16(offset);
   offset += 2;
 
@@ -241,8 +241,8 @@ function readConstantUtf8(
 function readConstantMethodHandle(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_MethodHandle_info; offset: number } {
+  tag: constantTag
+): { result: constant_MethodHandle_info; offset: number } {
   const reference_kind = view.getUint8(offset);
   offset += 1;
 
@@ -263,8 +263,8 @@ function readConstantMethodHandle(
 function readConstantMethodType(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_MethodType_info; offset: number } {
+  tag: constantTag
+): { result: constant_MethodType_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const descriptor_index = view.getUint16(offset);
   offset += 2;
@@ -281,8 +281,8 @@ function readConstantMethodType(
 function readConstantInvokeDynamic(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
-): { result: CONSTANT_InvokeDynamic_info; offset: number } {
+  tag: constantTag
+): { result: constant_InvokeDynamic_info; offset: number } {
   console.warn('FIXME: not checking constant pool if index exists/is name');
   const bootstrap_method_attr_index = view.getUint16(offset);
   offset += 2;
@@ -304,36 +304,36 @@ function readConstantInvokeDynamic(
 function readConstant(
   view: DataView,
   offset: number,
-  tag: CONSTANT_TAG
+  tag: constantTag
 ): { result: any; offset: number } {
   switch (tag) {
-    case CONSTANT_TAG.CONSTANT_Class:
+    case constantTag.constant_Class:
       return readConstantClass(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_Fieldref:
+    case constantTag.constant_Fieldref:
       return readConstantFieldref(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_Methodref:
+    case constantTag.constant_Methodref:
       return readConstantMethodref(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_InterfaceMethodref:
+    case constantTag.constant_InterfaceMethodref:
       return readConstantInterfaceMethodref(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_String:
+    case constantTag.constant_String:
       return readConstantString(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_Integer:
+    case constantTag.constant_Integer:
       return readConstantInteger(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_Float:
+    case constantTag.constant_Float:
       return readConstantFloat(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_Long:
+    case constantTag.constant_Long:
       return readConstantLong(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_Double:
+    case constantTag.constant_Double:
       return readConstantDouble(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_NameAndType:
+    case constantTag.constant_NameAndType:
       return readConstantNameAndType(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_Utf8:
+    case constantTag.constant_Utf8:
       return readConstantUtf8(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_MethodHandle:
+    case constantTag.constant_MethodHandle:
       return readConstantMethodHandle(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_MethodType:
+    case constantTag.constant_MethodType:
       return readConstantMethodType(view, offset, tag);
-    case CONSTANT_TAG.CONSTANT_InvokeDynamic:
+    case constantTag.constant_InvokeDynamic:
       return readConstantInvokeDynamic(view, offset, tag);
     default:
       return {
@@ -350,7 +350,7 @@ export function readConstants(
 ) {
   // constant pool 1 indexed, dummy value at index 0
   const constant_pool: ConstantType[] = [
-    { tag: CONSTANT_TAG.CONSTANT_Class, name_index: 0 },
+    { tag: constantTag.constant_Class, name_index: 0 },
   ];
 
   for (let i = 0; i < constant_pool_count - 1; i += 1) {
@@ -361,8 +361,8 @@ export function readConstants(
 
     // Longs and doubles take 2 indexes in the constant pool.
     if (
-      result.tag === CONSTANT_TAG.CONSTANT_Long ||
-      result.tag === CONSTANT_TAG.CONSTANT_Double
+      result.tag === constantTag.constant_Long ||
+      result.tag === constantTag.constant_Double
     ) {
       constant_pool.push(result);
       i += 1;

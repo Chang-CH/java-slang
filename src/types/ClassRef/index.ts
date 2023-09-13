@@ -5,10 +5,10 @@ import {
 } from '#types/ClassFile/attributes';
 import { ConstantType } from '#types/ClassFile/constants';
 import { FieldType } from '#types/ClassFile/fields';
-import { MethodType } from '#types/ClassFile/methods';
+import { MethodRef } from '#types/ClassFile/methods';
 
 // TODO: after resolving one method, e.g. methodref, can change it to the actual method object.
-export interface ClassData {
+export interface ClassRef {
   magic: number;
   minor_version: number;
   major_version: number;
@@ -16,16 +16,20 @@ export interface ClassData {
   loader: AbstractClassLoader;
   isInitialized: boolean;
 
-  constant_pool: Array<ConstantType>;
+  constant_pool: Array<ConstantType>; // TODO: change to actual values?
   access_flags: number;
+
   this_class: string;
-  super_class: string;
-  interfaces: Array<string>;
+  super_class: string | ClassRef;
+
+  interfaces: Array<string | ClassRef>;
+
   fields: {
     [fieldName: string]: FieldType;
   };
+
   methods: {
-    [methodName: string]: MethodType;
+    [methodName: string]: MethodRef;
   };
 
   BootstrapMethods?: AttributeBootstrapMethods;

@@ -1,3 +1,6 @@
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef, NativeMethodRef } from '#types/ClassFile/methods';
+
 export interface InstructionPointer {
   className: string;
   methodName: string;
@@ -6,9 +9,8 @@ export interface InstructionPointer {
 
 export interface StackFrame {
   operandStack: any[];
-  className: string;
-  methodName: string;
+  class: ClassRef;
+  method: MethodRef;
   pc: number;
-  this: any;
   locals: any[];
 }

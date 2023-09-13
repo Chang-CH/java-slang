@@ -1,7 +1,7 @@
-import { ClassData } from '#types/ClassData';
+import { ClassRef } from '#types/ClassRef';
 import { ClassFile } from '#types/ClassFile';
 import { InstructionType } from '#types/ClassFile/instructions';
-import { MethodType } from '#types/ClassFile/methods';
+import { MethodRef } from '#types/ClassFile/methods';
 import { checkNative } from '../../utils/parseBinary/utils/readMethod';
 import NativeThread from '../ExecutionEngine/NativeThreadGroup/NativeThread';
 import { InstructionPointer } from '../ExecutionEngine/NativeThreadGroup/NativeThread/types';
@@ -12,7 +12,7 @@ export default class MemoryArea {
   // Technically the stack and pc registers should be here, but are stored in NativeStack.
   heap: any;
   methodArea: {
-    [className: string]: ClassData;
+    [className: string]: ClassRef;
   };
   jni: JNI;
 
@@ -41,7 +41,7 @@ export default class MemoryArea {
     return readInstruction(method.code.code, pointer.pc);
   }
 
-  getClass(className: string, onError?: (e: Error) => void): ClassData {
+  getClass(className: string, onError?: (e: Error) => void): ClassRef {
     if (!this.methodArea[className]) {
       onError && onError(new Error('class not loaded'));
     }
@@ -72,7 +72,7 @@ export default class MemoryArea {
     this.methodArea[className].fields[fieldName].data = value;
   }
 
-  loadClass(className: string, cls: ClassData): void {
+  loadClass(className: string, cls: ClassRef): void {
     this.methodArea[className] = cls;
     return;
   }

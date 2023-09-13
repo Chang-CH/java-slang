@@ -6,23 +6,10 @@ import MemoryArea from '#jvm/components/MemoryArea';
 import JVM from '#jvm/index';
 import OsInterface, { Folder } from '#utils/OsInterface';
 import { classFileToText } from '#utils/Prettify/classfile';
-import parseBin from '#utils/parseBinary';
+import parseBin, { a2ab } from '#utils/parseBinary';
 import * as fs from 'node:fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
-/**
- * Converts a NodeJS Buffer to an ArrayBuffer
- *
- * @param buffer nodejs buffer
- * @returns ArrayBuffer equivalent
- */
-export function a2ab(buffer: Buffer) {
-  return buffer.buffer.slice(
-    buffer.byteOffset,
-    buffer.byteOffset + buffer.byteLength
-  );
-}
 
 export default function main() {
   /**

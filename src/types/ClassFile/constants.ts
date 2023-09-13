@@ -1,61 +1,61 @@
-import { CONSTANT_TAG } from '#constants/ClassFile/constants';
+import { constantTag } from '#constants/ClassFile/constants';
 
-export interface CONSTANT_Class_info {
-  tag: CONSTANT_TAG;
+export interface constant_Class_info {
+  tag: constantTag;
   name_index: number;
 }
 
-export interface CONSTANT_Fieldref_info {
-  tag: CONSTANT_TAG;
+export interface constant_Fieldref_info {
+  tag: constantTag;
   class_index: number;
   name_and_type_index: number;
 }
 
-export interface CONSTANT_Methodref_info {
-  tag: CONSTANT_TAG;
+export interface constant_Methodref_info {
+  tag: constantTag;
   class_index: number;
   name_and_type_index: number;
 }
 
-export interface CONSTANT_InterfaceMethodref_info {
-  tag: CONSTANT_TAG;
+export interface constant_InterfaceMethodref_info {
+  tag: constantTag;
   class_index: number;
   name_and_type_index: number;
 }
 
-export interface CONSTANT_String_info {
-  tag: CONSTANT_TAG;
+export interface constant_String_info {
+  tag: constantTag;
   string_index: number;
 }
 
-export interface CONSTANT_Integer_info {
-  tag: CONSTANT_TAG;
+export interface constant_Integer_info {
+  tag: constantTag;
   value: number;
 }
 
-export interface CONSTANT_Float_info {
-  tag: CONSTANT_TAG;
+export interface constant_Float_info {
+  tag: constantTag;
   value: number;
 }
 
-export interface CONSTANT_Long_info {
-  tag: CONSTANT_TAG;
+export interface constant_Long_info {
+  tag: constantTag;
   value: bigint;
 }
 
-export interface CONSTANT_Double_info {
-  tag: CONSTANT_TAG;
+export interface constant_Double_info {
+  tag: constantTag;
   value: number;
 }
 
-export interface CONSTANT_NameAndType_info {
-  tag: CONSTANT_TAG;
+export interface constant_NameAndType_info {
+  tag: constantTag;
   name_index: number;
   descriptor_index: number;
 }
 
-export interface CONSTANT_Utf8_info {
-  tag: CONSTANT_TAG;
+export interface constant_Utf8_info {
+  tag: constantTag;
   length: number;
   value: string;
 }
@@ -72,35 +72,35 @@ export enum REFERENCE_KIND {
   REF_invokeInterface,
 }
 
-export interface CONSTANT_MethodHandle_info {
-  tag: CONSTANT_TAG;
+export interface constant_MethodHandle_info {
+  tag: constantTag;
   reference_kind: REFERENCE_KIND;
   reference_index: number;
 }
 
-export interface CONSTANT_MethodType_info {
-  tag: CONSTANT_TAG;
+export interface constant_MethodType_info {
+  tag: constantTag;
   descriptor_index: number;
 }
 
-export interface CONSTANT_InvokeDynamic_info {
-  tag: CONSTANT_TAG;
+export interface constant_InvokeDynamic_info {
+  tag: constantTag;
   bootstrap_method_attr_index: number;
   name_and_type_index: number;
 }
 
 export type ConstantType =
-  | CONSTANT_Class_info
-  | CONSTANT_Fieldref_info
-  | CONSTANT_Methodref_info
-  | CONSTANT_InterfaceMethodref_info
-  | CONSTANT_String_info
-  | CONSTANT_Integer_info
-  | CONSTANT_Float_info
-  | CONSTANT_Long_info
-  | CONSTANT_Double_info
-  | CONSTANT_NameAndType_info
-  | CONSTANT_Utf8_info
-  | CONSTANT_MethodHandle_info
-  | CONSTANT_MethodType_info
-  | CONSTANT_InvokeDynamic_info;
+  | constant_Class_info
+  | constant_Fieldref_info
+  | constant_Methodref_info
+  | constant_InterfaceMethodref_info
+  | constant_String_info
+  | constant_Integer_info
+  | constant_Float_info
+  | constant_Long_info
+  | constant_Double_info
+  | constant_NameAndType_info
+  | constant_Utf8_info
+  | constant_MethodHandle_info
+  | constant_MethodType_info
+  | constant_InvokeDynamic_info;

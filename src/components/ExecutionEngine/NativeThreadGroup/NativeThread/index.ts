@@ -1,36 +1,75 @@
 import MemoryArea from '#jvm/components/MemoryArea';
+import { readInstruction } from '#jvm/components/MemoryArea/utils/readInstruction';
+import { InstructionType } from '#types/ClassFile/instructions';
+import { MethodRef, NativeMethodRef } from '#types/ClassFile/methods';
+import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';
-import { InstructionPointer, StackFrame } from './types';
+import { checkNative } from '#utils/parseBinary/utils/readMethod';
+import { tryInitialize } from '../../Interpreter/utils';
+import { StackFrame } from './types';
 
 export default class NativeThread {
   stack: StackFrame[];
   stackPointer: number;
+  javaThis?: JavaReference;
+  cls: ClassRef;
 
-  constructor(initialFrame: StackFrame) {
+  constructor(
+    threadClass: ClassRef,
+    javaThis: JavaReference,
+    initialFrame: StackFrame
+  ) {
+    this.cls = threadClass;
+    this.javaThis = javaThis;
     this.stack = [initialFrame];
     this.stackPointer = 0;
   }
 
-  getCurrentInstruction(): InstructionPointer | undefined {
+  getCurrentInstruction(): InstructionType | NativeMethodRef | undefined {
     const currentFrame = this.stack?.[this.stackPointer];
 
     if (!currentFrame) {
       return;
     }
 
-    return {
-      className: currentFrame.className,
-      methodName: currentFrame.methodName,
-      pc: currentFrame.pc,
-    };
+    // Instruction is a native method
+    if (checkNative(currentFrame.method) || !currentFrame.method.code) {
+      return {
+        className: currentFrame.class.this_class,
+        methodName: currentFrame.method.name + currentFrame.method.descriptor,
+        native: true,
+      };
+    }
+
+    return readInstruction(currentFrame.method.code.code, currentFrame.pc);
+  }
+
+  getPC(): number {
+    return this.stack[this.stackPointer].pc;
+  }
+
+  offsetPc(pc: number) {
+    this.stack[this.stackPointer].pc += pc;
+  }
+
+  setPc(pc: number) {
+    this.stack[this.stackPointer].pc = pc;
   }
 
   getClassName(): string {
-    return this.stack[this.stackPointer].className;
+    return this.stack[this.stackPointer].class.this_class;
+  }
+
+  getClass(): ClassRef {
+    return this.stack[this.stackPointer].class;
   }
 
   getMethodName(): string {
-    return this.stack[this.stackPointer].methodName;
+    return this.stack[this.stackPointer].method.name;
+  }
+
+  getMethod(): MethodRef {
+    return this.stack[this.stackPointer].method;
   }
 
   peekStackFrame() {
@@ -99,34 +138,7 @@ export default class NativeThread {
   }
 
   throwNewException(className: string, memoryArea: MemoryArea, msg: string) {
-    const invoker = this.getClassName();
-
-    // Load class if not loaded
-    memoryArea.getClass(className, e => {
-      memoryArea.getClass(invoker).loader.load(
-        className,
-        () => {},
-        e => {
-          throw e;
-        }
-      );
-    });
-    // Class not initialized, initialize it.
-    if (!memoryArea.getClass(className).isInitialized) {
-      if (memoryArea.getClass(className).methods['<clinit>()V']) {
-        this.pushStackFrame({
-          className,
-          methodName: '<clinit>()V',
-          pc: 0,
-          operandStack: [],
-          this: null,
-          locals: [],
-        });
-        memoryArea.getClass(className).isInitialized = true;
-        return;
-      }
-      memoryArea.getClass(className).isInitialized = true;
-    }
+    tryInitialize(memoryArea, this, className);
 
     // Initialize exception
     // TODO: push msg to stack
@@ -138,24 +150,22 @@ export default class NativeThread {
     //   this: undefined,
     //   locals: [],
     // });
-    const objectref = new JavaReference(className, {});
+    const objectref = new JavaReference(memoryArea.getClass(className), {});
     this.throwException(memoryArea, objectref);
   }
 
   throwException(memoryArea: MemoryArea, exception: any) {
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
-      const instruction = this.getCurrentInstruction();
+      const method = this.getMethod();
 
-      if (!instruction) {
+      // Native methods cannot handle exceptions
+      if (checkNative(method)) {
         this.popStackFrame();
         continue;
       }
 
-      const { className, methodName } = instruction;
-      const eTable =
-        memoryArea.getClass(className)?.methods[methodName]?.code
-          ?.exception_table;
+      const eTable = method?.code?.exception_table;
 
       // TODO: check if exception is handled
       this.popStackFrame();
@@ -164,11 +174,11 @@ export default class NativeThread {
     // Unhandled exception.
     this.pushStackFrame({
       operandStack: [],
-      className: 'java/lang/Thread',
-      methodName: 'dispatchUncaughtException(Ljava/lang/Throwable;)V',
+      class: this.cls,
+      method:
+        this.cls.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V'],
       pc: 0,
-      this: this,
-      locals: [this, exception],
+      locals: [this.javaThis, exception],
     });
   }
 }

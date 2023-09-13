@@ -1,5 +1,5 @@
 import MemoryArea from '#jvm/components/MemoryArea';
-import { ClassData } from '#types/ClassData';
+import { ClassRef } from '#types/ClassRef';
 import { ClassFile } from '#types/ClassFile';
 import OsInterface from '#utils/OsInterface';
 import parseBin from '#utils/parseBinary';
@@ -29,7 +29,7 @@ export default class ClassLoader extends AbstractClassLoader {
    */
   load(
     className: string,
-    onFinish?: (classData: ClassData) => void,
+    onFinish?: (classData: ClassRef) => void,
     onError?: (error: Error) => void
   ): void {
     console.debug(`ClassLoader: loading ${className}`);

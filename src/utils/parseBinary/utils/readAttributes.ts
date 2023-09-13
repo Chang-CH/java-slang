@@ -1,6 +1,6 @@
 import { PREDEF_ATTRIB } from '#constants/ClassFile/attributes';
 import { AttributeCode, ExceptionType } from '#types/ClassFile/attributes';
-import { ConstantType, CONSTANT_Utf8_info } from '#types/ClassFile/constants';
+import { ConstantType, constant_Utf8_info } from '#types/ClassFile/constants';
 
 export function readAttribute(
   constPool: Array<ConstantType>,
@@ -11,11 +11,11 @@ export function readAttribute(
   offset += 2;
 
   // TODO: in theory we should check the constant pool:
-  // checkConstantPool(constPool, attribute_name_index, CONSTANT_TAG.CONSTANT_Utf8);
+  // checkConstantPool(constPool, attribute_name_index, constant_TAG.constant_Utf8);
 
-  const constant_attribute_name: CONSTANT_Utf8_info = constPool[
+  const constant_attribute_name: constant_Utf8_info = constPool[
     attribute_name_index
-  ] as CONSTANT_Utf8_info;
+  ] as constant_Utf8_info;
 
   // @ts-ignore FIXME: check type is predef
   const Attrib: number = PREDEF_ATTRIB[constant_attribute_name.value];

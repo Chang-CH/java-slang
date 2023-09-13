@@ -1,4 +1,6 @@
+import MemoryArea from '#jvm/components/MemoryArea';
 import { JavaType } from '#types/DataTypes';
+import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export function readFieldDescriptor(descriptor: string, index: number) {
   switch (descriptor[index]) {
@@ -53,4 +55,47 @@ export function readMethodDescriptor(desc: string) {
 
 export function getField(ref: any, fieldName: string, type: JavaType) {
   ref.getField(fieldName, type);
+}
+
+export function tryLoad(
+  memoryArea: MemoryArea,
+  thread: NativeThread,
+  className: string
+) {
+  // Load class if not loaded
+  memoryArea.getClass(className, e => {
+    thread.getClass().loader.load(
+      className,
+      () => {},
+      e => {
+        throw e;
+      }
+    );
+  });
+}
+
+export function tryInitialize(
+  memoryArea: MemoryArea,
+  thread: NativeThread,
+  className: string
+) {
+  tryLoad(memoryArea, thread, className);
+
+  const classRef = memoryArea.getClass(className);
+  // Class not initialized, initialize it.
+  if (classRef.isInitialized) {
+    if (classRef.methods['<clinit>()V']) {
+      thread.pushStackFrame({
+        class: classRef,
+        method: classRef.methods['<clinit>()V'],
+        pc: 0,
+        operandStack: [],
+        this: null,
+        locals: [],
+      });
+      classRef.isInitialized = true;
+      return;
+    }
+    classRef.isInitialized = true;
+  }
 }

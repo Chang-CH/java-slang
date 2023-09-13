@@ -444,576 +444,584 @@ export function readInstruction(
 }
 
 function readnop(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.nop, operands: [] };
+  return { opcode: INSTRUCTION_SET.nop, operands: [], native: false };
 }
 
 function readaconst_null(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.aconst_null, operands: [] };
+  return { opcode: INSTRUCTION_SET.aconst_null, operands: [], native: false };
 }
 
 function readiconst_m1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iconst_m1, operands: [] };
+  return { opcode: INSTRUCTION_SET.iconst_m1, operands: [], native: false };
 }
 
 function readiconst_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iconst_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.iconst_0, operands: [], native: false };
 }
 
 function readiconst_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iconst_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.iconst_1, operands: [], native: false };
 }
 
 function readiconst_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iconst_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.iconst_2, operands: [], native: false };
 }
 
 function readiconst_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iconst_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.iconst_3, operands: [], native: false };
 }
 
 function readiconst_4(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iconst_4, operands: [] };
+  return { opcode: INSTRUCTION_SET.iconst_4, operands: [], native: false };
 }
 
 function readiconst_5(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iconst_5, operands: [] };
+  return { opcode: INSTRUCTION_SET.iconst_5, operands: [], native: false };
 }
 
 function readlconst_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lconst_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.lconst_0, operands: [], native: false };
 }
 
 function readlconst_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lconst_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.lconst_1, operands: [], native: false };
 }
 
 function readfconst_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fconst_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.fconst_0, operands: [], native: false };
 }
 
 function readfconst_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fconst_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.fconst_1, operands: [], native: false };
 }
 
 function readfconst_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fconst_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.fconst_2, operands: [], native: false };
 }
 
 function readdconst_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dconst_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.dconst_0, operands: [], native: false };
 }
 
 function readdconst_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dconst_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.dconst_1, operands: [], native: false };
 }
 
 function readbipush(view: DataView, offset: number): InstructionType {
   const byte = view.getInt8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.bipush, operands: [byte] };
+  return { opcode: INSTRUCTION_SET.bipush, operands: [byte], native: false };
 }
 
 function readsipush(view: DataView, offset: number): InstructionType {
   const value = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.sipush, operands: [value] };
+  return { opcode: INSTRUCTION_SET.sipush, operands: [value], native: false };
 }
 
 function readldc(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.ldc, operands: [index] };
+  return { opcode: INSTRUCTION_SET.ldc, operands: [index], native: false };
 }
 
 function readldc_w(view: DataView, offset: number): InstructionType {
   const indexbyte = view.getUint16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.ldc_w, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ldc_w,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readldc2_w(view: DataView, offset: number): InstructionType {
   const indexbyte = view.getUint16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.ldc2_w, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ldc2_w,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readiload(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.iload, operands: [index] };
+  return { opcode: INSTRUCTION_SET.iload, operands: [index], native: false };
 }
 
 function readlload(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.lload, operands: [index] };
+  return { opcode: INSTRUCTION_SET.lload, operands: [index], native: false };
 }
 
 function readfload(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.fload, operands: [index] };
+  return { opcode: INSTRUCTION_SET.fload, operands: [index], native: false };
 }
 
 function readdload(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.dload, operands: [index] };
+  return { opcode: INSTRUCTION_SET.dload, operands: [index], native: false };
 }
 
 function readaload(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.aload, operands: [index] };
+  return { opcode: INSTRUCTION_SET.aload, operands: [index], native: false };
 }
 
 function readiload_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iload_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.iload_0, operands: [], native: false };
 }
 
 function readiload_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iload_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.iload_1, operands: [], native: false };
 }
 
 function readiload_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iload_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.iload_2, operands: [], native: false };
 }
 
 function readiload_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iload_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.iload_3, operands: [], native: false };
 }
 
 function readlload_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lload_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.lload_0, operands: [], native: false };
 }
 
 function readlload_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lload_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.lload_1, operands: [], native: false };
 }
 
 function readlload_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lload_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.lload_2, operands: [], native: false };
 }
 
 function readlload_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lload_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.lload_3, operands: [], native: false };
 }
 
 function readfload_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fload_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.fload_0, operands: [], native: false };
 }
 
 function readfload_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fload_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.fload_1, operands: [], native: false };
 }
 
 function readfload_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fload_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.fload_2, operands: [], native: false };
 }
 
 function readfload_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fload_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.fload_3, operands: [], native: false };
 }
 
 function readdload_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dload_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.dload_0, operands: [], native: false };
 }
 
 function readdload_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dload_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.dload_1, operands: [], native: false };
 }
 
 function readdload_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dload_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.dload_2, operands: [], native: false };
 }
 
 function readdload_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dload_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.dload_3, operands: [], native: false };
 }
 
 function readaload_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.aload_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.aload_0, operands: [], native: false };
 }
 
 function readaload_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.aload_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.aload_1, operands: [], native: false };
 }
 
 function readaload_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.aload_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.aload_2, operands: [], native: false };
 }
 
 function readaload_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.aload_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.aload_3, operands: [], native: false };
 }
 
 function readiaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iaload, operands: [] };
+  return { opcode: INSTRUCTION_SET.iaload, operands: [], native: false };
 }
 
 function readlaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.laload, operands: [] };
+  return { opcode: INSTRUCTION_SET.laload, operands: [], native: false };
 }
 
 function readfaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.faload, operands: [] };
+  return { opcode: INSTRUCTION_SET.faload, operands: [], native: false };
 }
 
 function readdaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.daload, operands: [] };
+  return { opcode: INSTRUCTION_SET.daload, operands: [], native: false };
 }
 
 function readaaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.aaload, operands: [] };
+  return { opcode: INSTRUCTION_SET.aaload, operands: [], native: false };
 }
 
 function readbaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.baload, operands: [] };
+  return { opcode: INSTRUCTION_SET.baload, operands: [], native: false };
 }
 
 function readcaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.caload, operands: [] };
+  return { opcode: INSTRUCTION_SET.caload, operands: [], native: false };
 }
 
 function readsaload(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.saload, operands: [] };
+  return { opcode: INSTRUCTION_SET.saload, operands: [], native: false };
 }
 
 function readistore(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.istore, operands: [index] };
+  return { opcode: INSTRUCTION_SET.istore, operands: [index], native: false };
 }
 
 function readlstore(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.lstore, operands: [index] };
+  return { opcode: INSTRUCTION_SET.lstore, operands: [index], native: false };
 }
 
 function readfstore(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.fstore, operands: [index] };
+  return { opcode: INSTRUCTION_SET.fstore, operands: [index], native: false };
 }
 
 function readdstore(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.dstore, operands: [index] };
+  return { opcode: INSTRUCTION_SET.dstore, operands: [index], native: false };
 }
 
 function readastore(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.astore, operands: [index] };
+  return { opcode: INSTRUCTION_SET.astore, operands: [index], native: false };
 }
 
 function readistore_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.istore_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.istore_0, operands: [], native: false };
 }
 
 function readistore_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.istore_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.istore_1, operands: [], native: false };
 }
 
 function readistore_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.istore_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.istore_2, operands: [], native: false };
 }
 
 function readistore_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.istore_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.istore_3, operands: [], native: false };
 }
 
 function readlstore_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lstore_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.lstore_0, operands: [], native: false };
 }
 
 function readlstore_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lstore_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.lstore_1, operands: [], native: false };
 }
 
 function readlstore_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lstore_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.lstore_2, operands: [], native: false };
 }
 
 function readlstore_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lstore_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.lstore_3, operands: [], native: false };
 }
 
 function readfstore_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fstore_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.fstore_0, operands: [], native: false };
 }
 
 function readfstore_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fstore_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.fstore_1, operands: [], native: false };
 }
 
 function readfstore_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fstore_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.fstore_2, operands: [], native: false };
 }
 
 function readfstore_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fstore_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.fstore_3, operands: [], native: false };
 }
 
 function readdstore_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dstore_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.dstore_0, operands: [], native: false };
 }
 
 function readdstore_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dstore_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.dstore_1, operands: [], native: false };
 }
 
 function readdstore_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dstore_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.dstore_2, operands: [], native: false };
 }
 
 function readdstore_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dstore_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.dstore_3, operands: [], native: false };
 }
 
 function readastore_0(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.astore_0, operands: [] };
+  return { opcode: INSTRUCTION_SET.astore_0, operands: [], native: false };
 }
 
 function readastore_1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.astore_1, operands: [] };
+  return { opcode: INSTRUCTION_SET.astore_1, operands: [], native: false };
 }
 
 function readastore_2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.astore_2, operands: [] };
+  return { opcode: INSTRUCTION_SET.astore_2, operands: [], native: false };
 }
 
 function readastore_3(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.astore_3, operands: [] };
+  return { opcode: INSTRUCTION_SET.astore_3, operands: [], native: false };
 }
 
 function readiastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iastore, operands: [] };
+  return { opcode: INSTRUCTION_SET.iastore, operands: [], native: false };
 }
 
 function readlastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lastore, operands: [] };
+  return { opcode: INSTRUCTION_SET.lastore, operands: [], native: false };
 }
 
 function readfastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fastore, operands: [] };
+  return { opcode: INSTRUCTION_SET.fastore, operands: [], native: false };
 }
 
 function readdastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dastore, operands: [] };
+  return { opcode: INSTRUCTION_SET.dastore, operands: [], native: false };
 }
 
 function readaastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.aastore, operands: [] };
+  return { opcode: INSTRUCTION_SET.aastore, operands: [], native: false };
 }
 
 function readbastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.bastore, operands: [] };
+  return { opcode: INSTRUCTION_SET.bastore, operands: [], native: false };
 }
 
 function readcastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.castore, operands: [] };
+  return { opcode: INSTRUCTION_SET.castore, operands: [], native: false };
 }
 
 function readsastore(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.sastore, operands: [] };
+  return { opcode: INSTRUCTION_SET.sastore, operands: [], native: false };
 }
 
 function readpop(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.pop, operands: [] };
+  return { opcode: INSTRUCTION_SET.pop, operands: [], native: false };
 }
 
 function readpop2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.pop2, operands: [] };
+  return { opcode: INSTRUCTION_SET.pop2, operands: [], native: false };
 }
 
 function readdup(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dup, operands: [] };
+  return { opcode: INSTRUCTION_SET.dup, operands: [], native: false };
 }
 
 function readdup_x1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dup_x1, operands: [] };
+  return { opcode: INSTRUCTION_SET.dup_x1, operands: [], native: false };
 }
 
 function readdup_x2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dup_x2, operands: [] };
+  return { opcode: INSTRUCTION_SET.dup_x2, operands: [], native: false };
 }
 
 function readdup2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dup2, operands: [] };
+  return { opcode: INSTRUCTION_SET.dup2, operands: [], native: false };
 }
 
 function readdup2_x1(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dup2_x1, operands: [] };
+  return { opcode: INSTRUCTION_SET.dup2_x1, operands: [], native: false };
 }
 
 function readdup2_x2(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dup2_x2, operands: [] };
+  return { opcode: INSTRUCTION_SET.dup2_x2, operands: [], native: false };
 }
 
 function readswap(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.swap, operands: [] };
+  return { opcode: INSTRUCTION_SET.swap, operands: [], native: false };
 }
 
 function readiadd(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iadd, operands: [] };
+  return { opcode: INSTRUCTION_SET.iadd, operands: [], native: false };
 }
 
 function readladd(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ladd, operands: [] };
+  return { opcode: INSTRUCTION_SET.ladd, operands: [], native: false };
 }
 
 function readfadd(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fadd, operands: [] };
+  return { opcode: INSTRUCTION_SET.fadd, operands: [], native: false };
 }
 
 function readdadd(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dadd, operands: [] };
+  return { opcode: INSTRUCTION_SET.dadd, operands: [], native: false };
 }
 
 function readisub(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.isub, operands: [] };
+  return { opcode: INSTRUCTION_SET.isub, operands: [], native: false };
 }
 
 function readlsub(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lsub, operands: [] };
+  return { opcode: INSTRUCTION_SET.lsub, operands: [], native: false };
 }
 
 function readfsub(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fsub, operands: [] };
+  return { opcode: INSTRUCTION_SET.fsub, operands: [], native: false };
 }
 
 function readdsub(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dsub, operands: [] };
+  return { opcode: INSTRUCTION_SET.dsub, operands: [], native: false };
 }
 
 function readimul(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.imul, operands: [] };
+  return { opcode: INSTRUCTION_SET.imul, operands: [], native: false };
 }
 
 function readlmul(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lmul, operands: [] };
+  return { opcode: INSTRUCTION_SET.lmul, operands: [], native: false };
 }
 
 function readfmul(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fmul, operands: [] };
+  return { opcode: INSTRUCTION_SET.fmul, operands: [], native: false };
 }
 
 function readdmul(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dmul, operands: [] };
+  return { opcode: INSTRUCTION_SET.dmul, operands: [], native: false };
 }
 
 function readidiv(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.idiv, operands: [] };
+  return { opcode: INSTRUCTION_SET.idiv, operands: [], native: false };
 }
 
 function readldiv(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ldiv, operands: [] };
+  return { opcode: INSTRUCTION_SET.ldiv, operands: [], native: false };
 }
 
 function readfdiv(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fdiv, operands: [] };
+  return { opcode: INSTRUCTION_SET.fdiv, operands: [], native: false };
 }
 
 function readddiv(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ddiv, operands: [] };
+  return { opcode: INSTRUCTION_SET.ddiv, operands: [], native: false };
 }
 
 function readirem(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.irem, operands: [] };
+  return { opcode: INSTRUCTION_SET.irem, operands: [], native: false };
 }
 
 function readlrem(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lrem, operands: [] };
+  return { opcode: INSTRUCTION_SET.lrem, operands: [], native: false };
 }
 
 function readfrem(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.frem, operands: [] };
+  return { opcode: INSTRUCTION_SET.frem, operands: [], native: false };
 }
 
 function readdrem(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.drem, operands: [] };
+  return { opcode: INSTRUCTION_SET.drem, operands: [], native: false };
 }
 
 function readineg(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ineg, operands: [] };
+  return { opcode: INSTRUCTION_SET.ineg, operands: [], native: false };
 }
 
 function readlneg(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lneg, operands: [] };
+  return { opcode: INSTRUCTION_SET.lneg, operands: [], native: false };
 }
 
 function readfneg(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fneg, operands: [] };
+  return { opcode: INSTRUCTION_SET.fneg, operands: [], native: false };
 }
 
 function readdneg(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dneg, operands: [] };
+  return { opcode: INSTRUCTION_SET.dneg, operands: [], native: false };
 }
 
 function readishl(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ishl, operands: [] };
+  return { opcode: INSTRUCTION_SET.ishl, operands: [], native: false };
 }
 
 function readlshl(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lshl, operands: [] };
+  return { opcode: INSTRUCTION_SET.lshl, operands: [], native: false };
 }
 
 function readishr(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ishr, operands: [] };
+  return { opcode: INSTRUCTION_SET.ishr, operands: [], native: false };
 }
 
 function readlshr(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lshr, operands: [] };
+  return { opcode: INSTRUCTION_SET.lshr, operands: [], native: false };
 }
 
 function readiushr(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iushr, operands: [] };
+  return { opcode: INSTRUCTION_SET.iushr, operands: [], native: false };
 }
 
 function readlushr(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lushr, operands: [] };
+  return { opcode: INSTRUCTION_SET.lushr, operands: [], native: false };
 }
 
 function readiand(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.iand, operands: [] };
+  return { opcode: INSTRUCTION_SET.iand, operands: [], native: false };
 }
 
 function readland(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.land, operands: [] };
+  return { opcode: INSTRUCTION_SET.land, operands: [], native: false };
 }
 
 function readior(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ior, operands: [] };
+  return { opcode: INSTRUCTION_SET.ior, operands: [], native: false };
 }
 
 function readlor(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lor, operands: [] };
+  return { opcode: INSTRUCTION_SET.lor, operands: [], native: false };
 }
 
 function readixor(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ixor, operands: [] };
+  return { opcode: INSTRUCTION_SET.ixor, operands: [], native: false };
 }
 
 function readlxor(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lxor, operands: [] };
+  return { opcode: INSTRUCTION_SET.lxor, operands: [], native: false };
 }
 
 function readiinc(view: DataView, offset: number): InstructionType {
@@ -1022,201 +1030,265 @@ function readiinc(view: DataView, offset: number): InstructionType {
   const constant = view.getInt8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.iinc, operands: [index, constant] };
+  return {
+    opcode: INSTRUCTION_SET.iinc,
+    operands: [index, constant],
+    native: false,
+  };
 }
 
 function readi2l(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.i2l, operands: [] };
+  return { opcode: INSTRUCTION_SET.i2l, operands: [], native: false };
 }
 
 function readi2f(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.i2f, operands: [] };
+  return { opcode: INSTRUCTION_SET.i2f, operands: [], native: false };
 }
 
 function readi2d(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.i2d, operands: [] };
+  return { opcode: INSTRUCTION_SET.i2d, operands: [], native: false };
 }
 
 function readl2i(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.l2i, operands: [] };
+  return { opcode: INSTRUCTION_SET.l2i, operands: [], native: false };
 }
 
 function readl2f(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.l2f, operands: [] };
+  return { opcode: INSTRUCTION_SET.l2f, operands: [], native: false };
 }
 
 function readl2d(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.l2d, operands: [] };
+  return { opcode: INSTRUCTION_SET.l2d, operands: [], native: false };
 }
 
 function readf2i(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.f2i, operands: [] };
+  return { opcode: INSTRUCTION_SET.f2i, operands: [], native: false };
 }
 
 function readf2l(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.f2l, operands: [] };
+  return { opcode: INSTRUCTION_SET.f2l, operands: [], native: false };
 }
 
 function readf2d(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.f2d, operands: [] };
+  return { opcode: INSTRUCTION_SET.f2d, operands: [], native: false };
 }
 
 function readd2i(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.d2i, operands: [] };
+  return { opcode: INSTRUCTION_SET.d2i, operands: [], native: false };
 }
 
 function readd2l(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.d2l, operands: [] };
+  return { opcode: INSTRUCTION_SET.d2l, operands: [], native: false };
 }
 
 function readd2f(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.d2f, operands: [] };
+  return { opcode: INSTRUCTION_SET.d2f, operands: [], native: false };
 }
 
 function readi2b(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.i2b, operands: [] };
+  return { opcode: INSTRUCTION_SET.i2b, operands: [], native: false };
 }
 
 function readi2c(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.i2c, operands: [] };
+  return { opcode: INSTRUCTION_SET.i2c, operands: [], native: false };
 }
 
 function readi2s(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.i2s, operands: [] };
+  return { opcode: INSTRUCTION_SET.i2s, operands: [], native: false };
 }
 
 function readlcmp(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lcmp, operands: [] };
+  return { opcode: INSTRUCTION_SET.lcmp, operands: [], native: false };
 }
 
 function readfcmpl(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fcmpl, operands: [] };
+  return { opcode: INSTRUCTION_SET.fcmpl, operands: [], native: false };
 }
 
 function readfcmpg(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.fcmpg, operands: [] };
+  return { opcode: INSTRUCTION_SET.fcmpg, operands: [], native: false };
 }
 
 function readdcmpl(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dcmpl, operands: [] };
+  return { opcode: INSTRUCTION_SET.dcmpl, operands: [], native: false };
 }
 
 function readdcmpg(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dcmpg, operands: [] };
+  return { opcode: INSTRUCTION_SET.dcmpg, operands: [], native: false };
 }
 
 function readifeq(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.ifeq, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ifeq,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readifne(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
-  return { opcode: INSTRUCTION_SET.ifne, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ifne,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readiflt(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
-  return { opcode: INSTRUCTION_SET.iflt, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.iflt,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readifge(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
-  return { opcode: INSTRUCTION_SET.ifge, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ifge,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readifgt(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
-  return { opcode: INSTRUCTION_SET.ifgt, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ifgt,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readifle(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
-  return { opcode: INSTRUCTION_SET.ifle, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ifle,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_icmpeq(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_icmpeq, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_icmpeq,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_icmpne(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_icmpne, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_icmpne,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_icmplt(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_icmplt, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_icmplt,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_icmpge(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_icmpge, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_icmpge,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_icmpgt(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_icmpgt, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_icmpgt,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_icmple(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_icmple, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_icmple,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_acmpeq(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_acmpeq, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_acmpeq,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readif_acmpne(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.if_acmpne, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.if_acmpne,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readgoto(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.goto, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.goto,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readjsr(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.jsr, operands: [branchbyte] };
+  return { opcode: INSTRUCTION_SET.jsr, operands: [branchbyte], native: false };
 }
 
 function readret(view: DataView, offset: number): InstructionType {
   const index = view.getUint8(offset);
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.ret, operands: [index] };
+  return { opcode: INSTRUCTION_SET.ret, operands: [index], native: false };
 }
 
 function readtableswitch(view: DataView, offset: number): InstructionType {
@@ -1238,6 +1310,7 @@ function readtableswitch(view: DataView, offset: number): InstructionType {
   return {
     opcode: INSTRUCTION_SET.tableswitch,
     operands: [def, low, high, offsets],
+    native: false,
   };
 }
 
@@ -1260,31 +1333,32 @@ function readlookupswitch(view: DataView, offset: number): InstructionType {
   return {
     opcode: INSTRUCTION_SET.tableswitch,
     operands: [def, npair_count, npairs],
+    native: false,
   };
 }
 
 function readireturn(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.ireturn, operands: [] };
+  return { opcode: INSTRUCTION_SET.ireturn, operands: [], native: false };
 }
 
 function readlreturn(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.lreturn, operands: [] };
+  return { opcode: INSTRUCTION_SET.lreturn, operands: [], native: false };
 }
 
 function readfreturn(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.freturn, operands: [] };
+  return { opcode: INSTRUCTION_SET.freturn, operands: [], native: false };
 }
 
 function readdreturn(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.dreturn, operands: [] };
+  return { opcode: INSTRUCTION_SET.dreturn, operands: [], native: false };
 }
 
 function readareturn(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.areturn, operands: [] };
+  return { opcode: INSTRUCTION_SET.areturn, operands: [], native: false };
 }
 
 function readreturn(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.return, operands: [] };
+  return { opcode: INSTRUCTION_SET.return, operands: [], native: false };
 }
 
 function readgetstatic(view: DataView, offset: number): InstructionType {
@@ -1292,7 +1366,11 @@ function readgetstatic(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.getstatic, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.getstatic,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readputstatic(view: DataView, offset: number): InstructionType {
@@ -1300,7 +1378,11 @@ function readputstatic(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.putstatic, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.putstatic,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readgetfield(view: DataView, offset: number): InstructionType {
@@ -1308,7 +1390,11 @@ function readgetfield(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.getfield, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.getfield,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readputfield(view: DataView, offset: number): InstructionType {
@@ -1316,7 +1402,11 @@ function readputfield(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.putfield, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.putfield,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readinvokevirtual(view: DataView, offset: number): InstructionType {
@@ -1324,7 +1414,11 @@ function readinvokevirtual(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.invokevirtual, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.invokevirtual,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readinvokespecial(view: DataView, offset: number): InstructionType {
@@ -1332,7 +1426,11 @@ function readinvokespecial(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.invokespecial, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.invokespecial,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readinvokestatic(view: DataView, offset: number): InstructionType {
@@ -1340,7 +1438,11 @@ function readinvokestatic(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.invokestatic, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.invokestatic,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readinvokeinterface(view: DataView, offset: number): InstructionType {
@@ -1363,6 +1465,7 @@ function readinvokeinterface(view: DataView, offset: number): InstructionType {
   return {
     opcode: INSTRUCTION_SET.invokeinterface,
     operands: [indexbyte, count],
+    native: false,
   };
 }
 
@@ -1383,7 +1486,11 @@ function readinvokedynamic(view: DataView, offset: number): InstructionType {
   }
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.invokedynamic, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.invokedynamic,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readnew(view: DataView, offset: number): InstructionType {
@@ -1391,29 +1498,33 @@ function readnew(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.new, operands: [indexbyte] };
+  return { opcode: INSTRUCTION_SET.new, operands: [indexbyte], native: false };
 }
 
 function readnewarray(view: DataView, offset: number): InstructionType {
   const atype = view.getUint8(offset); // TODO: check atype valid
   offset += 1;
 
-  return { opcode: INSTRUCTION_SET.newarray, operands: [atype] };
+  return { opcode: INSTRUCTION_SET.newarray, operands: [atype], native: false };
 }
 
 function readanewarray(view: DataView, offset: number): InstructionType {
   const indexbyte = view.getUint16(offset);
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
-  return { opcode: INSTRUCTION_SET.anewarray, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.anewarray,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readarraylength(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.arraylength, operands: [] };
+  return { opcode: INSTRUCTION_SET.arraylength, operands: [], native: false };
 }
 
 function readathrow(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.athrow, operands: [] };
+  return { opcode: INSTRUCTION_SET.athrow, operands: [], native: false };
 }
 
 function readcheckcast(view: DataView, offset: number): InstructionType {
@@ -1422,7 +1533,11 @@ function readcheckcast(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.checkcast, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.checkcast,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readinstanceof(view: DataView, offset: number): InstructionType {
@@ -1431,15 +1546,19 @@ function readinstanceof(view: DataView, offset: number): InstructionType {
   console.warn('FIXME: Not verified that index is unsigned. check specs.');
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.instanceof, operands: [indexbyte] };
+  return {
+    opcode: INSTRUCTION_SET.instanceof,
+    operands: [indexbyte],
+    native: false,
+  };
 }
 
 function readmonitorenter(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.monitorenter, operands: [] };
+  return { opcode: INSTRUCTION_SET.monitorenter, operands: [], native: false };
 }
 
 function readmonitorexit(view: DataView, offset: number): InstructionType {
-  return { opcode: INSTRUCTION_SET.monitorexit, operands: [] };
+  return { opcode: INSTRUCTION_SET.monitorexit, operands: [], native: false };
 }
 
 function readwide(view: DataView, offset: number): InstructionType {
@@ -1457,10 +1576,11 @@ function readwide(view: DataView, offset: number): InstructionType {
     return {
       opcode: INSTRUCTION_SET.wide,
       operands: [indexbyte, constbyte],
+      native: false
     };
   }
 
-  return { opcode: INSTRUCTION_SET.wide, operands: [indexbyte] };
+  return { opcode: INSTRUCTION_SET.wide, operands: [indexbyte], native: false };
 }
 
 function readmultianewarray(view: DataView, offset: number): InstructionType {
@@ -1478,6 +1598,7 @@ function readmultianewarray(view: DataView, offset: number): InstructionType {
   return {
     opcode: INSTRUCTION_SET.multianewarray,
     operands: [indexbyte, dimension],
+    native: false,
   };
 }
 
@@ -1485,40 +1606,56 @@ function readifnull(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.ifnull, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ifnull,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readifnonnull(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt16(offset);
   offset += 2;
 
-  return { opcode: INSTRUCTION_SET.ifnonnull, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.ifnonnull,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readgoto_w(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt32(offset); // used to construct a signed 32-bit offset
   offset += 4;
-  return { opcode: INSTRUCTION_SET.goto_w, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.goto_w,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readjsr_w(view: DataView, offset: number): InstructionType {
   const branchbyte = view.getInt32(offset); // used to construct a signed 32-bit offset
   offset += 4;
 
-  return { opcode: INSTRUCTION_SET.jsr_w, operands: [branchbyte] };
+  return {
+    opcode: INSTRUCTION_SET.jsr_w,
+    operands: [branchbyte],
+    native: false,
+  };
 }
 
 function readbreakpoint(view: DataView, offset: number): InstructionType {
   // reserved opcode
-  return { opcode: INSTRUCTION_SET.breakpoint, operands: [] };
+  return { opcode: INSTRUCTION_SET.breakpoint, operands: [], native: false };
 }
 
 function readimpdep1(view: DataView, offset: number): InstructionType {
   // reserved opcode
-  return { opcode: INSTRUCTION_SET.impdep1, operands: [] };
+  return { opcode: INSTRUCTION_SET.impdep1, operands: [], native: false };
 }
 
 function readimpdep2(view: DataView, offset: number): InstructionType {
   // reserved opcode
-  return { opcode: INSTRUCTION_SET.impdep2, operands: [] };
+  return { opcode: INSTRUCTION_SET.impdep2, operands: [], native: false };
 }
