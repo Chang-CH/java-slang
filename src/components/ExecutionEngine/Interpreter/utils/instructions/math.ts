@@ -1,11 +1,11 @@
 import { MIN_INT } from '#constants/DataType';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import { InstructionType } from '#types/ClassRef/instructions';
 
 export function runIadd(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -17,7 +17,7 @@ export function runIadd(
 
 export function runLadd(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -28,7 +28,7 @@ export function runLadd(
 
 export function runFadd(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -39,7 +39,7 @@ export function runFadd(
 
 export function runDadd(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   // JS numbers are IEEE754 doubles already
@@ -51,7 +51,7 @@ export function runDadd(
 
 export function runIsub(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -63,7 +63,7 @@ export function runIsub(
 
 export function runLsub(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -74,7 +74,7 @@ export function runLsub(
 
 export function runFsub(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -85,7 +85,7 @@ export function runFsub(
 
 export function runDsub(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -96,7 +96,7 @@ export function runDsub(
 
 export function runImul(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -108,7 +108,7 @@ export function runImul(
 
 export function runLmul(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -119,7 +119,7 @@ export function runLmul(
 
 export function runFmul(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -130,7 +130,7 @@ export function runFmul(
 
 export function runDmul(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -141,7 +141,7 @@ export function runDmul(
 
 export function runIdiv(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -158,7 +158,7 @@ export function runIdiv(
 
 export function runLdiv(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -169,7 +169,7 @@ export function runLdiv(
 
 export function runFdiv(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -180,7 +180,7 @@ export function runFdiv(
 
 export function runDdiv(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -191,7 +191,7 @@ export function runDdiv(
 
 export function runIrem(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -203,7 +203,7 @@ export function runIrem(
 
 export function runLrem(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -214,7 +214,7 @@ export function runLrem(
 
 export function runFrem(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -225,7 +225,7 @@ export function runFrem(
 
 export function runDrem(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -236,7 +236,7 @@ export function runDrem(
 
 export function runIneg(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -246,7 +246,7 @@ export function runIneg(
 
 export function runLneg(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value: bigint = thread.popStack();
@@ -256,7 +256,7 @@ export function runLneg(
 
 export function runFneg(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -266,7 +266,7 @@ export function runFneg(
 
 export function runDneg(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -276,7 +276,7 @@ export function runDneg(
 
 export function runIshl(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -287,7 +287,7 @@ export function runIshl(
 
 export function runLshl(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -298,7 +298,7 @@ export function runLshl(
 
 export function runIshr(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -309,7 +309,7 @@ export function runIshr(
 
 export function runLshr(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: number = thread.popStack();
@@ -320,7 +320,7 @@ export function runLshr(
 
 export function runIushr(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -337,7 +337,7 @@ export function runIushr(
 
 export function runLushr(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -356,7 +356,7 @@ export function runLushr(
 
 export function runIand(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -367,7 +367,7 @@ export function runIand(
 
 export function runLand(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -378,7 +378,7 @@ export function runLand(
 
 export function runIor(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -389,7 +389,7 @@ export function runIor(
 
 export function runLor(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -400,7 +400,7 @@ export function runLor(
 
 export function runIxor(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -411,7 +411,7 @@ export function runIxor(
 
 export function runLxor(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2: bigint = thread.popStack();
@@ -422,7 +422,7 @@ export function runLxor(
 
 export function runIinc(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index = instruction.operands[0];

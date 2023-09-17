@@ -1,4 +1,3 @@
-import MemoryArea from '#jvm/components/MemoryArea';
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import { ClassRef } from '#types/ClassRef';
 import OsInterface from '#utils/OsInterface';

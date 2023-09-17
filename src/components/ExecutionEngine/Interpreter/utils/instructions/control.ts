@@ -1,10 +1,10 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import { InstructionType } from '#types/ClassRef/instructions';
 
 export function runGoto(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(instruction.operands[0]);
@@ -12,7 +12,7 @@ export function runGoto(
 
 export function runJsr(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(instruction.operands[0]);
@@ -21,7 +21,7 @@ export function runJsr(
 
 export function runRet(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(2);
@@ -32,7 +32,7 @@ export function runRet(
 
 export function runTableswitch(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   throw new Error('runInstruction: Not implemented');
@@ -40,7 +40,7 @@ export function runTableswitch(
 
 export function runLookupswitch(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   throw new Error('runInstruction: Not implemented');
@@ -48,7 +48,7 @@ export function runLookupswitch(
 
 export function runIreturn(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const ret = thread.popStack();
@@ -58,7 +58,7 @@ export function runIreturn(
 
 export function runLreturn(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const ret = thread.popStackWide();
@@ -68,7 +68,7 @@ export function runLreturn(
 
 export function runFreturn(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const ret = thread.popStack();
@@ -78,7 +78,7 @@ export function runFreturn(
 
 export function runDreturn(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const ret = thread.popStackWide();
@@ -88,7 +88,7 @@ export function runDreturn(
 
 export function runAreturn(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const ret = thread.popStack();
@@ -98,7 +98,7 @@ export function runAreturn(
 
 export function runReturn(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.popStackFrame();

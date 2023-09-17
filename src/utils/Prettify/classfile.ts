@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { readInstruction } from '#jvm/components/MemoryArea/utils/readInstruction';
+import { readInstruction } from '#jvm/components/ExecutionEngine/Interpreter/utils/instructions/readInstruction';
 import { ClassFile } from '#jvm/external/ClassFile';
 import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
 import { METHODFLAGS } from '#jvm/external/ClassFile/types/methods';

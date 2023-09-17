@@ -1,24 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { InstructionType } from '#types/ClassRef/instructions';
 
-// export function readInstructions(
-//   view: DataView,
-//   offset: number,
-//   codeLength: number
-// ) {
-//   const initial = offset;
-//   const end = offset + codeLength;
-//   const code: InstructionType[] = [];
-//   while (offset < end) {
-//     ({ result: code[offset - initial], offset } = readInstruction(
-//       view,
-//       offset
-//     ));
-//   }
-
-//   return { result: code, offset };
-// }
-
 export function readInstruction(
   view: DataView,
   offset: number

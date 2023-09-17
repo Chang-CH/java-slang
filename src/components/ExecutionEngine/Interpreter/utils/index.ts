@@ -1,4 +1,3 @@
-import MemoryArea from '#jvm/components/MemoryArea';
 import { ClassRef } from '#types/ClassRef';
 import {
   ArrayType,
@@ -89,12 +88,12 @@ export function tryInitialize(thread: NativeThread, className: string) {
   }
 }
 
-// export function runFull(memoryArea: MemoryArea, instruction: InstructionType) {
+// export function runFull( instruction: InstructionType) {
 //   const className = thread.getClass().getConstant(
 //     thread.getClassName(),
 //     instruction.operands[0]
 //   ) as constantUtf8Info;
 
-//   tryInitialize(memoryArea, thread, className.value);
+//   tryInitialize( thread, className.value);
 //   thread.offsetPc(3);
 // }

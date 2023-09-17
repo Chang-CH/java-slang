@@ -1,11 +1,11 @@
 import { MAX_INT, MIN_INT, MAX_LONG, MIN_LONG } from '#constants/DataType';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import { InstructionType } from '#types/ClassRef/instructions';
 
 export function runI2l(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -15,7 +15,7 @@ export function runI2l(
 
 export function runI2f(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -23,7 +23,7 @@ export function runI2f(
 
 export function runI2d(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -33,7 +33,7 @@ export function runI2d(
 
 export function runL2i(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -43,7 +43,7 @@ export function runL2i(
 
 export function runL2f(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -53,7 +53,7 @@ export function runL2f(
 
 export function runL2d(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -63,7 +63,7 @@ export function runL2d(
 
 export function runF2i(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStack();
@@ -78,7 +78,7 @@ export function runF2i(
 
 export function runF2l(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStack();
@@ -94,7 +94,7 @@ export function runF2l(
 
 export function runF2d(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -104,7 +104,7 @@ export function runF2d(
 
 export function runD2i(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStackWide();
@@ -120,7 +120,7 @@ export function runD2i(
 
 export function runD2l(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStackWide();
@@ -136,7 +136,7 @@ export function runD2l(
 
 export function runD2f(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStackWide();
@@ -147,7 +147,7 @@ export function runD2f(
 
 export function runI2b(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStack();
@@ -158,7 +158,7 @@ export function runI2b(
 
 export function runI2c(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStack();
@@ -170,7 +170,7 @@ export function runI2c(
 
 export function runI2s(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   let value = thread.popStack();

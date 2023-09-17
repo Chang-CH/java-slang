@@ -1,11 +1,11 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import { InstructionType } from '#types/ClassRef/instructions';
 import { JavaArray } from '#types/DataTypes';
 
 export function runIstore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.storeLocal(instruction.operands[0], thread.popStack());
@@ -14,7 +14,7 @@ export function runIstore(
 
 export function runLstore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.storeLocalWide(instruction.operands[0], thread.popStack());
@@ -23,7 +23,7 @@ export function runLstore(
 
 export function runFstore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.storeLocal(instruction.operands[0], thread.popStack());
@@ -32,7 +32,7 @@ export function runFstore(
 
 export function runDstore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.storeLocalWide(instruction.operands[0], thread.popStackWide());
@@ -41,7 +41,7 @@ export function runDstore(
 
 export function runAstore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.storeLocal(instruction.operands[0], thread.popStack());
@@ -50,7 +50,7 @@ export function runAstore(
 
 export function runIstore0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -60,7 +60,7 @@ export function runIstore0(
 
 export function runIstore1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -70,7 +70,7 @@ export function runIstore1(
 
 export function runIstore2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -80,7 +80,7 @@ export function runIstore2(
 
 export function runIstore3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -90,7 +90,7 @@ export function runIstore3(
 
 export function runLstore0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -100,7 +100,7 @@ export function runLstore0(
 
 export function runLstore1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -110,7 +110,7 @@ export function runLstore1(
 
 export function runLstore2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -120,7 +120,7 @@ export function runLstore2(
 
 export function runLstore3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -130,7 +130,7 @@ export function runLstore3(
 
 export function runFstore0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -140,7 +140,7 @@ export function runFstore0(
 
 export function runFstore1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -150,7 +150,7 @@ export function runFstore1(
 
 export function runFstore2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -160,7 +160,7 @@ export function runFstore2(
 
 export function runFstore3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -170,7 +170,7 @@ export function runFstore3(
 
 export function runDstore0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStackWide();
@@ -180,7 +180,7 @@ export function runDstore0(
 
 export function runDstore1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStackWide();
@@ -190,7 +190,7 @@ export function runDstore1(
 
 export function runDstore2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStackWide();
@@ -200,7 +200,7 @@ export function runDstore2(
 
 export function runDstore3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStackWide();
@@ -210,7 +210,7 @@ export function runDstore3(
 
 export function runAstore0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -220,7 +220,7 @@ export function runAstore0(
 
 export function runAstore1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -230,7 +230,7 @@ export function runAstore1(
 
 export function runAstore2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -240,7 +240,7 @@ export function runAstore2(
 
 export function runAstore3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -250,7 +250,7 @@ export function runAstore3(
 
 export function runIastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -263,7 +263,7 @@ export function runIastore(
 
 export function runLastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -276,7 +276,7 @@ export function runLastore(
 
 export function runFastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -289,7 +289,7 @@ export function runFastore(
 
 export function runDastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -302,7 +302,7 @@ export function runDastore(
 
 export function runAastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -315,7 +315,7 @@ export function runAastore(
 
 export function runBastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -328,7 +328,7 @@ export function runBastore(
 
 export function runCastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -341,7 +341,7 @@ export function runCastore(
 
 export function runSastore(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();

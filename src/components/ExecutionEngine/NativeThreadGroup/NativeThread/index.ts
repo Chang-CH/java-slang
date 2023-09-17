@@ -1,5 +1,4 @@
-import MemoryArea from '#jvm/components/MemoryArea';
-import { readInstruction } from '#jvm/components/MemoryArea/utils/readInstruction';
+import { readInstruction } from '#jvm/components/ExecutionEngine/Interpreter/utils/instructions/readInstruction';
 import { InstructionType } from '#types/ClassRef/instructions';
 import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';

@@ -1,10 +1,9 @@
-import MemoryArea from '#jvm/components/MemoryArea';
 import { InstructionType } from '#types/ClassRef/instructions';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
 export function runLcmp(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -26,7 +25,7 @@ export function runLcmp(
 
 export function runFcmpl(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -52,7 +51,7 @@ export function runFcmpl(
 
 export function runFcmpg(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -78,7 +77,7 @@ export function runFcmpg(
 
 export function runDcmpl(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -104,7 +103,7 @@ export function runDcmpl(
 
 export function runDcmpg(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -130,7 +129,7 @@ export function runDcmpg(
 
 export function runIfeq(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   if (thread.popStack() === 0) {
@@ -142,7 +141,7 @@ export function runIfeq(
 
 export function runIfne(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   if (thread.popStack() !== 0) {
@@ -154,7 +153,7 @@ export function runIfne(
 
 export function runIflt(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   if (thread.popStack() < 0) {
@@ -166,7 +165,7 @@ export function runIflt(
 
 export function runIfge(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   if (thread.popStack() >= 0) {
@@ -178,7 +177,7 @@ export function runIfge(
 
 export function runIfgt(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   if (thread.popStack() > 0) {
@@ -190,7 +189,7 @@ export function runIfgt(
 
 export function runIfle(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   if (thread.popStack() <= 0) {
@@ -202,7 +201,7 @@ export function runIfle(
 
 export function runIfIcmpeq(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -217,7 +216,7 @@ export function runIfIcmpeq(
 
 export function runIfIcmpne(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -232,7 +231,7 @@ export function runIfIcmpne(
 
 export function runIfIcmplt(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -247,7 +246,7 @@ export function runIfIcmplt(
 
 export function runIfIcmpge(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -262,7 +261,7 @@ export function runIfIcmpge(
 
 export function runIfIcmpgt(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -277,7 +276,7 @@ export function runIfIcmpgt(
 
 export function runIfIcmple(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -292,7 +291,7 @@ export function runIfIcmple(
 
 export function runIfAcmpeq(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -307,7 +306,7 @@ export function runIfAcmpeq(
 
 export function runIfAcmpne(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();

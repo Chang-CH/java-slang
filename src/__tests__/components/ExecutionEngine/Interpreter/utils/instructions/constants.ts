@@ -5,7 +5,6 @@ import { tryInitialize } from '#jvm/components/ExecutionEngine/Interpreter/utils
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/instructions';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import MemoryArea from '#jvm/components/MemoryArea';
 import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';
 import OsInterface from '#utils/OsInterface';
@@ -23,11 +22,9 @@ import {
 
 let thread: NativeThread;
 let threadClass: ClassRef;
-let memoryArea: MemoryArea;
 
 beforeEach(() => {
   const jni = new JNI();
-  memoryArea = new MemoryArea(jni);
   const os = new OsInterface({});
 
   const bscl = new BootstrapClassLoader(os, 'natives');
@@ -52,7 +49,7 @@ beforeEach(() => {
 
 describe('runNop', () => {
   test('does not modify stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.NOP,
       operands: [],
     });
@@ -66,7 +63,7 @@ describe('runNop', () => {
 
 describe('runAconstNull', () => {
   test('pushes null to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ACONSTNULL,
       operands: [],
     });
@@ -81,7 +78,7 @@ describe('runAconstNull', () => {
 
 describe('runIconstM1', () => {
   test('pushes -1 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ICONSTM1,
       operands: [],
     });
@@ -96,7 +93,7 @@ describe('runIconstM1', () => {
 
 describe('runIconst0', () => {
   test('pushes 0 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ICONST0,
       operands: [],
     });
@@ -111,7 +108,7 @@ describe('runIconst0', () => {
 
 describe('runIconst1', () => {
   test('pushes 1 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ICONST1,
       operands: [],
     });
@@ -126,7 +123,7 @@ describe('runIconst1', () => {
 
 describe('runIconst2', () => {
   test('pushes 2 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ICONST2,
       operands: [],
     });
@@ -141,7 +138,7 @@ describe('runIconst2', () => {
 
 describe('runIconst3', () => {
   test('pushes 3 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ICONST3,
       operands: [],
     });
@@ -156,7 +153,7 @@ describe('runIconst3', () => {
 
 describe('runIconst4', () => {
   test('pushes 4 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ICONST4,
       operands: [],
     });
@@ -171,7 +168,7 @@ describe('runIconst4', () => {
 
 describe('runIconst5', () => {
   test('pushes 5 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.ICONST5,
       operands: [],
     });
@@ -186,7 +183,7 @@ describe('runIconst5', () => {
 
 describe('runLconst0', () => {
   test('pushes long 0 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LCONST0,
       operands: [],
     });
@@ -201,7 +198,7 @@ describe('runLconst0', () => {
 
 describe('runLconst1', () => {
   test('pushes long 1 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LCONST1,
       operands: [],
     });
@@ -216,7 +213,7 @@ describe('runLconst1', () => {
 
 describe('runFconst0', () => {
   test('pushes float 0 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.FCONST0,
       operands: [],
     });
@@ -231,7 +228,7 @@ describe('runFconst0', () => {
 
 describe('runFconst1', () => {
   test('pushes float 1 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.FCONST1,
       operands: [],
     });
@@ -246,7 +243,7 @@ describe('runFconst1', () => {
 
 describe('runFconst2', () => {
   test('pushes float 2 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.FCONST2,
       operands: [],
     });
@@ -261,7 +258,7 @@ describe('runFconst2', () => {
 
 describe('runDconst0', () => {
   test('pushes double 0 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.DCONST0,
       operands: [],
     });
@@ -276,7 +273,7 @@ describe('runDconst0', () => {
 
 describe('runDconst1', () => {
   test('pushes double 1 to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.DCONST1,
       operands: [],
     });
@@ -291,7 +288,7 @@ describe('runDconst1', () => {
 
 describe('runBipush', () => {
   test('pushes byte to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.BIPUSH,
       operands: [0xff],
     });
@@ -306,7 +303,7 @@ describe('runBipush', () => {
 
 describe('runSipush', () => {
   test('pushes short to stack', () => {
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.SIPUSH,
       operands: [0xffff],
     });
@@ -326,7 +323,7 @@ describe('runLdc', () => {
       value: -99,
     };
     threadClass.constantPool[0] = intConstant;
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -344,7 +341,7 @@ describe('runLdc', () => {
       value: Math.fround(-0.3),
     };
     threadClass.constantPool[0] = intConstant;
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -360,7 +357,12 @@ describe('runLdc', () => {
     // TODO: create new helper function, initialize String there.
     // TODO: Constant string should be a string reference object.
     tryInitialize(thread, 'java/lang/String');
-    const strClass = memoryArea._getClass('java/lang/String');
+    const strClass = thread
+      .getClass()
+      .getLoader()
+      .getClassRef('java/lang/String', () => {
+        throw new Error('java/lang/String not found');
+      });
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
       tag: CONSTANT_TAG.constantString,
@@ -369,7 +371,7 @@ describe('runLdc', () => {
     } as ConstantString;
     threadClass.constantPool[0] = strConstant;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -394,7 +396,7 @@ describe('runLdc', () => {
     threadClass.constantPool[0] = strConstant;
     threadClass.constantPool[1] = strContent;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -416,7 +418,7 @@ describe('runLdc', () => {
     } as ConstantClass;
     threadClass.constantPool[0] = classRef;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -440,7 +442,7 @@ describe('runLdc', () => {
     threadClass.constantPool[0] = classRef;
     threadClass.constantPool[1] = className;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -463,7 +465,7 @@ describe('runLdc', () => {
     } as ConstantMethodref;
     threadClass.constantPool[0] = constMethod;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -506,7 +508,7 @@ describe('runLdc', () => {
       length: 30,
     };
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
@@ -529,7 +531,7 @@ describe('runLdcW', () => {
       value: -99,
     };
     threadClass.constantPool[0] = intConstant;
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -547,7 +549,7 @@ describe('runLdcW', () => {
       value: Math.fround(-0.3),
     };
     threadClass.constantPool[0] = intConstant;
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -563,7 +565,12 @@ describe('runLdcW', () => {
     // TODO: create new helper function, initialize String there.
     // TODO: Constant string should be a string reference object.
     tryInitialize(thread, 'java/lang/String');
-    const strClass = memoryArea._getClass('java/lang/String');
+    const strClass = thread
+      .getClass()
+      .getLoader()
+      .getClassRef('java/lang/String', () => {
+        throw new Error('java/lang/String not found');
+      });
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
       tag: CONSTANT_TAG.constantString,
@@ -572,7 +579,7 @@ describe('runLdcW', () => {
     } as ConstantString;
     threadClass.constantPool[0] = strConstant;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -597,7 +604,7 @@ describe('runLdcW', () => {
     threadClass.constantPool[0] = strConstant;
     threadClass.constantPool[1] = strContent;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -619,7 +626,7 @@ describe('runLdcW', () => {
     } as ConstantClass;
     threadClass.constantPool[0] = classRef;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -643,7 +650,7 @@ describe('runLdcW', () => {
     threadClass.constantPool[0] = classRef;
     threadClass.constantPool[1] = className;
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -665,7 +672,7 @@ describe('runLdcW', () => {
       ref: methodRef,
     } as ConstantMethodref;
     threadClass.constantPool[0] = constMethod;
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -708,7 +715,7 @@ describe('runLdcW', () => {
       length: 30,
     };
 
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
@@ -731,7 +738,7 @@ describe('runLdc2W', () => {
       value: 99n,
     };
     threadClass.constantPool[0] = longConstant;
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC2W,
       operands: [0],
     });
@@ -749,7 +756,7 @@ describe('runLdc2W', () => {
       value: -0.3,
     };
     threadClass.constantPool[0] = intConstant;
-    runInstruction(thread, memoryArea, {
+    runInstruction(thread, {
       opcode: OPCODE.LDC2W,
       operands: [0],
     });

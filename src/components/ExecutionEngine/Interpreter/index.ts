@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JNI } from '#jvm/components/JNI';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import NativeThread from '../NativeThreadGroup/NativeThread';
 import runInstruction from './utils/instructions';
 
@@ -8,11 +8,9 @@ import runInstruction from './utils/instructions';
  * Executes the instructions at the thread's current program counter.
  */
 export default class Interpreter {
-  private memoryArea: MemoryArea;
   private jni: JNI;
 
-  constructor(memoryArea: MemoryArea, jni: JNI) {
-    this.memoryArea = memoryArea;
+  constructor(jni: JNI) {
     this.jni = jni;
   }
 
@@ -36,11 +34,7 @@ export default class Interpreter {
           `[Native] JNI:`.padEnd(20) +
             ` ${current.className}.${current.methodName}`
         );
-        const result = nativeMethod(
-          thread,
-          this.memoryArea,
-          thread.peekStackFrame().locals
-        );
+        const result = nativeMethod(thread, thread.peekStackFrame().locals);
         thread.popStackFrame();
         if (result !== undefined) {
           thread.pushStack(result);
@@ -61,7 +55,7 @@ export default class Interpreter {
       );
 
       // TODO: handle exceptions
-      runInstruction(thread, this.memoryArea, current);
+      runInstruction(thread, current);
     }
 
     if (isFinished) {

@@ -1,10 +1,9 @@
-import MemoryArea from '#jvm/components/MemoryArea';
 import { InstructionType } from '#types/ClassRef/instructions';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
 export function runIload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(instruction.operands[0]));
@@ -13,7 +12,7 @@ export function runIload(
 
 export function runLload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(instruction.operands[0]));
@@ -22,7 +21,7 @@ export function runLload(
 
 export function runFload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(instruction.operands[0]));
@@ -31,7 +30,7 @@ export function runFload(
 
 export function runDload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(instruction.operands[0]));
@@ -40,7 +39,7 @@ export function runDload(
 
 export function runAload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(instruction.operands[0]));
@@ -49,7 +48,7 @@ export function runAload(
 
 export function runIload0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(0));
@@ -58,7 +57,7 @@ export function runIload0(
 
 export function runIload1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(1));
@@ -67,7 +66,7 @@ export function runIload1(
 
 export function runIload2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(2));
@@ -76,7 +75,7 @@ export function runIload2(
 
 export function runIload3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(3));
@@ -85,7 +84,7 @@ export function runIload3(
 
 export function runLload0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(0));
@@ -94,7 +93,7 @@ export function runLload0(
 
 export function runLload1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(1));
@@ -103,7 +102,7 @@ export function runLload1(
 
 export function runLload2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(2));
@@ -112,7 +111,7 @@ export function runLload2(
 
 export function runLload3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(3));
@@ -121,7 +120,7 @@ export function runLload3(
 
 export function runFload0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(0));
@@ -130,7 +129,7 @@ export function runFload0(
 
 export function runFload1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(1));
@@ -139,7 +138,7 @@ export function runFload1(
 
 export function runFload2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(2));
@@ -148,7 +147,7 @@ export function runFload2(
 
 export function runFload3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(3));
@@ -157,7 +156,7 @@ export function runFload3(
 
 export function runDload0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(0));
@@ -166,7 +165,7 @@ export function runDload0(
 
 export function runDload1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(1));
@@ -175,7 +174,7 @@ export function runDload1(
 
 export function runDload2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(2));
@@ -184,7 +183,7 @@ export function runDload2(
 
 export function runDload3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(thread.loadLocalWide(3));
@@ -193,7 +192,7 @@ export function runDload3(
 
 export function runAload0(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(0));
@@ -202,7 +201,7 @@ export function runAload0(
 
 export function runAload1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(1));
@@ -211,7 +210,7 @@ export function runAload1(
 
 export function runAload2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(2));
@@ -220,7 +219,7 @@ export function runAload2(
 
 export function runAload3(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStack(thread.loadLocal(3));
@@ -229,7 +228,7 @@ export function runAload3(
 
 export function runIaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();
@@ -243,7 +242,7 @@ export function runIaload(
 
 export function runLaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();
@@ -257,7 +256,7 @@ export function runLaload(
 
 export function runFaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();
@@ -271,7 +270,7 @@ export function runFaload(
 
 export function runDaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();
@@ -285,7 +284,7 @@ export function runDaload(
 
 export function runAaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();
@@ -299,7 +298,7 @@ export function runAaload(
 
 export function runBaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();
@@ -313,7 +312,7 @@ export function runBaload(
 
 export function runCaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();
@@ -327,7 +326,7 @@ export function runCaload(
 
 export function runSaload(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const index: number = thread.popStack();

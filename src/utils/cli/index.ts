@@ -2,7 +2,7 @@
 
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 import { JNI } from '#jvm/components/JNI';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import JVM from '#jvm/index';
 import OsInterface, { Folder } from '#utils/OsInterface';
 import { classFileToText } from '#utils/Prettify/classfile';
@@ -66,7 +66,6 @@ export default function main() {
 
     if (options['-p']) {
       // Stubs, not used.
-      const memory = new MemoryArea(new JNI());
       const os = new OsInterface({
         Sample: view,
       });

@@ -64,7 +64,6 @@ export default function parseBin(view: DataView) {
       interfaceIdx.nameIndex
     ] as constantUtf8Info;
     cls.interfaces.push(className.value);
-    // TODO: check index ok
     offset += 2;
   }
 
@@ -105,7 +104,6 @@ export default function parseBin(view: DataView) {
   offset += 2;
 
   cls.attributes = [];
-  // TODO: get attributes
   for (let i = 0; i < attributesCount; i += 1) {
     const { result, offset: resultOffset } = readAttribute(
       cls.constantPool,

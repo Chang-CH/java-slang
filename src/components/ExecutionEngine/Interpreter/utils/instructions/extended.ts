@@ -1,11 +1,11 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import { InstructionType } from '#types/ClassRef/instructions';
 import { JavaReference } from '#types/DataTypes';
 
 export function runWide(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   throw new Error('runInstruction: Not implemented');
@@ -13,7 +13,7 @@ export function runWide(
 
 export function runMultianewarray(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   throw new Error('runInstruction: Not implemented');
@@ -21,7 +21,7 @@ export function runMultianewarray(
 
 export function runIfnull(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const ref = thread.popStack() as JavaReference;
@@ -34,7 +34,7 @@ export function runIfnull(
 
 export function runIfnonnull(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const ref = thread.popStack() as JavaReference;
@@ -47,7 +47,7 @@ export function runIfnonnull(
 
 export function runGotoW(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(instruction.operands[0]);
@@ -55,7 +55,7 @@ export function runGotoW(
 
 export function runJsrW(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.pushStackWide(instruction.operands[0]);

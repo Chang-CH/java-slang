@@ -1,10 +1,10 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import MemoryArea from '#jvm/components/MemoryArea';
+
 import { InstructionType } from '#types/ClassRef/instructions';
 
 export function runPop(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.popStack();
@@ -13,7 +13,7 @@ export function runPop(
 
 export function runPop2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.popStackWide();
@@ -22,7 +22,7 @@ export function runPop2(
 
 export function runDup(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value = thread.popStack();
@@ -33,7 +33,7 @@ export function runDup(
 
 export function runDupX1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   const value1 = thread.popStack();
@@ -46,7 +46,7 @@ export function runDupX1(
 
 export function runDupX2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -61,7 +61,7 @@ export function runDupX2(
 
 export function runDup2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -75,7 +75,7 @@ export function runDup2(
 
 export function runDup2X1(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -91,7 +91,7 @@ export function runDup2X1(
 
 export function runDup2X2(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);
@@ -109,7 +109,7 @@ export function runDup2X2(
 
 export function runSwap(
   thread: NativeThread,
-  memoryArea: MemoryArea,
+
   instruction: InstructionType
 ) {
   thread.offsetPc(1);

@@ -4,10 +4,8 @@ import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader'
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
 import { JNI } from './components/JNI';
-import MemoryArea from './components/MemoryArea';
 
 export default class JVM {
-  memoryArea: MemoryArea;
   bootstrapClassLoader: BootstrapClassLoader;
   applicationClassLoader: ClassLoader;
   engine: ExecutionEngine;
@@ -15,7 +13,6 @@ export default class JVM {
   jni: JNI;
 
   constructor(os: OsInterface) {
-    this.memoryArea = new MemoryArea(new JNI());
     this.os = os;
     this.bootstrapClassLoader = new BootstrapClassLoader(this.os, 'natives');
     this.applicationClassLoader = new ClassLoader(
@@ -24,7 +21,7 @@ export default class JVM {
       this.bootstrapClassLoader
     );
     this.jni = new JNI();
-    this.engine = new ExecutionEngine(this.memoryArea, this.os, this.jni);
+    this.engine = new ExecutionEngine(this.os, this.jni);
 
     // Load thread class manually
     this.applicationClassLoader.load(
