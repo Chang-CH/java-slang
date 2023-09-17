@@ -1,8 +1,20 @@
-import { constantTag } from '#constants/ClassFile/constants';
+import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import MemoryArea from '#jvm/components/MemoryArea';
-import { constant_Utf8_info } from '#types/ClassFile/constants';
-import { InstructionType } from '#types/ClassFile/instructions';
+import { InstructionType } from '#types/ClassRef/instructions';
+import {
+  ConstantDoubleInfo,
+  ConstantFloatInfo,
+  ConstantIntegerInfo,
+  ConstantLongInfo,
+  ConstantUtf8Info,
+} from '#jvm/external/ClassFile/types/constants';
+import {
+  ConstantMethodref,
+  ConstantInterfaceMethodref,
+  ConstantClass,
+  ConstantString,
+} from '#types/ClassRef/constants';
 
 export function runNop(
   thread: NativeThread,
@@ -31,7 +43,7 @@ export function runIconstM1(
   thread.offsetPc(1);
 }
 
-export function runIconst_0(
+export function runIconst0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -40,7 +52,7 @@ export function runIconst_0(
   thread.offsetPc(1);
 }
 
-export function runIconst_1(
+export function runIconst1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -49,7 +61,7 @@ export function runIconst_1(
   thread.offsetPc(1);
 }
 
-export function runIconst_2(
+export function runIconst2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -58,7 +70,7 @@ export function runIconst_2(
   thread.offsetPc(1);
 }
 
-export function runIconst_3(
+export function runIconst3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -67,7 +79,7 @@ export function runIconst_3(
   thread.offsetPc(1);
 }
 
-export function runIconst_4(
+export function runIconst4(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -76,7 +88,7 @@ export function runIconst_4(
   thread.offsetPc(1);
 }
 
-export function runIconst_5(
+export function runIconst5(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -85,7 +97,7 @@ export function runIconst_5(
   thread.offsetPc(1);
 }
 
-export function runLconst_0(
+export function runLconst0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -94,7 +106,7 @@ export function runLconst_0(
   thread.offsetPc(1);
 }
 
-export function runLconst_1(
+export function runLconst1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -103,7 +115,7 @@ export function runLconst_1(
   thread.offsetPc(1);
 }
 
-export function runFconst_0(
+export function runFconst0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -112,7 +124,7 @@ export function runFconst_0(
   thread.offsetPc(1);
 }
 
-export function runFconst_1(
+export function runFconst1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -121,7 +133,7 @@ export function runFconst_1(
   thread.offsetPc(1);
 }
 
-export function runFconst_2(
+export function runFconst2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -130,7 +142,7 @@ export function runFconst_2(
   thread.offsetPc(1);
 }
 
-export function runDconst_0(
+export function runDconst0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -139,7 +151,7 @@ export function runDconst_0(
   thread.offsetPc(1);
 }
 
-export function runDconst_1(
+export function runDconst1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -171,33 +183,27 @@ export function runLdc(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const item = memoryArea.getConstant(
-    thread.getClassName(),
-    instruction.operands[0]
-  );
+  const item = thread.getClass().getConstant(thread, instruction.operands[0]);
   if (
-    item.tag === constantTag.constant_Methodref ||
-    item.tag === constantTag.constant_MethodType
+    item.tag === CONSTANT_TAG.constantMethodref ||
+    item.tag === CONSTANT_TAG.constantInterfaceMethodref ||
+    item.tag === CONSTANT_TAG.constantClass ||
+    item.tag === CONSTANT_TAG.constantString
   ) {
-    console.debug('ldc: method reference resolution not implemented');
-    thread.pushStack(item);
+    thread.pushStack(
+      (
+        item as
+          | ConstantMethodref
+          | ConstantInterfaceMethodref
+          | ConstantClass
+          | ConstantString
+      ).ref
+    );
     thread.offsetPc(2);
     return;
   }
 
-  if (item.tag === constantTag.constant_Class) {
-    const className = memoryArea.getConstant(
-      thread.getClassName(),
-      item.nameIndex
-    ) as constant_Utf8_info;
-
-    const classRef = memoryArea.getClass(className.value);
-    thread.pushStack(classRef);
-    thread.offsetPc(2);
-    return;
-  }
-
-  thread.pushStack(item.value);
+  thread.pushStack((item as ConstantIntegerInfo | ConstantFloatInfo).value);
   thread.offsetPc(2);
 }
 
@@ -206,11 +212,27 @@ export function runLdcW(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  console.warn('ldcW: class/method reference resolution not implemented');
-  thread.pushStackWide(
-    memoryArea.getConstantWide(thread.getClassName(), instruction.operands[0])
-      .value
-  );
+  const item = thread.getClass().getConstant(thread, instruction.operands[0]);
+  if (
+    item.tag === CONSTANT_TAG.constantMethodref ||
+    item.tag === CONSTANT_TAG.constantInterfaceMethodref ||
+    item.tag === CONSTANT_TAG.constantClass ||
+    item.tag === CONSTANT_TAG.constantString
+  ) {
+    thread.pushStack(
+      (
+        item as
+          | ConstantMethodref
+          | ConstantInterfaceMethodref
+          | ConstantClass
+          | ConstantString
+      ).ref
+    );
+    thread.offsetPc(3);
+    return;
+  }
+
+  thread.pushStack((item as ConstantIntegerInfo | ConstantFloatInfo).value);
   thread.offsetPc(3);
 }
 
@@ -219,9 +241,12 @@ export function runLdc2W(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  thread.pushStackWide(
-    memoryArea.getConstantWide(thread.getClassName(), instruction.operands[0])
-      .value
-  );
+  const item = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as
+    | ConstantDoubleInfo
+    | ConstantLongInfo;
+
+  thread.pushStackWide(item.value);
   thread.offsetPc(3);
 }

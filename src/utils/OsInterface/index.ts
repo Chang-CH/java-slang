@@ -1,4 +1,4 @@
-import { ClassFile } from '#types/ClassFile';
+import { ClassFile } from '#jvm/external/ClassFile/types';
 import parseBin, { a2ab } from '#utils/parseBinary';
 import * as fs from 'node:fs';
 

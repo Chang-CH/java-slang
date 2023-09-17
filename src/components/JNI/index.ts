@@ -30,7 +30,7 @@ export class JNI {
 
       switch (retType) {
         case JavaType.ARRAY:
-          return () => new JavaArray(0, ArrayType.T_INT);
+          return () => new JavaArray(0, ArrayType.TINT);
         case JavaType.BYTE:
           return () => 0;
         case JavaType.CHAR:

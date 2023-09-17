@@ -1,3 +1,4 @@
+import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';
 import OsInterface from '#utils/OsInterface';
 import { JNI } from '../JNI';
@@ -21,26 +22,18 @@ export default class ExecutionEngine {
     this.interpreter = new Interpreter(this.memoryArea, jni);
   }
 
-  runClass(className: string, args?: any[]) {
+  runClass(threadCls: ClassRef, mainClass: ClassRef, args?: any[]) {
     console.warn('ExecutionEngine.runClass not implemented.');
-    const classRef = this.memoryArea.getClass(className);
+
     // TODO: create new Thread() and pass in javaThis
-    const javaThread = new JavaReference(
-      this.memoryArea.getClass('java/lang/Thread'),
-      {}
-    );
-    const mainThread = new NativeThread(
-      this.memoryArea.getClass('java/lang/Thread'),
-      javaThread,
-      {
-        operandStack: [],
-        locals: [],
-        class: classRef,
-        method: classRef.methods['main([Ljava/lang/String;)V'],
-        pc: 0,
-        this: null,
-      }
-    );
+    const javaThread = new JavaReference(threadCls, {});
+    const mainThread = new NativeThread(threadCls, javaThread, {
+      operandStack: [],
+      locals: [],
+      class: mainClass,
+      method: mainClass.methods['main([Ljava/lang/String;)V'],
+      pc: 0,
+    });
 
     // TODO: pushstack string args
     this.nativeThreadGroup.addThread(mainThread);

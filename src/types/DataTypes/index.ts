@@ -5,35 +5,40 @@ export class JavaArray {
   length: number;
   array: any[];
 
-  constructor(length: number, type: string | ArrayType) {
+  constructor(length: number, type: string | ArrayType, arr?: any[]) {
     this.length = length;
     this.array = [];
     this.type = type;
 
+    if (arr) {
+      this.array = arr;
+      return;
+    }
+
     let def;
     switch (this.type) {
-      case ArrayType.T_BOOLEAN:
+      case ArrayType.TBOOLEAN:
         def = false;
         break;
-      case ArrayType.T_CHAR:
+      case ArrayType.TCHAR:
         def = '';
         break;
-      case ArrayType.T_FLOAT:
+      case ArrayType.TFLOAT:
         def = 0.0;
         break;
-      case ArrayType.T_DOUBLE:
+      case ArrayType.TDOUBLE:
         def = 0.0;
         break;
-      case ArrayType.T_BYTE:
+      case ArrayType.TBYTE:
         def = 0;
         break;
-      case ArrayType.T_SHORT:
+      case ArrayType.TSHORT:
         def = 0;
         break;
-      case ArrayType.T_INT:
+      case ArrayType.TINT:
         def = 0;
         break;
-      case ArrayType.T_LONG:
+      case ArrayType.TLONG:
         def = 0n;
         break;
       default:
@@ -95,15 +100,20 @@ export class JavaReference {
   }
 }
 
+export interface FieldRef {
+  class: ClassRef;
+  fieldName: string;
+}
+
 export enum ArrayType {
-  T_BOOLEAN = 4,
-  T_CHAR = 5,
-  T_FLOAT = 6,
-  T_DOUBLE = 7,
-  T_BYTE = 8,
-  T_SHORT = 9,
-  T_INT = 10,
-  T_LONG = 11,
+  TBOOLEAN = 4,
+  TCHAR = 5,
+  TFLOAT = 6,
+  TDOUBLE = 7,
+  TBYTE = 8,
+  TSHORT = 9,
+  TINT = 10,
+  TLONG = 11,
 }
 
 export enum JavaType {

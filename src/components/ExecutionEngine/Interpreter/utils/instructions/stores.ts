@@ -1,6 +1,6 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import MemoryArea from '#jvm/components/MemoryArea';
-import { InstructionType } from '#types/ClassFile/instructions';
+import { InstructionType } from '#types/ClassRef/instructions';
 import { JavaArray } from '#types/DataTypes';
 
 export function runIstore(
@@ -48,7 +48,7 @@ export function runAstore(
   thread.offsetPc(2);
 }
 
-export function runIstore_0(
+export function runIstore0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -58,7 +58,7 @@ export function runIstore_0(
   thread.offsetPc(1);
 }
 
-export function runIstore_1(
+export function runIstore1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -68,7 +68,7 @@ export function runIstore_1(
   thread.offsetPc(1);
 }
 
-export function runIstore_2(
+export function runIstore2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -78,7 +78,7 @@ export function runIstore_2(
   thread.offsetPc(1);
 }
 
-export function runIstore_3(
+export function runIstore3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -88,7 +88,7 @@ export function runIstore_3(
   thread.offsetPc(1);
 }
 
-export function runLstore_0(
+export function runLstore0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -98,7 +98,7 @@ export function runLstore_0(
   thread.offsetPc(1);
 }
 
-export function runLstore_1(
+export function runLstore1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -108,7 +108,7 @@ export function runLstore_1(
   thread.offsetPc(1);
 }
 
-export function runLstore_2(
+export function runLstore2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -118,7 +118,7 @@ export function runLstore_2(
   thread.offsetPc(1);
 }
 
-export function runLstore_3(
+export function runLstore3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -128,7 +128,7 @@ export function runLstore_3(
   thread.offsetPc(1);
 }
 
-export function runFstore_0(
+export function runFstore0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -138,7 +138,7 @@ export function runFstore_0(
   thread.offsetPc(1);
 }
 
-export function runFstore_1(
+export function runFstore1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -148,7 +148,7 @@ export function runFstore_1(
   thread.offsetPc(1);
 }
 
-export function runFstore_2(
+export function runFstore2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -158,7 +158,7 @@ export function runFstore_2(
   thread.offsetPc(1);
 }
 
-export function runFstore_3(
+export function runFstore3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -168,7 +168,7 @@ export function runFstore_3(
   thread.offsetPc(1);
 }
 
-export function runDstore_0(
+export function runDstore0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -178,7 +178,7 @@ export function runDstore_0(
   thread.offsetPc(1);
 }
 
-export function runDstore_1(
+export function runDstore1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -188,7 +188,7 @@ export function runDstore_1(
   thread.offsetPc(1);
 }
 
-export function runDstore_2(
+export function runDstore2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -198,7 +198,7 @@ export function runDstore_2(
   thread.offsetPc(1);
 }
 
-export function runDstore_3(
+export function runDstore3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -208,7 +208,7 @@ export function runDstore_3(
   thread.offsetPc(1);
 }
 
-export function runAstore_0(
+export function runAstore0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -218,7 +218,7 @@ export function runAstore_0(
   thread.offsetPc(1);
 }
 
-export function runAstore_1(
+export function runAstore1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -228,7 +228,7 @@ export function runAstore_1(
   thread.offsetPc(1);
 }
 
-export function runAstore_2(
+export function runAstore2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -238,7 +238,7 @@ export function runAstore_2(
   thread.offsetPc(1);
 }
 
-export function runAstore_3(
+export function runAstore3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType

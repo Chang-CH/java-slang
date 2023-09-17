@@ -1,12 +1,15 @@
 import MemoryArea from '#jvm/components/MemoryArea';
 import { readInstruction } from '#jvm/components/MemoryArea/utils/readInstruction';
-import { InstructionType } from '#types/ClassFile/instructions';
-import { MethodRef, NativeMethodRef } from '#types/ClassFile/methods';
+import { InstructionType } from '#types/ClassRef/instructions';
 import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';
 import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
+import {
+  NativeMethodRef,
+  MethodType,
+} from '#jvm/external/ClassFile/types/methods';
 
 export default class NativeThread {
   stack: StackFrame[];
@@ -35,7 +38,7 @@ export default class NativeThread {
     // Instruction is a native method
     if (checkNative(currentFrame.method) || !currentFrame.method.code) {
       return {
-        className: currentFrame.class.this_class,
+        className: currentFrame.class.thisClass,
         methodName: currentFrame.method.name + currentFrame.method.descriptor,
         native: true,
       };
@@ -57,9 +60,13 @@ export default class NativeThread {
   }
 
   getClassName(): string {
-    return this.stack[this.stackPointer].class.this_class;
+    return this.stack[this.stackPointer].class.thisClass;
   }
 
+  /**
+   * Gets the class ref containing the current method being executed
+   * @returns method class ref
+   */
   getClass(): ClassRef {
     return this.stack[this.stackPointer].class;
   }
@@ -68,7 +75,7 @@ export default class NativeThread {
     return this.stack[this.stackPointer].method.name;
   }
 
-  getMethod(): MethodRef {
+  getMethod(): MethodType {
     return this.stack[this.stackPointer].method;
   }
 
@@ -137,8 +144,8 @@ export default class NativeThread {
     return this.stack[this.stackPointer].locals[index];
   }
 
-  throwNewException(className: string, memoryArea: MemoryArea, msg: string) {
-    tryInitialize(memoryArea, this, className);
+  throwNewException(className: string, msg: string) {
+    tryInitialize(this, className);
 
     // Initialize exception
     // TODO: push msg to stack
@@ -150,11 +157,18 @@ export default class NativeThread {
     //   this: undefined,
     //   locals: [],
     // });
-    const objectref = new JavaReference(memoryArea.getClass(className), {});
-    this.throwException(memoryArea, objectref);
+    const objectref = new JavaReference(
+      this.getClass()
+        .getLoader()
+        .getClassRef(className, e => {
+          throw new Error('Failed to load exception class');
+        }) as ClassRef,
+      {}
+    );
+    this.throwException(objectref);
   }
 
-  throwException(memoryArea: MemoryArea, exception: any) {
+  throwException(exception: any) {
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
       const method = this.getMethod();
@@ -165,7 +179,7 @@ export default class NativeThread {
         continue;
       }
 
-      const eTable = method?.code?.exception_table;
+      const eTable = method?.code?.exceptionTable;
 
       // TODO: check if exception is handled
       this.popStackFrame();

@@ -1,5 +1,11 @@
 import MemoryArea from '#jvm/components/MemoryArea';
-import { JavaType } from '#types/DataTypes';
+import { ClassRef } from '#types/ClassRef';
+import {
+  ArrayType,
+  JavaArray,
+  JavaReference,
+  JavaType,
+} from '#types/DataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export function readFieldDescriptor(descriptor: string, index: number) {
@@ -57,31 +63,15 @@ export function getField(ref: any, fieldName: string, type: JavaType) {
   ref.getField(fieldName, type);
 }
 
-export function tryLoad(
-  memoryArea: MemoryArea,
-  thread: NativeThread,
-  className: string
-) {
-  // Load class if not loaded
-  memoryArea.getClass(className, e => {
-    thread.getClass().loader.load(
-      className,
-      () => {},
-      e => {
-        throw e;
-      }
-    );
-  });
-}
+export function tryInitialize(thread: NativeThread, className: string) {
+  const classRef = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className, console.error); // TODO: throw class loading exceptions
 
-export function tryInitialize(
-  memoryArea: MemoryArea,
-  thread: NativeThread,
-  className: string
-) {
-  tryLoad(memoryArea, thread, className);
-
-  const classRef = memoryArea.getClass(className);
+  if (!classRef) {
+    throw new Error('Class load exception');
+  }
   // Class not initialized, initialize it.
   if (classRef.isInitialized) {
     if (classRef.methods['<clinit>()V']) {
@@ -90,7 +80,6 @@ export function tryInitialize(
         method: classRef.methods['<clinit>()V'],
         pc: 0,
         operandStack: [],
-        this: null,
         locals: [],
       });
       classRef.isInitialized = true;
@@ -99,3 +88,13 @@ export function tryInitialize(
     classRef.isInitialized = true;
   }
 }
+
+// export function runFull(memoryArea: MemoryArea, instruction: InstructionType) {
+//   const className = thread.getClass().getConstant(
+//     thread.getClassName(),
+//     instruction.operands[0]
+//   ) as constantUtf8Info;
+
+//   tryInitialize(memoryArea, thread, className.value);
+//   thread.offsetPc(3);
+// }

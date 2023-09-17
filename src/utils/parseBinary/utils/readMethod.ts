@@ -1,26 +1,29 @@
-import { AttributeCode } from '#types/ClassFile/attributes';
-import { constant_Utf8_info, ConstantType } from '#types/ClassFile/constants';
-import { METHOD_FLAGS, MethodRef } from '#types/ClassFile/methods';
+import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import {
+  ConstantType,
+  ConstantUtf8Info,
+} from '#jvm/external/ClassFile/types/constants';
+import { METHODFLAGS, MethodType } from '#jvm/external/ClassFile/types/methods';
 import { readAttribute } from './readAttributes';
 
 export function readMethod(
   constPool: Array<ConstantType>,
   view: DataView,
   offset: number
-): { result: MethodRef; offset: number } {
-  const access_flags = view.getUint16(offset);
+): { result: MethodType; offset: number } {
+  const accessFlags = view.getUint16(offset);
   offset += 2;
-  const name_index = view.getUint16(offset);
+  const nameIndex = view.getUint16(offset);
   offset += 2;
-  const descriptor_index = view.getUint16(offset);
+  const descriptorIndex = view.getUint16(offset);
   offset += 2;
-  const attributes_count = view.getUint16(offset);
+  const attributesCount = view.getUint16(offset);
   offset += 2;
 
   const attributes = [];
   let code: AttributeCode | null | undefined;
 
-  for (let i = 0; i < attributes_count; i += 1) {
+  for (let i = 0; i < attributesCount; i += 1) {
     const { result, offset: resultOffset } = readAttribute(
       constPool,
       view,
@@ -39,11 +42,11 @@ export function readMethod(
     code = null;
   }
 
-  const name = (constPool[name_index] as constant_Utf8_info).value;
-  const descriptor = (constPool[descriptor_index] as constant_Utf8_info).value;
+  const name = (constPool[nameIndex] as ConstantUtf8Info).value;
+  const descriptor = (constPool[descriptorIndex] as ConstantUtf8Info).value;
   return {
     result: {
-      access_flags,
+      accessFlags,
       name,
       descriptor,
       attributes,
@@ -54,56 +57,56 @@ export function readMethod(
 }
 
 export function getMethodName(
-  method: MethodRef,
+  method: MethodType,
   constPool: Array<ConstantType>
 ): string {
   return method.name + method.descriptor;
 }
 
-export function checkPublic(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_PUBLIC) !== 0;
+export function checkPublic(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCPUBLIC) !== 0;
 }
 
-export function checkPrivate(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_PRIVATE) !== 0;
+export function checkPrivate(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCPRIVATE) !== 0;
 }
 
-export function checkProtected(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_PROTECTED) !== 0;
+export function checkProtected(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCPROTECTED) !== 0;
 }
 
-export function checkStatic(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_STATIC) !== 0;
+export function checkStatic(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCSTATIC) !== 0;
 }
 
-export function checkFinal(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_FINAL) !== 0;
+export function checkFinal(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCFINAL) !== 0;
 }
 
-export function checkSynchronized(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_SYNCHRONIZED) !== 0;
+export function checkSynchronized(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCSYNCHRONIZED) !== 0;
 }
 
-export function checkBridge(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_BRIDGE) !== 0;
+export function checkBridge(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCBRIDGE) !== 0;
 }
 
-export function checkVarargs(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_VARARGS) !== 0;
+export function checkVarargs(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCVARARGS) !== 0;
 }
 
-export function checkNative(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_NATIVE) !== 0;
+export function checkNative(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCNATIVE) !== 0;
 }
 
-export function checkAbstract(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_ABSTRACT) !== 0;
+export function checkAbstract(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCABSTRACT) !== 0;
 }
 
-export function checkStrict(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_STRICT) !== 0;
+export function checkStrict(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCSTRICT) !== 0;
 }
 
-export function checkSynthetic(method: MethodRef): boolean {
-  return (method.access_flags & METHOD_FLAGS.ACC_SYNTHETIC) !== 0;
+export function checkSynthetic(method: MethodType): boolean {
+  return (method.accessFlags & METHODFLAGS.ACCSYNTHETIC) !== 0;
 }

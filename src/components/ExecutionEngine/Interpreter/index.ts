@@ -1,4 +1,4 @@
-import { INSTRUCTION_SET } from '#constants/ClassFile/instructions';
+import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JNI } from '#jvm/components/JNI';
 import MemoryArea from '#jvm/components/MemoryArea';
 import NativeThread from '../NativeThreadGroup/NativeThread';
@@ -51,9 +51,9 @@ export default class Interpreter {
       console.debug(
         // `[${thread.getClassName()}.${thread.getMethodName()}]` +
         `#${thread.getPC()}`.padEnd(4) +
-          `${INSTRUCTION_SET[current.opcode]}(${current.operands.join(
-            ', '
-          )})`.padEnd(20) +
+          `${OPCODE[current.opcode]}(${current.operands.join(', ')})`.padEnd(
+            20
+          ) +
           ` locals: [${thread.peekStackFrame().locals.join(',')}]`.padEnd(40) +
           ` stack: [${thread.peekStackFrame().operandStack.join(',')}]:${
             thread.peekStackFrame().operandStack.length
