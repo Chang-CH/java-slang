@@ -1,0 +1,33 @@
+export enum CONSTANT_TAG {
+  constantClass,
+  constantFieldref,
+  constantMethodref,
+  constantInterfaceMethodref,
+  constantString,
+  constantInteger,
+  constantFloat,
+  constantLong,
+  constantDouble,
+  constantNameAndType,
+  constantUtf8,
+  constantMethodHandle,
+  constantMethodType,
+  constantInvokeDynamic,
+}
+
+export const CONSTANT_TAGMap: { [key: string]: CONSTANT_TAG } = {
+  '7': CONSTANT_TAG.constantClass,
+  '9': CONSTANT_TAG.constantFieldref,
+  '10': CONSTANT_TAG.constantMethodref,
+  '11': CONSTANT_TAG.constantInterfaceMethodref,
+  '8': CONSTANT_TAG.constantString,
+  '3': CONSTANT_TAG.constantInteger,
+  '4': CONSTANT_TAG.constantFloat,
+  '5': CONSTANT_TAG.constantLong,
+  '6': CONSTANT_TAG.constantDouble,
+  '12': CONSTANT_TAG.constantNameAndType,
+  '1': CONSTANT_TAG.constantUtf8,
+  '15': CONSTANT_TAG.constantMethodHandle,
+  '16': CONSTANT_TAG.constantMethodType,
+  '18': CONSTANT_TAG.constantInvokeDynamic,
+};
