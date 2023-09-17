@@ -1,6 +1,6 @@
 import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';
-import OsInterface from '#utils/OsInterface';
+import JsSystem from '#utils/JsSystem';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
 import NativeThreadGroup from './NativeThreadGroup';
@@ -8,11 +8,11 @@ import NativeThread from './NativeThreadGroup/NativeThread';
 
 export default class ExecutionEngine {
   nativeThreadGroup: NativeThreadGroup;
-  os: OsInterface;
+  os: JsSystem;
   interpreter: Interpreter;
   jni: JNI;
 
-  constructor(os: OsInterface, jni: JNI) {
+  constructor(os: JsSystem, jni: JNI) {
     this.jni = jni;
     this.os = os;
     this.nativeThreadGroup = new NativeThreadGroup();

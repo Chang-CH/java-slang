@@ -4,7 +4,7 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import { JNI } from '#jvm/components/JNI';
 
 import JVM from '#jvm/index';
-import OsInterface, { Folder } from '#utils/OsInterface';
+import JsSystem, { Folder } from '#utils/JsSystem';
 import { classFileToText } from '#utils/Prettify/classfile';
 import parseBin, { a2ab } from '#utils/parseBinary';
 import * as fs from 'node:fs';
@@ -66,7 +66,7 @@ export default function main() {
 
     if (options['-p']) {
       // Stubs, not used.
-      const os = new OsInterface({
+      const os = new JsSystem({
         Sample: view,
       });
 
@@ -77,7 +77,7 @@ export default function main() {
     folders[fileName] = view;
   }
 
-  const os = new OsInterface(folders);
+  const os = new JsSystem(folders);
   const jvm = new JVM(os);
   // @ts-ignore
   jvm.runClass(options['-f'][0]);

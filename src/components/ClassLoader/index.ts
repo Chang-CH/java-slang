@@ -1,11 +1,9 @@
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import { ClassRef } from '#types/ClassRef';
-import OsInterface from '#utils/OsInterface';
-import parseBin from '#utils/parseBinary';
-import NativeThread from '../ExecutionEngine/NativeThreadGroup/NativeThread';
+import JsSystem from '#utils/JsSystem';
 
 export default abstract class AbstractClassLoader {
-  protected os: OsInterface;
+  protected os: JsSystem;
   protected classPath: string;
   protected loadedClasses: {
     [className: string]: ClassRef;
@@ -13,7 +11,7 @@ export default abstract class AbstractClassLoader {
   parentLoader: AbstractClassLoader | null;
 
   constructor(
-    os: OsInterface,
+    os: JsSystem,
     classPath: string,
     parentLoader: AbstractClassLoader | null
   ) {
@@ -58,7 +56,6 @@ export default abstract class AbstractClassLoader {
   }
 
   getClassRef(className: string, onError: (e: Error) => void): ClassRef {
-    // TODO: check behaviour if class loaded by multiple loaders
     if (this.loadedClasses[className]) {
       return this.loadedClasses[className];
     }
@@ -79,7 +76,7 @@ export default abstract class AbstractClassLoader {
 
     // still not loaded
     if (!this.loadedClasses[className]) {
-      onError && onError(new Error('ClassNotFoundException')); //TODO: use thread.throwException
+      onError && onError(new Error('java/lang/ClassNotFoundException'));
     }
     return this.loadedClasses[className];
   }

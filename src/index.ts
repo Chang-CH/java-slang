@@ -1,5 +1,5 @@
 import { ClassRef } from '#types/ClassRef';
-import OsInterface from '#utils/OsInterface';
+import JsSystem from '#utils/JsSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
@@ -9,10 +9,10 @@ export default class JVM {
   bootstrapClassLoader: BootstrapClassLoader;
   applicationClassLoader: ClassLoader;
   engine: ExecutionEngine;
-  os: OsInterface;
+  os: JsSystem;
   jni: JNI;
 
-  constructor(os: OsInterface) {
+  constructor(os: JsSystem) {
     this.os = os;
     this.bootstrapClassLoader = new BootstrapClassLoader(this.os, 'natives');
     this.applicationClassLoader = new ClassLoader(

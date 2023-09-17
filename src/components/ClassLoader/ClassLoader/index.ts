@@ -1,5 +1,5 @@
 import { ClassRef } from '#types/ClassRef';
-import OsInterface from '#utils/OsInterface';
+import JsSystem from '#utils/JsSystem';
 import AbstractClassLoader from '..';
 
 export default class ClassLoader extends AbstractClassLoader {
@@ -8,7 +8,7 @@ export default class ClassLoader extends AbstractClassLoader {
   // TODO: store thisref etc. here, Java ClassLoader Reference
 
   constructor(
-    os: OsInterface,
+    os: JsSystem,
     classPath: string,
     parentLoader: AbstractClassLoader
   ) {

@@ -1,5 +1,5 @@
 import { ClassRef } from '#types/ClassRef';
-import OsInterface from '#utils/OsInterface';
+import JsSystem from '#utils/JsSystem';
 import AbstractClassLoader from '..';
 
 /**
@@ -9,7 +9,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
   // TODO: add classpath etc.
   // TODO: store loaded classes here?
 
-  constructor(os: OsInterface, classPath: string) {
+  constructor(os: JsSystem, classPath: string) {
     super(os, classPath, null);
   }
 
