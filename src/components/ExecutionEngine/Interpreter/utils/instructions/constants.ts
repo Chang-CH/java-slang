@@ -6,7 +6,6 @@ import {
   ConstantFloatInfo,
   ConstantIntegerInfo,
   ConstantLongInfo,
-  ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import {
   ConstantMethodref,

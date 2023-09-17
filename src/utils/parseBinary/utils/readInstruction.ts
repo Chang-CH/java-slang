@@ -23,7 +23,6 @@ function readInstruction(
   view: DataView,
   offset: number
 ): { result: InstructionType; offset: number } {
-  //TODO: check for overflow
   const opcode = view.getUint8(offset);
   offset += 1;
 

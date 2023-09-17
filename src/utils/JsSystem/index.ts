@@ -9,7 +9,7 @@ export interface Folder {
 /**
  * Acts as a mockup for OS interactions needed by the JVM.
  */
-export default class OsInterface {
+export default class JsSystem {
   files: Folder;
 
   constructor(initialFiles: Folder) {

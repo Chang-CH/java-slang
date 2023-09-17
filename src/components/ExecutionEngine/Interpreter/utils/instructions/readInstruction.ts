@@ -5,7 +5,6 @@ export function readInstruction(
   view: DataView,
   offset: number
 ): InstructionType {
-  //TODO: check for overflow
   const opcode = view.getUint8(offset);
   offset += 1;
 

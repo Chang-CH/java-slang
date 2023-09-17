@@ -7,7 +7,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';
-import OsInterface from '#utils/OsInterface';
+import JsSystem from '#utils/JsSystem';
 import { initString } from '#jvm/components/JNI/utils';
 import {
   ConstantClass,
@@ -25,7 +25,7 @@ let threadClass: ClassRef;
 
 beforeEach(() => {
   const jni = new JNI();
-  const os = new OsInterface({});
+  const os = new JsSystem({});
 
   const bscl = new BootstrapClassLoader(os, 'natives');
   bscl.load(
@@ -354,8 +354,6 @@ describe('runLdc', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    // TODO: create new helper function, initialize String there.
-    // TODO: Constant string should be a string reference object.
     tryInitialize(thread, 'java/lang/String');
     const strClass = thread
       .getClass()

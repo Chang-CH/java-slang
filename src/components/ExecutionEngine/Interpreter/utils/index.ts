@@ -9,31 +9,31 @@ import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export function readFieldDescriptor(descriptor: string, index: number) {
   switch (descriptor[index]) {
-    case JavaType.BYTE:
-      return { type: JavaType.BYTE, index: index + 1 };
-    case JavaType.CHAR:
-      return { type: JavaType.CHAR, index: index + 1 };
-    case JavaType.DOUBLE:
-      return { type: JavaType.DOUBLE, index: index + 1 };
-    case JavaType.FLOAT:
-      return { type: JavaType.FLOAT, index: index + 1 };
-    case JavaType.INT:
-      return { type: JavaType.INT, index: index + 1 };
-    case JavaType.LONG:
-      return { type: JavaType.LONG, index: index + 1 };
-    case JavaType.SHORT:
-      return { type: JavaType.SHORT, index: index + 1 };
-    case JavaType.BOOLEAN:
-      return { type: JavaType.BOOLEAN, index: index + 1 };
-    case JavaType.ARRAY:
+    case JavaType.byte:
+      return { type: JavaType.byte, index: index + 1 };
+    case JavaType.char:
+      return { type: JavaType.char, index: index + 1 };
+    case JavaType.double:
+      return { type: JavaType.double, index: index + 1 };
+    case JavaType.float:
+      return { type: JavaType.float, index: index + 1 };
+    case JavaType.int:
+      return { type: JavaType.int, index: index + 1 };
+    case JavaType.long:
+      return { type: JavaType.long, index: index + 1 };
+    case JavaType.short:
+      return { type: JavaType.short, index: index + 1 };
+    case JavaType.boolean:
+      return { type: JavaType.boolean, index: index + 1 };
+    case JavaType.array:
       ({ index } = readFieldDescriptor(descriptor, index + 1));
-      return { type: JavaType.ARRAY, index };
-    case JavaType.REFERENCE:
+      return { type: JavaType.array, index };
+    case JavaType.reference:
       const sub = descriptor.substring(index);
       const end = sub.indexOf(';');
-      return { type: JavaType.REFERENCE, index: index + end + 1 };
-    case JavaType.VOID:
-      return { type: JavaType.VOID, index: index + 1 };
+      return { type: JavaType.reference, index: index + end + 1 };
+    case JavaType.void:
+      return { type: JavaType.void, index: index + 1 };
     default:
       throw new Error(`Unknown type ${descriptor[index]}`);
   }

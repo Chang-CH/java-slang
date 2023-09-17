@@ -2,7 +2,7 @@ import { ClassRef } from '#types/ClassRef';
 import { JavaArray, ArrayType, JavaReference } from '#types/DataTypes';
 
 export function newCharArr(str: string): JavaArray {
-  const arrayref = new JavaArray(str.length, ArrayType.TCHAR, str.split(''));
+  const arrayref = new JavaArray(str.length, ArrayType.char, str.split(''));
   return arrayref;
 }
 

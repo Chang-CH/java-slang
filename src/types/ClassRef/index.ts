@@ -94,8 +94,10 @@ export class ClassRef {
       .getClass()
       .getLoader()
       .getClassRef(className.value, e => {
-        //TODO: check what error it was
-        thread.throwNewException('java/lang/ClassNotFoundException', '');
+        if (e.message === 'java/lang/ClassNotFoundException') {
+          thread.throwNewException('java/lang/ClassNotFoundException', '');
+        }
+        throw e;
       });
     return;
   }
@@ -125,8 +127,10 @@ export class ClassRef {
       .getClass()
       .getLoader()
       .getClassRef(className, e => {
-        //TODO: check what error it was
-        thread.throwNewException('java/lang/ClassNotFoundException', '');
+        if (e.message === 'java/lang/ClassNotFoundException') {
+          thread.throwNewException('java/lang/ClassNotFoundException', '');
+        }
+        throw e;
       })
       .getMethod(thread, methodName + methodDescriptor);
   }
@@ -139,8 +143,10 @@ export class ClassRef {
         .getClass()
         .getLoader()
         .getClassRef('java/lang/String', e => {
-          //TODO: check what error it was
-          thread.throwNewException('java/lang/ClassNotFoundException', '');
+          if (e.message === 'java/lang/ClassNotFoundException') {
+            thread.throwNewException('java/lang/ClassNotFoundException', '');
+          }
+          throw e;
         }),
       strConst.value
     );

@@ -17,28 +17,28 @@ export class JavaArray {
 
     let def;
     switch (this.type) {
-      case ArrayType.TBOOLEAN:
+      case ArrayType.boolean:
         def = false;
         break;
-      case ArrayType.TCHAR:
+      case ArrayType.char:
         def = '';
         break;
-      case ArrayType.TFLOAT:
+      case ArrayType.float:
         def = 0.0;
         break;
-      case ArrayType.TDOUBLE:
+      case ArrayType.double:
         def = 0.0;
         break;
-      case ArrayType.TBYTE:
+      case ArrayType.byte:
         def = 0;
         break;
-      case ArrayType.TSHORT:
+      case ArrayType.short:
         def = 0;
         break;
-      case ArrayType.TINT:
+      case ArrayType.int:
         def = 0;
         break;
-      case ArrayType.TLONG:
+      case ArrayType.long:
         def = 0n;
         break;
       default:
@@ -80,22 +80,18 @@ export class JavaReference {
   }
 
   getField(name: string) {
-    // TODO: check key exists in fields
     return this.fields[name];
   }
 
   getFieldWide(name: string) {
-    // TODO: check key exists in fields
     return this.fields[name];
   }
 
   putField(name: string, value: any) {
-    // TODO: check key exists in fields
     this.fields[name] = value;
   }
 
   putFieldWide(name: string, value: any) {
-    // TODO: check key exists in fields
     this.fields[name] = value;
   }
 }
@@ -106,26 +102,26 @@ export interface FieldRef {
 }
 
 export enum ArrayType {
-  TBOOLEAN = 4,
-  TCHAR = 5,
-  TFLOAT = 6,
-  TDOUBLE = 7,
-  TBYTE = 8,
-  TSHORT = 9,
-  TINT = 10,
-  TLONG = 11,
+  boolean = 4,
+  char = 5,
+  float = 6,
+  double = 7,
+  byte = 8,
+  short = 9,
+  int = 10,
+  long = 11,
 }
 
 export enum JavaType {
-  BYTE = 'B',
-  CHAR = 'C',
-  DOUBLE = 'D',
-  FLOAT = 'F',
-  INT = 'I',
-  LONG = 'J',
-  SHORT = 'S',
-  BOOLEAN = 'Z',
-  REFERENCE = 'L',
-  ARRAY = '[',
-  VOID = 'V',
+  byte = 'B',
+  char = 'C',
+  double = 'D',
+  float = 'F',
+  int = 'I',
+  long = 'J',
+  short = 'S',
+  boolean = 'Z',
+  reference = 'L',
+  array = '[',
+  void = 'V',
 }

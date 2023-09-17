@@ -15,10 +15,6 @@ export function readAttribute(
 ): { result: { [key: string]: any }; offset: number } {
   const attributeNameIndex = view.getUint16(offset);
   offset += 2;
-
-  // TODO: in theory we should check the constant pool:
-  // checkConstantPool(constPool, attributeNameIndex, CONSTANT_TAG.constantUtf8);
-
   const constantAttributeName: ConstantUtf8Info = constPool[
     attributeNameIndex
   ] as ConstantUtf8Info;

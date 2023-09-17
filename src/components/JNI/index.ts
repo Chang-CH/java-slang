@@ -29,27 +29,27 @@ export class JNI {
       const retType = readFieldDescriptor(methodName.split(')')[1], 0).type;
 
       switch (retType) {
-        case JavaType.ARRAY:
-          return () => new JavaArray(0, ArrayType.TINT);
-        case JavaType.BYTE:
+        case JavaType.array:
+          return () => new JavaArray(0, ArrayType.int);
+        case JavaType.byte:
           return () => 0;
-        case JavaType.CHAR:
+        case JavaType.char:
           return () => '';
-        case JavaType.DOUBLE:
+        case JavaType.double:
           return () => 0.0;
-        case JavaType.FLOAT:
+        case JavaType.float:
           return () => 0.0;
-        case JavaType.INT:
+        case JavaType.int:
           return () => 0;
-        case JavaType.LONG:
+        case JavaType.long:
           return () => 0n;
-        case JavaType.SHORT:
+        case JavaType.short:
           return () => 0;
-        case JavaType.BOOLEAN:
+        case JavaType.boolean:
           return () => false;
-        case JavaType.REFERENCE:
+        case JavaType.reference:
           return () => null;
-        case JavaType.VOID:
+        case JavaType.void:
           return () => {};
         default:
           return () => {};
