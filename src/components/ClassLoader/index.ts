@@ -1,18 +1,27 @@
 import MemoryArea from '#jvm/components/MemoryArea';
+import { ClassFile } from '#jvm/external/ClassFile/types';
 import { ClassRef } from '#types/ClassRef';
-import { ClassFile } from '#types/ClassFile';
 import OsInterface from '#utils/OsInterface';
 import parseBin from '#utils/parseBinary';
+import NativeThread from '../ExecutionEngine/NativeThreadGroup/NativeThread';
 
 export default abstract class AbstractClassLoader {
-  protected memoryArea: MemoryArea;
   protected os: OsInterface;
   protected classPath: string;
+  protected loadedClasses: {
+    [className: string]: ClassRef;
+  };
+  parentLoader: AbstractClassLoader | null;
 
-  constructor(memoryArea: MemoryArea, os: OsInterface, classPath: string) {
-    this.memoryArea = memoryArea;
+  constructor(
+    os: OsInterface,
+    classPath: string,
+    parentLoader: AbstractClassLoader | null
+  ) {
     this.os = os;
     this.classPath = classPath;
+    this.loadedClasses = {};
+    this.parentLoader = parentLoader;
   }
 
   /**
@@ -21,7 +30,7 @@ export default abstract class AbstractClassLoader {
    * @returns Error, if any
    */
   prepareClass(cls: ClassFile): void | Error {
-    console.warn('BootstrapClassLoader.prepareClass: not implemented.');
+    console.warn('AbstractClassLoader.prepareClass: not implemented.');
     return;
   }
 
@@ -31,11 +40,8 @@ export default abstract class AbstractClassLoader {
    * @returns class data with resolved references
    */
   linkClass(cls: ClassFile): ClassRef {
-    const data = {
-      ...cls,
-      loader: this,
-      isInitialized: false,
-    };
+    // TODO: convert constantString value to java string
+    const data = new ClassRef(cls, this);
     return data;
   }
 
@@ -44,12 +50,39 @@ export default abstract class AbstractClassLoader {
    * @param cls resolved class data
    */
   loadClass(cls: ClassRef): void {
-    console.warn('BootstrapClassLoader.loadClass: not implemented.');
-    this.memoryArea.loadClass(this.getClassName(cls), cls);
+    console.warn('AbstractClassLoader.loadClass: not implemented.');
+    this.loadedClasses[this.getClassName(cls)] = cls;
   }
 
   getClassName(cls: ClassRef): string {
-    return cls.this_class;
+    return cls.thisClass;
+  }
+
+  getClassRef(className: string, onError: (e: Error) => void): ClassRef {
+    // TODO: check behaviour if class loaded by multiple loaders
+    if (this.loadedClasses[className]) {
+      return this.loadedClasses[className];
+    }
+
+    if (this.parentLoader) {
+      const res = this.parentLoader.getClassRef(className, () => {});
+      if (res) {
+        return res;
+      }
+    }
+
+    // not found, try to load.
+    this.load(
+      className,
+      () => {},
+      () => {}
+    );
+
+    // still not loaded
+    if (!this.loadedClasses[className]) {
+      onError && onError(new Error('ClassNotFoundException')); //TODO: use thread.throwException
+    }
+    return this.loadedClasses[className];
   }
 
   /**

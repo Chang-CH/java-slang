@@ -10,8 +10,8 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
   // TODO: add classpath etc.
   // TODO: store loaded classes here?
 
-  constructor(memoryArea: MemoryArea, os: OsInterface, classPath: string) {
-    super(memoryArea, os, classPath);
+  constructor(os: OsInterface, classPath: string) {
+    super(os, classPath, null);
   }
 
   /**
@@ -23,11 +23,6 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     onFinish?: (classData: ClassRef) => void,
     onError?: (error: Error) => void
   ): void {
-    if (this.memoryArea.getClass(className)) {
-      onFinish && onFinish(this.memoryArea.getClass(className));
-      return;
-    }
-
     console.debug(`BsCL: loading ${className}`);
     // TODO: verify jvm loading path etc.
     const path = this.classPath ? this.classPath + '/' + className : className;
@@ -43,10 +38,6 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
     this.loadClass(classData);
-
-    // if (className === 'java/lang/Class') {
-    //   console.debug(classData.constant_pool.filter(x);
-    // }
 
     onFinish && onFinish(classData);
   }

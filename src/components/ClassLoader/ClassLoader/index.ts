@@ -1,26 +1,19 @@
 import MemoryArea from '#jvm/components/MemoryArea';
 import { ClassRef } from '#types/ClassRef';
-import { ClassFile } from '#types/ClassFile';
 import OsInterface from '#utils/OsInterface';
-import parseBin from '#utils/parseBinary';
 import AbstractClassLoader from '..';
 
-/**
- * Reads classfile representation and loads it into memory area
- */
 export default class ClassLoader extends AbstractClassLoader {
   // TODO: add classpath etc.
   // TODO: store loaded classes here?
   // TODO: store thisref etc. here, Java ClassLoader Reference
-  parentLoader: AbstractClassLoader;
+
   constructor(
-    memoryArea: MemoryArea,
     os: OsInterface,
     classPath: string,
     parentLoader: AbstractClassLoader
   ) {
-    super(memoryArea, os, classPath);
-    this.parentLoader = parentLoader;
+    super(os, classPath, parentLoader);
   }
 
   /**
@@ -41,6 +34,7 @@ export default class ClassLoader extends AbstractClassLoader {
         className,
         () => {},
         e => {
+          // Parent class could not load
           let classFile;
           try {
             classFile = this.os.readFile(path);
