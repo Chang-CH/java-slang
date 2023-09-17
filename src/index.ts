@@ -1,8 +1,8 @@
+import { ClassRef } from '#types/ClassRef';
 import OsInterface from '#utils/OsInterface';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
-import { tryLoad } from './components/ExecutionEngine/Interpreter/utils';
 import { JNI } from './components/JNI';
 import MemoryArea from './components/MemoryArea';
 
@@ -17,13 +17,8 @@ export default class JVM {
   constructor(os: OsInterface) {
     this.memoryArea = new MemoryArea(new JNI());
     this.os = os;
-    this.bootstrapClassLoader = new BootstrapClassLoader(
-      this.memoryArea,
-      this.os,
-      'natives'
-    );
+    this.bootstrapClassLoader = new BootstrapClassLoader(this.os, 'natives');
     this.applicationClassLoader = new ClassLoader(
-      this.memoryArea,
       this.os,
       '',
       this.bootstrapClassLoader
@@ -32,15 +27,13 @@ export default class JVM {
     this.engine = new ExecutionEngine(this.memoryArea, this.os, this.jni);
 
     // Load thread class manually
-    this.memoryArea.getClass('java/lang/Thread', e => {
-      this.applicationClassLoader.load(
-        'java/lang/Thread',
-        () => {},
-        e => {
-          throw e;
-        }
-      );
-    });
+    this.applicationClassLoader.load(
+      'java/lang/Thread',
+      () => {},
+      e => {
+        throw e;
+      }
+    );
   }
 
   runClass(filepath: string) {
@@ -50,8 +43,12 @@ export default class JVM {
     // FIXME: should use system class loader instead.
     // should class loader be called by memory area on class not found?
     this.applicationClassLoader.load(filepath, cls => {
-      const className = cls.this_class;
-      this.engine.runClass(className);
+      const threadCls = this.bootstrapClassLoader.getClassRef(
+        'java/lang/Thread',
+        console.error
+      ) as ClassRef;
+
+      this.engine.runClass(threadCls, cls);
     });
   }
 }
