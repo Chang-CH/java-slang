@@ -1,16 +1,17 @@
-import { constantTag } from '#constants/ClassFile/constants';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import MemoryArea from '#jvm/components/MemoryArea';
-import {
-  constant_Fieldref_info,
-  constant_NameAndType_info,
-  constant_Methodref_info,
-  constant_Class_info,
-  constant_Utf8_info,
-} from '#types/ClassFile/constants';
-import { InstructionType } from '#types/ClassFile/instructions';
+import { InstructionType } from '#types/ClassRef/instructions';
 import { JavaReference, JavaArray } from '#types/DataTypes';
-import { tryInitialize, readMethodDescriptor, tryLoad } from '..';
+import { tryInitialize, readMethodDescriptor } from '..';
+import {
+  ConstantFieldrefInfo,
+  ConstantNameAndTypeInfo,
+  ConstantMethodrefInfo,
+  ConstantClassInfo,
+  ConstantUtf8Info,
+} from '#jvm/external/ClassFile/types/constants';
+import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
+import { ConstantClass } from '#types/ClassRef/constants';
 
 export function runGetstatic(
   thread: NativeThread,
@@ -18,39 +19,44 @@ export function runGetstatic(
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
-  const fieldRef = memoryArea.getConstant(
-    invoker,
-    instruction.operands[0]
-  ) as constant_Fieldref_info;
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, fieldRef.class_index).nameIndex
-  ).value;
-  const classRef = memoryArea.getClass(className);
+  const fieldRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantFieldrefInfo;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, fieldRef.classIndex).nameIndex
+    ).value;
+  const classRef = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className, e =>
+      thread.throwNewException('java/lang/ClassNotFoundException', '')
+    );
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
 
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    fieldRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const fieldName = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.name_index
-  ).value;
-  const fieldType = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.descriptor_index
-  ).value;
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, fieldRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const fieldName = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.nameIndex).value;
+  const fieldType = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
   // FIXME: in theory it is legal to have 2 same field name, different type
   if (fieldType === 'J' || fieldType === 'D') {
     thread.pushStackWide(
-      memoryArea.getStaticWide(className, fieldName + fieldType)
+      thread.getClass().getStaticWide(thread, fieldName + fieldType)
     );
   } else {
-    thread.pushStack(memoryArea.getStatic(className, fieldName + fieldType));
+    thread.pushStack(
+      thread.getClass().getStatic(thread, fieldName + fieldType)
+    );
   }
 
   thread.offsetPc(3);
@@ -61,39 +67,45 @@ export function runPutstatic(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const invoker = thread.getClassName();
-  const fieldRef = memoryArea.getConstant(
-    invoker,
-    instruction.operands[0]
-  ) as constant_Fieldref_info;
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, fieldRef.class_index).nameIndex
-  ).value;
+  const invoker = thread.getClass();
+  const fieldRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantFieldrefInfo;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, fieldRef.classIndex).nameIndex
+    ).value;
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
+  const cls = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className, e =>
+      thread.throwNewException('java/lang/ClassNotFoundException', '')
+    );
 
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    fieldRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const fieldName = memoryArea.getConstant(
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, fieldRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const fieldName = cls.getConstant(
     className,
-    nameAndTypeIndex.name_index
+    nameAndTypeIndex.nameIndex
   ).value;
-  const fieldType = memoryArea.getConstant(
+  const fieldType = cls.getConstant(
     className,
-    nameAndTypeIndex.descriptor_index
+    nameAndTypeIndex.descriptorIndex
   ).value;
 
   // FIXME: in theory it is legal to have 2 same field name, different type
   if (fieldType === 'J' || fieldType === 'D') {
     const value = thread.popStackWide();
-    memoryArea.putStaticWide(className, fieldName + fieldType, value);
+    cls.putStaticWide(thread, fieldName + fieldType, value);
   } else {
     const value = thread.popStack();
-    memoryArea.putStatic(className, fieldName + fieldType, value);
+    cls.putStatic(thread, fieldName + fieldType, value);
   }
   thread.offsetPc(3);
 }
@@ -105,33 +117,29 @@ export function runGetfield(
 ) {
   const invoker = thread.getClassName();
   const obj = thread.popStack() as JavaReference;
-  const fieldRef = memoryArea.getConstant(
-    thread.getClassName(),
-    instruction.operands[0]
-  ) as constant_Fieldref_info;
+  const fieldRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantFieldrefInfo;
 
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, fieldRef.class_index).nameIndex
-  ).value;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, fieldRef.classIndex).nameIndex
+    ).value;
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
 
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    fieldRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const fieldName = memoryArea.getConstant(
-    className,
-    nameAndTypeIndex.name_index
-  ).value;
-  const fieldType = memoryArea.getConstant(
-    className,
-    nameAndTypeIndex.descriptor_index
-  ).value;
-
-  // console.debug('getfield', className, fieldName, fieldType, obj);
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, fieldRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const fieldName = thread
+    .getClass()
+    .getConstant(className, nameAndTypeIndex.nameIndex).value;
+  const fieldType = thread
+    .getClass()
+    .getConstant(className, nameAndTypeIndex.descriptorIndex).value;
 
   if (fieldType === 'J' || fieldType === 'D') {
     thread.pushStackWide(obj.getFieldWide(fieldName + fieldType));
@@ -147,31 +155,29 @@ export function runPutfield(
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
-  const fieldRef = memoryArea.getConstant(
-    thread.getClassName(),
-    instruction.operands[0]
-  ) as constant_Fieldref_info;
+  const fieldRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantFieldrefInfo;
 
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, fieldRef.class_index).nameIndex
-  ).value;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, fieldRef.classIndex).nameIndex
+    ).value;
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
 
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    fieldRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const fieldName = memoryArea.getConstant(
-    className,
-    nameAndTypeIndex.name_index
-  ).value;
-  const fieldType = memoryArea.getConstant(
-    className,
-    nameAndTypeIndex.descriptor_index
-  ).value;
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, fieldRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const fieldName = thread
+    .getClass()
+    .getConstant(className, nameAndTypeIndex.nameIndex).value;
+  const fieldType = thread
+    .getClass()
+    .getConstant(className, nameAndTypeIndex.descriptorIndex).value;
 
   // FIXME: in theory it is legal to have 2 same field name, different type
   if (fieldType === 'J' || fieldType === 'D') {
@@ -194,28 +200,31 @@ export function runInvokevirtual(
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
-  const methodRef = memoryArea.getConstant(
-    invoker,
-    instruction.operands[0]
-  ) as constant_Methodref_info;
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, methodRef.class_index).nameIndex
-  ).value;
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    methodRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const methodName = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.name_index
-  ).value;
-  const methodDescriptor = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.descriptor_index
-  ).value;
+  const methodRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantMethodrefInfo;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, methodRef.classIndex).nameIndex
+    ).value;
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, methodRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const methodName = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.nameIndex).value;
+  const methodDescriptor = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
-  const classRef = memoryArea.getClass(className);
+  const classRef = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className, e =>
+      thread.throwNewException('java/lang/ClassNotFoundException', '')
+    );
 
   // Get arguments
   const methodDesc = readMethodDescriptor(methodDescriptor);
@@ -236,12 +245,11 @@ export function runInvokevirtual(
     operandStack: [],
     method: classRef.methods[methodName + methodDescriptor],
     pc: 0,
-    this: thisObj,
     locals: [thisObj],
   });
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
 }
 
 export function runInvokespecial(
@@ -250,26 +258,24 @@ export function runInvokespecial(
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
-  const methodRef = memoryArea.getConstant(
-    invoker,
-    instruction.operands[0]
-  ) as constant_Methodref_info;
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, methodRef.class_index).nameIndex
-  ).value;
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    methodRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const methodName = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.name_index
-  ).value;
-  const methodDescriptor = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.descriptor_index
-  ).value;
+  const methodRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantMethodrefInfo;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, methodRef.classIndex).nameIndex
+    ).value;
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, methodRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const methodName = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.nameIndex).value;
+  const methodDescriptor = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
   // Get arguments
   const methodDesc = readMethodDescriptor(methodDescriptor);
@@ -283,19 +289,23 @@ export function runInvokespecial(
   }
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
 
   const thisObj = thread.popStack();
   thread.offsetPc(3);
 
-  const classRef = memoryArea.getClass(className);
+  const classRef = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className, e =>
+      thread.throwNewException('java/lang/ClassNotFoundException', '')
+    );
 
   thread.pushStackFrame({
     class: classRef,
     operandStack: [],
     method: classRef.methods[methodName + methodDescriptor],
     pc: 0,
-    this: thisObj,
     locals: [thisObj, ...args],
   });
 }
@@ -306,27 +316,25 @@ export function runInvokestatic(
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
-  const methodRef = memoryArea.getConstant(
-    invoker,
-    instruction.operands[0]
-  ) as constant_Methodref_info;
+  const methodRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantMethodrefInfo;
 
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, methodRef.class_index).nameIndex
-  ).value;
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    methodRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const methodName = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.name_index
-  ).value;
-  const methodDescriptor = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.descriptor_index
-  ).value;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, methodRef.classIndex).nameIndex
+    ).value;
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, methodRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const methodName = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.nameIndex).value;
+  const methodDescriptor = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
   // Get arguments
   const methodDesc = readMethodDescriptor(methodDescriptor);
@@ -341,19 +349,23 @@ export function runInvokestatic(
 
   thread.offsetPc(3);
 
-  const classRef = memoryArea.getClass(className);
+  const classRef = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className, e =>
+      thread.throwNewException('java/lang/ClassNotFoundException', '')
+    );
 
   thread.pushStackFrame({
     class: classRef,
     operandStack: [],
-    method: classRef.methods[methodName + methodDescriptor],
+    method: classRef.getMethod(thread, methodName + methodDescriptor),
     pc: 0,
-    this: null,
     locals: args,
   });
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
 }
 
 export function runInvokeinterface(
@@ -362,26 +374,24 @@ export function runInvokeinterface(
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
-  const methodRef = memoryArea.getConstant(
-    invoker,
-    instruction.operands[0]
-  ) as constant_Methodref_info;
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, methodRef.class_index).nameIndex
-  ).value;
-  const nameAndTypeIndex = memoryArea.getConstant(
-    invoker,
-    methodRef.name_and_type_index
-  ) as constant_NameAndType_info;
-  const methodName = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.name_index
-  ).value;
-  const methodDescriptor = memoryArea.getConstant(
-    invoker,
-    nameAndTypeIndex.descriptor_index
-  ).value;
+  const methodRef = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantMethodrefInfo;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, methodRef.classIndex).nameIndex
+    ).value;
+  const nameAndTypeIndex = thread
+    .getClass()
+    .getConstant(thread, methodRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
+  const methodName = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.nameIndex).value;
+  const methodDescriptor = thread
+    .getClass()
+    .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
   // Get arguments
   const methodDesc = readMethodDescriptor(methodDescriptor);
@@ -397,17 +407,18 @@ export function runInvokeinterface(
   const thisObj = thread.popStack();
   thread.offsetPc(3);
 
-  // Load class if not loaded
-  tryLoad(memoryArea, thread, className);
-
-  const classRef = memoryArea.getClass(className);
+  const classRef = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className, e =>
+      thread.throwNewException('java/lang/ClassNotFoundException', '')
+    );
 
   thread.pushStackFrame({
     class: classRef,
     operandStack: [],
     method: classRef.methods[methodName + methodDescriptor],
     pc: 0,
-    this: thisObj,
     locals: [thisObj],
   });
 }
@@ -419,14 +430,11 @@ export function runInvokedynamic(
 ) {
   // Mainly used by Java8 natives
   const invoker = thread.getClassName();
-  const callSiteSpecifier = memoryArea.getConstant(
-    invoker,
-    instruction.operands[0]
-  );
+  const callSiteSpecifier = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]);
 
   // resolve call site specifier
-  const methodHandle = console.debug(callSiteSpecifier);
-  console.debug(memoryArea.getClass(invoker));
 
   throw new Error('invokedynamic: not implemented');
 }
@@ -438,13 +446,15 @@ export function runNew(
 ) {
   const invoker = thread.getClassName();
   const type = instruction.operands[0];
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, type).nameIndex
-  ).value;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, type).nameIndex
+    ).value;
 
   // Load + initialize if needed
-  tryInitialize(memoryArea, thread, className);
+  tryInitialize(thread, className);
 
   console.warn('new: fields not initialized to defaults');
   const objectref = new JavaReference(className, {});
@@ -471,10 +481,12 @@ export function runAnewarray(
 ) {
   const invoker = thread.getClassName();
   const count = thread.popStack();
-  const className = memoryArea.getConstant(
-    invoker,
-    memoryArea.getConstant(invoker, instruction.operands[0]).nameIndex
-  ).value;
+  const className = thread
+    .getClass()
+    .getConstant(
+      thread,
+      thread.getClass().getConstant(thread, instruction.operands[0]).nameIndex
+    ).value;
   const arrayref = new JavaArray(count, className);
   thread.pushStack(arrayref);
   thread.offsetPc(3);
@@ -487,6 +499,7 @@ export function runArraylength(
 ) {
   const arrayref = thread.popStack() as JavaArray;
   thread.pushStack(arrayref.len());
+  thread.offsetPc(1);
 }
 
 export function runAthrow(
@@ -495,7 +508,7 @@ export function runAthrow(
   instruction: InstructionType
 ) {
   const exception = thread.popStack();
-  thread.throwException(memoryArea, exception);
+  thread.throwException(exception);
   // TODO: throw Java error
   // TODO: parse exception handlers
   // throw new Error('runInstruction: Not implemented');
@@ -512,14 +525,12 @@ export function runCheckcast(
     return;
   }
 
-  const resolvedType = memoryArea.getConstant(
-    thread.getClassName(),
-    instruction.operands[0]
-  ) as constant_Class_info;
-  const className = memoryArea.getConstant(
-    thread.getClassName(),
-    resolvedType.name_index
-  );
+  const resolvedType = thread
+    .getClass()
+    .getConstant(thread, instruction.operands[0]) as ConstantClassInfo;
+  const className = thread
+    .getClass()
+    .getConstant(thread, resolvedType.nameIndex);
 
   // recursive checkcast.
   throw new Error('runInstruction: Not implemented');
@@ -530,11 +541,8 @@ export function runInstanceof(
   memoryArea: MemoryArea,
   instruction: InstructionType
 ) {
-  const ref = thread.popStack();
-  const cls = memoryArea.getConstant(
-    thread.getClassName(),
-    instruction.operands[0]
-  );
+  const ref = thread.popStack() as JavaReference;
+  const cls = thread.getClass().getConstant(thread, instruction.operands[0]);
 
   if (ref === null) {
     thread.pushStack(0);
@@ -542,18 +550,11 @@ export function runInstanceof(
     return;
   }
 
-  if (cls.tag === constantTag.constant_Class) {
-    const refClass = memoryArea.getConstant(
-      thread.getClassName(),
-      cls.nameIndex
-    ) as constant_Utf8_info;
-    const refClsName = refClass.value;
-
-    const clsData = memoryArea.getClass(ref.cls);
-
+  if (cls.tag === CONSTANT_TAG.constantClass) {
+    const classRef = (cls as ConstantClass).ref;
     if (
-      refClsName === clsData.this_class ||
-      clsData.interfaces.includes(refClsName)
+      ref.cls.thisClass === classRef.thisClass ||
+      ref.cls.interfaces.includes(classRef.thisClass)
     ) {
       thread.pushStack(1);
     } else {

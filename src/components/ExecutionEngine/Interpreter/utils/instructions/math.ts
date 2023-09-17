@@ -1,7 +1,7 @@
 import { MIN_INT } from '#constants/DataType';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import MemoryArea from '#jvm/components/MemoryArea';
-import { InstructionType } from '#types/ClassFile/instructions';
+import { InstructionType } from '#types/ClassRef/instructions';
 
 export function runIadd(
   thread: NativeThread,

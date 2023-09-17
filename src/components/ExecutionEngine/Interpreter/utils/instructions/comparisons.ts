@@ -1,5 +1,5 @@
 import MemoryArea from '#jvm/components/MemoryArea';
-import { InstructionType } from '#types/ClassFile/instructions';
+import { InstructionType } from '#types/ClassRef/instructions';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
 export function runLcmp(

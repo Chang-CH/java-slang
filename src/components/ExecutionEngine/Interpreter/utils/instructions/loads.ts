@@ -1,5 +1,5 @@
 import MemoryArea from '#jvm/components/MemoryArea';
-import { InstructionType } from '#types/ClassFile/instructions';
+import { InstructionType } from '#types/ClassRef/instructions';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
 export function runIload(
@@ -47,7 +47,7 @@ export function runAload(
   thread.offsetPc(2);
 }
 
-export function runIload_0(
+export function runIload0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -56,7 +56,7 @@ export function runIload_0(
   thread.offsetPc(1);
 }
 
-export function runIload_1(
+export function runIload1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -65,7 +65,7 @@ export function runIload_1(
   thread.offsetPc(1);
 }
 
-export function runIload_2(
+export function runIload2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -74,7 +74,7 @@ export function runIload_2(
   thread.offsetPc(1);
 }
 
-export function runIload_3(
+export function runIload3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -83,7 +83,7 @@ export function runIload_3(
   thread.offsetPc(1);
 }
 
-export function runLload_0(
+export function runLload0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -92,7 +92,7 @@ export function runLload_0(
   thread.offsetPc(1);
 }
 
-export function runLload_1(
+export function runLload1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -101,7 +101,7 @@ export function runLload_1(
   thread.offsetPc(1);
 }
 
-export function runLload_2(
+export function runLload2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -110,7 +110,7 @@ export function runLload_2(
   thread.offsetPc(1);
 }
 
-export function runLload_3(
+export function runLload3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -119,7 +119,7 @@ export function runLload_3(
   thread.offsetPc(1);
 }
 
-export function runFload_0(
+export function runFload0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -128,7 +128,7 @@ export function runFload_0(
   thread.offsetPc(1);
 }
 
-export function runFload_1(
+export function runFload1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -137,7 +137,7 @@ export function runFload_1(
   thread.offsetPc(1);
 }
 
-export function runFload_2(
+export function runFload2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -146,7 +146,7 @@ export function runFload_2(
   thread.offsetPc(1);
 }
 
-export function runFload_3(
+export function runFload3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -155,7 +155,7 @@ export function runFload_3(
   thread.offsetPc(1);
 }
 
-export function runDload_0(
+export function runDload0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -164,7 +164,7 @@ export function runDload_0(
   thread.offsetPc(1);
 }
 
-export function runDload_1(
+export function runDload1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -173,7 +173,7 @@ export function runDload_1(
   thread.offsetPc(1);
 }
 
-export function runDload_2(
+export function runDload2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -182,7 +182,7 @@ export function runDload_2(
   thread.offsetPc(1);
 }
 
-export function runDload_3(
+export function runDload3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -191,7 +191,7 @@ export function runDload_3(
   thread.offsetPc(1);
 }
 
-export function runAload_0(
+export function runAload0(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -200,7 +200,7 @@ export function runAload_0(
   thread.offsetPc(1);
 }
 
-export function runAload_1(
+export function runAload1(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -209,7 +209,7 @@ export function runAload_1(
   thread.offsetPc(1);
 }
 
-export function runAload_2(
+export function runAload2(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType
@@ -218,7 +218,7 @@ export function runAload_2(
   thread.offsetPc(1);
 }
 
-export function runAload_3(
+export function runAload3(
   thread: NativeThread,
   memoryArea: MemoryArea,
   instruction: InstructionType

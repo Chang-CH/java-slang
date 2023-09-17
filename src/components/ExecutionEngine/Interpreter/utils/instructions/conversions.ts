@@ -1,7 +1,7 @@
 import { MAX_INT, MIN_INT, MAX_LONG, MIN_LONG } from '#constants/DataType';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import MemoryArea from '#jvm/components/MemoryArea';
-import { InstructionType } from '#types/ClassFile/instructions';
+import { InstructionType } from '#types/ClassRef/instructions';
 
 export function runI2l(
   thread: NativeThread,
