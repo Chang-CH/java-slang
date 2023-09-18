@@ -6,9 +6,6 @@ import AbstractClassLoader from '..';
  * Reads classfile representation and loads it into memory area
  */
 export default class BootstrapClassLoader extends AbstractClassLoader {
-  // TODO: add classpath etc.
-  // TODO: store loaded classes here?
-
   constructor(os: JsSystem, classPath: string) {
     super(os, classPath, null);
   }
@@ -23,7 +20,6 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     onError?: (error: Error) => void
   ): void {
     console.debug(`BsCL: loading ${className}`);
-    // TODO: verify jvm loading path etc.
     const path = this.classPath ? this.classPath + '/' + className : className;
     let classFile;
     try {

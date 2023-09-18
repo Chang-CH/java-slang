@@ -22,32 +22,29 @@ export default abstract class AbstractClassLoader {
   }
 
   /**
-   * Prepares the class data by checking jvm constraints
+   * Prepares the class data by checking jvm constraints.
    * @param cls class data to check
    * @returns Error, if any
    */
   prepareClass(cls: ClassFile): void | Error {
-    console.warn('AbstractClassLoader.prepareClass: not implemented.');
     return;
   }
 
   /**
-   * Resolves symbolic references in the constant pool
+   * Resolves symbolic references in the constant pool.
    * @param cls class data to resolve
    * @returns class data with resolved references
    */
   linkClass(cls: ClassFile): ClassRef {
-    // TODO: convert constantString value to java string
     const data = new ClassRef(cls, this);
     return data;
   }
 
   /**
-   * Adds the resolved class data to the memory area
+   * Adds the resolved class data to the memory area.
    * @param cls resolved class data
    */
   loadClass(cls: ClassRef): void {
-    console.warn('AbstractClassLoader.loadClass: not implemented.');
     this.loadedClasses[this.getClassName(cls)] = cls;
   }
 
@@ -55,6 +52,13 @@ export default abstract class AbstractClassLoader {
     return cls.thisClass;
   }
 
+  /**
+   * Returns a reference to the class data of the class with the given name,
+   * loading the class if it is not found.
+   * @param className className to search for
+   * @param onError callback if an error occurs
+   * @returns object representing the class data of the class
+   */
   getClassRef(className: string, onError: (e: Error) => void): ClassRef {
     if (this.loadedClasses[className]) {
       return this.loadedClasses[className];
@@ -82,8 +86,10 @@ export default abstract class AbstractClassLoader {
   }
 
   /**
-   * Attempts to load a class file
+   * Attempts to load a class file.
    * @param className name of class to load
+   * @param onFinish callback if successful
+   * @param onError callback if an error occurs
    */
   abstract load(
     className: string,

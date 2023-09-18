@@ -3,10 +3,7 @@ import JsSystem from '#utils/JsSystem';
 import AbstractClassLoader from '..';
 
 export default class ClassLoader extends AbstractClassLoader {
-  // TODO: add classpath etc.
-  // TODO: store loaded classes here?
-  // TODO: store thisref etc. here, Java ClassLoader Reference
-
+  // TODO: store thisref here, Java ClassLoader Reference
   constructor(
     os: JsSystem,
     classPath: string,
@@ -25,7 +22,6 @@ export default class ClassLoader extends AbstractClassLoader {
     onError?: (error: Error) => void
   ): void {
     console.debug(`ClassLoader: loading ${className}`);
-    // TODO: verify jvm loading path etc.
     const path = this.classPath ? this.classPath + '/' + className : className;
 
     if (this.parentLoader) {
