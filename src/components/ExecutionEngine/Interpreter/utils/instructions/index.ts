@@ -470,13 +470,13 @@ export default function runInstruction(
       result = comparisons.runLcmp(thread, instruction);
       break;
     case OPCODE.FCMPL:
-      result = math.runFmul(thread, instruction);
+      result = comparisons.runFcmpl(thread, instruction);
       break;
     case OPCODE.FCMPG:
       result = comparisons.runFcmpg(thread, instruction);
       break;
     case OPCODE.DCMPL:
-      result = math.runDmul(thread, instruction);
+      result = comparisons.runDcmpl(thread, instruction);
       break;
     case OPCODE.DCMPG:
       result = comparisons.runDcmpg(thread, instruction);

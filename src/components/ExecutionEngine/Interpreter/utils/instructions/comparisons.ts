@@ -1,11 +1,7 @@
 import { InstructionType } from '#types/ClassRef/instructions';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
-export function runLcmp(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runLcmp(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value2 = thread.popStackWide();
   const value1 = thread.popStackWide();
@@ -23,11 +19,7 @@ export function runLcmp(
   thread.pushStack(0);
 }
 
-export function runFcmpl(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runFcmpl(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
@@ -49,11 +41,7 @@ export function runFcmpl(
   thread.pushStack(-1);
 }
 
-export function runFcmpg(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runFcmpg(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
@@ -75,11 +63,7 @@ export function runFcmpg(
   thread.pushStack(-1);
 }
 
-export function runDcmpl(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDcmpl(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value2 = thread.popStackWide();
   const value1 = thread.popStackWide();
@@ -101,11 +85,7 @@ export function runDcmpl(
   thread.pushStack(-1);
 }
 
-export function runDcmpg(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDcmpg(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value2 = thread.popStackWide();
   const value1 = thread.popStackWide();
@@ -127,11 +107,7 @@ export function runDcmpg(
   thread.pushStack(-1);
 }
 
-export function runIfeq(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runIfeq(thread: NativeThread, instruction: InstructionType) {
   if (thread.popStack() === 0) {
     thread.offsetPc(instruction.operands[0]);
     return;
@@ -139,11 +115,7 @@ export function runIfeq(
   thread.offsetPc(3);
 }
 
-export function runIfne(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runIfne(thread: NativeThread, instruction: InstructionType) {
   if (thread.popStack() !== 0) {
     thread.offsetPc(instruction.operands[0]);
     return;
@@ -151,11 +123,7 @@ export function runIfne(
   thread.offsetPc(3);
 }
 
-export function runIflt(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runIflt(thread: NativeThread, instruction: InstructionType) {
   if (thread.popStack() < 0) {
     thread.offsetPc(instruction.operands[0]);
     return;
@@ -163,11 +131,7 @@ export function runIflt(
   thread.offsetPc(3);
 }
 
-export function runIfge(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runIfge(thread: NativeThread, instruction: InstructionType) {
   if (thread.popStack() >= 0) {
     thread.offsetPc(instruction.operands[0]);
     return;
@@ -175,11 +139,7 @@ export function runIfge(
   thread.offsetPc(3);
 }
 
-export function runIfgt(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runIfgt(thread: NativeThread, instruction: InstructionType) {
   if (thread.popStack() > 0) {
     thread.offsetPc(instruction.operands[0]);
     return;
@@ -187,11 +147,7 @@ export function runIfgt(
   thread.offsetPc(3);
 }
 
-export function runIfle(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runIfle(thread: NativeThread, instruction: InstructionType) {
   if (thread.popStack() <= 0) {
     thread.offsetPc(instruction.operands[0]);
     return;
@@ -201,7 +157,6 @@ export function runIfle(
 
 export function runIfIcmpeq(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -216,7 +171,6 @@ export function runIfIcmpeq(
 
 export function runIfIcmpne(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -231,7 +185,6 @@ export function runIfIcmpne(
 
 export function runIfIcmplt(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -246,7 +199,6 @@ export function runIfIcmplt(
 
 export function runIfIcmpge(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -261,7 +213,6 @@ export function runIfIcmpge(
 
 export function runIfIcmpgt(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -276,7 +227,6 @@ export function runIfIcmpgt(
 
 export function runIfIcmple(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -291,7 +241,6 @@ export function runIfIcmple(
 
 export function runIfAcmpeq(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
@@ -306,7 +255,6 @@ export function runIfAcmpeq(
 
 export function runIfAcmpne(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const value2 = thread.popStack();
