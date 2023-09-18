@@ -16,7 +16,6 @@ import * as stores from './stores';
 
 export default function runInstruction(
   thread: NativeThread,
-
   instruction: InstructionType
 ): void {
   let result;

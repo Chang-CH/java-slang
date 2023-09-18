@@ -2,40 +2,24 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 
 import { InstructionType } from '#types/ClassRef/instructions';
 
-export function runPop(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runPop(thread: NativeThread, instruction: InstructionType) {
   thread.popStack();
   thread.offsetPc(1);
 }
 
-export function runPop2(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runPop2(thread: NativeThread, instruction: InstructionType) {
   thread.popStackWide();
   thread.offsetPc(1);
 }
 
-export function runDup(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDup(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
   thread.pushStack(value);
   thread.pushStack(value);
   thread.offsetPc(1);
 }
 
-export function runDupX1(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDupX1(thread: NativeThread, instruction: InstructionType) {
   const value1 = thread.popStack();
   const value2 = thread.popStack();
   thread.pushStack(value1);
@@ -44,11 +28,7 @@ export function runDupX1(
   thread.offsetPc(1);
 }
 
-export function runDupX2(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDupX2(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -59,11 +39,7 @@ export function runDupX2(
   thread.pushStack(value1);
 }
 
-export function runDup2(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDup2(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -73,11 +49,7 @@ export function runDup2(
   thread.pushStack(value1);
 }
 
-export function runDup2X1(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDup2X1(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -89,11 +61,7 @@ export function runDup2X1(
   thread.pushStack(value1);
 }
 
-export function runDup2X2(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runDup2X2(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -107,11 +75,7 @@ export function runDup2X2(
   thread.pushStack(value1);
 }
 
-export function runSwap(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runSwap(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();

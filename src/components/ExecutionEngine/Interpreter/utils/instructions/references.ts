@@ -15,7 +15,6 @@ import { ConstantClass } from '#types/ClassRef/constants';
 
 export function runGetstatic(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -64,7 +63,6 @@ export function runGetstatic(
 
 export function runPutstatic(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClass();
@@ -112,7 +110,6 @@ export function runPutstatic(
 
 export function runGetfield(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -151,7 +148,6 @@ export function runGetfield(
 
 export function runPutfield(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -196,7 +192,6 @@ export function runPutfield(
 
 export function runInvokevirtual(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -254,7 +249,6 @@ export function runInvokevirtual(
 
 export function runInvokespecial(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -312,7 +306,6 @@ export function runInvokespecial(
 
 export function runInvokestatic(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -370,7 +363,6 @@ export function runInvokestatic(
 
 export function runInvokeinterface(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -425,7 +417,6 @@ export function runInvokeinterface(
 
 export function runInvokedynamic(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   // Mainly used by Java8 natives
@@ -439,11 +430,7 @@ export function runInvokedynamic(
   throw new Error('invokedynamic: not implemented');
 }
 
-export function runNew(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runNew(thread: NativeThread, instruction: InstructionType) {
   const invoker = thread.getClassName();
   const type = instruction.operands[0];
   const className = thread
@@ -464,7 +451,6 @@ export function runNew(
 
 export function runNewarray(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const count = thread.popStack();
@@ -476,7 +462,6 @@ export function runNewarray(
 
 export function runAnewarray(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const invoker = thread.getClassName();
@@ -494,7 +479,6 @@ export function runAnewarray(
 
 export function runArraylength(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const arrayref = thread.popStack() as JavaArray;
@@ -502,11 +486,7 @@ export function runArraylength(
   thread.offsetPc(1);
 }
 
-export function runAthrow(
-  thread: NativeThread,
-
-  instruction: InstructionType
-) {
+export function runAthrow(thread: NativeThread, instruction: InstructionType) {
   const exception = thread.popStack();
   thread.throwException(exception);
   // TODO: throw Java error
@@ -516,7 +496,6 @@ export function runAthrow(
 
 export function runCheckcast(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   if (thread.popStack() === null) {
@@ -538,7 +517,6 @@ export function runCheckcast(
 
 export function runInstanceof(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   const ref = thread.popStack() as JavaReference;
@@ -570,7 +548,6 @@ export function runInstanceof(
 
 export function runMonitorenter(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   throw new Error('runInstruction: Not implemented');
@@ -578,7 +555,6 @@ export function runMonitorenter(
 
 export function runMonitorexit(
   thread: NativeThread,
-
   instruction: InstructionType
 ) {
   throw new Error('runInstruction: Not implemented');
