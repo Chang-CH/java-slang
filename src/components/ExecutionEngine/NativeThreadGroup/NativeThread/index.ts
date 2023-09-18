@@ -95,22 +95,19 @@ export default class NativeThread {
 
   popStackWide() {
     if (this.stack?.[this.stackPointer]?.operandStack?.length <= 1) {
-      throw new Error('JVM Stack underflow');
-      // TODO: throw java error
+      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
     }
     this.stack?.[this.stackPointer]?.operandStack?.pop();
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
     if (value === undefined) {
-      throw new Error('JVM Stack underflow');
-      // TODO: throw java error
+      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
     }
     return value;
   }
 
   popStack() {
     if (this.stack?.[this.stackPointer]?.operandStack?.length <= 0) {
-      throw new Error('JVM Stack underflow');
-      // TODO: throw java error
+      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
     }
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
     return value;
