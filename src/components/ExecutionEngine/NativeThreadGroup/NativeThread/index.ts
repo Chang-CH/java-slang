@@ -11,33 +11,30 @@ import {
 import { readInstruction } from '../../Interpreter/utils/readInstruction';
 
 export default class NativeThread {
-  stack: StackFrame[];
-  stackPointer: number;
-  javaThis?: JavaReference;
-  cls: ClassRef;
+  private stack: StackFrame[];
+  private stackPointer: number;
+  private javaThis?: JavaReference;
+  private cls: ClassRef;
 
-  constructor(
-    threadClass: ClassRef,
-    javaThis: JavaReference,
-    initialFrame: StackFrame
-  ) {
+  constructor(threadClass: ClassRef, javaThis: JavaReference) {
     this.cls = threadClass;
     this.javaThis = javaThis;
-    this.stack = [initialFrame];
-    this.stackPointer = 0;
+    this.stack = [];
+    this.stackPointer = -1;
   }
 
   getCurrentInstruction(): InstructionType | NativeMethodRef | undefined {
     const currentFrame = this.stack?.[this.stackPointer];
 
     if (!currentFrame) {
+      console.debug('No current frame', this.stack);
       return;
     }
 
     // Instruction is a native method
     if (checkNative(currentFrame.method) || !currentFrame.method.code) {
       return {
-        className: currentFrame.class.thisClass,
+        className: currentFrame.class.getClassname(),
         methodName: currentFrame.method.name + currentFrame.method.descriptor,
         native: true,
       };
@@ -59,13 +56,9 @@ export default class NativeThread {
   }
 
   getClassName(): string {
-    return this.stack[this.stackPointer].class.thisClass;
+    return this.stack[this.stackPointer].class.getClassname();
   }
 
-  /**
-   * Gets the class ref containing the current method being executed
-   * @returns method class ref
-   */
   getClass(): ClassRef {
     return this.stack[this.stackPointer].class;
   }
@@ -116,7 +109,6 @@ export default class NativeThread {
   popStackFrame() {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
-    // TODO: remove thread from threadpool?
   }
 
   pushStackFrame(frame: StackFrame) {
@@ -145,14 +137,6 @@ export default class NativeThread {
 
     // Initialize exception
     // TODO: push msg to stack
-    // this.pushStackFrame({
-    //   operandStack: [],
-    //   className: className,
-    //   methodName: '<init>(Ljava/lang/String;)V',
-    //   pc: 0,
-    //   this: undefined,
-    //   locals: [],
-    // });
     const objectref = new JavaReference(
       this.getClass()
         .getLoader()
@@ -185,8 +169,10 @@ export default class NativeThread {
     this.pushStackFrame({
       operandStack: [],
       class: this.cls,
-      method:
-        this.cls.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V'],
+      method: this.cls.getMethod(
+        this,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      ),
       pc: 0,
       locals: [this.javaThis, exception],
     });

@@ -1,7 +1,7 @@
 import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { ArrayType, JavaArray, JavaType } from '#types/DataTypes';
 export class JNI {
-  classes: {
+  private classes: {
     [className: string]: {
       methods: {
         [methodName: string]: Function;
@@ -10,19 +10,12 @@ export class JNI {
   };
 
   constructor() {
-    this.classes = {
-      'java/lang/Thread$UncaughtExceptionHandler': {
-        methods: {
-          'uncaughtException(Ljava/lang/Thread;Ljava/lang/Throwable;)V':
-            () => {},
-        },
-      },
-    };
+    this.classes = {};
   }
 
   getNativeMethod(className: string, methodName: string) {
-    // FIXME: hacky way to generate empty functions
     if (!this.classes?.[className]?.methods?.[methodName]) {
+      // FIXME: Returns an empty function for now, but should throw an error
       console.error(
         `Native method ${className}.${methodName} implementation not found, returning dummy function`
       );

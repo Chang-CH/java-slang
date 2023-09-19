@@ -237,7 +237,7 @@ export function runInvokevirtual(
   thread.pushStackFrame({
     class: classRef,
     operandStack: [],
-    method: classRef.methods[methodName + methodDescriptor],
+    method: classRef.getMethod(thread, methodName + methodDescriptor),
     pc: 0,
     locals: [thisObj],
   });
@@ -297,7 +297,7 @@ export function runInvokespecial(
   thread.pushStackFrame({
     class: classRef,
     operandStack: [],
-    method: classRef.methods[methodName + methodDescriptor],
+    method: classRef.getMethod(thread, methodName + methodDescriptor),
     pc: 0,
     locals: [thisObj, ...args],
   });
@@ -408,7 +408,7 @@ export function runInvokeinterface(
   thread.pushStackFrame({
     class: classRef,
     operandStack: [],
-    method: classRef.methods[methodName + methodDescriptor],
+    method: classRef.getMethod(thread, methodName + methodDescriptor),
     pc: 0,
     locals: [thisObj],
   });
@@ -530,8 +530,8 @@ export function runInstanceof(
   if (cls.tag === CONSTANT_TAG.constantClass) {
     const classRef = (cls as ConstantClass).ref;
     if (
-      ref.cls.thisClass === classRef.thisClass ||
-      ref.cls.interfaces.includes(classRef.thisClass)
+      ref.getClass().getClassname() === classRef.getClassname() ||
+      ref.getClass().getInterfaces().includes(classRef.getClassname())
     ) {
       thread.pushStack(1);
     } else {

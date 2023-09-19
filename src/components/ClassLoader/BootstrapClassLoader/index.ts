@@ -6,8 +6,8 @@ import AbstractClassLoader from '..';
  * Reads classfile representation and loads it into memory area
  */
 export default class BootstrapClassLoader extends AbstractClassLoader {
-  constructor(os: JsSystem, classPath: string) {
-    super(os, classPath, null);
+  constructor( os: JsSystem, classPath: string) {
+    super( os, classPath, null);
   }
 
   /**

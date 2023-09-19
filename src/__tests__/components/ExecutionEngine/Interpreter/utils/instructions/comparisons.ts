@@ -25,11 +25,12 @@ beforeEach(() => {
 
   threadClass = bscl.getClassRef('java/lang/Thread', console.error) as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
-  thread = new NativeThread(threadClass, javaThread, {
+  thread = new NativeThread(threadClass, javaThread);
+  thread.pushStackFrame({
     operandStack: [],
     locals: [],
     class: threadClass,
-    method: threadClass.methods[''],
+    method: threadClass.getMethod(thread, '<init>()V'),
     pc: 0,
   });
 });
@@ -42,7 +43,7 @@ describe('runLcmp', () => {
       opcode: OPCODE.LCMP,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -57,7 +58,7 @@ describe('runLcmp', () => {
       opcode: OPCODE.LCMP,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -72,7 +73,7 @@ describe('runLcmp', () => {
       opcode: OPCODE.LCMP,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -89,7 +90,7 @@ describe('runFcmpl', () => {
       opcode: OPCODE.FCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -104,7 +105,7 @@ describe('runFcmpl', () => {
       opcode: OPCODE.FCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -119,7 +120,7 @@ describe('runFcmpl', () => {
       opcode: OPCODE.FCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -134,7 +135,7 @@ describe('runFcmpl', () => {
       opcode: OPCODE.FCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -149,7 +150,7 @@ describe('runFcmpl', () => {
       opcode: OPCODE.FCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -164,7 +165,7 @@ describe('runFcmpl', () => {
       opcode: OPCODE.FCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -179,7 +180,7 @@ describe('runFcmpl', () => {
       opcode: OPCODE.FCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -196,7 +197,7 @@ describe('runFcmpg', () => {
       opcode: OPCODE.FCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -211,7 +212,7 @@ describe('runFcmpg', () => {
       opcode: OPCODE.FCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -226,7 +227,7 @@ describe('runFcmpg', () => {
       opcode: OPCODE.FCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -241,7 +242,7 @@ describe('runFcmpg', () => {
       opcode: OPCODE.FCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -256,7 +257,7 @@ describe('runFcmpg', () => {
       opcode: OPCODE.FCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -271,7 +272,7 @@ describe('runFcmpg', () => {
       opcode: OPCODE.FCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -286,7 +287,7 @@ describe('runFcmpg', () => {
       opcode: OPCODE.FCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -303,7 +304,7 @@ describe('runDcmpl', () => {
       opcode: OPCODE.DCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -318,7 +319,7 @@ describe('runDcmpl', () => {
       opcode: OPCODE.DCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -333,7 +334,7 @@ describe('runDcmpl', () => {
       opcode: OPCODE.DCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -348,7 +349,7 @@ describe('runDcmpl', () => {
       opcode: OPCODE.DCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -363,7 +364,7 @@ describe('runDcmpl', () => {
       opcode: OPCODE.DCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -378,7 +379,7 @@ describe('runDcmpl', () => {
       opcode: OPCODE.DCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -393,7 +394,7 @@ describe('runDcmpl', () => {
       opcode: OPCODE.DCMPL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -410,7 +411,7 @@ describe('runDcmpg', () => {
       opcode: OPCODE.DCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -425,7 +426,7 @@ describe('runDcmpg', () => {
       opcode: OPCODE.DCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -440,7 +441,7 @@ describe('runDcmpg', () => {
       opcode: OPCODE.DCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -455,7 +456,7 @@ describe('runDcmpg', () => {
       opcode: OPCODE.DCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -470,7 +471,7 @@ describe('runDcmpg', () => {
       opcode: OPCODE.DCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -485,7 +486,7 @@ describe('runDcmpg', () => {
       opcode: OPCODE.DCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -500,7 +501,7 @@ describe('runDcmpg', () => {
       opcode: OPCODE.DCMPG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -516,7 +517,7 @@ describe('runIfeq', () => {
       opcode: OPCODE.IFEQ,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -529,7 +530,7 @@ describe('runIfeq', () => {
       opcode: OPCODE.IFEQ,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -542,7 +543,7 @@ describe('runIfeq', () => {
       opcode: OPCODE.IFEQ,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -557,7 +558,7 @@ describe('runIfne', () => {
       opcode: OPCODE.IFNE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -570,7 +571,7 @@ describe('runIfne', () => {
       opcode: OPCODE.IFNE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -583,7 +584,7 @@ describe('runIfne', () => {
       opcode: OPCODE.IFNE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -598,7 +599,7 @@ describe('runIflt', () => {
       opcode: OPCODE.IFLT,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -611,7 +612,7 @@ describe('runIflt', () => {
       opcode: OPCODE.IFLT,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -624,7 +625,7 @@ describe('runIflt', () => {
       opcode: OPCODE.IFLT,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -639,7 +640,7 @@ describe('runIfge', () => {
       opcode: OPCODE.IFGE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -652,7 +653,7 @@ describe('runIfge', () => {
       opcode: OPCODE.IFGE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -665,7 +666,7 @@ describe('runIfge', () => {
       opcode: OPCODE.IFGE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -678,7 +679,7 @@ describe('runIfge', () => {
       opcode: OPCODE.IFGE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -693,7 +694,7 @@ describe('runIfgt', () => {
       opcode: OPCODE.IFGT,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -706,7 +707,7 @@ describe('runIfgt', () => {
       opcode: OPCODE.IFGT,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -719,7 +720,7 @@ describe('runIfgt', () => {
       opcode: OPCODE.IFGT,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -732,7 +733,7 @@ describe('runIfgt', () => {
       opcode: OPCODE.IFGT,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -747,7 +748,7 @@ describe('runIfle', () => {
       opcode: OPCODE.IFLE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -760,7 +761,7 @@ describe('runIfle', () => {
       opcode: OPCODE.IFLE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -773,7 +774,7 @@ describe('runIfle', () => {
       opcode: OPCODE.IFLE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -786,7 +787,7 @@ describe('runIfle', () => {
       opcode: OPCODE.IFLE,
       operands: [10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);

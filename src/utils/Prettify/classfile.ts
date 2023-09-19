@@ -1,9 +1,9 @@
-// @ts-nocheck
+import { readInstruction } from '#jvm/components/ExecutionEngine/Interpreter/utils/readInstruction';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { readInstruction } from '#jvm/components/ExecutionEngine/Interpreter/utils/instructions/readInstruction';
-import { ClassFile } from '#jvm/external/ClassFile';
+import { ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { FIELDFLAGS } from '#jvm/external/ClassFile/types/fields';
 import { METHODFLAGS } from '#jvm/external/ClassFile/types/methods';
 
 /**
@@ -71,7 +71,8 @@ function resolveReferences(cls: any) {
    * Convert methods to string
    */
   result.methods = Object.entries(cls.methods).map(
-    ([name, method], index: number) => {
+    ([name, data], index: number) => {
+      const method: any = data;
       const methodname = method.name;
       const descriptor = method.descriptor;
       const attributes = method.attributes.map((attribute: any) => {

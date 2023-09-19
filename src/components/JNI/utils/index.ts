@@ -11,6 +11,6 @@ export function initString(strClass: ClassRef, str: string) {
   var strObj = new JavaReference(strClass, {
     'java/lang/String/value': charArr,
   });
-  // TODO: init string obj
+  // TODO: string <init>()V
   return strObj;
 }

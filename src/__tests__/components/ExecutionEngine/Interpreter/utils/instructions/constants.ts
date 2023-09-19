@@ -38,11 +38,12 @@ beforeEach(() => {
 
   threadClass = bscl.getClassRef('java/lang/Thread', console.error) as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
-  thread = new NativeThread(threadClass, javaThread, {
+  thread = new NativeThread(threadClass, javaThread);
+  thread.pushStackFrame({
     operandStack: [],
     locals: [],
     class: threadClass,
-    method: threadClass.methods[''],
+    method: threadClass.getMethod(thread, '<init>()V'),
     pc: 0,
   });
 });
@@ -53,7 +54,7 @@ describe('runNop', () => {
       opcode: OPCODE.NOP,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -67,7 +68,7 @@ describe('runAconstNull', () => {
       opcode: OPCODE.ACONSTNULL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(null);
@@ -82,7 +83,7 @@ describe('runIconstM1', () => {
       opcode: OPCODE.ICONSTM1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -97,7 +98,7 @@ describe('runIconst0', () => {
       opcode: OPCODE.ICONST0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -112,7 +113,7 @@ describe('runIconst1', () => {
       opcode: OPCODE.ICONST1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -127,7 +128,7 @@ describe('runIconst2', () => {
       opcode: OPCODE.ICONST2,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
@@ -142,7 +143,7 @@ describe('runIconst3', () => {
       opcode: OPCODE.ICONST3,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
@@ -157,7 +158,7 @@ describe('runIconst4', () => {
       opcode: OPCODE.ICONST4,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4);
@@ -172,7 +173,7 @@ describe('runIconst5', () => {
       opcode: OPCODE.ICONST5,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(5);
@@ -187,7 +188,7 @@ describe('runLconst0', () => {
       opcode: OPCODE.LCONST0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -202,7 +203,7 @@ describe('runLconst1', () => {
       opcode: OPCODE.LCONST1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -217,7 +218,7 @@ describe('runFconst0', () => {
       opcode: OPCODE.FCONST0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.0));
@@ -232,7 +233,7 @@ describe('runFconst1', () => {
       opcode: OPCODE.FCONST1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(1.0));
@@ -247,7 +248,7 @@ describe('runFconst2', () => {
       opcode: OPCODE.FCONST2,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(2.0));
@@ -262,7 +263,7 @@ describe('runDconst0', () => {
       opcode: OPCODE.DCONST0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.0);
@@ -277,7 +278,7 @@ describe('runDconst1', () => {
       opcode: OPCODE.DCONST1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -292,7 +293,7 @@ describe('runBipush', () => {
       opcode: OPCODE.BIPUSH,
       operands: [0xff],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0xff);
@@ -307,7 +308,7 @@ describe('runSipush', () => {
       opcode: OPCODE.SIPUSH,
       operands: [0xffff],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0xffff);
@@ -322,12 +323,12 @@ describe('runLdc', () => {
       tag: CONSTANT_TAG.constantInteger,
       value: -99,
     };
-    threadClass.constantPool[0] = intConstant;
+    (threadClass as any).constantPool[0] = intConstant;
     runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-99);
@@ -340,12 +341,12 @@ describe('runLdc', () => {
       tag: CONSTANT_TAG.constantFloat,
       value: Math.fround(-0.3),
     };
-    threadClass.constantPool[0] = intConstant;
+    (threadClass as any).constantPool[0] = intConstant;
     runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(-0.3));
@@ -367,13 +368,13 @@ describe('runLdc', () => {
       ref: strRef,
       stringIndex: 0,
     } as ConstantString;
-    threadClass.constantPool[0] = strConstant;
+    (threadClass as any).constantPool[0] = strConstant;
 
     runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(strRef); // string literals should be same object
@@ -391,14 +392,14 @@ describe('runLdc', () => {
       tag: CONSTANT_TAG.constantUtf8,
       value: 'hello world',
     } as ConstantUtf8Info;
-    threadClass.constantPool[0] = strConstant;
-    threadClass.constantPool[1] = strContent;
+    (threadClass as any).constantPool[0] = strConstant;
+    (threadClass as any).constantPool[1] = strContent;
 
     runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe((strConstant as ConstantString).ref); // string literals should be same object
@@ -414,13 +415,13 @@ describe('runLdc', () => {
       nameIndex: 1,
       ref: clsRef,
     } as ConstantClass;
-    threadClass.constantPool[0] = classRef;
+    (threadClass as any).constantPool[0] = classRef;
 
     runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(clsRef);
@@ -437,14 +438,14 @@ describe('runLdc', () => {
       tag: CONSTANT_TAG.constantUtf8,
       value: 'java/lang/Thread',
     } as ConstantUtf8Info;
-    threadClass.constantPool[0] = classRef;
-    threadClass.constantPool[1] = className;
+    (threadClass as any).constantPool[0] = classRef;
+    (threadClass as any).constantPool[1] = className;
 
     runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe((classRef as ConstantClass).ref);
@@ -461,13 +462,13 @@ describe('runLdc', () => {
       nameAndTypeIndex: 1,
       ref: methodRef,
     } as ConstantMethodref;
-    threadClass.constantPool[0] = constMethod;
+    (threadClass as any).constantPool[0] = constMethod;
 
     runInstruction(thread, {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(methodRef);
@@ -476,31 +477,31 @@ describe('runLdc', () => {
   });
 
   test('initializes uninitialized method from constant pool', () => {
-    threadClass.constantPool[0] = {
+    (threadClass as any).constantPool[0] = {
       tag: CONSTANT_TAG.constantMethodref,
       classIndex: 1,
       nameAndTypeIndex: 3,
     };
-    threadClass.constantPool[1] = {
+    (threadClass as any).constantPool[1] = {
       tag: CONSTANT_TAG.constantClass,
       nameIndex: 2,
     };
-    threadClass.constantPool[2] = {
+    (threadClass as any).constantPool[2] = {
       tag: CONSTANT_TAG.constantUtf8,
       value: 'java/lang/Thread',
       length: 30,
     };
-    threadClass.constantPool[3] = {
+    (threadClass as any).constantPool[3] = {
       tag: CONSTANT_TAG.constantNameAndType,
       nameIndex: 4,
       descriptorIndex: 5,
     };
-    threadClass.constantPool[4] = {
+    (threadClass as any).constantPool[4] = {
       tag: CONSTANT_TAG.constantUtf8,
       value: '<init>',
       length: 30,
     };
-    threadClass.constantPool[5] = {
+    (threadClass as any).constantPool[5] = {
       tag: CONSTANT_TAG.constantUtf8,
       value: '()V',
       length: 30,
@@ -510,11 +511,11 @@ describe('runLdc', () => {
       opcode: OPCODE.LDC,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(
-      (threadClass.constantPool[0] as ConstantMethodref).ref
+      ((threadClass as any).constantPool[0] as ConstantMethodref).ref
     );
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
@@ -528,12 +529,12 @@ describe('runLdcW', () => {
       tag: CONSTANT_TAG.constantInteger,
       value: -99,
     };
-    threadClass.constantPool[0] = intConstant;
+    (threadClass as any).constantPool[0] = intConstant;
     runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-99);
@@ -546,12 +547,12 @@ describe('runLdcW', () => {
       tag: CONSTANT_TAG.constantFloat,
       value: Math.fround(-0.3),
     };
-    threadClass.constantPool[0] = intConstant;
+    (threadClass as any).constantPool[0] = intConstant;
     runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(-0.3));
@@ -560,8 +561,6 @@ describe('runLdcW', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    // TODO: create new helper function, initialize String there.
-    // TODO: Constant string should be a string reference object.
     tryInitialize(thread, 'java/lang/String');
     const strClass = thread
       .getClass()
@@ -575,13 +574,13 @@ describe('runLdcW', () => {
       ref: strRef,
       stringIndex: 0,
     } as ConstantString;
-    threadClass.constantPool[0] = strConstant;
+    (threadClass as any).constantPool[0] = strConstant;
 
     runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(strRef); // string literals should be same object
@@ -599,14 +598,14 @@ describe('runLdcW', () => {
       tag: CONSTANT_TAG.constantUtf8,
       value: 'hello world',
     } as ConstantUtf8Info;
-    threadClass.constantPool[0] = strConstant;
-    threadClass.constantPool[1] = strContent;
+    (threadClass as any).constantPool[0] = strConstant;
+    (threadClass as any).constantPool[1] = strContent;
 
     runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe((strConstant as ConstantString).ref); // string literals should be same object
@@ -622,13 +621,13 @@ describe('runLdcW', () => {
       nameIndex: 1,
       ref: clsRef,
     } as ConstantClass;
-    threadClass.constantPool[0] = classRef;
+    (threadClass as any).constantPool[0] = classRef;
 
     runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(clsRef);
@@ -645,14 +644,14 @@ describe('runLdcW', () => {
       tag: CONSTANT_TAG.constantUtf8,
       value: 'java/lang/Thread',
     } as ConstantUtf8Info;
-    threadClass.constantPool[0] = classRef;
-    threadClass.constantPool[1] = className;
+    (threadClass as any).constantPool[0] = classRef;
+    (threadClass as any).constantPool[1] = className;
 
     runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe((classRef as ConstantClass).ref);
@@ -669,12 +668,12 @@ describe('runLdcW', () => {
       nameAndTypeIndex: 99,
       ref: methodRef,
     } as ConstantMethodref;
-    threadClass.constantPool[0] = constMethod;
+    (threadClass as any).constantPool[0] = constMethod;
     runInstruction(thread, {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(methodRef);
@@ -683,31 +682,31 @@ describe('runLdcW', () => {
   });
 
   test('initializes uninitialized method from constant pool', () => {
-    threadClass.constantPool[0] = {
+    (threadClass as any).constantPool[0] = {
       tag: CONSTANT_TAG.constantMethodref,
       classIndex: 1,
       nameAndTypeIndex: 3,
     };
-    threadClass.constantPool[1] = {
+    (threadClass as any).constantPool[1] = {
       tag: CONSTANT_TAG.constantClass,
       nameIndex: 2,
     };
-    threadClass.constantPool[2] = {
+    (threadClass as any).constantPool[2] = {
       tag: CONSTANT_TAG.constantUtf8,
       value: 'java/lang/Thread',
       length: 30,
     };
-    threadClass.constantPool[3] = {
+    (threadClass as any).constantPool[3] = {
       tag: CONSTANT_TAG.constantNameAndType,
       nameIndex: 4,
       descriptorIndex: 5,
     };
-    threadClass.constantPool[4] = {
+    (threadClass as any).constantPool[4] = {
       tag: CONSTANT_TAG.constantUtf8,
       value: '<init>',
       length: 30,
     };
-    threadClass.constantPool[5] = {
+    (threadClass as any).constantPool[5] = {
       tag: CONSTANT_TAG.constantUtf8,
       value: '()V',
       length: 30,
@@ -717,11 +716,11 @@ describe('runLdcW', () => {
       opcode: OPCODE.LDCW,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(
-      (threadClass.constantPool[0] as ConstantMethodref).ref
+      ((threadClass as any).constantPool[0] as ConstantMethodref).ref
     );
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
@@ -735,12 +734,12 @@ describe('runLdc2W', () => {
       tag: CONSTANT_TAG.constantLong,
       value: 99n,
     };
-    threadClass.constantPool[0] = longConstant;
+    (threadClass as any).constantPool[0] = longConstant;
     runInstruction(thread, {
       opcode: OPCODE.LDC2W,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(99n);
@@ -753,12 +752,12 @@ describe('runLdc2W', () => {
       tag: CONSTANT_TAG.constantDouble,
       value: -0.3,
     };
-    threadClass.constantPool[0] = intConstant;
+    (threadClass as any).constantPool[0] = intConstant;
     runInstruction(thread, {
       opcode: OPCODE.LDC2W,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-0.3);

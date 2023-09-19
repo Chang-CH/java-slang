@@ -69,14 +69,18 @@ export class JavaArray {
 }
 
 export class JavaReference {
-  cls: ClassRef;
-  fields: {
+  private cls: ClassRef;
+  private fields: {
     [key: string]: any;
   };
 
   constructor(cls: ClassRef, fields: { [key: string]: any }) {
     this.cls = cls;
     this.fields = fields;
+  }
+
+  getClass() {
+    return this.cls;
   }
 
   getField(name: string) {

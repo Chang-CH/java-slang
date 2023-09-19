@@ -49,7 +49,7 @@ export default abstract class AbstractClassLoader {
   }
 
   getClassName(cls: ClassRef): string {
-    return cls.thisClass;
+    return cls.getClassname();
   }
 
   /**

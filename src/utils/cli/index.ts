@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-import { JNI } from '#jvm/components/JNI';
 
 import JVM from '#jvm/index';
 import JsSystem, { Folder } from '#utils/JsSystem';
@@ -70,7 +69,7 @@ export default function main() {
         Sample: view,
       });
 
-      const bscl = new BootstrapClassLoader(memory, os, 'natives');
+      const bscl = new BootstrapClassLoader(os, 'natives');
       const cls = parseBin(view);
       console.debug(classFileToText(cls));
     }

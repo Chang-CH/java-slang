@@ -10,7 +10,6 @@ import {
 import {
   ConstantClassInfo,
   ConstantNameAndTypeInfo,
-  ConstantType,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { FieldType } from '#jvm/external/ClassFile/types/fields';
@@ -24,43 +23,33 @@ import {
 
 // TODO: after resolving one method, e.g. methodref, can change it to the actual method object.
 export class ClassRef {
-  magic: number;
-  minorVersion: number;
-  majorVersion: number;
+  public isInitialized: boolean = false;
 
-  loader: AbstractClassLoader;
-  isInitialized: boolean;
+  private loader: AbstractClassLoader;
 
-  constantPool: Array<ConstantRef>;
-  accessFlags: number;
+  private constantPool: Array<ConstantRef>;
+  private accessFlags: number;
 
-  thisClass: string;
-  superClass: string | ClassRef;
+  private thisClass: string;
+  private superClass: number | ClassRef;
 
-  interfaces: Array<string | ClassRef>;
+  private interfaces: Array<string | ClassRef>;
 
-  fields: {
+  private fields: {
     [fieldName: string]: FieldType;
   };
 
-  methods: {
+  private methods: {
     [methodName: string]: MethodType;
   };
 
-  BootstrapMethods?: AttributeBootstrapMethods;
-  attributes: Array<AttributeType>;
+  private bootstrapMethods?: AttributeBootstrapMethods;
+  private attributes: Array<AttributeType>;
 
   constructor(classfile: ClassFile, loader: AbstractClassLoader) {
-    this.magic = classfile.magic;
-    this.minorVersion = classfile.minorVersion;
-    this.majorVersion = classfile.majorVersion;
-
     this.constantPool = classfile.constantPool;
     this.accessFlags = classfile.accessFlags;
 
-    this.isInitialized = false;
-
-    // // Resolve class name
     const clsInfo = classfile.constantPool[
       classfile.thisClass
     ] as ConstantClassInfo;
@@ -69,14 +58,7 @@ export class ClassRef {
     ] as ConstantUtf8Info;
     this.thisClass = clsName.value;
 
-    // // Resolve super class name
-    const sClsInfo = classfile.constantPool[
-      classfile.superClass
-    ] as ConstantClassInfo;
-    const sClsName = classfile.constantPool[
-      sClsInfo.nameIndex
-    ] as ConstantUtf8Info;
-    this.superClass = sClsName.value;
+    this.superClass = classfile.superClass;
 
     this.interfaces = classfile.interfaces;
 
@@ -152,25 +134,9 @@ export class ClassRef {
     );
   }
 
-  getMethod(thread: NativeThread, methodName: string): MethodType {
-    return this.methods[methodName];
-  }
-
-  getInstruction(
-    thread: NativeThread,
-    methodName: string,
-    offset: number
-  ): any {
-    return this.methods[methodName].code;
-  }
-
-  getLoader(): AbstractClassLoader {
-    return this.loader;
-  }
-
   resolveReference(thread: NativeThread, ref: ConstantRef) {
+    // ref has been resolved, return
     if ((ref as ConstantMethodref).ref) {
-      // workaround for ts2339
       return;
     }
 
@@ -189,6 +155,13 @@ export class ClassRef {
         this.resolveStringRef(thread, ref as ConstantString);
         break;
     }
+  }
+
+  /**
+   * Getters
+   */
+  getLoader(): AbstractClassLoader {
+    return this.loader;
   }
 
   getConstant(thread: NativeThread, constantIndex: number): any {
@@ -217,6 +190,33 @@ export class ClassRef {
     return constItem;
   }
 
+  checkAccess(): number {
+    return this.accessFlags;
+  }
+
+  getClassname(): string {
+    return this.thisClass;
+  }
+
+  getSuperClass(thread: NativeThread): ClassRef {
+    // resolve superclass if not resolved
+    if (typeof this.superClass === 'number') {
+      const constantClass = this.getConstant(thread, this.superClass);
+      this.resolveReference(thread, constantClass);
+    }
+
+    return this.superClass as ClassRef;
+  }
+
+  getInterfaces() {
+    return this.interfaces;
+  }
+
+  getMethod(thread: NativeThread, methodName: string): MethodType {
+    // TODO: throw error if method not found
+    return this.methods[methodName];
+  }
+
   getStatic(thread: NativeThread, fieldName: string): any {
     // TODO: check initialised
     // TODO: resolve ref if necessary
@@ -229,6 +229,9 @@ export class ClassRef {
     return this.fields[fieldName].data;
   }
 
+  /**
+   * Setters
+   */
   putStatic(thread: NativeThread, fieldName: string, value: any): void {
     // TODO: check initialised
     this.fields[fieldName].data = value;

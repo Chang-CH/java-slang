@@ -24,11 +24,12 @@ beforeEach(() => {
 
   threadClass = bscl.getClassRef('java/lang/Thread', console.error) as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
-  thread = new NativeThread(threadClass, javaThread, {
+  thread = new NativeThread(threadClass, javaThread);
+  thread.pushStackFrame({
     operandStack: [],
     locals: [],
     class: threadClass,
-    method: threadClass.methods[''],
+    method: threadClass.getMethod(thread, '<init>()V'),
     pc: 0,
   });
 });
@@ -40,7 +41,7 @@ describe('runI2l', () => {
       opcode: OPCODE.I2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -56,7 +57,7 @@ describe('runI2f', () => {
       opcode: OPCODE.I2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -72,7 +73,7 @@ describe('runI2f', () => {
       opcode: OPCODE.I2D,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -88,7 +89,7 @@ describe('runI2b', () => {
       opcode: OPCODE.I2B,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(127);
@@ -102,7 +103,7 @@ describe('runI2b', () => {
       opcode: OPCODE.I2B,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -118,7 +119,7 @@ describe('runI2c', () => {
       opcode: OPCODE.I2C,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(String.fromCharCode(0xffff));
@@ -132,7 +133,7 @@ describe('runI2c', () => {
       opcode: OPCODE.I2C,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(String.fromCharCode(0));
@@ -148,7 +149,7 @@ describe('runI2s', () => {
       opcode: OPCODE.I2S,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(32767);
@@ -162,7 +163,7 @@ describe('runI2s', () => {
       opcode: OPCODE.I2S,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-32768);
@@ -176,7 +177,7 @@ describe('runI2s', () => {
       opcode: OPCODE.I2S,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0x5678);
@@ -192,7 +193,7 @@ describe('runL2i', () => {
       opcode: OPCODE.L2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -206,7 +207,7 @@ describe('runL2i', () => {
       opcode: OPCODE.L2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -220,7 +221,7 @@ describe('runL2i', () => {
       opcode: OPCODE.L2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -236,7 +237,7 @@ describe('runL2f', () => {
       opcode: OPCODE.L2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(10);
@@ -250,7 +251,7 @@ describe('runL2f', () => {
       opcode: OPCODE.L2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775806);
@@ -266,7 +267,7 @@ describe('runL2d', () => {
       opcode: OPCODE.L2D,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10);
@@ -280,7 +281,7 @@ describe('runL2d', () => {
       opcode: OPCODE.L2D,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775806);
@@ -296,7 +297,7 @@ describe('runF2i', () => {
       opcode: OPCODE.F2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-20);
@@ -310,7 +311,7 @@ describe('runF2i', () => {
       opcode: OPCODE.F2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -324,7 +325,7 @@ describe('runF2i', () => {
       opcode: OPCODE.F2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -338,7 +339,7 @@ describe('runF2i', () => {
       opcode: OPCODE.F2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -352,7 +353,7 @@ describe('runF2i', () => {
       opcode: OPCODE.F2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -366,7 +367,7 @@ describe('runF2i', () => {
       opcode: OPCODE.F2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -382,7 +383,7 @@ describe('runF2l', () => {
       opcode: OPCODE.F2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-20n);
@@ -396,7 +397,7 @@ describe('runF2l', () => {
       opcode: OPCODE.F2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -410,7 +411,7 @@ describe('runF2l', () => {
       opcode: OPCODE.F2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -424,7 +425,7 @@ describe('runF2l', () => {
       opcode: OPCODE.F2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -438,7 +439,7 @@ describe('runF2l', () => {
       opcode: OPCODE.F2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -452,7 +453,7 @@ describe('runF2l', () => {
       opcode: OPCODE.F2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -468,7 +469,7 @@ describe('runF2d', () => {
       opcode: OPCODE.F2D,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -484,7 +485,7 @@ describe('runD2i', () => {
       opcode: OPCODE.D2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-20);
@@ -498,7 +499,7 @@ describe('runD2i', () => {
       opcode: OPCODE.D2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -512,7 +513,7 @@ describe('runD2i', () => {
       opcode: OPCODE.D2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -526,7 +527,7 @@ describe('runD2i', () => {
       opcode: OPCODE.D2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -540,7 +541,7 @@ describe('runD2i', () => {
       opcode: OPCODE.D2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -554,7 +555,7 @@ describe('runD2i', () => {
       opcode: OPCODE.D2I,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -570,7 +571,7 @@ describe('runD2l', () => {
       opcode: OPCODE.D2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-20n);
@@ -584,7 +585,7 @@ describe('runD2l', () => {
       opcode: OPCODE.D2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -598,7 +599,7 @@ describe('runD2l', () => {
       opcode: OPCODE.D2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -612,7 +613,7 @@ describe('runD2l', () => {
       opcode: OPCODE.D2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -626,7 +627,7 @@ describe('runD2l', () => {
       opcode: OPCODE.D2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -640,7 +641,7 @@ describe('runD2l', () => {
       opcode: OPCODE.D2L,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -656,7 +657,7 @@ describe('runD2f', () => {
       opcode: OPCODE.D2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(3.4028235e38));
@@ -670,7 +671,7 @@ describe('runD2f', () => {
       opcode: OPCODE.D2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -684,7 +685,7 @@ describe('runD2f', () => {
       opcode: OPCODE.D2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -698,7 +699,7 @@ describe('runD2f', () => {
       opcode: OPCODE.D2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -712,7 +713,7 @@ describe('runD2f', () => {
       opcode: OPCODE.D2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -726,7 +727,7 @@ describe('runD2f', () => {
       opcode: OPCODE.D2F,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);

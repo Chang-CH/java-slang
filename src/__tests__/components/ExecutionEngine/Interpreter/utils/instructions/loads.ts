@@ -25,11 +25,12 @@ beforeEach(() => {
 
   threadClass = bscl.getClassRef('java/lang/Thread', console.error) as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
-  thread = new NativeThread(threadClass, javaThread, {
+  thread = new NativeThread(threadClass, javaThread);
+  thread.pushStackFrame({
     operandStack: [],
     locals: [],
     class: threadClass,
-    method: threadClass.methods['<init>()V'],
+    method: threadClass.getMethod(thread, '<init>()V'),
     pc: 0,
   });
 });
@@ -41,7 +42,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ILOAD,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(10);
@@ -57,7 +58,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.LLOAD,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10n);
@@ -73,7 +74,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.FLOAD,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.3);
@@ -89,7 +90,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.DLOAD,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.3);
@@ -106,7 +107,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ALOAD,
       operands: [0],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(obj);
@@ -125,7 +126,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ILOAD0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(10);
@@ -144,7 +145,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ILOAD1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(11);
@@ -163,7 +164,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ILOAD2,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(12);
@@ -182,7 +183,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ILOAD3,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(13);
@@ -201,7 +202,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.LLOAD0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10n);
@@ -220,7 +221,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.LLOAD1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(11n);
@@ -239,7 +240,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.LLOAD2,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(12n);
@@ -258,7 +259,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.LLOAD3,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(13n);
@@ -277,7 +278,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.FLOAD0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(10.0);
@@ -296,7 +297,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.FLOAD1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(11.0);
@@ -315,7 +316,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.FLOAD2,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(12.0);
@@ -334,7 +335,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.FLOAD3,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(13.0);
@@ -353,7 +354,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.DLOAD0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10.0);
@@ -372,7 +373,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.DLOAD1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(11.0);
@@ -391,7 +392,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.DLOAD2,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(12.0);
@@ -410,7 +411,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.DLOAD3,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(13.0);
@@ -433,7 +434,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ALOAD0,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l0);
@@ -456,7 +457,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ALOAD1,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l1);
@@ -479,7 +480,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ALOAD2,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l2);
@@ -502,7 +503,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.ALOAD3,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l3);
@@ -520,7 +521,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.IALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -536,13 +537,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.IALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('IALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -553,16 +556,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.IALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -575,16 +581,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.IALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -599,7 +608,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.LALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(99n);
@@ -615,13 +624,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.LALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('LALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -632,15 +643,18 @@ describe('runInstruction', () => {
       opcode: OPCODE.LALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -653,15 +667,18 @@ describe('runInstruction', () => {
       opcode: OPCODE.LALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -676,7 +693,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.FALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99.0);
@@ -692,13 +709,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.FALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('FALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -709,15 +728,18 @@ describe('runInstruction', () => {
       opcode: OPCODE.FALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -730,15 +752,18 @@ describe('runInstruction', () => {
       opcode: OPCODE.FALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -753,7 +778,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.DALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(99.0);
@@ -769,13 +794,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.DALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('DALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -786,15 +813,18 @@ describe('runInstruction', () => {
       opcode: OPCODE.DALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -807,15 +837,18 @@ describe('runInstruction', () => {
       opcode: OPCODE.DALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -830,7 +863,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.AALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(null);
@@ -847,7 +880,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.AALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(ref);
@@ -863,13 +896,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.AALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('AALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -880,16 +915,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.AALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -902,16 +940,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.AALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -926,7 +967,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.BALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -942,13 +983,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.BALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('BALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -959,16 +1002,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.BALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -981,16 +1027,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.BALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1005,7 +1054,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.CALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -1021,13 +1070,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.CALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('CALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -1038,16 +1089,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.CALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1060,16 +1114,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.CALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1084,7 +1141,7 @@ describe('runInstruction', () => {
       opcode: OPCODE.SALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -1100,13 +1157,15 @@ describe('runInstruction', () => {
       opcode: OPCODE.SALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/NullPointerException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
   });
 
   test('SALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
@@ -1117,16 +1176,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.SALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1139,16 +1201,19 @@ describe('runInstruction', () => {
       opcode: OPCODE.SALOAD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe(
+    expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });

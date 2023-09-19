@@ -43,7 +43,6 @@ export default class Interpreter {
       }
 
       console.debug(
-        // `[${thread.getClassName()}.${thread.getMethodName()}]` +
         `#${thread.getPC()}`.padEnd(4) +
           `${OPCODE[current.opcode]}(${current.operands.join(', ')})`.padEnd(
             20

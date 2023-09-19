@@ -30,11 +30,12 @@ beforeEach(() => {
 
   threadClass = bscl.getClassRef('java/lang/Thread', console.error) as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
-  thread = new NativeThread(threadClass, javaThread, {
+  thread = new NativeThread(threadClass, javaThread);
+  thread.pushStackFrame({
     operandStack: [],
     locals: [],
     class: threadClass,
-    method: threadClass.methods['<init>()V'],
+    method: threadClass.getMethod(thread, '<init>()V'),
     pc: 0,
   });
 });
@@ -47,7 +48,7 @@ describe('runIadd', () => {
       opcode: OPCODE.IADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
@@ -62,7 +63,7 @@ describe('runIadd', () => {
       opcode: OPCODE.IADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -77,7 +78,7 @@ describe('runIadd', () => {
       opcode: OPCODE.IADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MAX_INT);
@@ -94,7 +95,7 @@ describe('runLadd', () => {
       opcode: OPCODE.LADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(3n);
@@ -109,7 +110,7 @@ describe('runLadd', () => {
       opcode: OPCODE.LADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -124,7 +125,7 @@ describe('runLadd', () => {
       opcode: OPCODE.LADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MAX_LONG);
@@ -141,7 +142,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4.0);
@@ -156,7 +157,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -171,7 +172,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -186,7 +187,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -201,7 +202,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -216,7 +217,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -231,7 +232,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -246,7 +247,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -261,7 +262,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -276,7 +277,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -291,7 +292,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -306,7 +307,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -321,7 +322,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -336,7 +337,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -351,7 +352,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.33);
@@ -366,7 +367,7 @@ describe('runFadd', () => {
       opcode: OPCODE.FADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(2.33));
@@ -383,7 +384,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4.0);
@@ -398,7 +399,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -413,7 +414,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -428,7 +429,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -443,7 +444,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -458,7 +459,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -473,7 +474,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -488,7 +489,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -503,7 +504,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -518,7 +519,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -533,7 +534,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -548,7 +549,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -563,7 +564,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -578,7 +579,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -593,7 +594,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.33);
@@ -608,7 +609,7 @@ describe('runDadd', () => {
       opcode: OPCODE.DADD,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2.33);
@@ -625,7 +626,7 @@ describe('runIsub', () => {
       opcode: OPCODE.ISUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -640,7 +641,7 @@ describe('runIsub', () => {
       opcode: OPCODE.ISUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -655,7 +656,7 @@ describe('runIsub', () => {
       opcode: OPCODE.ISUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MAX_INT);
@@ -672,7 +673,7 @@ describe('runLsub', () => {
       opcode: OPCODE.LSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -687,7 +688,7 @@ describe('runLsub', () => {
       opcode: OPCODE.LSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -702,7 +703,7 @@ describe('runLsub', () => {
       opcode: OPCODE.LSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MAX_LONG);
@@ -719,7 +720,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -734,7 +735,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -749,7 +750,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -764,7 +765,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -779,7 +780,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -794,7 +795,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -809,7 +810,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -824,7 +825,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -839,7 +840,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -854,7 +855,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -869,7 +870,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -884,7 +885,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -899,7 +900,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -914,7 +915,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -929,7 +930,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.33);
@@ -944,7 +945,7 @@ describe('runFsub', () => {
       opcode: OPCODE.FSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
@@ -961,7 +962,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -976,7 +977,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -991,7 +992,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1006,7 +1007,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1021,7 +1022,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1036,7 +1037,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1051,7 +1052,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1066,7 +1067,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1081,7 +1082,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1096,7 +1097,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1111,7 +1112,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1126,7 +1127,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1141,7 +1142,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1156,7 +1157,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -1171,7 +1172,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.33);
@@ -1186,7 +1187,7 @@ describe('runDsub', () => {
       opcode: OPCODE.DSUB,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.33 + 1 - 1); // force it into double
@@ -1203,7 +1204,7 @@ describe('runImul', () => {
       opcode: OPCODE.IMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
@@ -1218,7 +1219,7 @@ describe('runImul', () => {
       opcode: OPCODE.IMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2);
@@ -1233,7 +1234,7 @@ describe('runImul', () => {
       opcode: OPCODE.IMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
@@ -1248,7 +1249,7 @@ describe('runImul', () => {
       opcode: OPCODE.IMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-371520463);
@@ -1265,7 +1266,7 @@ describe('runLmul', () => {
       opcode: OPCODE.LMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
@@ -1280,7 +1281,7 @@ describe('runLmul', () => {
       opcode: OPCODE.LMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-2n);
@@ -1295,7 +1296,7 @@ describe('runLmul', () => {
       opcode: OPCODE.LMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
@@ -1312,7 +1313,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -1327,7 +1328,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1342,7 +1343,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1357,7 +1358,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1372,7 +1373,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1387,7 +1388,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1402,7 +1403,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1417,7 +1418,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1432,7 +1433,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1447,7 +1448,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
@@ -1462,7 +1463,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1476,7 +1477,7 @@ describe('runFmul', () => {
       opcode: OPCODE.FMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -1493,7 +1494,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -1508,7 +1509,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1523,7 +1524,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1538,7 +1539,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1553,7 +1554,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1568,7 +1569,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1583,7 +1584,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1598,7 +1599,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1613,7 +1614,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1628,7 +1629,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.33);
@@ -1643,7 +1644,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1657,7 +1658,7 @@ describe('runDmul', () => {
       opcode: OPCODE.DMUL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -1674,7 +1675,7 @@ describe('runIdiv', () => {
       opcode: OPCODE.IDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -1689,7 +1690,7 @@ describe('runIdiv', () => {
       opcode: OPCODE.IDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -1704,7 +1705,7 @@ describe('runIdiv', () => {
       opcode: OPCODE.IDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -1719,7 +1720,7 @@ describe('runIdiv', () => {
       opcode: OPCODE.IDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -1734,16 +1735,21 @@ describe('runIdiv', () => {
       opcode: OPCODE.IDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/ArithmeticException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/ArithmeticException'
+    );
   });
 });
 
@@ -1755,7 +1761,7 @@ describe('runLdiv', () => {
       opcode: OPCODE.LDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -1770,7 +1776,7 @@ describe('runLdiv', () => {
       opcode: OPCODE.LDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -1785,7 +1791,7 @@ describe('runLdiv', () => {
       opcode: OPCODE.LDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -1800,7 +1806,7 @@ describe('runLdiv', () => {
       opcode: OPCODE.LDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -1816,15 +1822,19 @@ describe('runLdiv', () => {
       operands: [],
     });
 
-    expect(thread.stack.length).toBe(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/ArithmeticException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/ArithmeticException'
+    );
   });
 });
 
@@ -1836,7 +1846,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4.0);
@@ -1851,7 +1861,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1866,7 +1876,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1881,7 +1891,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1896,7 +1906,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1911,7 +1921,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1926,7 +1936,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1941,7 +1951,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1956,7 +1966,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1971,7 +1981,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1986,7 +1996,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -2001,7 +2011,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2016,7 +2026,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -2031,7 +2041,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2046,7 +2056,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
@@ -2061,7 +2071,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -2076,7 +2086,7 @@ describe('runFdiv', () => {
       opcode: OPCODE.FDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2093,7 +2103,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4.0);
@@ -2108,7 +2118,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -2123,7 +2133,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2138,7 +2148,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2153,7 +2163,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2168,7 +2178,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2183,7 +2193,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2198,7 +2208,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -2213,7 +2223,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2228,7 +2238,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2243,7 +2253,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -2258,7 +2268,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2273,7 +2283,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -2288,7 +2298,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2303,7 +2313,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -2318,7 +2328,7 @@ describe('runDdiv', () => {
       opcode: OPCODE.DDIV,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2335,7 +2345,7 @@ describe('runIrem', () => {
       opcode: OPCODE.IREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -2350,7 +2360,7 @@ describe('runIrem', () => {
       opcode: OPCODE.IREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -2365,15 +2375,20 @@ describe('runIrem', () => {
       opcode: OPCODE.IREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/ArithmeticException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/ArithmeticException'
+    );
   });
 });
 
@@ -2385,7 +2400,7 @@ describe('runLrem', () => {
       opcode: OPCODE.LREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -2400,7 +2415,7 @@ describe('runLrem', () => {
       opcode: OPCODE.LREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -2416,15 +2431,19 @@ describe('runLrem', () => {
       operands: [],
     });
 
-    expect(thread.stack.length).toBe(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.methods['dispatchUncaughtException(Ljava/lang/Throwable;)V']
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
     );
     expect(lastFrame.pc).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
-    expect(exceptionObj.cls.thisClass).toBe('java/lang/ArithmeticException');
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/ArithmeticException'
+    );
   });
 });
 
@@ -2436,7 +2455,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.3));
@@ -2451,7 +2470,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2466,7 +2485,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2481,7 +2500,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2496,7 +2515,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2511,7 +2530,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2526,7 +2545,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2541,7 +2560,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2556,7 +2575,7 @@ describe('runFrem', () => {
       opcode: OPCODE.FREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
@@ -2573,7 +2592,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.3 - 1);
@@ -2588,7 +2607,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2603,7 +2622,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2618,7 +2637,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2633,7 +2652,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2648,7 +2667,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2663,7 +2682,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2678,7 +2697,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2693,7 +2712,7 @@ describe('runDrem', () => {
       opcode: OPCODE.DREM,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.99 - 0.66);
@@ -2709,7 +2728,7 @@ describe('runIneg', () => {
       opcode: OPCODE.INEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -2723,7 +2742,7 @@ describe('runIneg', () => {
       opcode: OPCODE.INEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -2739,7 +2758,7 @@ describe('runLneg', () => {
       opcode: OPCODE.LNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -2753,7 +2772,7 @@ describe('runLneg', () => {
       opcode: OPCODE.LNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -2769,7 +2788,7 @@ describe('runFneg', () => {
       opcode: OPCODE.FNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1.0);
@@ -2783,7 +2802,7 @@ describe('runFneg', () => {
       opcode: OPCODE.FNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2797,7 +2816,7 @@ describe('runFneg', () => {
       opcode: OPCODE.FNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2811,7 +2830,7 @@ describe('runFneg', () => {
       opcode: OPCODE.FNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2827,7 +2846,7 @@ describe('runDneg', () => {
       opcode: OPCODE.DNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1.0);
@@ -2841,7 +2860,7 @@ describe('runDneg', () => {
       opcode: OPCODE.DNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2855,7 +2874,7 @@ describe('runDneg', () => {
       opcode: OPCODE.DNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2869,7 +2888,7 @@ describe('runDneg', () => {
       opcode: OPCODE.DNEG,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2886,7 +2905,7 @@ describe('runIshl', () => {
       opcode: OPCODE.ISHL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4);
@@ -2901,7 +2920,7 @@ describe('runIshl', () => {
       opcode: OPCODE.ISHL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -2916,7 +2935,7 @@ describe('runIshl', () => {
       opcode: OPCODE.ISHL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -2933,7 +2952,7 @@ describe('runLshl', () => {
       opcode: OPCODE.LSHL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4n);
@@ -2948,7 +2967,7 @@ describe('runLshl', () => {
       opcode: OPCODE.LSHL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -2963,7 +2982,7 @@ describe('runLshl', () => {
       opcode: OPCODE.LSHL,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -2980,7 +2999,7 @@ describe('runIshr', () => {
       opcode: OPCODE.ISHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -2995,7 +3014,7 @@ describe('runIshr', () => {
       opcode: OPCODE.ISHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -3010,7 +3029,7 @@ describe('runIshr', () => {
       opcode: OPCODE.ISHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -3027,7 +3046,7 @@ describe('runLshr', () => {
       opcode: OPCODE.LSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -3042,7 +3061,7 @@ describe('runLshr', () => {
       opcode: OPCODE.LSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -3057,7 +3076,7 @@ describe('runLshr', () => {
       opcode: OPCODE.LSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -3074,7 +3093,7 @@ describe('runIushr', () => {
       opcode: OPCODE.IUSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -3089,7 +3108,7 @@ describe('runIushr', () => {
       opcode: OPCODE.IUSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -3104,7 +3123,7 @@ describe('runIushr', () => {
       opcode: OPCODE.IUSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -3121,14 +3140,14 @@ describe('runLushr', () => {
       opcode: OPCODE.LUSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
-  
+
   test('LUSHR: int shift right changes sign', () => {
     thread.pushStackWide(-2n);
     thread.pushStack(1);
@@ -3136,7 +3155,7 @@ describe('runLushr', () => {
       opcode: OPCODE.LUSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('9223372036854775807');
@@ -3151,7 +3170,7 @@ describe('runLushr', () => {
       opcode: OPCODE.LUSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('1');
@@ -3166,7 +3185,7 @@ describe('runLushr', () => {
       opcode: OPCODE.LUSHR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('1');
@@ -3183,7 +3202,7 @@ describe('runIand', () => {
       opcode: OPCODE.IAND,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -3198,7 +3217,7 @@ describe('runIand', () => {
       opcode: OPCODE.IAND,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -3215,7 +3234,7 @@ describe('runLand', () => {
       opcode: OPCODE.LAND,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -3230,7 +3249,7 @@ describe('runLand', () => {
       opcode: OPCODE.LAND,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -3247,7 +3266,7 @@ describe('runIor', () => {
       opcode: OPCODE.IOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
@@ -3262,7 +3281,7 @@ describe('runIor', () => {
       opcode: OPCODE.IOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -3279,7 +3298,7 @@ describe('runLor', () => {
       opcode: OPCODE.LOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(3n);
@@ -3294,7 +3313,7 @@ describe('runLor', () => {
       opcode: OPCODE.LOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -3311,7 +3330,7 @@ describe('runIXor', () => {
       opcode: OPCODE.IXOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
@@ -3326,7 +3345,7 @@ describe('runIXor', () => {
       opcode: OPCODE.IXOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2);
@@ -3343,7 +3362,7 @@ describe('runLxor', () => {
       opcode: OPCODE.LXOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
@@ -3358,7 +3377,7 @@ describe('runLxor', () => {
       opcode: OPCODE.LXOR,
       operands: [],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-2n);
@@ -3374,7 +3393,7 @@ describe('runIinc', () => {
       opcode: OPCODE.IINC,
       operands: [0, 10],
     });
-    expect(thread.stack.length).toBe(1);
+
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(1);

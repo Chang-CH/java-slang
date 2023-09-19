@@ -67,10 +67,10 @@ export function tryInitialize(thread: NativeThread, className: string) {
   }
   // Class not initialized, initialize it.
   if (classRef.isInitialized) {
-    if (classRef.methods['<clinit>()V']) {
+    if (classRef.getMethod(thread, '<clinit>()V')) {
       thread.pushStackFrame({
         class: classRef,
-        method: classRef.methods['<clinit>()V'],
+        method: classRef.getMethod(thread, '<clinit>()V'),
         pc: 0,
         operandStack: [],
         locals: [],

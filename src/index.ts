@@ -6,11 +6,11 @@ import ExecutionEngine from './components/ExecutionEngine';
 import { JNI } from './components/JNI';
 
 export default class JVM {
-  bootstrapClassLoader: BootstrapClassLoader;
-  applicationClassLoader: ClassLoader;
-  engine: ExecutionEngine;
-  os: JsSystem;
-  jni: JNI;
+  private bootstrapClassLoader: BootstrapClassLoader;
+  private applicationClassLoader: ClassLoader;
+  private engine: ExecutionEngine;
+  private os: JsSystem;
+  private jni: JNI;
 
   constructor(os: JsSystem) {
     this.os = os;

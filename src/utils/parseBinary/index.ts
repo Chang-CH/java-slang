@@ -1,13 +1,12 @@
-// @ts-nocheck
+import { ClassFile } from '#jvm/external/ClassFile/types';
+import {
+  ConstantClassInfo,
+  ConstantUtf8Info,
+} from '#jvm/external/ClassFile/types/constants';
 import { readAttribute } from '#utils/parseBinary/utils/readAttributes';
 import { readConstants } from '#utils/parseBinary/utils/readConstants';
 import { readField } from '#utils/parseBinary/utils/readField';
 import { readMethod, getMethodName } from '#utils/parseBinary/utils/readMethod';
-import { ClassFile } from '#jvm/external/ClassFile';
-import {
-  constantClassInfo,
-  constantUtf8Info,
-} from '#jvm/external/ClassFile/constants';
 
 export default function parseBin(view: DataView) {
   let offset = 0;
@@ -18,8 +17,8 @@ export default function parseBin(view: DataView) {
     majorVersion: 0,
     constantPool: [],
     accessFlags: 0,
-    thisClass: '',
-    superClass: '',
+    thisClass: 0,
+    superClass: 0,
     interfaces: [],
     fields: {},
     methods: {},
@@ -59,10 +58,10 @@ export default function parseBin(view: DataView) {
   for (let i = 0; i < interfacesCount; i += 1) {
     const interfaceIdx = cls.constantPool[
       view.getUint16(offset)
-    ] as constantClassInfo;
+    ] as ConstantClassInfo;
     const className = cls.constantPool[
       interfaceIdx.nameIndex
-    ] as constantUtf8Info;
+    ] as ConstantUtf8Info;
     cls.interfaces.push(className.value);
     offset += 2;
   }
@@ -77,10 +76,10 @@ export default function parseBin(view: DataView) {
       view,
       offset
     );
-    const fieldName = cls.constantPool[result.nameIndex] as constantUtf8Info;
+    const fieldName = cls.constantPool[result.nameIndex] as ConstantUtf8Info;
     const fieldDesc = cls.constantPool[
       result.descriptorIndex
-    ] as constantUtf8Info;
+    ] as ConstantUtf8Info;
     cls.fields[fieldName.value + fieldDesc.value] = result;
     offset = resultOffset;
   }

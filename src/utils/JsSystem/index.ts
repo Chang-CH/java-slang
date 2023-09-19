@@ -10,7 +10,7 @@ export interface Folder {
  * Acts as a mockup for OS interactions needed by the JVM.
  */
 export default class JsSystem {
-  files: Folder;
+  private files: Folder;
 
   constructor(initialFiles: Folder) {
     this.files = initialFiles;
