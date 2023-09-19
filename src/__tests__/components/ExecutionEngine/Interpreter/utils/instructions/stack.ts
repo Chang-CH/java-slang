@@ -324,7 +324,7 @@ describe('runDup2X2', () => {
 });
 
 describe('runSwap', () => {
-  test('SWAP: swap stack', () => {
+  test('SWAP: swap stack operands', () => {
     const v1 = new JavaReference(threadClass, {});
     const v2 = new JavaReference(threadClass, {});
     thread.pushStack(v1);

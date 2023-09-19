@@ -6,7 +6,7 @@ import { InstructionType } from '#types/ClassRef/instructions';
 export function runIadd(thread: NativeThread, instruction: InstructionType) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  // JS bitwise can only return 32-bit ints
+  // 2 * MAX_INT is within max type safe int
   thread.pushStack((value1 + value2) | 0);
   thread.offsetPc(1);
 }
@@ -45,7 +45,7 @@ export function runDadd(thread: NativeThread, instruction: InstructionType) {
 export function runIsub(thread: NativeThread, instruction: InstructionType) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  // JS bitwise can only return 32-bit ints
+  // 2 * MIN_INT within type safe int
   thread.pushStack((value1 - value2) | 0);
   thread.offsetPc(1);
 }
@@ -83,8 +83,7 @@ export function runDsub(thread: NativeThread, instruction: InstructionType) {
 export function runImul(thread: NativeThread, instruction: InstructionType) {
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  // JS bitwise can only return 32-bit ints
-  thread.pushStack((value1 * value2) | 0);
+  thread.pushStack(Math.imul(value1, value2) | 0);
   thread.offsetPc(1);
 }
 
@@ -256,12 +255,7 @@ export function runIushr(thread: NativeThread, instruction: InstructionType) {
   const value2: number = thread.popStack() & 0x1f;
   const value1: number = thread.popStack();
 
-  if (value1 >= 0) {
-    thread.pushStack((value1 >> value2) | 0);
-    return;
-  }
-
-  thread.pushStack(((value1 >> value2) + (2 << ~value2)) | 0);
+  thread.pushStack((value1 >>> value2) | 0);
 }
 
 export function runLushr(thread: NativeThread, instruction: InstructionType) {
@@ -274,20 +268,8 @@ export function runLushr(thread: NativeThread, instruction: InstructionType) {
     return;
   }
 
-  // Convert the BigInt to a binary string representation.
-  const binaryString = value1.toString(2);
-
-  // Determine the length of the binary string.
-  const binaryStringLength = binaryString.length;
-
-  // Create a new binary string with shifted bits. Ingnore negative prefix
-  const shiftedBinaryString = binaryString.slice(
-    1,
-    binaryStringLength - value2
-  );
-  // Convert the shifted binary string back to a BigInt.
-  const shiftedBigInt = BigInt('0b' + shiftedBinaryString);
-  thread.pushStackWide(shiftedBigInt);
+  // convert leading 1's to zeros
+  thread.pushStackWide((value1 & 0xffffffffffffffffn) >> BigInt(value2));
 }
 
 export function runIand(thread: NativeThread, instruction: InstructionType) {

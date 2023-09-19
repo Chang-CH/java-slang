@@ -1240,6 +1240,21 @@ describe('runImul', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
+
+  test('IMUL: int overflow precision', () => {
+    thread.pushStack(1000000007);
+    thread.pushStack(1000000007);
+    runInstruction(thread, {
+      opcode: OPCODE.IMUL,
+      operands: [],
+    });
+    expect(thread.stack.length).toBe(1);
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(1);
+    expect(lastFrame.operandStack[0]).toBe(-371520463);
+    expect(lastFrame.locals.length).toBe(0);
+    expect(lastFrame.pc).toBe(1);
+  });
 });
 
 describe('runLmul', () => {
@@ -3113,6 +3128,21 @@ describe('runLushr', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
+  
+  test('LUSHR: int shift right changes sign', () => {
+    thread.pushStackWide(-2n);
+    thread.pushStack(1);
+    runInstruction(thread, {
+      opcode: OPCODE.LUSHR,
+      operands: [],
+    });
+    expect(thread.stack.length).toBe(1);
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(2);
+    expect(lastFrame.operandStack[0].toString()).toBe('9223372036854775807');
+    expect(lastFrame.locals.length).toBe(0);
+    expect(lastFrame.pc).toBe(1);
+  });
 
   test('LUSHR: int shift right truncates', () => {
     thread.pushStackWide(MIN_LONG);
@@ -3124,7 +3154,7 @@ describe('runLushr', () => {
     expect(thread.stack.length).toBe(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0].toString()).toBe('1');
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -3139,7 +3169,7 @@ describe('runLushr', () => {
     expect(thread.stack.length).toBe(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0].toString()).toBe('1');
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
