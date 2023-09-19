@@ -1,5 +1,5 @@
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/instructions';
+import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';

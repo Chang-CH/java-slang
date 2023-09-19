@@ -2,17 +2,17 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
 import { InstructionType } from '#types/ClassRef/instructions';
-import * as comparisons from './comparisons';
-import * as constants from './constants';
-import * as control from './control';
-import * as conversions from './conversions';
-import * as extended from './extended';
-import * as loads from './loads';
-import * as math from './math';
-import * as references from './references';
-import * as reserved from './reserved';
-import * as stack from './stack';
-import * as stores from './stores';
+import * as comparisons from './instructions/comparisons';
+import * as constants from './instructions/constants';
+import * as control from './instructions/control';
+import * as conversions from './instructions/conversions';
+import * as extended from './instructions/extended';
+import * as loads from './instructions/loads';
+import * as math from './instructions/math';
+import * as references from './instructions/references';
+import * as reserved from './instructions/reserved';
+import * as stack from './instructions/stack';
+import * as stores from './instructions/stores';
 
 export default function runInstruction(
   thread: NativeThread,
@@ -293,6 +293,9 @@ export default function runInstruction(
       break;
     case OPCODE.DUPX1:
       result = stack.runDupX1(thread, instruction);
+      break;
+    case OPCODE.DUPX2:
+      result = stack.runDupX2(thread, instruction);
       break;
     case OPCODE.DUP2:
       result = stack.runDup2(thread, instruction);
