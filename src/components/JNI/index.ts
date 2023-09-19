@@ -1,4 +1,4 @@
-import { readFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
+import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { ArrayType, JavaArray, JavaType } from '#types/DataTypes';
 export class JNI {
   classes: {
@@ -26,7 +26,7 @@ export class JNI {
       console.error(
         `Native method ${className}.${methodName} implementation not found, returning dummy function`
       );
-      const retType = readFieldDescriptor(methodName.split(')')[1], 0).type;
+      const retType = parseFieldDescriptor(methodName.split(')')[1], 0).type;
 
       switch (retType) {
         case JavaType.array:

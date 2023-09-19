@@ -2,7 +2,7 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JNI } from '#jvm/components/JNI';
 
 import NativeThread from '../NativeThreadGroup/NativeThread';
-import runInstruction from './utils/instructions';
+import runInstruction from './utils/runInstruction';
 
 /**
  * Executes the instructions at the thread's current program counter.

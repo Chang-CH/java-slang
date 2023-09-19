@@ -1,4 +1,3 @@
-import { readInstruction } from '#jvm/components/ExecutionEngine/Interpreter/utils/instructions/readInstruction';
 import { InstructionType } from '#types/ClassRef/instructions';
 import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/DataTypes';
@@ -9,6 +8,7 @@ import {
   NativeMethodRef,
   MethodType,
 } from '#jvm/external/ClassFile/types/methods';
+import { readInstruction } from '../../Interpreter/utils/readInstruction';
 
 export default class NativeThread {
   stack: StackFrame[];

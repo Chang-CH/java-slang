@@ -2,13 +2,12 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 
 import { InstructionType } from '#types/ClassRef/instructions';
 import { JavaReference, JavaArray } from '#types/DataTypes';
-import { tryInitialize, readMethodDescriptor } from '..';
+import { tryInitialize, parseMethodDescriptor } from '..';
 import {
   ConstantFieldrefInfo,
   ConstantNameAndTypeInfo,
   ConstantMethodrefInfo,
   ConstantClassInfo,
-  ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { ConstantClass } from '#types/ClassRef/constants';
@@ -222,7 +221,7 @@ export function runInvokevirtual(
     );
 
   // Get arguments
-  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const methodDesc = parseMethodDescriptor(methodDescriptor);
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
@@ -272,7 +271,7 @@ export function runInvokespecial(
     .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
   // Get arguments
-  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const methodDesc = parseMethodDescriptor(methodDescriptor);
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
@@ -330,7 +329,7 @@ export function runInvokestatic(
     .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
   // Get arguments
-  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const methodDesc = parseMethodDescriptor(methodDescriptor);
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
@@ -386,7 +385,7 @@ export function runInvokeinterface(
     .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
   // Get arguments
-  const methodDesc = readMethodDescriptor(methodDescriptor);
+  const methodDesc = parseMethodDescriptor(methodDescriptor);
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {

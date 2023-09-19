@@ -1,13 +1,7 @@
-import { ClassRef } from '#types/ClassRef';
-import {
-  ArrayType,
-  JavaArray,
-  JavaReference,
-  JavaType,
-} from '#types/DataTypes';
+import { JavaType } from '#types/DataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
-export function readFieldDescriptor(descriptor: string, index: number) {
+export function parseFieldDescriptor(descriptor: string, index: number) {
   switch (descriptor[index]) {
     case JavaType.byte:
       return { type: JavaType.byte, index: index + 1 };
@@ -26,7 +20,7 @@ export function readFieldDescriptor(descriptor: string, index: number) {
     case JavaType.boolean:
       return { type: JavaType.boolean, index: index + 1 };
     case JavaType.array:
-      ({ index } = readFieldDescriptor(descriptor, index + 1));
+      ({ index } = parseFieldDescriptor(descriptor, index + 1));
       return { type: JavaType.array, index };
     case JavaType.reference:
       const sub = descriptor.substring(index);
@@ -39,19 +33,19 @@ export function readFieldDescriptor(descriptor: string, index: number) {
   }
 }
 
-export function readMethodDescriptor(desc: string) {
+export function parseMethodDescriptor(desc: string) {
   let [args, ret] = desc.split(')');
   args = args.substring(1);
   const argTypes = [];
 
   let index = 0;
   while (index < args.length) {
-    const { type, index: newIndex } = readFieldDescriptor(args, index);
+    const { type, index: newIndex } = parseFieldDescriptor(args, index);
     argTypes.push(type);
     index = newIndex;
   }
 
-  const { type: retType } = readFieldDescriptor(ret, 0);
+  const { type: retType } = parseFieldDescriptor(ret, 0);
   return {
     args: argTypes,
     ret: retType,
