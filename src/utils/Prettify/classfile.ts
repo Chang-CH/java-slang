@@ -52,6 +52,7 @@ function resolveReferences(cls: any) {
     className: cls.thisClass,
     superName: cls.superClass,
     methods: [],
+    fields: cls.fields,
   };
 
   /**
