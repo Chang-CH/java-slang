@@ -54,7 +54,6 @@ export class JavaArray {
     if (index >= 0 && index < this.length) {
       return this.array[index];
     }
-    // TODO: throw error
   }
 
   set(index: number, value: any) {
@@ -87,7 +86,7 @@ export class JavaReference {
     return this.fields[name];
   }
 
-  getFieldWide(name: string) {
+  getField64(name: string) {
     return this.fields[name];
   }
 
@@ -95,7 +94,7 @@ export class JavaReference {
     this.fields[name] = value;
   }
 
-  putFieldWide(name: string, value: any) {
+  putField64(name: string, value: any) {
     this.fields[name] = value;
   }
 }

@@ -1,5 +1,10 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { InstructionType } from '#types/ClassRef/instructions';
+
+export interface InstructionType {
+  opcode: OPCODE;
+  operands: any[];
+  native?: false;
+}
 
 export function readInstruction(
   view: DataView,

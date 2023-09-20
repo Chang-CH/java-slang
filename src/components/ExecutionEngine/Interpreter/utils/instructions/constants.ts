@@ -1,6 +1,6 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import { InstructionType } from '#types/ClassRef/instructions';
+import { InstructionType } from '../readInstruction';
 import {
   ConstantDoubleInfo,
   ConstantFloatInfo,
@@ -12,7 +12,7 @@ import {
   ConstantInterfaceMethodref,
   ConstantClass,
   ConstantString,
-} from '#types/ClassRef/constants';
+} from '#types/ClassRef';
 
 export function runNop(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
@@ -66,12 +66,12 @@ export function runIconst5(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runLconst0(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(0n);
+  thread.pushStack64(0n);
   thread.offsetPc(1);
 }
 
 export function runLconst1(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(1n);
+  thread.pushStack64(1n);
   thread.offsetPc(1);
 }
 
@@ -91,12 +91,12 @@ export function runFconst2(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDconst0(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(0.0);
+  thread.pushStack64(0.0);
   thread.offsetPc(1);
 }
 
 export function runDconst1(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(1.0);
+  thread.pushStack64(1.0);
   thread.offsetPc(1);
 }
 
@@ -113,10 +113,10 @@ export function runSipush(thread: NativeThread, instruction: InstructionType) {
 export function runLdc(thread: NativeThread, instruction: InstructionType) {
   const item = thread.getClass().getConstant(thread, instruction.operands[0]);
   if (
-    item.tag === CONSTANT_TAG.constantMethodref ||
-    item.tag === CONSTANT_TAG.constantInterfaceMethodref ||
-    item.tag === CONSTANT_TAG.constantClass ||
-    item.tag === CONSTANT_TAG.constantString
+    item.tag === CONSTANT_TAG.Methodref ||
+    item.tag === CONSTANT_TAG.InterfaceMethodref ||
+    item.tag === CONSTANT_TAG.Class ||
+    item.tag === CONSTANT_TAG.String
   ) {
     thread.pushStack(
       (
@@ -138,10 +138,10 @@ export function runLdc(thread: NativeThread, instruction: InstructionType) {
 export function runLdcW(thread: NativeThread, instruction: InstructionType) {
   const item = thread.getClass().getConstant(thread, instruction.operands[0]);
   if (
-    item.tag === CONSTANT_TAG.constantMethodref ||
-    item.tag === CONSTANT_TAG.constantInterfaceMethodref ||
-    item.tag === CONSTANT_TAG.constantClass ||
-    item.tag === CONSTANT_TAG.constantString
+    item.tag === CONSTANT_TAG.Methodref ||
+    item.tag === CONSTANT_TAG.InterfaceMethodref ||
+    item.tag === CONSTANT_TAG.Class ||
+    item.tag === CONSTANT_TAG.String
   ) {
     thread.pushStack(
       (
@@ -167,6 +167,6 @@ export function runLdc2W(thread: NativeThread, instruction: InstructionType) {
     | ConstantDoubleInfo
     | ConstantLongInfo;
 
-  thread.pushStackWide(item.value);
+  thread.pushStack64(item.value);
   thread.offsetPc(3);
 }

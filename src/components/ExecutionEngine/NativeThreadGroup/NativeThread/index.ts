@@ -1,6 +1,5 @@
-import { InstructionType } from '#types/ClassRef/instructions';
 import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/DataTypes';
+import { JavaReference } from '#types/dataTypes';
 import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
@@ -8,7 +7,10 @@ import {
   NativeMethodRef,
   MethodType,
 } from '#jvm/external/ClassFile/types/methods';
-import { readInstruction } from '../../Interpreter/utils/readInstruction';
+import {
+  InstructionType,
+  readInstruction,
+} from '../../Interpreter/utils/readInstruction';
 
 export default class NativeThread {
   private stack: StackFrame[];
@@ -80,13 +82,13 @@ export default class NativeThread {
     this.stack[this.stackPointer].operandStack.push(value);
   }
 
-  pushStackWide(value: any) {
+  pushStack64(value: any) {
     // check for stack overflow?
     this.stack[this.stackPointer].operandStack.push(value);
     this.stack[this.stackPointer].operandStack.push(value);
   }
 
-  popStackWide() {
+  popStack64() {
     if (this.stack?.[this.stackPointer]?.operandStack?.length <= 1) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
     }
@@ -120,7 +122,7 @@ export default class NativeThread {
     this.stack[this.stackPointer].locals[index] = value;
   }
 
-  storeLocalWide(index: number, value: any) {
+  storeLocal64(index: number, value: any) {
     this.stack[this.stackPointer].locals[index] = value;
   }
 
@@ -128,7 +130,7 @@ export default class NativeThread {
     return this.stack[this.stackPointer].locals[index];
   }
 
-  loadLocalWide(index: number): any {
+  loadLocal64(index: number): any {
     return this.stack[this.stackPointer].locals[index];
   }
 

@@ -309,33 +309,33 @@ function readConstant(
   tag: CONSTANT_TAG
 ): { result: any; offset: number } {
   switch (tag) {
-    case CONSTANT_TAG.constantClass:
+    case CONSTANT_TAG.Class:
       return readConstantClass(view, offset, tag);
-    case CONSTANT_TAG.constantFieldref:
+    case CONSTANT_TAG.Fieldref:
       return readConstantFieldref(view, offset, tag);
-    case CONSTANT_TAG.constantMethodref:
+    case CONSTANT_TAG.Methodref:
       return readConstantMethodref(view, offset, tag);
-    case CONSTANT_TAG.constantInterfaceMethodref:
+    case CONSTANT_TAG.InterfaceMethodref:
       return readConstantInterfaceMethodref(view, offset, tag);
-    case CONSTANT_TAG.constantString:
+    case CONSTANT_TAG.String:
       return readConstantString(view, offset, tag);
-    case CONSTANT_TAG.constantInteger:
+    case CONSTANT_TAG.Integer:
       return readConstantInteger(view, offset, tag);
-    case CONSTANT_TAG.constantFloat:
+    case CONSTANT_TAG.Float:
       return readConstantFloat(view, offset, tag);
-    case CONSTANT_TAG.constantLong:
+    case CONSTANT_TAG.Long:
       return readConstantLong(view, offset, tag);
-    case CONSTANT_TAG.constantDouble:
+    case CONSTANT_TAG.Double:
       return readConstantDouble(view, offset, tag);
-    case CONSTANT_TAG.constantNameAndType:
+    case CONSTANT_TAG.NameAndType:
       return readConstantNameAndType(view, offset, tag);
-    case CONSTANT_TAG.constantUtf8:
+    case CONSTANT_TAG.Utf8:
       return readConstantUtf8(view, offset, tag);
-    case CONSTANT_TAG.constantMethodHandle:
+    case CONSTANT_TAG.MethodHandle:
       return readConstantMethodHandle(view, offset, tag);
-    case CONSTANT_TAG.constantMethodType:
+    case CONSTANT_TAG.MethodType:
       return readConstantMethodType(view, offset, tag);
-    case CONSTANT_TAG.constantInvokeDynamic:
+    case CONSTANT_TAG.InvokeDynamic:
       return readConstantInvokeDynamic(view, offset, tag);
     default:
       return {
@@ -352,7 +352,7 @@ export function readConstants(
 ) {
   // constant pool 1 indexed, dummy value at index 0
   const constantPool: ConstantType[] = [
-    { tag: CONSTANT_TAG.constantClass, nameIndex: 0 },
+    { tag: CONSTANT_TAG.Class, nameIndex: 0 },
   ];
 
   for (let i = 0; i < constantPoolCount - 1; i += 1) {
@@ -363,8 +363,8 @@ export function readConstants(
 
     // Longs and doubles take 2 indexes in the constant pool.
     if (
-      result.tag === CONSTANT_TAG.constantLong ||
-      result.tag === CONSTANT_TAG.constantDouble
+      result.tag === CONSTANT_TAG.Long ||
+      result.tag === CONSTANT_TAG.Double
     ) {
       constantPool.push(result);
       i += 1;

@@ -1,11 +1,14 @@
-import { MAX_INT, MIN_INT, MAX_LONG, MIN_LONG } from '#constants/DataType';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import { InstructionType } from '../readInstruction';
 
-import { InstructionType } from '#types/ClassRef/instructions';
+const MAX_INT = 2147483647;
+const MIN_INT = -2147483648;
+const MAX_LONG = BigInt('9223372036854775807');
+const MIN_LONG = BigInt('-9223372036854775808');
 
 export function runI2l(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.pushStackWide(BigInt(value));
+  thread.pushStack64(BigInt(value));
   thread.offsetPc(1);
 }
 
@@ -15,25 +18,25 @@ export function runI2f(thread: NativeThread, instruction: InstructionType) {
 
 export function runI2d(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.pushStackWide(value);
+  thread.pushStack64(value);
   thread.offsetPc(1);
 }
 
 export function runL2i(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStackWide();
+  const value = thread.popStack64();
   thread.pushStack(Number(BigInt.asIntN(32, value)));
   thread.offsetPc(1);
 }
 
 export function runL2f(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStackWide();
+  const value = thread.popStack64();
   thread.pushStack(Math.fround(Number(value)));
   thread.offsetPc(1);
 }
 
 export function runL2d(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStackWide();
-  thread.pushStackWide(Number(value));
+  const value = thread.popStack64();
+  thread.pushStack64(Number(value));
   thread.offsetPc(1);
 }
 
@@ -60,18 +63,18 @@ export function runF2l(thread: NativeThread, instruction: InstructionType) {
     value = BigInt(Math.round(value));
     value = value > MAX_LONG ? MAX_LONG : value < MIN_LONG ? MIN_LONG : value;
   }
-  thread.pushStackWide(value);
+  thread.pushStack64(value);
   thread.offsetPc(1);
 }
 
 export function runF2d(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.pushStackWide(value);
+  thread.pushStack64(value);
   thread.offsetPc(1);
 }
 
 export function runD2i(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStackWide();
+  let value = thread.popStack64();
   if (Number.isNaN(value)) {
     value = 0;
   } else {
@@ -83,7 +86,7 @@ export function runD2i(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runD2l(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStackWide();
+  let value = thread.popStack64();
   if (Number.isNaN(value)) {
     value = 0n;
   } else if (value == Infinity) {
@@ -94,12 +97,12 @@ export function runD2l(thread: NativeThread, instruction: InstructionType) {
     value = BigInt(Math.round(value));
     value = value > MAX_LONG ? MAX_LONG : value < MIN_LONG ? MIN_LONG : value;
   }
-  thread.pushStackWide(value);
+  thread.pushStack64(value);
   thread.offsetPc(1);
 }
 
 export function runD2f(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStackWide();
+  let value = thread.popStack64();
   value = Math.fround(value);
   thread.pushStack(value);
   thread.offsetPc(1);

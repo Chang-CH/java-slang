@@ -1,7 +1,7 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { InstructionType } from '#types/ClassRef/instructions';
-import { JavaReference } from '#types/DataTypes';
+import { InstructionType } from '../readInstruction';
+import { JavaReference } from '#types/dataTypes';
 
 export function runWide(thread: NativeThread, instruction: InstructionType) {
   throw new Error('runInstruction: Not implemented');
@@ -40,6 +40,6 @@ export function runGotoW(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runJsrW(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(instruction.operands[0]);
+  thread.pushStack64(instruction.operands[0]);
   thread.offsetPc(5);
 }

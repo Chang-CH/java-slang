@@ -1,6 +1,6 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { InstructionType } from '#types/ClassRef/instructions';
+import { InstructionType } from '../readInstruction';
 
 export function runPop(thread: NativeThread, instruction: InstructionType) {
   thread.popStack();
@@ -8,7 +8,7 @@ export function runPop(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runPop2(thread: NativeThread, instruction: InstructionType) {
-  thread.popStackWide();
+  thread.popStack64();
   thread.offsetPc(1);
 }
 

@@ -1,5 +1,5 @@
 import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/DataTypes';
+import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';

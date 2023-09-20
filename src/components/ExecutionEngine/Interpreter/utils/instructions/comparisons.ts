@@ -1,10 +1,10 @@
-import { InstructionType } from '#types/ClassRef/instructions';
+import { InstructionType } from '../readInstruction';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
 export function runLcmp(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
-  const value2 = thread.popStackWide();
-  const value1 = thread.popStackWide();
+  const value2 = thread.popStack64();
+  const value1 = thread.popStack64();
 
   if (value1 > value2) {
     thread.pushStack(1);
@@ -65,8 +65,8 @@ export function runFcmpg(thread: NativeThread, instruction: InstructionType) {
 
 export function runDcmpl(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
-  const value2 = thread.popStackWide();
-  const value1 = thread.popStackWide();
+  const value2 = thread.popStack64();
+  const value1 = thread.popStack64();
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
     thread.pushStack(-1);
     return;
@@ -87,8 +87,8 @@ export function runDcmpl(thread: NativeThread, instruction: InstructionType) {
 
 export function runDcmpg(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);
-  const value2 = thread.popStackWide();
-  const value1 = thread.popStackWide();
+  const value2 = thread.popStack64();
+  const value1 = thread.popStack64();
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
     thread.pushStack(1);
     return;

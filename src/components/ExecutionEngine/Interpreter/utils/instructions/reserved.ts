@@ -1,6 +1,6 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { InstructionType } from '#types/ClassRef/instructions';
+import { InstructionType } from '../readInstruction';
 
 export function runBreakpoint(
   thread: NativeThread,

@@ -1,5 +1,5 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { InstructionType } from '#types/ClassRef/instructions';
+import { InstructionType } from '../readInstruction';
 
 export function readInstructions(
   view: DataView,

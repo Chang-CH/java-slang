@@ -1,6 +1,6 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { InstructionType } from '#types/ClassRef/instructions';
+import { InstructionType } from '../readInstruction';
 
 export function runGoto(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(instruction.operands[0]);
@@ -39,9 +39,9 @@ export function runIreturn(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runLreturn(thread: NativeThread, instruction: InstructionType) {
-  const ret = thread.popStackWide();
+  const ret = thread.popStack64();
   thread.popStackFrame();
-  thread.pushStackWide(ret);
+  thread.pushStack64(ret);
 }
 
 export function runFreturn(thread: NativeThread, instruction: InstructionType) {
@@ -51,9 +51,9 @@ export function runFreturn(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDreturn(thread: NativeThread, instruction: InstructionType) {
-  const ret = thread.popStackWide();
+  const ret = thread.popStack64();
   thread.popStackFrame();
-  thread.pushStackWide(ret);
+  thread.pushStack64(ret);
 }
 
 export function runAreturn(thread: NativeThread, instruction: InstructionType) {

@@ -1,5 +1,5 @@
 import { ClassRef } from '#types/ClassRef';
-import { JavaArray, ArrayType, JavaReference } from '#types/DataTypes';
+import { JavaArray, ArrayType, JavaReference } from '#types/dataTypes';
 
 export function newCharArr(str: string): JavaArray {
   const arrayref = new JavaArray(str.length, ArrayType.char, str.split(''));

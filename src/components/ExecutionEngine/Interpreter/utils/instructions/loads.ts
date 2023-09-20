@@ -1,5 +1,5 @@
-import { InstructionType } from '#types/ClassRef/instructions';
-import { JavaArray } from '#types/DataTypes';
+import { InstructionType } from '../readInstruction';
+import { JavaArray } from '#types/dataTypes';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
 export function runIload(thread: NativeThread, instruction: InstructionType) {
@@ -8,7 +8,7 @@ export function runIload(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runLload(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(instruction.operands[0]));
+  thread.pushStack64(thread.loadLocal64(instruction.operands[0]));
   thread.offsetPc(2);
 }
 
@@ -18,7 +18,7 @@ export function runFload(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDload(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(instruction.operands[0]));
+  thread.pushStack64(thread.loadLocal64(instruction.operands[0]));
   thread.offsetPc(2);
 }
 
@@ -48,22 +48,22 @@ export function runIload3(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runLload0(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(0));
+  thread.pushStack64(thread.loadLocal64(0));
   thread.offsetPc(1);
 }
 
 export function runLload1(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(1));
+  thread.pushStack64(thread.loadLocal64(1));
   thread.offsetPc(1);
 }
 
 export function runLload2(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(2));
+  thread.pushStack64(thread.loadLocal64(2));
   thread.offsetPc(1);
 }
 
 export function runLload3(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(3));
+  thread.pushStack64(thread.loadLocal64(3));
   thread.offsetPc(1);
 }
 
@@ -88,22 +88,22 @@ export function runFload3(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDload0(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(0));
+  thread.pushStack64(thread.loadLocal64(0));
   thread.offsetPc(1);
 }
 
 export function runDload1(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(1));
+  thread.pushStack64(thread.loadLocal64(1));
   thread.offsetPc(1);
 }
 
 export function runDload2(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(2));
+  thread.pushStack64(thread.loadLocal64(2));
   thread.offsetPc(1);
 }
 
 export function runDload3(thread: NativeThread, instruction: InstructionType) {
-  thread.pushStackWide(thread.loadLocalWide(3));
+  thread.pushStack64(thread.loadLocal64(3));
   thread.offsetPc(1);
 }
 
@@ -159,7 +159,7 @@ export function runLaload(thread: NativeThread, instruction: InstructionType) {
     );
     return;
   }
-  thread.pushStackWide(arrayref.get(index));
+  thread.pushStack64(arrayref.get(index));
   thread.offsetPc(1);
 }
 
@@ -195,7 +195,7 @@ export function runDaload(thread: NativeThread, instruction: InstructionType) {
     );
     return;
   }
-  thread.pushStackWide(arrayref.get(index));
+  thread.pushStack64(arrayref.get(index));
   thread.offsetPc(1);
 }
 

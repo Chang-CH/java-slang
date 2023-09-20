@@ -1,6 +1,6 @@
 import { ClassRef } from '#types/ClassRef';
 import JsSystem from '#utils/JsSystem';
-import AbstractClassLoader from '..';
+import AbstractClassLoader from './AbstractClassLoader';
 
 export default class ClassLoader extends AbstractClassLoader {
   // TODO: store thisref here, Java ClassLoader Reference

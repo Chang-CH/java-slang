@@ -1,7 +1,7 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { InstructionType } from '#types/ClassRef/instructions';
-import { JavaReference, JavaArray } from '#types/DataTypes';
+import { InstructionType } from '../readInstruction';
+import { JavaReference, JavaArray } from '#types/dataTypes';
 import { tryInitialize, parseMethodDescriptor } from '..';
 import {
   ConstantFieldrefInfo,
@@ -10,7 +10,7 @@ import {
   ConstantClassInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { ConstantClass } from '#types/ClassRef/constants';
+import { ConstantClass } from '#types/ClassRef';
 
 export function runGetstatic(
   thread: NativeThread,
@@ -48,8 +48,8 @@ export function runGetstatic(
 
   // FIXME: in theory it is legal to have 2 same field name, different type
   if (fieldType === 'J' || fieldType === 'D') {
-    thread.pushStackWide(
-      thread.getClass().getStaticWide(thread, fieldName + fieldType)
+    thread.pushStack64(
+      thread.getClass().getStatic64(thread, fieldName + fieldType)
     );
   } else {
     thread.pushStack(
@@ -98,8 +98,8 @@ export function runPutstatic(
 
   // FIXME: in theory it is legal to have 2 same field name, different type
   if (fieldType === 'J' || fieldType === 'D') {
-    const value = thread.popStackWide();
-    cls.putStaticWide(thread, fieldName + fieldType, value);
+    const value = thread.popStack64();
+    cls.putStatic64(thread, fieldName + fieldType, value);
   } else {
     const value = thread.popStack();
     cls.putStatic(thread, fieldName + fieldType, value);
@@ -138,7 +138,7 @@ export function runGetfield(
     .getConstant(className, nameAndTypeIndex.descriptorIndex).value;
 
   if (fieldType === 'J' || fieldType === 'D') {
-    thread.pushStackWide(obj.getFieldWide(fieldName + fieldType));
+    thread.pushStack64(obj.getField64(fieldName + fieldType));
   } else {
     thread.pushStack(obj.getField(fieldName + fieldType));
   }
@@ -176,9 +176,9 @@ export function runPutfield(
 
   // FIXME: in theory it is legal to have 2 same field name, different type
   if (fieldType === 'J' || fieldType === 'D') {
-    const value = thread.popStackWide();
+    const value = thread.popStack64();
     const obj = thread.popStack() as JavaReference;
-    obj.putFieldWide(fieldName + fieldType, value);
+    obj.putField64(fieldName + fieldType, value);
   } else {
     const value = thread.popStack();
     const obj = thread.popStack() as JavaReference;
@@ -225,7 +225,7 @@ export function runInvokevirtual(
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
-      args[i] = thread.popStackWide();
+      args[i] = thread.popStack64();
       continue;
     }
     args[i] = thread.popStack();
@@ -275,7 +275,7 @@ export function runInvokespecial(
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
-      args[i] = thread.popStackWide();
+      args[i] = thread.popStack64();
       continue;
     }
     args[i] = thread.popStack();
@@ -333,7 +333,7 @@ export function runInvokestatic(
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
-      args[i] = thread.popStackWide();
+      args[i] = thread.popStack64();
       continue;
     }
     args[i] = thread.popStack();
@@ -389,7 +389,7 @@ export function runInvokeinterface(
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
-      args[i] = thread.popStackWide();
+      args[i] = thread.popStack64();
       continue;
     }
     args[i] = thread.popStack();
@@ -527,7 +527,7 @@ export function runInstanceof(
     return;
   }
 
-  if (cls.tag === CONSTANT_TAG.constantClass) {
+  if (cls.tag === CONSTANT_TAG.Class) {
     const classRef = (cls as ConstantClass).ref;
     if (
       ref.getClass().getClassname() === classRef.getClassname() ||

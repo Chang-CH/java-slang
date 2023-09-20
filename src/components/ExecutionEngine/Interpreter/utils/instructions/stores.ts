@@ -1,7 +1,7 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { InstructionType } from '#types/ClassRef/instructions';
-import { JavaArray } from '#types/DataTypes';
+import { InstructionType } from '../readInstruction';
+import { JavaArray } from '#types/dataTypes';
 
 export function runIstore(thread: NativeThread, instruction: InstructionType) {
   thread.storeLocal(instruction.operands[0], thread.popStack());
@@ -9,7 +9,7 @@ export function runIstore(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runLstore(thread: NativeThread, instruction: InstructionType) {
-  thread.storeLocalWide(instruction.operands[0], thread.popStack());
+  thread.storeLocal64(instruction.operands[0], thread.popStack());
   thread.offsetPc(2);
 }
 
@@ -19,7 +19,7 @@ export function runFstore(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDstore(thread: NativeThread, instruction: InstructionType) {
-  thread.storeLocalWide(instruction.operands[0], thread.popStackWide());
+  thread.storeLocal64(instruction.operands[0], thread.popStack64());
   thread.offsetPc(2);
 }
 
@@ -54,25 +54,25 @@ export function runIstore3(thread: NativeThread, instruction: InstructionType) {
 
 export function runLstore0(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocalWide(0, value);
+  thread.storeLocal64(0, value);
   thread.offsetPc(1);
 }
 
 export function runLstore1(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocalWide(1, value);
+  thread.storeLocal64(1, value);
   thread.offsetPc(1);
 }
 
 export function runLstore2(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocalWide(2, value);
+  thread.storeLocal64(2, value);
   thread.offsetPc(1);
 }
 
 export function runLstore3(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocalWide(3, value);
+  thread.storeLocal64(3, value);
   thread.offsetPc(1);
 }
 
@@ -101,26 +101,26 @@ export function runFstore3(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDstore0(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStackWide();
-  thread.storeLocalWide(0, value);
+  const value = thread.popStack64();
+  thread.storeLocal64(0, value);
   thread.offsetPc(1);
 }
 
 export function runDstore1(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStackWide();
-  thread.storeLocalWide(1, value);
+  const value = thread.popStack64();
+  thread.storeLocal64(1, value);
   thread.offsetPc(1);
 }
 
 export function runDstore2(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStackWide();
-  thread.storeLocalWide(2, value);
+  const value = thread.popStack64();
+  thread.storeLocal64(2, value);
   thread.offsetPc(1);
 }
 
 export function runDstore3(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStackWide();
-  thread.storeLocalWide(3, value);
+  const value = thread.popStack64();
+  thread.storeLocal64(3, value);
   thread.offsetPc(1);
 }
 

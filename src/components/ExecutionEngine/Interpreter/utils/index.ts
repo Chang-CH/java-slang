@@ -1,4 +1,4 @@
-import { JavaType } from '#types/DataTypes';
+import { JavaType } from '#types/dataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export function parseFieldDescriptor(descriptor: string, index: number) {
@@ -81,13 +81,3 @@ export function tryInitialize(thread: NativeThread, className: string) {
     classRef.isInitialized = true;
   }
 }
-
-// export function runFull( instruction: InstructionType) {
-//   const className = thread.getClass().getConstant(
-//     thread.getClassName(),
-//     instruction.operands[0]
-//   ) as constantUtf8Info;
-
-//   tryInitialize( thread, className.value);
-//   thread.offsetPc(3);
-// }

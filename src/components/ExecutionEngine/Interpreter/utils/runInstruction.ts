@@ -1,7 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { InstructionType } from '#types/ClassRef/instructions';
 import * as comparisons from './instructions/comparisons';
 import * as constants from './instructions/constants';
 import * as control from './instructions/control';
@@ -13,6 +12,7 @@ import * as references from './instructions/references';
 import * as reserved from './instructions/reserved';
 import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
+import { InstructionType } from './readInstruction';
 
 export default function runInstruction(
   thread: NativeThread,
