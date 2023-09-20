@@ -4,7 +4,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/DataTypes';
+import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 
 let thread: NativeThread;
@@ -378,8 +378,8 @@ describe('runFadd', () => {
 
 describe('runDadd', () => {
   test('DADD: double addition', () => {
-    thread.pushStackWide(1.5);
-    thread.pushStackWide(2.5);
+    thread.pushStack64(1.5);
+    thread.pushStack64(2.5);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -393,8 +393,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition overflow Infinity', () => {
-    thread.pushStackWide(1.7e308);
-    thread.pushStackWide(1.7e308);
+    thread.pushStack64(1.7e308);
+    thread.pushStack64(1.7e308);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -408,8 +408,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition underflow Ininfity', () => {
-    thread.pushStackWide(-1.7e308);
-    thread.pushStackWide(-1.7e308);
+    thread.pushStack64(-1.7e308);
+    thread.pushStack64(-1.7e308);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -423,8 +423,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(NaN);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -438,8 +438,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition NaN returns NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -453,8 +453,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -468,8 +468,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition Infinity + -Infinity = NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(-Infinity);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(-Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -483,8 +483,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition Infinity + any = Infinity', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(5.0);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -498,8 +498,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition -Infinity + any = -Infinity', () => {
-    thread.pushStackWide(-Infinity);
-    thread.pushStackWide(5.0);
+    thread.pushStack64(-Infinity);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -513,8 +513,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition Infinity + Infinity = Infinity', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -528,8 +528,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition -Infinity + -Infinity = -Infinity', () => {
-    thread.pushStackWide(-Infinity);
-    thread.pushStackWide(-Infinity);
+    thread.pushStack64(-Infinity);
+    thread.pushStack64(-Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -543,8 +543,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition -0 + 0 = +0', () => {
-    thread.pushStackWide(-0);
-    thread.pushStackWide(+0);
+    thread.pushStack64(-0);
+    thread.pushStack64(+0);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -558,8 +558,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition 0 + 0 = +0', () => {
-    thread.pushStackWide(+0);
-    thread.pushStackWide(+0);
+    thread.pushStack64(+0);
+    thread.pushStack64(+0);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -573,8 +573,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition -0 + -0 = -0', () => {
-    thread.pushStackWide(-0);
-    thread.pushStackWide(-0);
+    thread.pushStack64(-0);
+    thread.pushStack64(-0);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -588,8 +588,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition 0 + any = any', () => {
-    thread.pushStackWide(1.33);
-    thread.pushStackWide(0);
+    thread.pushStack64(1.33);
+    thread.pushStack64(0);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -603,8 +603,8 @@ describe('runDadd', () => {
   });
 
   test('DADD: double addition any + any', () => {
-    thread.pushStackWide(1.33);
-    thread.pushStackWide(1);
+    thread.pushStack64(1.33);
+    thread.pushStack64(1);
     runInstruction(thread, {
       opcode: OPCODE.DADD,
       operands: [],
@@ -956,8 +956,8 @@ describe('runFsub', () => {
 
 describe('runDsub', () => {
   test('DSUB: double subtraction', () => {
-    thread.pushStackWide(2.5);
-    thread.pushStackWide(1.5);
+    thread.pushStack64(2.5);
+    thread.pushStack64(1.5);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -971,8 +971,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction overflow Infinity', () => {
-    thread.pushStackWide(1.8e308);
-    thread.pushStackWide(-1.8e308);
+    thread.pushStack64(1.8e308);
+    thread.pushStack64(-1.8e308);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -986,8 +986,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction underflow Ininfity', () => {
-    thread.pushStackWide(-1.8e308);
-    thread.pushStackWide(1.8e308);
+    thread.pushStack64(-1.8e308);
+    thread.pushStack64(1.8e308);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1001,8 +1001,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(NaN);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1016,8 +1016,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction NaN returns NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1031,8 +1031,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1046,8 +1046,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction Infinity - Infinity = NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1061,8 +1061,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction Infinity - any = Infinity', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(5.0);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1076,8 +1076,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction -Infinity - any = -Infinity', () => {
-    thread.pushStackWide(-Infinity);
-    thread.pushStackWide(5.0);
+    thread.pushStack64(-Infinity);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1091,8 +1091,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction Infinity - Infinity = NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1106,8 +1106,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction -Infinity - Infinity = -Infinity', () => {
-    thread.pushStackWide(-Infinity);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(-Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1121,8 +1121,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction 0 - 0 = +0', () => {
-    thread.pushStackWide(0);
-    thread.pushStackWide(0);
+    thread.pushStack64(0);
+    thread.pushStack64(0);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1136,8 +1136,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction 0 - -0 = +0', () => {
-    thread.pushStackWide(+0);
-    thread.pushStackWide(-0);
+    thread.pushStack64(+0);
+    thread.pushStack64(-0);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1151,8 +1151,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction -0 - 0 = -0', () => {
-    thread.pushStackWide(-0);
-    thread.pushStackWide(0);
+    thread.pushStack64(-0);
+    thread.pushStack64(0);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1166,8 +1166,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction 0 + any = any', () => {
-    thread.pushStackWide(1.33);
-    thread.pushStackWide(0);
+    thread.pushStack64(1.33);
+    thread.pushStack64(0);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1181,8 +1181,8 @@ describe('runDsub', () => {
   });
 
   test('DSUB: double subtraction any - any = any', () => {
-    thread.pushStackWide(1.33);
-    thread.pushStackWide(1);
+    thread.pushStack64(1.33);
+    thread.pushStack64(1);
     runInstruction(thread, {
       opcode: OPCODE.DSUB,
       operands: [],
@@ -1260,8 +1260,8 @@ describe('runImul', () => {
 
 describe('runLmul', () => {
   test('LMUL: long multiplication', () => {
-    thread.pushStackWide(2n);
-    thread.pushStackWide(1n);
+    thread.pushStack64(2n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LMUL,
       operands: [],
@@ -1275,8 +1275,8 @@ describe('runLmul', () => {
   });
 
   test('LMUL: long multiplication overflows', () => {
-    thread.pushStackWide(MAX_LONG);
-    thread.pushStackWide(2n);
+    thread.pushStack64(MAX_LONG);
+    thread.pushStack64(2n);
     runInstruction(thread, {
       opcode: OPCODE.LMUL,
       operands: [],
@@ -1290,8 +1290,8 @@ describe('runLmul', () => {
   });
 
   test('LMUL: long multiplication underflows', () => {
-    thread.pushStackWide(MAX_LONG);
-    thread.pushStackWide(-2n);
+    thread.pushStack64(MAX_LONG);
+    thread.pushStack64(-2n);
     runInstruction(thread, {
       opcode: OPCODE.LMUL,
       operands: [],
@@ -1488,8 +1488,8 @@ describe('runFmul', () => {
 
 describe('runDmul', () => {
   test('DMUL: double multiplication', () => {
-    thread.pushStackWide(2);
-    thread.pushStackWide(0.5);
+    thread.pushStack64(2);
+    thread.pushStack64(0.5);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1503,8 +1503,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication overflow Infinity', () => {
-    thread.pushStackWide(1.7e308);
-    thread.pushStackWide(2.0);
+    thread.pushStack64(1.7e308);
+    thread.pushStack64(2.0);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1518,8 +1518,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication underflow -Infinity', () => {
-    thread.pushStackWide(-1.7e308);
-    thread.pushStackWide(2);
+    thread.pushStack64(-1.7e308);
+    thread.pushStack64(2);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1533,8 +1533,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(NaN);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1548,8 +1548,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication NaN returns NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1563,8 +1563,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1578,8 +1578,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication Infinity * 0 = NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(0);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(0);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1593,8 +1593,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication Infinity * +any = Infinity', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(5.0);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1608,8 +1608,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication Infinity * -any = -Infinity', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(-5.0);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(-5.0);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1623,8 +1623,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication any * any = fround of any', () => {
-    thread.pushStackWide(1.1);
-    thread.pushStackWide(0.3);
+    thread.pushStack64(1.1);
+    thread.pushStack64(0.3);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1638,8 +1638,8 @@ describe('runDmul', () => {
   });
 
   test('DMUL: double multiplication smallest precision = 0', () => {
-    thread.pushStackWide(-2e-307);
-    thread.pushStackWide(-2e-307);
+    thread.pushStack64(-2e-307);
+    thread.pushStack64(-2e-307);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1652,8 +1652,8 @@ describe('runDmul', () => {
     expect(lastFrame.pc).toBe(1);
   });
   test('DMUL: double multiplication negative smallest precision = -0', () => {
-    thread.pushStackWide(2e-307);
-    thread.pushStackWide(-2e-307);
+    thread.pushStack64(2e-307);
+    thread.pushStack64(-2e-307);
     runInstruction(thread, {
       opcode: OPCODE.DMUL,
       operands: [],
@@ -1755,8 +1755,8 @@ describe('runIdiv', () => {
 
 describe('runLdiv', () => {
   test('LDIV: long division', () => {
-    thread.pushStackWide(2n);
-    thread.pushStackWide(2n);
+    thread.pushStack64(2n);
+    thread.pushStack64(2n);
     runInstruction(thread, {
       opcode: OPCODE.LDIV,
       operands: [],
@@ -1770,8 +1770,8 @@ describe('runLdiv', () => {
   });
 
   test('LDIV: long division rounds to 0', () => {
-    thread.pushStackWide(9n);
-    thread.pushStackWide(10n);
+    thread.pushStack64(9n);
+    thread.pushStack64(10n);
     runInstruction(thread, {
       opcode: OPCODE.LDIV,
       operands: [],
@@ -1785,8 +1785,8 @@ describe('runLdiv', () => {
   });
 
   test('LDIV: negative long division rounds to 0', () => {
-    thread.pushStackWide(9n);
-    thread.pushStackWide(-10n);
+    thread.pushStack64(9n);
+    thread.pushStack64(-10n);
     runInstruction(thread, {
       opcode: OPCODE.LDIV,
       operands: [],
@@ -1800,8 +1800,8 @@ describe('runLdiv', () => {
   });
 
   test('LDIV: long min / -1 division overflows', () => {
-    thread.pushStackWide(MIN_LONG);
-    thread.pushStackWide(-1n);
+    thread.pushStack64(MIN_LONG);
+    thread.pushStack64(-1n);
     runInstruction(thread, {
       opcode: OPCODE.LDIV,
       operands: [],
@@ -1815,8 +1815,8 @@ describe('runLdiv', () => {
   });
 
   test('LDIV: divide by zero throws ArithmeticException', () => {
-    thread.pushStackWide(9n);
-    thread.pushStackWide(0n);
+    thread.pushStack64(9n);
+    thread.pushStack64(0n);
     runInstruction(thread, {
       opcode: OPCODE.LDIV,
       operands: [],
@@ -2097,8 +2097,8 @@ describe('runFdiv', () => {
 
 describe('runDdiv', () => {
   test('DDIV: double division', () => {
-    thread.pushStackWide(2);
-    thread.pushStackWide(0.5);
+    thread.pushStack64(2);
+    thread.pushStack64(0.5);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2112,8 +2112,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division overflow Infinity', () => {
-    thread.pushStackWide(1.7e308);
-    thread.pushStackWide(0.5);
+    thread.pushStack64(1.7e308);
+    thread.pushStack64(0.5);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2127,8 +2127,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division underflow -Infinity', () => {
-    thread.pushStackWide(-1.7e308);
-    thread.pushStackWide(0.5);
+    thread.pushStack64(-1.7e308);
+    thread.pushStack64(0.5);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2142,8 +2142,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(NaN);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2157,8 +2157,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division NaN returns NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2172,8 +2172,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2187,8 +2187,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division 0 / 0 = NaN', () => {
-    thread.pushStackWide(0);
-    thread.pushStackWide(0);
+    thread.pushStack64(0);
+    thread.pushStack64(0);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2202,8 +2202,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: float division any / 0 = Infinity', () => {
-    thread.pushStackWide(5.0);
-    thread.pushStackWide(0.0);
+    thread.pushStack64(5.0);
+    thread.pushStack64(0.0);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2217,8 +2217,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: float division -any / 0 = -Infinity', () => {
-    thread.pushStackWide(-5.0);
-    thread.pushStackWide(0.0);
+    thread.pushStack64(-5.0);
+    thread.pushStack64(0.0);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2232,8 +2232,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division Infinity / Infinity = NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2247,8 +2247,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division Infinity / +any = Infinity', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(5.0);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2262,8 +2262,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division Infinity / -any = -Infinity', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(-5.0);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(-5.0);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2277,8 +2277,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division any / Infinity = +0', () => {
-    thread.pushStackWide(5.0);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(5.0);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2292,8 +2292,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division any / -Infinity = -0', () => {
-    thread.pushStackWide(5.0);
-    thread.pushStackWide(-Infinity);
+    thread.pushStack64(5.0);
+    thread.pushStack64(-Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2307,8 +2307,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division smallest precision = +0', () => {
-    thread.pushStackWide(-4e-302);
-    thread.pushStackWide(-4e302);
+    thread.pushStack64(-4e-302);
+    thread.pushStack64(-4e302);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2322,8 +2322,8 @@ describe('runDdiv', () => {
   });
 
   test('DDIV: double division negative smallest precision = -0', () => {
-    thread.pushStackWide(4e-302);
-    thread.pushStackWide(-4e302);
+    thread.pushStack64(4e-302);
+    thread.pushStack64(-4e302);
     runInstruction(thread, {
       opcode: OPCODE.DDIV,
       operands: [],
@@ -2394,8 +2394,8 @@ describe('runIrem', () => {
 
 describe('runLrem', () => {
   test('LREM: long remainder', () => {
-    thread.pushStackWide(3n);
-    thread.pushStackWide(2n);
+    thread.pushStack64(3n);
+    thread.pushStack64(2n);
     runInstruction(thread, {
       opcode: OPCODE.LREM,
       operands: [],
@@ -2409,8 +2409,8 @@ describe('runLrem', () => {
   });
 
   test('LREM: long min % -1 returns 0', () => {
-    thread.pushStackWide(MIN_LONG);
-    thread.pushStackWide(-1n);
+    thread.pushStack64(MIN_LONG);
+    thread.pushStack64(-1n);
     runInstruction(thread, {
       opcode: OPCODE.LREM,
       operands: [],
@@ -2424,8 +2424,8 @@ describe('runLrem', () => {
   });
 
   test('LREM: Remainder by zero throws ArithmeticException', () => {
-    thread.pushStackWide(9n);
-    thread.pushStackWide(0n);
+    thread.pushStack64(9n);
+    thread.pushStack64(0n);
     runInstruction(thread, {
       opcode: OPCODE.LREM,
       operands: [],
@@ -2586,8 +2586,8 @@ describe('runFrem', () => {
 
 describe('runDrem', () => {
   test('DREM: double remainder', () => {
-    thread.pushStackWide(1.3);
-    thread.pushStackWide(0.5);
+    thread.pushStack64(1.3);
+    thread.pushStack64(0.5);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2601,8 +2601,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(NaN);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2616,8 +2616,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder NaN returns NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2631,8 +2631,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder NaN returns NaN', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2646,8 +2646,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder 0 % 0 = NaN', () => {
-    thread.pushStackWide(0);
-    thread.pushStackWide(0);
+    thread.pushStack64(0);
+    thread.pushStack64(0);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2661,8 +2661,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder Infinity % any = NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(2);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(2);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2676,8 +2676,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder -0 % Infinity = -0', () => {
-    thread.pushStackWide(-0);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(-0);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2691,8 +2691,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder Infinity % Infinity = NaN', () => {
-    thread.pushStackWide(Infinity);
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2706,8 +2706,8 @@ describe('runDrem', () => {
   });
 
   test('DREM: double remainder any % any = fround of any', () => {
-    thread.pushStackWide(0.99);
-    thread.pushStackWide(0.66);
+    thread.pushStack64(0.99);
+    thread.pushStack64(0.66);
     runInstruction(thread, {
       opcode: OPCODE.DREM,
       operands: [],
@@ -2753,7 +2753,7 @@ describe('runIneg', () => {
 
 describe('runLneg', () => {
   test('LNEG: long negation', () => {
-    thread.pushStackWide(1n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LNEG,
       operands: [],
@@ -2767,7 +2767,7 @@ describe('runLneg', () => {
   });
 
   test('LNEG: long negation overflows', () => {
-    thread.pushStackWide(MIN_LONG);
+    thread.pushStack64(MIN_LONG);
     runInstruction(thread, {
       opcode: OPCODE.LNEG,
       operands: [],
@@ -2841,7 +2841,7 @@ describe('runFneg', () => {
 
 describe('runDneg', () => {
   test('DNEG: float negation', () => {
-    thread.pushStackWide(1.0);
+    thread.pushStack64(1.0);
     runInstruction(thread, {
       opcode: OPCODE.DNEG,
       operands: [],
@@ -2855,7 +2855,7 @@ describe('runDneg', () => {
   });
 
   test('DNEG: negates zero', () => {
-    thread.pushStackWide(0.0);
+    thread.pushStack64(0.0);
     runInstruction(thread, {
       opcode: OPCODE.DNEG,
       operands: [],
@@ -2869,7 +2869,7 @@ describe('runDneg', () => {
   });
 
   test('DNEG: NaN negated is NaN', () => {
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DNEG,
       operands: [],
@@ -2883,7 +2883,7 @@ describe('runDneg', () => {
   });
 
   test('DNEG: float Infinity negated is -Infinity', () => {
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.DNEG,
       operands: [],
@@ -2946,7 +2946,7 @@ describe('runIshl', () => {
 
 describe('runLshl', () => {
   test('LSHL: shift left long', () => {
-    thread.pushStackWide(2n);
+    thread.pushStack64(2n);
     thread.pushStack(1);
     runInstruction(thread, {
       opcode: OPCODE.LSHL,
@@ -2961,7 +2961,7 @@ describe('runLshl', () => {
   });
 
   test('LSHL: int shift left overflows', () => {
-    thread.pushStackWide(1n);
+    thread.pushStack64(1n);
     thread.pushStack(0x3f);
     runInstruction(thread, {
       opcode: OPCODE.LSHL,
@@ -2976,7 +2976,7 @@ describe('runLshl', () => {
   });
 
   test('LSHL: int shift left capped at 0x3f', () => {
-    thread.pushStackWide(1n);
+    thread.pushStack64(1n);
     thread.pushStack(0x7f);
     runInstruction(thread, {
       opcode: OPCODE.LSHL,
@@ -3040,7 +3040,7 @@ describe('runIshr', () => {
 
 describe('runLshr', () => {
   test('LSHR: shift right long', () => {
-    thread.pushStackWide(2n);
+    thread.pushStack64(2n);
     thread.pushStack(1);
     runInstruction(thread, {
       opcode: OPCODE.LSHR,
@@ -3055,7 +3055,7 @@ describe('runLshr', () => {
   });
 
   test('LSHR: int shift right truncates', () => {
-    thread.pushStackWide(MIN_LONG);
+    thread.pushStack64(MIN_LONG);
     thread.pushStack(0x3f);
     runInstruction(thread, {
       opcode: OPCODE.LSHR,
@@ -3070,7 +3070,7 @@ describe('runLshr', () => {
   });
 
   test('LSHR: int shift right capped at 0x3f', () => {
-    thread.pushStackWide(MIN_LONG);
+    thread.pushStack64(MIN_LONG);
     thread.pushStack(0x7f);
     runInstruction(thread, {
       opcode: OPCODE.LSHR,
@@ -3134,7 +3134,7 @@ describe('runIushr', () => {
 
 describe('runLushr', () => {
   test('LUSHR: shift right long', () => {
-    thread.pushStackWide(2n);
+    thread.pushStack64(2n);
     thread.pushStack(1);
     runInstruction(thread, {
       opcode: OPCODE.LUSHR,
@@ -3149,7 +3149,7 @@ describe('runLushr', () => {
   });
 
   test('LUSHR: int shift right changes sign', () => {
-    thread.pushStackWide(-2n);
+    thread.pushStack64(-2n);
     thread.pushStack(1);
     runInstruction(thread, {
       opcode: OPCODE.LUSHR,
@@ -3164,7 +3164,7 @@ describe('runLushr', () => {
   });
 
   test('LUSHR: int shift right truncates', () => {
-    thread.pushStackWide(MIN_LONG);
+    thread.pushStack64(MIN_LONG);
     thread.pushStack(0x3f);
     runInstruction(thread, {
       opcode: OPCODE.LUSHR,
@@ -3179,7 +3179,7 @@ describe('runLushr', () => {
   });
 
   test('LUSHR: int shift right capped at 0x3f', () => {
-    thread.pushStackWide(MIN_LONG);
+    thread.pushStack64(MIN_LONG);
     thread.pushStack(0x7f);
     runInstruction(thread, {
       opcode: OPCODE.LUSHR,
@@ -3228,8 +3228,8 @@ describe('runIand', () => {
 
 describe('runLand', () => {
   test('LAND: long and', () => {
-    thread.pushStackWide(3n);
-    thread.pushStackWide(1n);
+    thread.pushStack64(3n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LAND,
       operands: [],
@@ -3243,8 +3243,8 @@ describe('runLand', () => {
   });
 
   test('LAND: long and negatives', () => {
-    thread.pushStackWide(-1n);
-    thread.pushStackWide(1n);
+    thread.pushStack64(-1n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LAND,
       operands: [],
@@ -3292,8 +3292,8 @@ describe('runIor', () => {
 
 describe('runLor', () => {
   test('LOR: long or', () => {
-    thread.pushStackWide(2n);
-    thread.pushStackWide(1n);
+    thread.pushStack64(2n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LOR,
       operands: [],
@@ -3307,8 +3307,8 @@ describe('runLor', () => {
   });
 
   test('LOR: long or negatives', () => {
-    thread.pushStackWide(-1n);
-    thread.pushStackWide(1n);
+    thread.pushStack64(-1n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LOR,
       operands: [],
@@ -3356,8 +3356,8 @@ describe('runIXor', () => {
 
 describe('runLxor', () => {
   test('LXOR: long xor', () => {
-    thread.pushStackWide(3n);
-    thread.pushStackWide(1n);
+    thread.pushStack64(3n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LXOR,
       operands: [],
@@ -3371,8 +3371,8 @@ describe('runLxor', () => {
   });
 
   test('LXOR: long xor negatives', () => {
-    thread.pushStackWide(-1n);
-    thread.pushStackWide(1n);
+    thread.pushStack64(-1n);
+    thread.pushStack64(1n);
     runInstruction(thread, {
       opcode: OPCODE.LXOR,
       operands: [],

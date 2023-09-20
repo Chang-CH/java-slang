@@ -4,7 +4,7 @@ import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/ru
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/DataTypes';
+import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 
 let thread: NativeThread;
@@ -37,8 +37,8 @@ beforeEach(() => {
 
 describe('runLcmp', () => {
   test('lcmp: value1 > value2 pushes 1I onto stack', () => {
-    thread.pushStackWide(100n);
-    thread.pushStackWide(99n);
+    thread.pushStack64(100n);
+    thread.pushStack64(99n);
     runInstruction(thread, {
       opcode: OPCODE.LCMP,
       operands: [],
@@ -52,8 +52,8 @@ describe('runLcmp', () => {
   });
 
   test('lcmp: value1 == value2 pushes 0I onto stack', () => {
-    thread.pushStackWide(100n);
-    thread.pushStackWide(100n);
+    thread.pushStack64(100n);
+    thread.pushStack64(100n);
     runInstruction(thread, {
       opcode: OPCODE.LCMP,
       operands: [],
@@ -67,8 +67,8 @@ describe('runLcmp', () => {
   });
 
   test('lcmp: value1 < value2 pushes 0I onto stack', () => {
-    thread.pushStackWide(99n);
-    thread.pushStackWide(100n);
+    thread.pushStack64(99n);
+    thread.pushStack64(100n);
     runInstruction(thread, {
       opcode: OPCODE.LCMP,
       operands: [],
@@ -298,8 +298,8 @@ describe('runFcmpg', () => {
 
 describe('runDcmpl', () => {
   test('DCMPL: value1 > value2 pushes 1I onto stack', () => {
-    thread.pushStackWide(1.5);
-    thread.pushStackWide(1.2);
+    thread.pushStack64(1.5);
+    thread.pushStack64(1.2);
     runInstruction(thread, {
       opcode: OPCODE.DCMPL,
       operands: [],
@@ -313,8 +313,8 @@ describe('runDcmpl', () => {
   });
 
   test('DCMPL: value1 == value2 pushes 0I onto stack', () => {
-    thread.pushStackWide(1.5);
-    thread.pushStackWide(1.5);
+    thread.pushStack64(1.5);
+    thread.pushStack64(1.5);
     runInstruction(thread, {
       opcode: OPCODE.DCMPL,
       operands: [],
@@ -328,8 +328,8 @@ describe('runDcmpl', () => {
   });
 
   test('DCMPL: -0 == +0 pushes 0I onto stack', () => {
-    thread.pushStackWide(-0.0);
-    thread.pushStackWide(+0.0);
+    thread.pushStack64(-0.0);
+    thread.pushStack64(+0.0);
     runInstruction(thread, {
       opcode: OPCODE.DCMPL,
       operands: [],
@@ -343,8 +343,8 @@ describe('runDcmpl', () => {
   });
 
   test('DCMPL: value1 < value2 pushes 0I onto stack', () => {
-    thread.pushStackWide(1.2);
-    thread.pushStackWide(1.5);
+    thread.pushStack64(1.2);
+    thread.pushStack64(1.5);
     runInstruction(thread, {
       opcode: OPCODE.DCMPL,
       operands: [],
@@ -358,8 +358,8 @@ describe('runDcmpl', () => {
   });
 
   test('DCMPL: value1 is NaN pushes -1I onto stack', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(1.5);
+    thread.pushStack64(NaN);
+    thread.pushStack64(1.5);
     runInstruction(thread, {
       opcode: OPCODE.DCMPL,
       operands: [],
@@ -373,8 +373,8 @@ describe('runDcmpl', () => {
   });
 
   test('DCMPL: value2 is NaN pushes -1I onto stack', () => {
-    thread.pushStackWide(1.5);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(1.5);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DCMPL,
       operands: [],
@@ -388,8 +388,8 @@ describe('runDcmpl', () => {
   });
 
   test('DCMPL: both values are NaN pushes -1I onto stack', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DCMPL,
       operands: [],
@@ -405,8 +405,8 @@ describe('runDcmpl', () => {
 
 describe('runDcmpg', () => {
   test('DCMPG: value1 > value2 pushes 1I onto stack', () => {
-    thread.pushStackWide(1.5);
-    thread.pushStackWide(1.2);
+    thread.pushStack64(1.5);
+    thread.pushStack64(1.2);
     runInstruction(thread, {
       opcode: OPCODE.DCMPG,
       operands: [],
@@ -420,8 +420,8 @@ describe('runDcmpg', () => {
   });
 
   test('DCMPG: value1 == value2 pushes 0I onto stack', () => {
-    thread.pushStackWide(1.5);
-    thread.pushStackWide(1.5);
+    thread.pushStack64(1.5);
+    thread.pushStack64(1.5);
     runInstruction(thread, {
       opcode: OPCODE.DCMPG,
       operands: [],
@@ -435,8 +435,8 @@ describe('runDcmpg', () => {
   });
 
   test('DCMPG: -0 == +0 pushes 0I onto stack', () => {
-    thread.pushStackWide(-0.0);
-    thread.pushStackWide(+0.0);
+    thread.pushStack64(-0.0);
+    thread.pushStack64(+0.0);
     runInstruction(thread, {
       opcode: OPCODE.DCMPG,
       operands: [],
@@ -450,8 +450,8 @@ describe('runDcmpg', () => {
   });
 
   test('DCMPG: value1 < value2 pushes 0I onto stack', () => {
-    thread.pushStackWide(1.2);
-    thread.pushStackWide(1.5);
+    thread.pushStack64(1.2);
+    thread.pushStack64(1.5);
     runInstruction(thread, {
       opcode: OPCODE.DCMPG,
       operands: [],
@@ -465,8 +465,8 @@ describe('runDcmpg', () => {
   });
 
   test('DCMPG: value1 is NaN pushes 1I onto stack', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(1.5);
+    thread.pushStack64(NaN);
+    thread.pushStack64(1.5);
     runInstruction(thread, {
       opcode: OPCODE.DCMPG,
       operands: [],
@@ -480,8 +480,8 @@ describe('runDcmpg', () => {
   });
 
   test('DCMPG: value2 is NaN pushes 1I onto stack', () => {
-    thread.pushStackWide(1.5);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(1.5);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DCMPG,
       operands: [],
@@ -495,8 +495,8 @@ describe('runDcmpg', () => {
   });
 
   test('DCMPG: both values are NaN pushes 1I onto stack', () => {
-    thread.pushStackWide(NaN);
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.DCMPG,
       operands: [],

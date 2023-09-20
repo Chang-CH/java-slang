@@ -4,7 +4,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { ClassRef } from '#types/ClassRef';
-import { ArrayType, JavaArray, JavaReference } from '#types/DataTypes';
+import { ArrayType, JavaArray, JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 
 let thread: NativeThread;

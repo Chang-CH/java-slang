@@ -6,7 +6,7 @@ import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/ru
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/DataTypes';
+import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 import { initString } from '#jvm/components/JNI/utils';
 import {
@@ -320,7 +320,7 @@ describe('runSipush', () => {
 describe('runLdc', () => {
   test('reads int from constant pool and pushes to stack', () => {
     const intConstant = {
-      tag: CONSTANT_TAG.constantInteger,
+      tag: CONSTANT_TAG.Integer,
       value: -99,
     };
     (threadClass as any).constantPool[0] = intConstant;
@@ -338,7 +338,7 @@ describe('runLdc', () => {
 
   test('reads float from constant pool and pushes to stack', () => {
     const intConstant = {
-      tag: CONSTANT_TAG.constantFloat,
+      tag: CONSTANT_TAG.Float,
       value: Math.fround(-0.3),
     };
     (threadClass as any).constantPool[0] = intConstant;
@@ -364,7 +364,7 @@ describe('runLdc', () => {
       });
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
-      tag: CONSTANT_TAG.constantString,
+      tag: CONSTANT_TAG.String,
       ref: strRef,
       stringIndex: 0,
     } as ConstantString;
@@ -385,11 +385,11 @@ describe('runLdc', () => {
   test('initializes uninitialized string from constant pool', () => {
     tryInitialize(thread, 'java/lang/String');
     const strConstant = {
-      tag: CONSTANT_TAG.constantString,
+      tag: CONSTANT_TAG.String,
       stringIndex: 1,
     } as ConstantStringInfo;
     const strContent = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: 'hello world',
     } as ConstantUtf8Info;
     (threadClass as any).constantPool[0] = strConstant;
@@ -411,7 +411,7 @@ describe('runLdc', () => {
   test('reads classref from constant pool and pushes to stack', () => {
     const clsRef = thread.getClass();
     const classRef = {
-      tag: CONSTANT_TAG.constantClass,
+      tag: CONSTANT_TAG.Class,
       nameIndex: 1,
       ref: clsRef,
     } as ConstantClass;
@@ -431,11 +431,11 @@ describe('runLdc', () => {
 
   test('initializes uninitialized class from constant pool', () => {
     const classRef = {
-      tag: CONSTANT_TAG.constantClass,
+      tag: CONSTANT_TAG.Class,
       nameIndex: 1,
     } as ConstantClassInfo;
     const className = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: 'java/lang/Thread',
     } as ConstantUtf8Info;
     (threadClass as any).constantPool[0] = classRef;
@@ -457,7 +457,7 @@ describe('runLdc', () => {
   test('reads methodRef from constant pool and pushes to stack', () => {
     const methodRef = thread.getClass().getMethod(thread, '<init>()V');
     const constMethod = {
-      tag: CONSTANT_TAG.constantMethodref,
+      tag: CONSTANT_TAG.Methodref,
       classIndex: 1,
       nameAndTypeIndex: 1,
       ref: methodRef,
@@ -478,31 +478,31 @@ describe('runLdc', () => {
 
   test('initializes uninitialized method from constant pool', () => {
     (threadClass as any).constantPool[0] = {
-      tag: CONSTANT_TAG.constantMethodref,
+      tag: CONSTANT_TAG.Methodref,
       classIndex: 1,
       nameAndTypeIndex: 3,
     };
     (threadClass as any).constantPool[1] = {
-      tag: CONSTANT_TAG.constantClass,
+      tag: CONSTANT_TAG.Class,
       nameIndex: 2,
     };
     (threadClass as any).constantPool[2] = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: 'java/lang/Thread',
       length: 30,
     };
     (threadClass as any).constantPool[3] = {
-      tag: CONSTANT_TAG.constantNameAndType,
+      tag: CONSTANT_TAG.NameAndType,
       nameIndex: 4,
       descriptorIndex: 5,
     };
     (threadClass as any).constantPool[4] = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: '<init>',
       length: 30,
     };
     (threadClass as any).constantPool[5] = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: '()V',
       length: 30,
     };
@@ -526,7 +526,7 @@ describe('runLdc', () => {
 describe('runLdcW', () => {
   test('reads int from constant pool and pushes to stack', () => {
     const intConstant = {
-      tag: CONSTANT_TAG.constantInteger,
+      tag: CONSTANT_TAG.Integer,
       value: -99,
     };
     (threadClass as any).constantPool[0] = intConstant;
@@ -544,7 +544,7 @@ describe('runLdcW', () => {
 
   test('reads float from constant pool and pushes to stack', () => {
     const intConstant = {
-      tag: CONSTANT_TAG.constantFloat,
+      tag: CONSTANT_TAG.Float,
       value: Math.fround(-0.3),
     };
     (threadClass as any).constantPool[0] = intConstant;
@@ -570,7 +570,7 @@ describe('runLdcW', () => {
       });
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
-      tag: CONSTANT_TAG.constantString,
+      tag: CONSTANT_TAG.String,
       ref: strRef,
       stringIndex: 0,
     } as ConstantString;
@@ -591,11 +591,11 @@ describe('runLdcW', () => {
   test('initializes uninitialized string from constant pool', () => {
     tryInitialize(thread, 'java/lang/String');
     const strConstant = {
-      tag: CONSTANT_TAG.constantString,
+      tag: CONSTANT_TAG.String,
       stringIndex: 1,
     } as ConstantStringInfo;
     const strContent = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: 'hello world',
     } as ConstantUtf8Info;
     (threadClass as any).constantPool[0] = strConstant;
@@ -617,7 +617,7 @@ describe('runLdcW', () => {
   test('reads classref from constant pool and pushes to stack', () => {
     const clsRef = thread.getClass();
     const classRef = {
-      tag: CONSTANT_TAG.constantClass,
+      tag: CONSTANT_TAG.Class,
       nameIndex: 1,
       ref: clsRef,
     } as ConstantClass;
@@ -637,11 +637,11 @@ describe('runLdcW', () => {
 
   test('initializes uninitialized class from constant pool', () => {
     const classRef = {
-      tag: CONSTANT_TAG.constantClass,
+      tag: CONSTANT_TAG.Class,
       nameIndex: 1,
     } as ConstantClassInfo;
     const className = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: 'java/lang/Thread',
     } as ConstantUtf8Info;
     (threadClass as any).constantPool[0] = classRef;
@@ -663,7 +663,7 @@ describe('runLdcW', () => {
   test('reads methodRef from constant pool and pushes to stack', () => {
     const methodRef = thread.getClass().getMethod(thread, '<init>()V');
     const constMethod = {
-      tag: CONSTANT_TAG.constantMethodref,
+      tag: CONSTANT_TAG.Methodref,
       classIndex: 99,
       nameAndTypeIndex: 99,
       ref: methodRef,
@@ -683,31 +683,31 @@ describe('runLdcW', () => {
 
   test('initializes uninitialized method from constant pool', () => {
     (threadClass as any).constantPool[0] = {
-      tag: CONSTANT_TAG.constantMethodref,
+      tag: CONSTANT_TAG.Methodref,
       classIndex: 1,
       nameAndTypeIndex: 3,
     };
     (threadClass as any).constantPool[1] = {
-      tag: CONSTANT_TAG.constantClass,
+      tag: CONSTANT_TAG.Class,
       nameIndex: 2,
     };
     (threadClass as any).constantPool[2] = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: 'java/lang/Thread',
       length: 30,
     };
     (threadClass as any).constantPool[3] = {
-      tag: CONSTANT_TAG.constantNameAndType,
+      tag: CONSTANT_TAG.NameAndType,
       nameIndex: 4,
       descriptorIndex: 5,
     };
     (threadClass as any).constantPool[4] = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: '<init>',
       length: 30,
     };
     (threadClass as any).constantPool[5] = {
-      tag: CONSTANT_TAG.constantUtf8,
+      tag: CONSTANT_TAG.Utf8,
       value: '()V',
       length: 30,
     };
@@ -731,7 +731,7 @@ describe('runLdcW', () => {
 describe('runLdc2W', () => {
   test('reads long from constant pool and pushes to stack', () => {
     const longConstant = {
-      tag: CONSTANT_TAG.constantLong,
+      tag: CONSTANT_TAG.Long,
       value: 99n,
     };
     (threadClass as any).constantPool[0] = longConstant;
@@ -749,7 +749,7 @@ describe('runLdc2W', () => {
 
   test('reads double from constant pool and pushes to stack', () => {
     const intConstant = {
-      tag: CONSTANT_TAG.constantDouble,
+      tag: CONSTANT_TAG.Double,
       value: -0.3,
     };
     (threadClass as any).constantPool[0] = intConstant;

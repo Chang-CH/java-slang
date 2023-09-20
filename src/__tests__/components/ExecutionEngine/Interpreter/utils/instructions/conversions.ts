@@ -4,7 +4,7 @@ import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/ru
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/DataTypes';
+import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -188,7 +188,7 @@ describe('runI2s', () => {
 
 describe('runL2i', () => {
   test('L2I: max int long converts to int', () => {
-    thread.pushStackWide(2147483647n);
+    thread.pushStack64(2147483647n);
     runInstruction(thread, {
       opcode: OPCODE.L2I,
       operands: [],
@@ -202,7 +202,7 @@ describe('runL2i', () => {
   });
 
   test('L2I: min int long converts to int', () => {
-    thread.pushStackWide(-2147483648n);
+    thread.pushStack64(-2147483648n);
     runInstruction(thread, {
       opcode: OPCODE.L2I,
       operands: [],
@@ -216,7 +216,7 @@ describe('runL2i', () => {
   });
 
   test('L2I: long convert to int overflows', () => {
-    thread.pushStackWide(2147483648n);
+    thread.pushStack64(2147483648n);
     runInstruction(thread, {
       opcode: OPCODE.L2I,
       operands: [],
@@ -232,7 +232,7 @@ describe('runL2i', () => {
 
 describe('runL2f', () => {
   test('L2F: long converts to float', () => {
-    thread.pushStackWide(10n);
+    thread.pushStack64(10n);
     runInstruction(thread, {
       opcode: OPCODE.L2F,
       operands: [],
@@ -246,7 +246,7 @@ describe('runL2f', () => {
   });
 
   test('L2F: long convert to float lose precision', () => {
-    thread.pushStackWide(9223372036854775807n);
+    thread.pushStack64(9223372036854775807n);
     runInstruction(thread, {
       opcode: OPCODE.L2F,
       operands: [],
@@ -262,7 +262,7 @@ describe('runL2f', () => {
 
 describe('runL2d', () => {
   test('L2D: long converts to double', () => {
-    thread.pushStackWide(10n);
+    thread.pushStack64(10n);
     runInstruction(thread, {
       opcode: OPCODE.L2D,
       operands: [],
@@ -276,7 +276,7 @@ describe('runL2d', () => {
   });
 
   test('L2D: long convert to double lose precision', () => {
-    thread.pushStackWide(9223372036854775807n);
+    thread.pushStack64(9223372036854775807n);
     runInstruction(thread, {
       opcode: OPCODE.L2D,
       operands: [],
@@ -480,7 +480,7 @@ describe('runF2d', () => {
 
 describe('runD2i', () => {
   test('D2I: double converts to int', () => {
-    thread.pushStackWide(-20.5);
+    thread.pushStack64(-20.5);
     runInstruction(thread, {
       opcode: OPCODE.D2I,
       operands: [],
@@ -494,7 +494,7 @@ describe('runD2i', () => {
   });
 
   test('D2I: double large number convert to int max', () => {
-    thread.pushStackWide(9223372036854775806);
+    thread.pushStack64(9223372036854775806);
     runInstruction(thread, {
       opcode: OPCODE.D2I,
       operands: [],
@@ -508,7 +508,7 @@ describe('runD2i', () => {
   });
 
   test('D2I: double small number convert to int min', () => {
-    thread.pushStackWide(-9223372036854775806);
+    thread.pushStack64(-9223372036854775806);
     runInstruction(thread, {
       opcode: OPCODE.D2I,
       operands: [],
@@ -522,7 +522,7 @@ describe('runD2i', () => {
   });
 
   test('D2I: double NaN convert to int 0', () => {
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.D2I,
       operands: [],
@@ -536,7 +536,7 @@ describe('runD2i', () => {
   });
 
   test('D2I: double infinity convert to int max', () => {
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.D2I,
       operands: [],
@@ -550,7 +550,7 @@ describe('runD2i', () => {
   });
 
   test('D2I: double -infinity convert to int min', () => {
-    thread.pushStackWide(-Infinity);
+    thread.pushStack64(-Infinity);
     runInstruction(thread, {
       opcode: OPCODE.D2I,
       operands: [],
@@ -566,7 +566,7 @@ describe('runD2i', () => {
 
 describe('runD2l', () => {
   test('D2L: double converts to long', () => {
-    thread.pushStackWide(-20.5);
+    thread.pushStack64(-20.5);
     runInstruction(thread, {
       opcode: OPCODE.D2L,
       operands: [],
@@ -580,7 +580,7 @@ describe('runD2l', () => {
   });
 
   test('D2L: double large number convert to long max', () => {
-    thread.pushStackWide(9223372036854776000);
+    thread.pushStack64(9223372036854776000);
     runInstruction(thread, {
       opcode: OPCODE.D2L,
       operands: [],
@@ -594,7 +594,7 @@ describe('runD2l', () => {
   });
 
   test('D2L: double small number convert to long min', () => {
-    thread.pushStackWide(-9223372036854776000);
+    thread.pushStack64(-9223372036854776000);
     runInstruction(thread, {
       opcode: OPCODE.D2L,
       operands: [],
@@ -608,7 +608,7 @@ describe('runD2l', () => {
   });
 
   test('D2L: double NaN convert to long 0', () => {
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.D2L,
       operands: [],
@@ -622,7 +622,7 @@ describe('runD2l', () => {
   });
 
   test('D2L: double infinity convert to long max', () => {
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.D2L,
       operands: [],
@@ -636,7 +636,7 @@ describe('runD2l', () => {
   });
 
   test('D2L: double -infinity convert to long min', () => {
-    thread.pushStackWide(-Infinity);
+    thread.pushStack64(-Infinity);
     runInstruction(thread, {
       opcode: OPCODE.D2L,
       operands: [],
@@ -652,7 +652,7 @@ describe('runD2l', () => {
 
 describe('runD2f', () => {
   test('D2F: float max double converts to float', () => {
-    thread.pushStackWide(3.4028235e38);
+    thread.pushStack64(3.4028235e38);
     runInstruction(thread, {
       opcode: OPCODE.D2F,
       operands: [],
@@ -666,7 +666,7 @@ describe('runD2f', () => {
   });
 
   test('D2F: double convert to float capped at infinity', () => {
-    thread.pushStackWide(3.5e38);
+    thread.pushStack64(3.5e38);
     runInstruction(thread, {
       opcode: OPCODE.D2F,
       operands: [],
@@ -680,7 +680,7 @@ describe('runD2f', () => {
   });
 
   test('D2F: double convert to float capped at -infinity', () => {
-    thread.pushStackWide(-3.5e38);
+    thread.pushStack64(-3.5e38);
     runInstruction(thread, {
       opcode: OPCODE.D2F,
       operands: [],
@@ -694,7 +694,7 @@ describe('runD2f', () => {
   });
 
   test('D2F: double nan convert to float nan', () => {
-    thread.pushStackWide(NaN);
+    thread.pushStack64(NaN);
     runInstruction(thread, {
       opcode: OPCODE.D2F,
       operands: [],
@@ -708,7 +708,7 @@ describe('runD2f', () => {
   });
 
   test('D2F: double Infinity convert to float Infinity', () => {
-    thread.pushStackWide(Infinity);
+    thread.pushStack64(Infinity);
     runInstruction(thread, {
       opcode: OPCODE.D2F,
       operands: [],
@@ -722,7 +722,7 @@ describe('runD2f', () => {
   });
 
   test('D2F: double -Infinity convert to float -Infinity', () => {
-    thread.pushStackWide(-Infinity);
+    thread.pushStack64(-Infinity);
     runInstruction(thread, {
       opcode: OPCODE.D2F,
       operands: [],

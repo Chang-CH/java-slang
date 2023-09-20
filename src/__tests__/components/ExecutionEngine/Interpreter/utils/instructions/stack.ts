@@ -4,7 +4,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/DataTypes';
+import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 
 let thread: NativeThread;
@@ -67,7 +67,7 @@ describe('runPop2', () => {
   });
 
   test('POP2: pop stack 1 double', () => {
-    thread.pushStackWide(1.0);
+    thread.pushStack64(1.0);
     runInstruction(thread, {
       opcode: OPCODE.POP2,
       operands: [],
@@ -142,7 +142,7 @@ describe('runDupX2', () => {
   });
   test('DUPX2: duplicates double', () => {
     const v1 = new JavaReference(threadClass, {});
-    thread.pushStackWide(5.0);
+    thread.pushStack64(5.0);
     thread.pushStack(v1);
     runInstruction(thread, {
       opcode: OPCODE.DUPX2,
@@ -152,7 +152,7 @@ describe('runDupX2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
     expect(thread.popStack() === v1).toBe(true);
-    expect(thread.popStackWide()).toBe(5.0);
+    expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack() === v1).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
@@ -180,7 +180,7 @@ describe('runDup2', () => {
     expect(lastFrame.pc).toBe(1);
   });
   test('DUP2: duplicates category 2', () => {
-    thread.pushStackWide(5.0);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DUP2,
       operands: [],
@@ -188,8 +188,8 @@ describe('runDup2', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
-    expect(thread.popStackWide()).toBe(5.0);
-    expect(thread.popStackWide()).toBe(5.0);
+    expect(thread.popStack64()).toBe(5.0);
+    expect(thread.popStack64()).toBe(5.0);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -220,7 +220,7 @@ describe('runDup2X1', () => {
   });
   test('DUP2X1: duplicates category 2 category 1', () => {
     const v1 = new JavaReference(threadClass, {});
-    thread.pushStackWide(5.0);
+    thread.pushStack64(5.0);
     thread.pushStack(v1);
     runInstruction(thread, {
       opcode: OPCODE.DUP2X1,
@@ -230,7 +230,7 @@ describe('runDup2X1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(5);
     expect(thread.popStack()).toBe(v1);
-    expect(thread.popStackWide()).toBe(5.0);
+    expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack()).toBe(v1);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
@@ -269,7 +269,7 @@ describe('runDup2X2', () => {
     const v2 = new JavaReference(threadClass, {});
     thread.pushStack(v2);
     thread.pushStack(v1);
-    thread.pushStackWide(5.0);
+    thread.pushStack64(5.0);
     runInstruction(thread, {
       opcode: OPCODE.DUP2X2,
       operands: [],
@@ -277,10 +277,10 @@ describe('runDup2X2', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
-    expect(thread.popStackWide()).toBe(5.0);
+    expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack()).toBe(v1);
     expect(thread.popStack()).toBe(v2);
-    expect(thread.popStackWide()).toBe(5.0);
+    expect(thread.popStack64()).toBe(5.0);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -288,7 +288,7 @@ describe('runDup2X2', () => {
   test('DUP2X2: duplicates category 2,1,1', () => {
     const v1 = new JavaReference(threadClass, {});
     const v2 = new JavaReference(threadClass, {});
-    thread.pushStackWide(5.0);
+    thread.pushStack64(5.0);
     thread.pushStack(v2);
     thread.pushStack(v1);
     runInstruction(thread, {
@@ -300,15 +300,15 @@ describe('runDup2X2', () => {
     expect(lastFrame.operandStack.length).toBe(6);
     expect(thread.popStack()).toBe(v1);
     expect(thread.popStack()).toBe(v2);
-    expect(thread.popStackWide()).toBe(5.0);
+    expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack()).toBe(v1);
     expect(thread.popStack()).toBe(v2);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
   test('DUP2X2: duplicates category 2,2', () => {
-    thread.pushStackWide(5.0);
-    thread.pushStackWide(6.0);
+    thread.pushStack64(5.0);
+    thread.pushStack64(6.0);
     runInstruction(thread, {
       opcode: OPCODE.DUP2X2,
       operands: [],
@@ -316,9 +316,9 @@ describe('runDup2X2', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
-    expect(thread.popStackWide()).toBe(6.0);
-    expect(thread.popStackWide()).toBe(5.0);
-    expect(thread.popStackWide()).toBe(6.0);
+    expect(thread.popStack64()).toBe(6.0);
+    expect(thread.popStack64()).toBe(5.0);
+    expect(thread.popStack64()).toBe(6.0);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
