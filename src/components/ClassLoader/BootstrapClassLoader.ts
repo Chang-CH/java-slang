@@ -1,12 +1,12 @@
-import { ClassRef } from '#types/ClassRef';
-import JsSystem from '#utils/JsSystem';
+import { ClassRef } from '#types/ConstantRef';
+import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 
 /**
  * Reads classfile representation and loads it into memory area
  */
 export default class BootstrapClassLoader extends AbstractClassLoader {
-  constructor(nativeSystem: JsSystem, classPath: string) {
+  constructor(nativeSystem: AbstractSystem, classPath: string) {
     super(nativeSystem, classPath, null);
   }
 
@@ -14,11 +14,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
    * Attempts to load a class file
    * @param className name of class to load
    */
-  load(
-    className: string,
-    onFinish?: (classData: ClassRef) => void,
-    onError?: (error: Error) => void
-  ): void {
+  load(className: string): ClassRef | undefined {
     console.debug(`BsCL: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
     let classFile;
@@ -26,14 +22,11 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
       // Throw ClassNotFoundException isntead.
-      e instanceof Error && onError && onError(e);
       return;
     }
 
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
-    this.loadClass(classData);
-
-    onFinish && onFinish(classData);
+    return this.loadClass(classData);
   }
 }

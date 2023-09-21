@@ -1,15 +1,17 @@
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import parseBin, { a2ab } from '#utils/parseBinary';
 import * as fs from 'node:fs';
+import AbstractSystem from './AbstractSystem';
 
 export interface Folder {
   [name: string]: Folder | DataView;
 }
 
-export default class JsSystem {
+export default class JsSystem extends AbstractSystem {
   private files: Folder;
 
   constructor(initialFiles: Folder) {
+    super();
     this.files = initialFiles;
   }
 

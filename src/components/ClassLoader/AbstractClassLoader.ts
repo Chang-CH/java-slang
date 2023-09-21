@@ -1,9 +1,10 @@
 import { ClassFile } from '#jvm/external/ClassFile/types';
-import { ClassRef } from '#types/ClassRef';
-import JsSystem from '#utils/JsSystem';
+import { ClassRef } from '#types/ConstantRef';
+import AbstractSystem from '#utils/AbstractSystem';
+import NativeThread from '../ExecutionEngine/NativeThreadGroup/NativeThread';
 
 export default abstract class AbstractClassLoader {
-  protected nativeSystem: JsSystem;
+  protected nativeSystem: AbstractSystem;
   protected classPath: string;
   protected loadedClasses: {
     [className: string]: ClassRef;
@@ -11,7 +12,7 @@ export default abstract class AbstractClassLoader {
   parentLoader: AbstractClassLoader | null;
 
   constructor(
-    nativeSystem: JsSystem,
+    nativeSystem: AbstractSystem,
     classPath: string,
     parentLoader: AbstractClassLoader | null
   ) {
@@ -44,45 +45,49 @@ export default abstract class AbstractClassLoader {
    * Adds the resolved class data to the memory area.
    * @param cls resolved class data
    */
-  loadClass(cls: ClassRef): void {
+  loadClass(cls: ClassRef): ClassRef {
     this.loadedClasses[this.getClassName(cls)] = cls;
+    return cls;
   }
 
   getClassName(cls: ClassRef): string {
     return cls.getClassname();
   }
 
-  /**
-   * Returns a reference to the class data of the class with the given name,
-   * loading the class if it is not found.
-   * @param className className to search for
-   * @param onError callback if an error occurs
-   * @returns object representing the class data of the class
-   */
-  getClassRef(className: string, onError: (e: Error) => void): ClassRef {
+  protected getClassRef(className: string): ClassRef | undefined {
     if (this.loadedClasses[className]) {
       return this.loadedClasses[className];
     }
 
     if (this.parentLoader) {
-      const res = this.parentLoader.getClassRef(className, () => {});
+      const res = this.parentLoader.getClassRef(className);
       if (res) {
         return res;
       }
     }
 
-    // not found, try to load.
-    this.load(
-      className,
-      () => {},
-      () => {}
-    );
+    return this.load(className);
+  }
 
-    // still not loaded
-    if (!this.loadedClasses[className]) {
-      onError && onError(new Error('java/lang/ClassNotFoundException'));
+  resolveClass(thread: NativeThread, className: string): ClassRef {
+    const cls = this.getClassRef(className);
+
+    if (!cls) {
+      thread.throwNewException('java/lang/ClassNotFoundException', className);
+      return thread.getClass();
     }
-    return this.loadedClasses[className];
+
+    return cls;
+  }
+
+  _resolveClass(className: string): ClassRef {
+    const cls = this.getClassRef(className);
+
+    if (!cls) {
+      throw new Error();
+    }
+
+    return cls;
   }
 
   /**
@@ -91,9 +96,5 @@ export default abstract class AbstractClassLoader {
    * @param onFinish callback if successful
    * @param onError callback if an error occurs
    */
-  abstract load(
-    className: string,
-    onFinish?: (classData: ClassRef) => void,
-    onError?: (error: Error) => void
-  ): void;
+  abstract load(className: string): ClassRef | undefined;
 }
