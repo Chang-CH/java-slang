@@ -122,13 +122,13 @@ describe('runI2c', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(String.fromCharCode(0xffff));
+    expect(lastFrame.operandStack[0]).toBe(0xffff);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
 
   test('I2C: int convert to char truncates 4 LSB', () => {
-    thread.pushStack(65536);
+    thread.pushStack(0x10000);
     runInstruction(thread, {
       opcode: OPCODE.I2C,
       operands: [],
@@ -136,7 +136,7 @@ describe('runI2c', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(String.fromCharCode(0));
+    expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
