@@ -45,7 +45,7 @@ export function runLreturn(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFreturn(thread: NativeThread, instruction: InstructionType) {
-  const ret = thread.popStack();
+  const ret = Math.fround(thread.popStack());
   thread.popStackFrame();
   thread.pushStack(ret);
 }

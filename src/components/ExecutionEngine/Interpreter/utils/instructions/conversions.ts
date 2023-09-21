@@ -45,7 +45,10 @@ export function runF2i(thread: NativeThread, instruction: InstructionType) {
   if (Number.isNaN(value)) {
     value = 0;
   } else {
-    value = Math.min(MAX_INT, Math.max(MIN_INT, Math.round(value)));
+    value = Math.min(
+      MAX_INT,
+      Math.max(MIN_INT, Math.round(Math.fround(value)))
+    );
   }
   thread.pushStack(value);
   thread.offsetPc(1);
@@ -60,7 +63,7 @@ export function runF2l(thread: NativeThread, instruction: InstructionType) {
   } else if (value == -Infinity) {
     value = MIN_LONG;
   } else {
-    value = BigInt(Math.round(value));
+    value = BigInt(Math.round(Math.fround(value)));
     value = value > MAX_LONG ? MAX_LONG : value < MIN_LONG ? MIN_LONG : value;
   }
   thread.pushStack64(value);
@@ -117,7 +120,7 @@ export function runI2b(thread: NativeThread, instruction: InstructionType) {
 
 export function runI2c(thread: NativeThread, instruction: InstructionType) {
   let value = thread.popStack();
-  value = String.fromCharCode(value & 0xffff);
+  value = value & 0xffff;
   thread.pushStack(value);
   thread.offsetPc(1);
 }

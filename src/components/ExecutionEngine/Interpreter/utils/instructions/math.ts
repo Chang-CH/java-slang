@@ -20,8 +20,8 @@ export function runLadd(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFadd(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  const value2 = Math.fround(thread.popStack());
+  const value1 = Math.fround(thread.popStack());
   thread.offsetPc(1);
 
   if (value1 === 0 && value2 !== 0) {
@@ -59,8 +59,8 @@ export function runLsub(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFsub(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  const value2 = Math.fround(thread.popStack());
+  const value1 = Math.fround(thread.popStack());
   thread.offsetPc(1);
 
   if (value1 === 0 && value2 !== 0) {
@@ -96,8 +96,8 @@ export function runLmul(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFmul(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  const value2 = Math.fround(thread.popStack());
+  const value1 = Math.fround(thread.popStack());
   thread.pushStack(Math.fround(value1 * value2));
   thread.offsetPc(1);
 }
@@ -146,8 +146,8 @@ export function runLdiv(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFdiv(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  const value2 = Math.fround(thread.popStack());
+  const value1 = Math.fround(thread.popStack());
   thread.pushStack(Math.fround(value1 / value2));
   thread.offsetPc(1);
 }
@@ -186,8 +186,8 @@ export function runLrem(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFrem(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  const value2 = Math.fround(thread.popStack());
+  const value1 = Math.fround(thread.popStack());
   thread.pushStack(Math.fround(value1 % value2));
   thread.offsetPc(1);
 }
@@ -212,7 +212,7 @@ export function runLneg(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFneg(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStack();
+  const value = Math.fround(thread.popStack());
   thread.pushStack(Math.fround(-value));
   thread.offsetPc(1);
 }
