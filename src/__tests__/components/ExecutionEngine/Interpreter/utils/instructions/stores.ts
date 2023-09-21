@@ -320,14 +320,14 @@ describe('runDstore', () => {
   });
 
   test('DSTORE: undergoes value set conversion', () => {
-    thread.pushStack64(0.3);
+    thread.pushStack64(0.29999995231628423);
     runInstruction(thread, {
       opcode: OPCODE.DSTORE,
       operands: [0],
     });
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0)).toBe(0.3 + 1 - 1); // force into double precision
+    expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
     expect(lastFrame.pc).toBe(2);
   });
 });
@@ -346,14 +346,14 @@ describe('runDstore0', () => {
   });
 
   test('DSTORE0: undergoes value set conversion', () => {
-    thread.pushStack64(0.3);
+    thread.pushStack64(0.29999995231628423);
     runInstruction(thread, {
       opcode: OPCODE.DSTORE0,
       operands: [],
     });
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0)).toBe(0.3 + 1 - 1); // force into double precision
+    expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
     expect(lastFrame.pc).toBe(1);
   });
 });
@@ -372,14 +372,14 @@ describe('runDstore1', () => {
   });
 
   test('DSTORE1: undergoes value set conversion', () => {
-    thread.pushStack64(0.3);
+    thread.pushStack64(0.29999995231628423);
     runInstruction(thread, {
       opcode: OPCODE.DSTORE1,
       operands: [],
     });
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(1)).toBe(0.3 + 1 - 1); // force into double precision
+    expect(thread.loadLocal64(1)).toBe(0.29999995231628424);
     expect(lastFrame.pc).toBe(1);
   });
 });
@@ -398,14 +398,14 @@ describe('runDstore2', () => {
   });
 
   test('DSTORE2: undergoes value set conversion', () => {
-    thread.pushStack64(0.3);
+    thread.pushStack64(0.29999995231628423);
     runInstruction(thread, {
       opcode: OPCODE.DSTORE2,
       operands: [],
     });
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(2)).toBe(0.3 + 1 - 1); // force into double precision
+    expect(thread.loadLocal64(2)).toBe(0.29999995231628424);
     expect(lastFrame.pc).toBe(1);
   });
 });
@@ -424,14 +424,14 @@ describe('runDstore3', () => {
   });
 
   test('DSTORE3: undergoes value set conversion', () => {
-    thread.pushStack64(0.3);
+    thread.pushStack64(0.29999995231628423);
     runInstruction(thread, {
       opcode: OPCODE.DSTORE3,
       operands: [],
     });
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(3)).toBe(0.3 + 1 - 1); // force into double precision
+    expect(thread.loadLocal64(3)).toBe(0.29999995231628424);
     expect(lastFrame.pc).toBe(1);
   });
 });

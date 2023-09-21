@@ -81,3 +81,11 @@ export function tryInitialize(thread: NativeThread, className: string) {
     classRef.isInitialized = true;
   }
 }
+
+export function asDouble(value: number): number {
+  return value;
+}
+
+export function asFloat(value: number): number {
+  return Math.fround(value);
+}

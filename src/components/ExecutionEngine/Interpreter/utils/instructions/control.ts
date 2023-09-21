@@ -1,4 +1,5 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import { asDouble, asFloat } from '..';
 
 import { InstructionType } from '../readInstruction';
 
@@ -45,13 +46,13 @@ export function runLreturn(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFreturn(thread: NativeThread, instruction: InstructionType) {
-  const ret = Math.fround(thread.popStack());
+  const ret = asFloat(thread.popStack());
   thread.popStackFrame();
   thread.pushStack(ret);
 }
 
 export function runDreturn(thread: NativeThread, instruction: InstructionType) {
-  const ret = thread.popStack64() + 1 - 1;
+  const ret = asDouble(thread.popStack64());
   thread.popStackFrame();
   thread.pushStack64(ret);
 }

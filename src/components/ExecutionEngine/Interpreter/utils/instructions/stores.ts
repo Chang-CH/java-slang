@@ -2,6 +2,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 
 import { InstructionType } from '../readInstruction';
 import { JavaArray } from '#types/dataTypes';
+import { asDouble, asFloat } from '..';
 
 export function runIstore(thread: NativeThread, instruction: InstructionType) {
   thread.storeLocal(instruction.operands[0], thread.popStack());
@@ -14,12 +15,12 @@ export function runLstore(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFstore(thread: NativeThread, instruction: InstructionType) {
-  thread.storeLocal(instruction.operands[0], Math.fround(thread.popStack()));
+  thread.storeLocal(instruction.operands[0], asFloat(thread.popStack()));
   thread.offsetPc(2);
 }
 
 export function runDstore(thread: NativeThread, instruction: InstructionType) {
-  thread.storeLocal64(instruction.operands[0], thread.popStack64() + 1 - 1); // force into double
+  thread.storeLocal64(instruction.operands[0], asDouble(thread.popStack64())); // force into double
   thread.offsetPc(2);
 }
 
@@ -78,48 +79,48 @@ export function runLstore3(thread: NativeThread, instruction: InstructionType) {
 
 export function runFstore0(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocal(0, Math.fround(value));
+  thread.storeLocal(0, asFloat(value));
   thread.offsetPc(1);
 }
 
 export function runFstore1(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocal(1, Math.fround(value));
+  thread.storeLocal(1, asFloat(value));
   thread.offsetPc(1);
 }
 
 export function runFstore2(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocal(2, Math.fround(value));
+  thread.storeLocal(2, asFloat(value));
   thread.offsetPc(1);
 }
 
 export function runFstore3(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack();
-  thread.storeLocal(3, Math.fround(value));
+  thread.storeLocal(3, asFloat(value));
   thread.offsetPc(1);
 }
 
 export function runDstore0(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStack64() + 1 - 1; // force into double
+  const value = asDouble(thread.popStack64()); // force into double
   thread.storeLocal64(0, value);
   thread.offsetPc(1);
 }
 
 export function runDstore1(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStack64() + 1 - 1; // force into double
+  const value = asDouble(thread.popStack64()); // force into double
   thread.storeLocal64(1, value);
   thread.offsetPc(1);
 }
 
 export function runDstore2(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStack64() + 1 - 1; // force into double
+  const value = asDouble(thread.popStack64()); // force into double
   thread.storeLocal64(2, value);
   thread.offsetPc(1);
 }
 
 export function runDstore3(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStack64() + 1 - 1; // force into double
+  const value = asDouble(thread.popStack64()); // force into double
   thread.storeLocal64(3, value);
   thread.offsetPc(1);
 }

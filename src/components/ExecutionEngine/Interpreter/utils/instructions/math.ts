@@ -1,4 +1,5 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import { asDouble, asFloat } from '..';
 import { InstructionType } from '../readInstruction';
 
 const MIN_INT = -2147483648;
@@ -20,8 +21,8 @@ export function runLadd(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFadd(thread: NativeThread, instruction: InstructionType) {
-  const value2 = Math.fround(thread.popStack());
-  const value1 = Math.fround(thread.popStack());
+  const value2 = asFloat(thread.popStack());
+  const value1 = asFloat(thread.popStack());
   thread.offsetPc(1);
 
   if (value1 === 0 && value2 !== 0) {
@@ -32,13 +33,12 @@ export function runFadd(thread: NativeThread, instruction: InstructionType) {
     return;
   }
 
-  thread.pushStack(Math.fround(value1 + value2));
+  thread.pushStack(asFloat(value1 + value2));
 }
 
 export function runDadd(thread: NativeThread, instruction: InstructionType) {
-  // JS numbers are IEEE754 doubles already
-  const value2 = thread.popStack64() + 1 - 1;
-  const value1 = thread.popStack64() + 1 - 1;
+  const value2 = asDouble(thread.popStack64());
+  const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 + value2);
   thread.offsetPc(1);
 }
@@ -59,8 +59,8 @@ export function runLsub(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFsub(thread: NativeThread, instruction: InstructionType) {
-  const value2 = Math.fround(thread.popStack());
-  const value1 = Math.fround(thread.popStack());
+  const value2 = asFloat(thread.popStack());
+  const value1 = asFloat(thread.popStack());
   thread.offsetPc(1);
 
   if (value1 === 0 && value2 !== 0) {
@@ -71,12 +71,12 @@ export function runFsub(thread: NativeThread, instruction: InstructionType) {
     return;
   }
 
-  thread.pushStack(Math.fround(value1 - value2));
+  thread.pushStack(asFloat(value1 - value2));
 }
 
 export function runDsub(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack64() + 1 - 1;
-  const value1 = thread.popStack64() + 1 - 1;
+  const value2 = asDouble(thread.popStack64());
+  const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 - value2);
   thread.offsetPc(1);
 }
@@ -96,15 +96,15 @@ export function runLmul(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFmul(thread: NativeThread, instruction: InstructionType) {
-  const value2 = Math.fround(thread.popStack());
-  const value1 = Math.fround(thread.popStack());
-  thread.pushStack(Math.fround(value1 * value2));
+  const value2 = asFloat(thread.popStack());
+  const value1 = asFloat(thread.popStack());
+  thread.pushStack(asFloat(value1 * value2));
   thread.offsetPc(1);
 }
 
 export function runDmul(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack64();
-  const value1 = thread.popStack64();
+  const value2 = asDouble(thread.popStack64());
+  const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 * value2);
   thread.offsetPc(1);
 }
@@ -146,15 +146,15 @@ export function runLdiv(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFdiv(thread: NativeThread, instruction: InstructionType) {
-  const value2 = Math.fround(thread.popStack()) + 1 - 1;
-  const value1 = Math.fround(thread.popStack()) + 1 - 1;
-  thread.pushStack(Math.fround(value1 / value2));
+  const value2 = asFloat(thread.popStack());
+  const value1 = asFloat(thread.popStack());
+  thread.pushStack(asFloat(value1 / value2));
   thread.offsetPc(1);
 }
 
 export function runDdiv(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack64();
-  const value1 = thread.popStack64();
+  const value2 = asDouble(thread.popStack64());
+  const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 / value2);
   thread.offsetPc(1);
 }
@@ -186,15 +186,15 @@ export function runLrem(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFrem(thread: NativeThread, instruction: InstructionType) {
-  const value2 = Math.fround(thread.popStack()) + 1 - 1;
-  const value1 = Math.fround(thread.popStack()) + 1 - 1;
-  thread.pushStack(Math.fround(value1 % value2));
+  const value2 = asFloat(thread.popStack());
+  const value1 = asFloat(thread.popStack());
+  thread.pushStack(asFloat(value1 % value2));
   thread.offsetPc(1);
 }
 
 export function runDrem(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack64() + 1 - 1;
-  const value1 = thread.popStack64() + 1 - 1;
+  const value2 = asDouble(thread.popStack64());
+  const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 % value2);
   thread.offsetPc(1);
 }
@@ -212,13 +212,13 @@ export function runLneg(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFneg(thread: NativeThread, instruction: InstructionType) {
-  const value = Math.fround(thread.popStack());
-  thread.pushStack(Math.fround(-value));
+  const value = asFloat(thread.popStack());
+  thread.pushStack(asFloat(-value));
   thread.offsetPc(1);
 }
 
 export function runDneg(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStack64() + 1 - 1;
+  const value = asDouble(thread.popStack64());
   thread.pushStack64(-value);
   thread.offsetPc(1);
 }

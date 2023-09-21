@@ -1,4 +1,5 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import { asDouble, asFloat } from '..';
 import { InstructionType } from '../readInstruction';
 
 const MAX_INT = 2147483647;
@@ -30,7 +31,7 @@ export function runL2i(thread: NativeThread, instruction: InstructionType) {
 
 export function runL2f(thread: NativeThread, instruction: InstructionType) {
   const value = thread.popStack64();
-  thread.pushStack(Math.fround(Number(value)));
+  thread.pushStack(asFloat(Number(value)));
   thread.offsetPc(1);
 }
 
@@ -45,10 +46,7 @@ export function runF2i(thread: NativeThread, instruction: InstructionType) {
   if (Number.isNaN(value)) {
     value = 0;
   } else {
-    value = Math.min(
-      MAX_INT,
-      Math.max(MIN_INT, Math.round(Math.fround(value)))
-    );
+    value = Math.min(MAX_INT, Math.max(MIN_INT, Math.round(asFloat(value))));
   }
   thread.pushStack(value);
   thread.offsetPc(1);
@@ -63,7 +61,7 @@ export function runF2l(thread: NativeThread, instruction: InstructionType) {
   } else if (value == -Infinity) {
     value = MIN_LONG;
   } else {
-    value = BigInt(Math.round(Math.fround(value)));
+    value = BigInt(Math.round(asFloat(value)));
     value = value > MAX_LONG ? MAX_LONG : value < MIN_LONG ? MIN_LONG : value;
   }
   thread.pushStack64(value);
@@ -77,7 +75,7 @@ export function runF2d(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runD2i(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStack64() + 1 - 1;
+  let value = asDouble(thread.popStack64());
   if (Number.isNaN(value)) {
     value = 0;
   } else {
@@ -89,7 +87,7 @@ export function runD2i(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runD2l(thread: NativeThread, instruction: InstructionType) {
-  const dbl = thread.popStack64() + 1 - 1;
+  const dbl = asDouble(thread.popStack64());
   let value;
   if (Number.isNaN(dbl)) {
     value = 0n;
@@ -106,8 +104,8 @@ export function runD2l(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runD2f(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStack64() + 1 - 1;
-  value = Math.fround(value);
+  let value = asDouble(thread.popStack64());
+  value = asFloat(value);
   thread.pushStack(value);
   thread.offsetPc(1);
 }

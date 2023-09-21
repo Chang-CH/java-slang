@@ -145,7 +145,7 @@ describe('runFadd', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(4.0);
+    expect(lastFrame.operandStack[0]).toBe(Math.fround(4.0));
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -355,7 +355,7 @@ describe('runFadd', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(1.33);
+    expect(lastFrame.operandStack[0]).toBe(Math.fround(1.33));
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -933,7 +933,7 @@ describe('runFsub', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(1.33);
+    expect(lastFrame.operandStack[0]).toBe(Math.fround(1.33));
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -948,7 +948,9 @@ describe('runFsub', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
+    expect(lastFrame.operandStack[0]).toBe(
+      Math.fround(Math.fround(1.33) - Math.fround(1))
+    );
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -1190,7 +1192,7 @@ describe('runDsub', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(0.33 + 1 - 1); // force it into double
+    expect(lastFrame.operandStack[0]).toBe(0.33000000000000007);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -1451,7 +1453,9 @@ describe('runFmul', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
+    expect(lastFrame.operandStack[0]).toBe(
+      Math.fround(Math.fround(0.11) * Math.fround(3))
+    );
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -1622,7 +1626,7 @@ describe('runDmul', () => {
     expect(lastFrame.pc).toBe(1);
   });
 
-  test('DMUL: double multiplication any * any = fround of any', () => {
+  test('DMUL: double multiplication any * any = any', () => {
     thread.pushStack64(1.1);
     thread.pushStack64(0.3);
     runInstruction(thread, {
@@ -1651,6 +1655,7 @@ describe('runDmul', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
+
   test('DMUL: double multiplication negative smallest precision = -0', () => {
     thread.pushStack64(2e-307);
     thread.pushStack64(-2e-307);
@@ -2458,7 +2463,7 @@ describe('runFrem', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(Math.fround(0.3));
+    expect(lastFrame.operandStack[0]).toBe(Math.fround(0.29999995));
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -2578,7 +2583,9 @@ describe('runFrem', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
+    expect(lastFrame.operandStack[0]).toBe(
+      Math.fround(Math.fround(0.99) % Math.fround(0.66))
+    );
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(1);
   });
@@ -2705,7 +2712,7 @@ describe('runDrem', () => {
     expect(lastFrame.pc).toBe(1);
   });
 
-  test('DREM: double remainder any % any = fround of any', () => {
+  test('DREM: double remainder any % any = any', () => {
     thread.pushStack64(0.99);
     thread.pushStack64(0.66);
     runInstruction(thread, {
