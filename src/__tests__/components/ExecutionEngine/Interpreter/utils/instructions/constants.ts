@@ -25,9 +25,9 @@ let threadClass: ClassRef;
 
 beforeEach(() => {
   const jni = new JNI();
-  const os = new JsSystem({});
+  const nativeSystem = new JsSystem({});
 
-  const bscl = new BootstrapClassLoader(os, 'natives');
+  const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
   bscl.load(
     'java/lang/Thread',
     () => {},

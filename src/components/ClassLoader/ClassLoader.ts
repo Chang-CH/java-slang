@@ -5,11 +5,11 @@ import AbstractClassLoader from './AbstractClassLoader';
 export default class ClassLoader extends AbstractClassLoader {
   // TODO: store thisref here, Java ClassLoader Reference
   constructor(
-    os: JsSystem,
+    nativeSystem: JsSystem,
     classPath: string,
     parentLoader: AbstractClassLoader
   ) {
-    super(os, classPath, parentLoader);
+    super(nativeSystem, classPath, parentLoader);
   }
 
   /**
@@ -32,7 +32,7 @@ export default class ClassLoader extends AbstractClassLoader {
           // Parent class could not load
           let classFile;
           try {
-            classFile = this.os.readFile(path);
+            classFile = this.nativeSystem.readFile(path);
           } catch (e) {
             e instanceof Error && onError && onError(e);
           }
@@ -52,7 +52,7 @@ export default class ClassLoader extends AbstractClassLoader {
     }
     let classFile;
     try {
-      classFile = this.os.readFile(path);
+      classFile = this.nativeSystem.readFile(path);
     } catch (e) {
       console.error(e);
       e instanceof Error && onError && onError(e);

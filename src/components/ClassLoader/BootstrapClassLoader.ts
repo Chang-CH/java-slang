@@ -6,8 +6,8 @@ import AbstractClassLoader from './AbstractClassLoader';
  * Reads classfile representation and loads it into memory area
  */
 export default class BootstrapClassLoader extends AbstractClassLoader {
-  constructor(os: JsSystem, classPath: string) {
-    super(os, classPath, null);
+  constructor(nativeSystem: JsSystem, classPath: string) {
+    super(nativeSystem, classPath, null);
   }
 
   /**
@@ -23,7 +23,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     const path = this.classPath ? this.classPath + '/' + className : className;
     let classFile;
     try {
-      classFile = this.os.readFile(path);
+      classFile = this.nativeSystem.readFile(path);
     } catch (e) {
       // Throw ClassNotFoundException isntead.
       e instanceof Error && onError && onError(e);

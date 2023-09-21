@@ -11,7 +11,7 @@ export default class ExecutionEngine {
   private interpreter: Interpreter;
   private jni: JNI;
 
-  constructor(os: JsSystem, jni: JNI) {
+  constructor(jni: JNI) {
     this.jni = jni;
     this.nativeThreadGroup = new NativeThreadGroup();
     this.interpreter = new Interpreter(this.jni);

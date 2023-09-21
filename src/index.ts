@@ -9,19 +9,22 @@ export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
   private applicationClassLoader: ClassLoader;
   private engine: ExecutionEngine;
-  private os: JsSystem;
+  private nativeSystem: JsSystem;
   private jni: JNI;
 
-  constructor(os: JsSystem) {
-    this.os = os;
-    this.bootstrapClassLoader = new BootstrapClassLoader(this.os, 'natives');
+  constructor(nativeSystem: JsSystem) {
+    this.nativeSystem = nativeSystem;
+    this.bootstrapClassLoader = new BootstrapClassLoader(
+      this.nativeSystem,
+      'natives'
+    );
     this.applicationClassLoader = new ClassLoader(
-      this.os,
+      this.nativeSystem,
       '',
       this.bootstrapClassLoader
     );
     this.jni = new JNI();
-    this.engine = new ExecutionEngine(this.os, this.jni);
+    this.engine = new ExecutionEngine(this.jni);
 
     // Load thread class manually
     this.applicationClassLoader.load(

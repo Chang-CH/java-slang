@@ -65,19 +65,19 @@ export default function main() {
 
     if (options['-p']) {
       // Stubs, not used.
-      const os = new JsSystem({
+      const nativeSystem = new JsSystem({
         Sample: view,
       });
 
-      const bscl = new BootstrapClassLoader(os, 'natives');
+      const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
       const cls = parseBin(view);
       console.debug(classFileToText(cls));
     }
     folders[fileName] = view;
   }
 
-  const os = new JsSystem(folders);
-  const jvm = new JVM(os);
+  const nativeSystem = new JsSystem(folders);
+  const jvm = new JVM(nativeSystem);
   // @ts-ignore
   jvm.runClass(options['-f'][0]);
 }

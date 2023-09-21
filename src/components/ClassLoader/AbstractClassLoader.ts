@@ -3,7 +3,7 @@ import { ClassRef } from '#types/ClassRef';
 import JsSystem from '#utils/JsSystem';
 
 export default abstract class AbstractClassLoader {
-  protected os: JsSystem;
+  protected nativeSystem: JsSystem;
   protected classPath: string;
   protected loadedClasses: {
     [className: string]: ClassRef;
@@ -11,11 +11,11 @@ export default abstract class AbstractClassLoader {
   parentLoader: AbstractClassLoader | null;
 
   constructor(
-    os: JsSystem,
+    nativeSystem: JsSystem,
     classPath: string,
     parentLoader: AbstractClassLoader | null
   ) {
-    this.os = os;
+    this.nativeSystem = nativeSystem;
     this.classPath = classPath;
     this.loadedClasses = {};
     this.parentLoader = parentLoader;

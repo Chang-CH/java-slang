@@ -6,9 +6,6 @@ export interface Folder {
   [name: string]: Folder | DataView;
 }
 
-/**
- * Acts as a mockup for OS interactions needed by the JVM.
- */
 export default class JsSystem {
   private files: Folder;
 
