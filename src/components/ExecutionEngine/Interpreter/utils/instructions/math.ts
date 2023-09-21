@@ -37,8 +37,8 @@ export function runFadd(thread: NativeThread, instruction: InstructionType) {
 
 export function runDadd(thread: NativeThread, instruction: InstructionType) {
   // JS numbers are IEEE754 doubles already
-  const value2 = thread.popStack64();
-  const value1 = thread.popStack64();
+  const value2 = thread.popStack64() + 1 - 1;
+  const value1 = thread.popStack64() + 1 - 1;
   thread.pushStack64(value1 + value2);
   thread.offsetPc(1);
 }
@@ -75,8 +75,8 @@ export function runFsub(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDsub(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack64();
-  const value1 = thread.popStack64();
+  const value2 = thread.popStack64() + 1 - 1;
+  const value1 = thread.popStack64() + 1 - 1;
   thread.pushStack64(value1 - value2);
   thread.offsetPc(1);
 }
@@ -146,8 +146,8 @@ export function runLdiv(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFdiv(thread: NativeThread, instruction: InstructionType) {
-  const value2 = Math.fround(thread.popStack());
-  const value1 = Math.fround(thread.popStack());
+  const value2 = Math.fround(thread.popStack()) + 1 - 1;
+  const value1 = Math.fround(thread.popStack()) + 1 - 1;
   thread.pushStack(Math.fround(value1 / value2));
   thread.offsetPc(1);
 }
@@ -186,15 +186,15 @@ export function runLrem(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runFrem(thread: NativeThread, instruction: InstructionType) {
-  const value2 = Math.fround(thread.popStack());
-  const value1 = Math.fround(thread.popStack());
+  const value2 = Math.fround(thread.popStack()) + 1 - 1;
+  const value1 = Math.fround(thread.popStack()) + 1 - 1;
   thread.pushStack(Math.fround(value1 % value2));
   thread.offsetPc(1);
 }
 
 export function runDrem(thread: NativeThread, instruction: InstructionType) {
-  const value2 = thread.popStack64();
-  const value1 = thread.popStack64();
+  const value2 = thread.popStack64() + 1 - 1;
+  const value1 = thread.popStack64() + 1 - 1;
   thread.pushStack64(value1 % value2);
   thread.offsetPc(1);
 }
@@ -218,7 +218,7 @@ export function runFneg(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDneg(thread: NativeThread, instruction: InstructionType) {
-  const value = thread.popStack64();
+  const value = thread.popStack64() + 1 - 1;
   thread.pushStack64(-value);
   thread.offsetPc(1);
 }

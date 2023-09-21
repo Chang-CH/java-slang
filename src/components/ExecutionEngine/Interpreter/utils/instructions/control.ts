@@ -51,7 +51,7 @@ export function runFreturn(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDreturn(thread: NativeThread, instruction: InstructionType) {
-  const ret = thread.popStack64();
+  const ret = thread.popStack64() + 1 - 1;
   thread.popStackFrame();
   thread.pushStack64(ret);
 }

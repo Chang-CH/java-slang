@@ -77,7 +77,7 @@ export function runF2d(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runD2i(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStack64();
+  let value = thread.popStack64() + 1 - 1;
   if (Number.isNaN(value)) {
     value = 0;
   } else {
@@ -89,15 +89,16 @@ export function runD2i(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runD2l(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStack64();
-  if (Number.isNaN(value)) {
+  const dbl = thread.popStack64() + 1 - 1;
+  let value;
+  if (Number.isNaN(dbl)) {
     value = 0n;
-  } else if (value == Infinity) {
+  } else if (dbl == Infinity) {
     value = MAX_LONG;
-  } else if (value == -Infinity) {
+  } else if (dbl == -Infinity) {
     value = MIN_LONG;
   } else {
-    value = BigInt(Math.round(value));
+    value = BigInt(Math.round(dbl));
     value = value > MAX_LONG ? MAX_LONG : value < MIN_LONG ? MIN_LONG : value;
   }
   thread.pushStack64(value);
@@ -105,7 +106,7 @@ export function runD2l(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runD2f(thread: NativeThread, instruction: InstructionType) {
-  let value = thread.popStack64();
+  let value = thread.popStack64() + 1 - 1;
   value = Math.fround(value);
   thread.pushStack(value);
   thread.offsetPc(1);
