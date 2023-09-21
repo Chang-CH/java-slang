@@ -289,7 +289,7 @@ function readAttributeStackMapTable(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: AttributeStackMapTable is not implemented!');
+  console.warn('readAttributeStackMapTable is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -312,7 +312,7 @@ function readAttributeExceptions(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: readAttributeExceptions is not implemented!');
+  console.warn('readAttributeExceptions is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -335,7 +335,7 @@ function readAttributeInnerClasses(
   view: DataView,
   offset: number
 ) {
-  console.warn('reaTODO: dAttributeInnerClasses is not implemented!');
+  console.warn('readAttributeInnerClasses is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -358,7 +358,7 @@ function readAttributeEnclosingMethod(
   view: DataView,
   offset: number
 ) {
-  console.warn('readAtTODO: tributeEnclosingMethod is not implemented!');
+  console.warn('readAttributeEnclosingMethod is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -381,7 +381,7 @@ function readAttributeSynthetic(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: readAttributeSynthetic is not implemented!');
+  console.warn('readAttributeSynthetic is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -404,7 +404,7 @@ function readAttributeSignature(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: readAttributeSignature is not implemented!');
+  console.warn('readAttributeSignature is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -427,7 +427,7 @@ function readAttributeSourceFile(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: readAttributeSourceFile is not implemented!');
+  console.warn('readAttributeSourceFile is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -450,7 +450,7 @@ function readAttributeSourceDebugExtension(
   view: DataView,
   offset: number
 ) {
-  console.warn('readAttribuTODO: teSourceDebugExtension is not implemented!');
+  console.warn('readAttributeSourceDebugExtension is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -504,7 +504,7 @@ function readAttributeLocalVariableTable(
   view: DataView,
   offset: number
 ) {
-  console.warn('readAttriTODO: buteLocalVariableTable is not implemented!');
+  console.warn('readAttributeLocalVariableTable is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -527,7 +527,7 @@ function readAttributeLocalVariableTypeTable(
   view: DataView,
   offset: number
 ) {
-  console.warn('readAttributeTODO: LocalVariableTypeTable is not implemented!');
+  console.warn('readAttributeLocalVariableTypeTable is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -550,7 +550,7 @@ function readAttributeDeprecated(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: readAttributeDeprecated is not implemented!');
+  console.warn('readAttributeDeprecated is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -573,9 +573,7 @@ function readAttributeRuntimeVisibleAnnotations(
   view: DataView,
   offset: number
 ) {
-  console.warn(
-    'readAttributeRunTODO: timeVisibleAnnotations is not implemented!'
-  );
+  console.warn('readAttributeRuntimeVisibleAnnotations is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -598,9 +596,7 @@ function readAttributeRuntimeInvisibleAnnotations(
   view: DataView,
   offset: number
 ) {
-  console.warn(
-    'readAttributeRuntiTODO: meInvisibleAnnotations is not implemented!'
-  );
+  console.warn('readAttributeRuntimeInvisibleAnnotations is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -624,7 +620,7 @@ function readAttributeRuntimeVisibleParameterAnnotations(
   offset: number
 ) {
   console.warn(
-    'readAttributeRuntimeVisibTODO: leParameterAnnotations is not implemented!'
+    'readAttributeRuntimeVisibleParameterAnnotations is not implemented!'
   );
   const info = [];
 
@@ -649,7 +645,7 @@ function readAttributeRuntimeInvisibleParameterAnnotations(
   offset: number
 ) {
   console.warn(
-    'readAttributeRuntimeInvisibTODO: leParameterAnnotations is not implemented!'
+    'readAttributeRuntimeInvisibleParameterAnnotations is not implemented!'
   );
   const info = [];
 
@@ -673,7 +669,7 @@ function readAttributeAnnotationDefault(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: readAttributeAnnotationDefault is not implemented!');
+  console.warn('readAttributeAnnotationDefault is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -696,7 +692,7 @@ function readAttributeBootstrapMethods(
   view: DataView,
   offset: number
 ) {
-  console.warn('TODO: readAttributeBootstrapMethods is not implemented!');
+  console.warn('readAttributeBootstrapMethods is not implemented!');
   const numBootstrapMethods = view.getUint16(offset);
   offset += 2;
 
