@@ -5,15 +5,15 @@ import { tryInitialize } from '#jvm/components/ExecutionEngine/Interpreter/utils
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ClassRef';
-import { JavaReference } from '#types/dataTypes';
-import JsSystem from '#utils/JsSystem';
-import { initString } from '#jvm/components/JNI/utils';
 import {
+  ClassRef,
   ConstantClass,
   ConstantMethodref,
   ConstantString,
-} from '#types/ClassRef/constants';
+} from '#types/ClassRef';
+import { JavaReference } from '#types/dataTypes';
+import JsSystem from '#utils/JsSystem';
+import { initString } from '#jvm/components/JNI/utils';
 import {
   ConstantClassInfo,
   ConstantStringInfo,
