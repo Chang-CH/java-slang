@@ -12,7 +12,7 @@ import {
   ConstantInterfaceMethodref,
   ConstantClass,
   ConstantString,
-} from '#types/ClassRef';
+} from '#types/ConstantRef';
 
 export function runNop(thread: NativeThread, instruction: InstructionType) {
   thread.offsetPc(1);

@@ -1,8 +1,9 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/ConstantRef';
 import JsSystem from '#utils/JsSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
+import NativeThread from './components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from './components/JNI';
 
 export default class JVM {
@@ -27,28 +28,25 @@ export default class JVM {
     this.engine = new ExecutionEngine(this.jni);
 
     // Load thread class manually
-    this.applicationClassLoader.load(
-      'java/lang/Thread',
-      () => {},
-      e => {
-        throw e;
-      }
-    );
+    this.applicationClassLoader.load('java/lang/Thread');
   }
 
-  runClass(filepath: string) {
+  runClass(className: string) {
     // TODO: check JVM status initialized
     // convert args to Java String[]
+    const cls = this.applicationClassLoader._resolveClass(className);
 
-    // FIXME: should use system class loader instead.
-    // should class loader be called by memory area on class not found?
-    this.applicationClassLoader.load(filepath, cls => {
-      const threadCls = this.bootstrapClassLoader.getClassRef(
-        'java/lang/Thread',
-        console.error
-      ) as ClassRef;
+    const threadCls =
+      this.applicationClassLoader._resolveClass('java/lang/Thread');
 
-      this.engine.runClass(threadCls, cls);
-    });
+    if (!threadCls) {
+      throw new Error('Thread class not found');
+    }
+
+    if (!cls) {
+      throw new Error('Main class not found');
+    }
+
+    this.engine.runClass(threadCls, cls);
   }
 }

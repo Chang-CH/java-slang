@@ -1,5 +1,5 @@
-import { MethodType } from '#jvm/external/ClassFile/types/methods';
-import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#jvm/external/ClassFile/types/methods';
+import { ClassRef } from '#types/ConstantRef';
 
 export interface InstructionPointer {
   className: string;
@@ -10,7 +10,7 @@ export interface InstructionPointer {
 export interface StackFrame {
   operandStack: any[];
   class: ClassRef;
-  method: MethodType;
+  method: MethodRef;
   pc: number;
   locals: any[];
 }

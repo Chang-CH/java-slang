@@ -1,12 +1,9 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
-import {
-  NativeMethodRef,
-  MethodType,
-} from '#jvm/external/ClassFile/types/methods';
+import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 import {
   InstructionType,
   readInstruction,
@@ -25,7 +22,7 @@ export default class NativeThread {
     this.stackPointer = -1;
   }
 
-  getCurrentInstruction(): InstructionType | NativeMethodRef | undefined {
+  getCurrentInstruction(): InstructionType | MethodRef | undefined {
     const currentFrame = this.stack?.[this.stackPointer];
 
     if (!currentFrame) {
@@ -35,11 +32,7 @@ export default class NativeThread {
 
     // Instruction is a native method
     if (checkNative(currentFrame.method) || !currentFrame.method.code) {
-      return {
-        className: currentFrame.class.getClassname(),
-        methodName: currentFrame.method.name + currentFrame.method.descriptor,
-        native: true,
-      };
+      return currentFrame.method;
     }
 
     return readInstruction(currentFrame.method.code.code, currentFrame.pc);
@@ -69,7 +62,7 @@ export default class NativeThread {
     return this.stack[this.stackPointer].method.name;
   }
 
-  getMethod(): MethodType {
+  getMethod(): MethodRef {
     return this.stack[this.stackPointer].method;
   }
 
@@ -135,16 +128,13 @@ export default class NativeThread {
   }
 
   throwNewException(className: string, msg: string) {
+    // FIXME: Potential infinite loop if ClassNotFoundException is not found
     tryInitialize(this, className);
 
     // Initialize exception
-    // TODO: push msg to stack
+    // FIXME: push msg to stack
     const objectref = new JavaReference(
-      this.getClass()
-        .getLoader()
-        .getClassRef(className, e => {
-          throw new Error('Failed to load exception class');
-        }) as ClassRef,
+      this.getClass().getLoader().resolveClass(this, className) as ClassRef,
       {}
     );
     this.throwException(objectref);

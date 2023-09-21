@@ -1,17 +1,11 @@
 import { AttributeCode, AttributeType } from './attributes';
 
-export interface MethodType {
+export interface MethodRef {
   accessFlags: number;
   name: string;
   descriptor: string;
   attributes: Array<AttributeType>;
   code: AttributeCode | null; // native methods have no code
-}
-
-export interface NativeMethodRef {
-  className: string;
-  methodName: string;
-  native: true;
 }
 
 export enum METHODFLAGS {

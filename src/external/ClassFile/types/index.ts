@@ -1,7 +1,7 @@
 import { AttributeType } from './attributes';
 import { ConstantType } from './constants';
 import { FieldType } from './fields';
-import { MethodType } from './methods';
+import { MethodRef } from './methods';
 
 export interface ClassFile {
   magic: number;
@@ -16,7 +16,7 @@ export interface ClassFile {
     [fieldName: string]: FieldType;
   };
   methods: {
-    [methodName: string]: MethodType;
+    [methodName: string]: MethodRef;
   };
   attributes: Array<AttributeType>;
 }

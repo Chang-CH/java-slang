@@ -13,10 +13,12 @@ import * as reserved from './instructions/reserved';
 import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
 import { InstructionType } from './readInstruction';
+import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 
 export default function runInstruction(
   thread: NativeThread,
-  instruction: InstructionType
+  method: MethodRef,
+  offset: number
 ): void {
   let result;
   switch (instruction.opcode) {

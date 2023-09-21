@@ -20,7 +20,7 @@ export function runFstore(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDstore(thread: NativeThread, instruction: InstructionType) {
-  thread.storeLocal64(instruction.operands[0], asDouble(thread.popStack64())); // force into double
+  thread.storeLocal64(instruction.operands[0], asDouble(thread.popStack64()));
   thread.offsetPc(2);
 }
 
@@ -102,25 +102,25 @@ export function runFstore3(thread: NativeThread, instruction: InstructionType) {
 }
 
 export function runDstore0(thread: NativeThread, instruction: InstructionType) {
-  const value = asDouble(thread.popStack64()); // force into double
+  const value = asDouble(thread.popStack64());
   thread.storeLocal64(0, value);
   thread.offsetPc(1);
 }
 
 export function runDstore1(thread: NativeThread, instruction: InstructionType) {
-  const value = asDouble(thread.popStack64()); // force into double
+  const value = asDouble(thread.popStack64());
   thread.storeLocal64(1, value);
   thread.offsetPc(1);
 }
 
 export function runDstore2(thread: NativeThread, instruction: InstructionType) {
-  const value = asDouble(thread.popStack64()); // force into double
+  const value = asDouble(thread.popStack64());
   thread.storeLocal64(2, value);
   thread.offsetPc(1);
 }
 
 export function runDstore3(thread: NativeThread, instruction: InstructionType) {
-  const value = asDouble(thread.popStack64()); // force into double
+  const value = asDouble(thread.popStack64());
   thread.storeLocal64(3, value);
   thread.offsetPc(1);
 }

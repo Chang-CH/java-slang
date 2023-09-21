@@ -60,11 +60,13 @@ export function tryInitialize(thread: NativeThread, className: string) {
   const classRef = thread
     .getClass()
     .getLoader()
-    .getClassRef(className, console.error); // TODO: throw class loading exceptions
+    .resolveClass(thread, className);
 
   if (!classRef) {
-    throw new Error('Class load exception');
+    thread.throwNewException('java/lang/ClassNotFoundException', '');
+    return;
   }
+
   // Class not initialized, initialize it.
   if (classRef.isInitialized) {
     if (classRef.getMethod(thread, '<clinit>()V')) {

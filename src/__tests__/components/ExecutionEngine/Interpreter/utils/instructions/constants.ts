@@ -10,7 +10,7 @@ import {
   ConstantClass,
   ConstantMethodref,
   ConstantString,
-} from '#types/ClassRef';
+} from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 import { initString } from '#jvm/components/JNI/utils';
@@ -28,15 +28,9 @@ beforeEach(() => {
   const nativeSystem = new JsSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl.load(
-    'java/lang/Thread',
-    () => {},
-    e => {
-      throw e;
-    }
-  );
+  bscl.load('java/lang/Thread');
 
-  threadClass = bscl.getClassRef('java/lang/Thread', console.error) as ClassRef;
+  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   thread.pushStackFrame({
@@ -359,9 +353,7 @@ describe('runLdc', () => {
     const strClass = thread
       .getClass()
       .getLoader()
-      .getClassRef('java/lang/String', () => {
-        throw new Error('java/lang/String not found');
-      });
+      .resolveClass(thread, 'java/lang/String') as ClassRef;
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
       tag: CONSTANT_TAG.String,
@@ -565,9 +557,7 @@ describe('runLdcW', () => {
     const strClass = thread
       .getClass()
       .getLoader()
-      .getClassRef('java/lang/String', () => {
-        throw new Error('java/lang/String not found');
-      });
+      .resolveClass(thread, 'java/lang/String');
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
       tag: CONSTANT_TAG.String,

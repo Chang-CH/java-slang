@@ -3,7 +3,7 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 let thread: NativeThread;
@@ -14,15 +14,9 @@ beforeEach(() => {
   const nativeSystem = new JsSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl.load(
-    'java/lang/Thread',
-    () => {},
-    e => {
-      throw e;
-    }
-  );
+  bscl.load('java/lang/Thread');
 
-  threadClass = bscl.getClassRef('java/lang/Thread', console.error) as ClassRef;
+  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   thread.pushStackFrame({

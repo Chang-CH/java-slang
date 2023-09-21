@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
 import { JNI } from '../JNI';

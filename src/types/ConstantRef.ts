@@ -14,7 +14,7 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { FieldType } from '#jvm/external/ClassFile/types/fields';
-import { MethodType } from '#jvm/external/ClassFile/types/methods';
+import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 import { JavaReference } from '#types/dataTypes';
 
 export interface ConstantClass {
@@ -27,14 +27,14 @@ export interface ConstantMethodref {
   tag: CONSTANT_TAG;
   classIndex: number;
   nameAndTypeIndex: number;
-  ref: MethodType;
+  ref: MethodRef;
 }
 
 export interface ConstantInterfaceMethodref {
   tag: CONSTANT_TAG;
   classIndex: number;
   nameAndTypeIndex: number;
-  ref: MethodType;
+  ref: MethodRef;
 }
 
 export interface ConstantString {
@@ -75,7 +75,7 @@ export class ClassRef {
   };
 
   private methods: {
-    [methodName: string]: MethodType;
+    [methodName: string]: MethodRef;
   };
 
   private bootstrapMethods?: AttributeBootstrapMethods;
@@ -107,12 +107,14 @@ export class ClassRef {
 
   private resolveClassRef(thread: NativeThread, clsRef: ConstantClass) {
     const className = this.constantPool[clsRef.nameIndex] as ConstantUtf8Info;
-    clsRef.ref = this.loader.getClassRef(className.value, e => {
-      if (e.message === 'java/lang/ClassNotFoundException') {
-        thread.throwNewException('java/lang/ClassNotFoundException', '');
-      }
-      throw e;
-    });
+    const ref = this.loader.resolveClass(thread, className.value);
+
+    if (!ref) {
+      thread.throwNewException('java/lang/ClassNotFoundException', '');
+      return;
+    }
+
+    clsRef.ref = ref;
     return;
   }
 
@@ -137,28 +139,25 @@ export class ClassRef {
       .getClass()
       .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
-    methodRef.ref = this.loader
-      .getClassRef(className, e => {
-        if (e.message === 'java/lang/ClassNotFoundException') {
-          thread.throwNewException('java/lang/ClassNotFoundException', '');
-        }
-        throw e;
-      })
-      .getMethod(thread, methodName + methodDescriptor);
+    const clsRef = this.loader.resolveClass(thread, className);
+    if (!clsRef) {
+      thread.throwNewException('java/lang/ClassNotFoundException', '');
+      return;
+    }
+
+    methodRef.ref = clsRef.getMethod(thread, methodName + methodDescriptor);
   }
 
   private resolveStringRef(thread: NativeThread, strRef: ConstantString) {
     const strConst = this.constantPool[strRef.stringIndex] as ConstantUtf8Info;
 
-    strRef.ref = initString(
-      this.loader.getClassRef('java/lang/String', e => {
-        if (e.message === 'java/lang/ClassNotFoundException') {
-          thread.throwNewException('java/lang/ClassNotFoundException', '');
-        }
-        throw e;
-      }),
-      strConst.value
-    );
+    const clsRef = this.loader.resolveClass(thread, 'java/lang/String');
+    if (!clsRef) {
+      thread.throwNewException('java/lang/ClassNotFoundException', '');
+      return;
+    }
+
+    strRef.ref = initString(clsRef, strConst.value);
   }
 
   resolveReference(thread: NativeThread, ref: ConstantRef) {
@@ -239,7 +238,7 @@ export class ClassRef {
     return this.interfaces;
   }
 
-  getMethod(thread: NativeThread, methodName: string): MethodType {
+  getMethod(thread: NativeThread, methodName: string): MethodRef {
     return this.methods[methodName];
   }
 

@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/ConstantRef';
 import { JavaArray, ArrayType, JavaReference } from '#types/dataTypes';
 
 export function newCharArr(str: string): JavaArray {

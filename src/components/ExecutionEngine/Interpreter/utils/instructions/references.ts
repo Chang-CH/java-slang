@@ -10,7 +10,7 @@ import {
   ConstantClassInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { ConstantClass } from '#types/ClassRef';
+import { ConstantClass } from '#types/ConstantRef';
 
 export function runGetstatic(
   thread: NativeThread,
@@ -29,9 +29,7 @@ export function runGetstatic(
   const classRef = thread
     .getClass()
     .getLoader()
-    .getClassRef(className, e =>
-      thread.throwNewException('java/lang/ClassNotFoundException', '')
-    );
+    .resolveClass(thread, className);
 
   // Load + initialize if needed
   tryInitialize(thread, className);
@@ -77,12 +75,7 @@ export function runPutstatic(
 
   // Load + initialize if needed
   tryInitialize(thread, className);
-  const cls = thread
-    .getClass()
-    .getLoader()
-    .getClassRef(className, e =>
-      thread.throwNewException('java/lang/ClassNotFoundException', '')
-    );
+  const cls = thread.getClass().getLoader().resolveClass(thread, className);
 
   const nameAndTypeIndex = thread
     .getClass()
@@ -216,9 +209,7 @@ export function runInvokevirtual(
   const classRef = thread
     .getClass()
     .getLoader()
-    .getClassRef(className, e =>
-      thread.throwNewException('java/lang/ClassNotFoundException', '')
-    );
+    .resolveClass(thread, className);
 
   // Get arguments
   const methodDesc = parseMethodDescriptor(methodDescriptor);
@@ -290,9 +281,7 @@ export function runInvokespecial(
   const classRef = thread
     .getClass()
     .getLoader()
-    .getClassRef(className, e =>
-      thread.throwNewException('java/lang/ClassNotFoundException', '')
-    );
+    .resolveClass(thread, className);
 
   thread.pushStackFrame({
     class: classRef,
@@ -344,9 +333,7 @@ export function runInvokestatic(
   const classRef = thread
     .getClass()
     .getLoader()
-    .getClassRef(className, e =>
-      thread.throwNewException('java/lang/ClassNotFoundException', '')
-    );
+    .resolveClass(thread, className);
 
   thread.pushStackFrame({
     class: classRef,
@@ -401,9 +388,7 @@ export function runInvokeinterface(
   const classRef = thread
     .getClass()
     .getLoader()
-    .getClassRef(className, e =>
-      thread.throwNewException('java/lang/ClassNotFoundException', '')
-    );
+    .resolveClass(thread, className);
 
   thread.pushStackFrame({
     class: classRef,

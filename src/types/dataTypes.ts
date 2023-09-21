@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/ConstantRef';
 
 export class JavaArray {
   type: string | ArrayType;
