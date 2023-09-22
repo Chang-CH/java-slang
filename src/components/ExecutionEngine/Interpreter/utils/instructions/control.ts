@@ -3,21 +3,25 @@ import { asDouble, asFloat } from '..';
 
 export function runGoto(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(branchbyte - 3);
+  thread.offsetPc(branchbyte - 1);
 }
 
+/**
+ * Used to implement finally. pushes pc + 3 onto stack, then goto pc + branchbyte
+ * @param thread
+ */
 export function runJsr(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
-  thread.pushStack(branchbyte);
+  thread.pushStack(thread.getPC());
+  thread.setPc(thread.getPC() + branchbyte - 3);
 }
 
 export function runRet(thread: NativeThread): void {
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   const retAddr = thread.loadLocal(index);
-  // TODO: update pc to retAddr
-  throw new Error('runInstruction: ret not implemented');
+  thread.setPc(retAddr);
 }
 
 export function runTableswitch(thread: NativeThread): void {
