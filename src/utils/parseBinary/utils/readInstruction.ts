@@ -1,5 +1,8 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { InstructionType } from '../readInstruction';
+interface InstructionType {
+  opcode: OPCODE;
+  operands: any[];
+}
 
 export function readInstructions(
   view: DataView,
@@ -19,7 +22,7 @@ export function readInstructions(
   return { result: code, offset };
 }
 
-function readInstruction(
+export function readInstruction(
   view: DataView,
   offset: number
 ): { result: InstructionType; offset: number } {
@@ -447,7 +450,7 @@ function readnop(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.NOP, operands: [], native: false },
+    result: { opcode: OPCODE.NOP, operands: [] },
     offset,
   };
 }
@@ -460,7 +463,6 @@ function readaconstNull(
     result: {
       opcode: OPCODE.ACONSTNULL,
       operands: [],
-      native: false,
     },
     offset,
   };
@@ -471,7 +473,7 @@ function readiconstM1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONSTM1, operands: [], native: false },
+    result: { opcode: OPCODE.ICONSTM1, operands: [] },
     offset,
   };
 }
@@ -481,7 +483,7 @@ function readiconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST0, operands: [], native: false },
+    result: { opcode: OPCODE.ICONST0, operands: [] },
     offset,
   };
 }
@@ -491,7 +493,7 @@ function readiconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST1, operands: [], native: false },
+    result: { opcode: OPCODE.ICONST1, operands: [] },
     offset,
   };
 }
@@ -501,7 +503,7 @@ function readiconst2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST2, operands: [], native: false },
+    result: { opcode: OPCODE.ICONST2, operands: [] },
     offset,
   };
 }
@@ -511,7 +513,7 @@ function readiconst3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST3, operands: [], native: false },
+    result: { opcode: OPCODE.ICONST3, operands: [] },
     offset,
   };
 }
@@ -521,7 +523,7 @@ function readiconst4(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST4, operands: [], native: false },
+    result: { opcode: OPCODE.ICONST4, operands: [] },
     offset,
   };
 }
@@ -531,7 +533,7 @@ function readiconst5(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST5, operands: [], native: false },
+    result: { opcode: OPCODE.ICONST5, operands: [] },
     offset,
   };
 }
@@ -541,7 +543,7 @@ function readlconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LCONST0, operands: [], native: false },
+    result: { opcode: OPCODE.LCONST0, operands: [] },
     offset,
   };
 }
@@ -551,7 +553,7 @@ function readlconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LCONST1, operands: [], native: false },
+    result: { opcode: OPCODE.LCONST1, operands: [] },
     offset,
   };
 }
@@ -561,7 +563,7 @@ function readfconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCONST0, operands: [], native: false },
+    result: { opcode: OPCODE.FCONST0, operands: [] },
     offset,
   };
 }
@@ -571,7 +573,7 @@ function readfconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCONST1, operands: [], native: false },
+    result: { opcode: OPCODE.FCONST1, operands: [] },
     offset,
   };
 }
@@ -581,7 +583,7 @@ function readfconst2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCONST2, operands: [], native: false },
+    result: { opcode: OPCODE.FCONST2, operands: [] },
     offset,
   };
 }
@@ -591,7 +593,7 @@ function readdconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DCONST0, operands: [], native: false },
+    result: { opcode: OPCODE.DCONST0, operands: [] },
     offset,
   };
 }
@@ -601,7 +603,7 @@ function readdconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DCONST1, operands: [], native: false },
+    result: { opcode: OPCODE.DCONST1, operands: [] },
     offset,
   };
 }
@@ -614,7 +616,7 @@ function readbipush(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.BIPUSH, operands: [byte], native: false },
+    result: { opcode: OPCODE.BIPUSH, operands: [byte] },
     offset,
   };
 }
@@ -630,7 +632,6 @@ function readsipush(
     result: {
       opcode: OPCODE.SIPUSH,
       operands: [value],
-      native: false,
     },
     offset,
   };
@@ -644,7 +645,7 @@ function readldc(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.LDC, operands: [index], native: false },
+    result: { opcode: OPCODE.LDC, operands: [index] },
     offset,
   };
 }
@@ -660,7 +661,6 @@ function readldcW(
     result: {
       opcode: OPCODE.LDCW,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -677,7 +677,6 @@ function readldc2W(
     result: {
       opcode: OPCODE.LDC2W,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -691,7 +690,7 @@ function readiload(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.ILOAD, operands: [index], native: false },
+    result: { opcode: OPCODE.ILOAD, operands: [index] },
     offset,
   };
 }
@@ -704,7 +703,7 @@ function readlload(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.LLOAD, operands: [index], native: false },
+    result: { opcode: OPCODE.LLOAD, operands: [index] },
     offset,
   };
 }
@@ -717,7 +716,7 @@ function readfload(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.FLOAD, operands: [index], native: false },
+    result: { opcode: OPCODE.FLOAD, operands: [index] },
     offset,
   };
 }
@@ -730,7 +729,7 @@ function readdload(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.DLOAD, operands: [index], native: false },
+    result: { opcode: OPCODE.DLOAD, operands: [index] },
     offset,
   };
 }
@@ -743,7 +742,7 @@ function readaload(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.ALOAD, operands: [index], native: false },
+    result: { opcode: OPCODE.ALOAD, operands: [index] },
     offset,
   };
 }
@@ -753,7 +752,7 @@ function readiload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD0, operands: [], native: false },
+    result: { opcode: OPCODE.ILOAD0, operands: [] },
     offset,
   };
 }
@@ -763,7 +762,7 @@ function readiload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD1, operands: [], native: false },
+    result: { opcode: OPCODE.ILOAD1, operands: [] },
     offset,
   };
 }
@@ -773,7 +772,7 @@ function readiload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD2, operands: [], native: false },
+    result: { opcode: OPCODE.ILOAD2, operands: [] },
     offset,
   };
 }
@@ -783,7 +782,7 @@ function readiload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD3, operands: [], native: false },
+    result: { opcode: OPCODE.ILOAD3, operands: [] },
     offset,
   };
 }
@@ -793,7 +792,7 @@ function readlload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD0, operands: [], native: false },
+    result: { opcode: OPCODE.LLOAD0, operands: [] },
     offset,
   };
 }
@@ -803,7 +802,7 @@ function readlload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD1, operands: [], native: false },
+    result: { opcode: OPCODE.LLOAD1, operands: [] },
     offset,
   };
 }
@@ -813,7 +812,7 @@ function readlload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD2, operands: [], native: false },
+    result: { opcode: OPCODE.LLOAD2, operands: [] },
     offset,
   };
 }
@@ -823,7 +822,7 @@ function readlload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD3, operands: [], native: false },
+    result: { opcode: OPCODE.LLOAD3, operands: [] },
     offset,
   };
 }
@@ -833,7 +832,7 @@ function readfload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD0, operands: [], native: false },
+    result: { opcode: OPCODE.FLOAD0, operands: [] },
     offset,
   };
 }
@@ -843,7 +842,7 @@ function readfload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD1, operands: [], native: false },
+    result: { opcode: OPCODE.FLOAD1, operands: [] },
     offset,
   };
 }
@@ -853,7 +852,7 @@ function readfload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD2, operands: [], native: false },
+    result: { opcode: OPCODE.FLOAD2, operands: [] },
     offset,
   };
 }
@@ -863,7 +862,7 @@ function readfload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD3, operands: [], native: false },
+    result: { opcode: OPCODE.FLOAD3, operands: [] },
     offset,
   };
 }
@@ -873,7 +872,7 @@ function readdload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD0, operands: [], native: false },
+    result: { opcode: OPCODE.DLOAD0, operands: [] },
     offset,
   };
 }
@@ -883,7 +882,7 @@ function readdload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD1, operands: [], native: false },
+    result: { opcode: OPCODE.DLOAD1, operands: [] },
     offset,
   };
 }
@@ -893,7 +892,7 @@ function readdload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD2, operands: [], native: false },
+    result: { opcode: OPCODE.DLOAD2, operands: [] },
     offset,
   };
 }
@@ -903,7 +902,7 @@ function readdload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD3, operands: [], native: false },
+    result: { opcode: OPCODE.DLOAD3, operands: [] },
     offset,
   };
 }
@@ -913,7 +912,7 @@ function readaload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD0, operands: [], native: false },
+    result: { opcode: OPCODE.ALOAD0, operands: [] },
     offset,
   };
 }
@@ -923,7 +922,7 @@ function readaload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD1, operands: [], native: false },
+    result: { opcode: OPCODE.ALOAD1, operands: [] },
     offset,
   };
 }
@@ -933,7 +932,7 @@ function readaload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD2, operands: [], native: false },
+    result: { opcode: OPCODE.ALOAD2, operands: [] },
     offset,
   };
 }
@@ -943,7 +942,7 @@ function readaload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD3, operands: [], native: false },
+    result: { opcode: OPCODE.ALOAD3, operands: [] },
     offset,
   };
 }
@@ -953,7 +952,7 @@ function readiaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.IALOAD, operands: [] },
     offset,
   };
 }
@@ -963,7 +962,7 @@ function readlaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.LALOAD, operands: [] },
     offset,
   };
 }
@@ -973,7 +972,7 @@ function readfaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.FALOAD, operands: [] },
     offset,
   };
 }
@@ -983,7 +982,7 @@ function readdaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.DALOAD, operands: [] },
     offset,
   };
 }
@@ -993,7 +992,7 @@ function readaaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.AALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.AALOAD, operands: [] },
     offset,
   };
 }
@@ -1003,7 +1002,7 @@ function readbaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.BALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.BALOAD, operands: [] },
     offset,
   };
 }
@@ -1013,7 +1012,7 @@ function readcaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.CALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.CALOAD, operands: [] },
     offset,
   };
 }
@@ -1023,7 +1022,7 @@ function readsaload(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.SALOAD, operands: [], native: false },
+    result: { opcode: OPCODE.SALOAD, operands: [] },
     offset,
   };
 }
@@ -1039,7 +1038,6 @@ function readistore(
     result: {
       opcode: OPCODE.ISTORE,
       operands: [index],
-      native: false,
     },
     offset,
   };
@@ -1056,7 +1054,6 @@ function readlstore(
     result: {
       opcode: OPCODE.LSTORE,
       operands: [index],
-      native: false,
     },
     offset,
   };
@@ -1073,7 +1070,6 @@ function readfstore(
     result: {
       opcode: OPCODE.FSTORE,
       operands: [index],
-      native: false,
     },
     offset,
   };
@@ -1090,7 +1086,6 @@ function readdstore(
     result: {
       opcode: OPCODE.DSTORE,
       operands: [index],
-      native: false,
     },
     offset,
   };
@@ -1107,7 +1102,6 @@ function readastore(
     result: {
       opcode: OPCODE.ASTORE,
       operands: [index],
-      native: false,
     },
     offset,
   };
@@ -1118,7 +1112,7 @@ function readistore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE0, operands: [], native: false },
+    result: { opcode: OPCODE.ISTORE0, operands: [] },
     offset,
   };
 }
@@ -1128,7 +1122,7 @@ function readistore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE1, operands: [], native: false },
+    result: { opcode: OPCODE.ISTORE1, operands: [] },
     offset,
   };
 }
@@ -1138,7 +1132,7 @@ function readistore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE2, operands: [], native: false },
+    result: { opcode: OPCODE.ISTORE2, operands: [] },
     offset,
   };
 }
@@ -1148,7 +1142,7 @@ function readistore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE3, operands: [], native: false },
+    result: { opcode: OPCODE.ISTORE3, operands: [] },
     offset,
   };
 }
@@ -1158,7 +1152,7 @@ function readlstore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE0, operands: [], native: false },
+    result: { opcode: OPCODE.LSTORE0, operands: [] },
     offset,
   };
 }
@@ -1168,7 +1162,7 @@ function readlstore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE1, operands: [], native: false },
+    result: { opcode: OPCODE.LSTORE1, operands: [] },
     offset,
   };
 }
@@ -1178,7 +1172,7 @@ function readlstore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE2, operands: [], native: false },
+    result: { opcode: OPCODE.LSTORE2, operands: [] },
     offset,
   };
 }
@@ -1188,7 +1182,7 @@ function readlstore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE3, operands: [], native: false },
+    result: { opcode: OPCODE.LSTORE3, operands: [] },
     offset,
   };
 }
@@ -1198,7 +1192,7 @@ function readfstore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE0, operands: [], native: false },
+    result: { opcode: OPCODE.FSTORE0, operands: [] },
     offset,
   };
 }
@@ -1208,7 +1202,7 @@ function readfstore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE1, operands: [], native: false },
+    result: { opcode: OPCODE.FSTORE1, operands: [] },
     offset,
   };
 }
@@ -1218,7 +1212,7 @@ function readfstore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE2, operands: [], native: false },
+    result: { opcode: OPCODE.FSTORE2, operands: [] },
     offset,
   };
 }
@@ -1228,7 +1222,7 @@ function readfstore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE3, operands: [], native: false },
+    result: { opcode: OPCODE.FSTORE3, operands: [] },
     offset,
   };
 }
@@ -1238,7 +1232,7 @@ function readdstore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE0, operands: [], native: false },
+    result: { opcode: OPCODE.DSTORE0, operands: [] },
     offset,
   };
 }
@@ -1248,7 +1242,7 @@ function readdstore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE1, operands: [], native: false },
+    result: { opcode: OPCODE.DSTORE1, operands: [] },
     offset,
   };
 }
@@ -1258,7 +1252,7 @@ function readdstore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE2, operands: [], native: false },
+    result: { opcode: OPCODE.DSTORE2, operands: [] },
     offset,
   };
 }
@@ -1268,7 +1262,7 @@ function readdstore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE3, operands: [], native: false },
+    result: { opcode: OPCODE.DSTORE3, operands: [] },
     offset,
   };
 }
@@ -1278,7 +1272,7 @@ function readastore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE0, operands: [], native: false },
+    result: { opcode: OPCODE.ASTORE0, operands: [] },
     offset,
   };
 }
@@ -1288,7 +1282,7 @@ function readastore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE1, operands: [], native: false },
+    result: { opcode: OPCODE.ASTORE1, operands: [] },
     offset,
   };
 }
@@ -1298,7 +1292,7 @@ function readastore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE2, operands: [], native: false },
+    result: { opcode: OPCODE.ASTORE2, operands: [] },
     offset,
   };
 }
@@ -1308,7 +1302,7 @@ function readastore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE3, operands: [], native: false },
+    result: { opcode: OPCODE.ASTORE3, operands: [] },
     offset,
   };
 }
@@ -1318,7 +1312,7 @@ function readiastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.IASTORE, operands: [] },
     offset,
   };
 }
@@ -1328,7 +1322,7 @@ function readlastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.LASTORE, operands: [] },
     offset,
   };
 }
@@ -1338,7 +1332,7 @@ function readfastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.FASTORE, operands: [] },
     offset,
   };
 }
@@ -1348,7 +1342,7 @@ function readdastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.DASTORE, operands: [] },
     offset,
   };
 }
@@ -1358,7 +1352,7 @@ function readaastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.AASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.AASTORE, operands: [] },
     offset,
   };
 }
@@ -1368,7 +1362,7 @@ function readbastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.BASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.BASTORE, operands: [] },
     offset,
   };
 }
@@ -1378,7 +1372,7 @@ function readcastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.CASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.CASTORE, operands: [] },
     offset,
   };
 }
@@ -1388,7 +1382,7 @@ function readsastore(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.SASTORE, operands: [], native: false },
+    result: { opcode: OPCODE.SASTORE, operands: [] },
     offset,
   };
 }
@@ -1398,7 +1392,7 @@ function readpop(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.POP, operands: [], native: false },
+    result: { opcode: OPCODE.POP, operands: [] },
     offset,
   };
 }
@@ -1408,7 +1402,7 @@ function readpop2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.POP2, operands: [], native: false },
+    result: { opcode: OPCODE.POP2, operands: [] },
     offset,
   };
 }
@@ -1418,7 +1412,7 @@ function readdup(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUP, operands: [], native: false },
+    result: { opcode: OPCODE.DUP, operands: [] },
     offset,
   };
 }
@@ -1428,7 +1422,7 @@ function readdupX1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUPX1, operands: [], native: false },
+    result: { opcode: OPCODE.DUPX1, operands: [] },
     offset,
   };
 }
@@ -1438,7 +1432,7 @@ function readdupX2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUPX2, operands: [], native: false },
+    result: { opcode: OPCODE.DUPX2, operands: [] },
     offset,
   };
 }
@@ -1448,7 +1442,7 @@ function readdup2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUP2, operands: [], native: false },
+    result: { opcode: OPCODE.DUP2, operands: [] },
     offset,
   };
 }
@@ -1458,7 +1452,7 @@ function readdup2X1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUP2X1, operands: [], native: false },
+    result: { opcode: OPCODE.DUP2X1, operands: [] },
     offset,
   };
 }
@@ -1468,7 +1462,7 @@ function readdup2X2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUP2X2, operands: [], native: false },
+    result: { opcode: OPCODE.DUP2X2, operands: [] },
     offset,
   };
 }
@@ -1478,7 +1472,7 @@ function readswap(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.SWAP, operands: [], native: false },
+    result: { opcode: OPCODE.SWAP, operands: [] },
     offset,
   };
 }
@@ -1488,7 +1482,7 @@ function readiadd(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IADD, operands: [], native: false },
+    result: { opcode: OPCODE.IADD, operands: [] },
     offset,
   };
 }
@@ -1498,7 +1492,7 @@ function readladd(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LADD, operands: [], native: false },
+    result: { opcode: OPCODE.LADD, operands: [] },
     offset,
   };
 }
@@ -1508,7 +1502,7 @@ function readfadd(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FADD, operands: [], native: false },
+    result: { opcode: OPCODE.FADD, operands: [] },
     offset,
   };
 }
@@ -1518,7 +1512,7 @@ function readdadd(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DADD, operands: [], native: false },
+    result: { opcode: OPCODE.DADD, operands: [] },
     offset,
   };
 }
@@ -1528,7 +1522,7 @@ function readisub(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISUB, operands: [], native: false },
+    result: { opcode: OPCODE.ISUB, operands: [] },
     offset,
   };
 }
@@ -1538,7 +1532,7 @@ function readlsub(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSUB, operands: [], native: false },
+    result: { opcode: OPCODE.LSUB, operands: [] },
     offset,
   };
 }
@@ -1548,7 +1542,7 @@ function readfsub(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSUB, operands: [], native: false },
+    result: { opcode: OPCODE.FSUB, operands: [] },
     offset,
   };
 }
@@ -1558,7 +1552,7 @@ function readdsub(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSUB, operands: [], native: false },
+    result: { opcode: OPCODE.DSUB, operands: [] },
     offset,
   };
 }
@@ -1568,7 +1562,7 @@ function readimul(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IMUL, operands: [], native: false },
+    result: { opcode: OPCODE.IMUL, operands: [] },
     offset,
   };
 }
@@ -1578,7 +1572,7 @@ function readlmul(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LMUL, operands: [], native: false },
+    result: { opcode: OPCODE.LMUL, operands: [] },
     offset,
   };
 }
@@ -1588,7 +1582,7 @@ function readfmul(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FMUL, operands: [], native: false },
+    result: { opcode: OPCODE.FMUL, operands: [] },
     offset,
   };
 }
@@ -1598,7 +1592,7 @@ function readdmul(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DMUL, operands: [], native: false },
+    result: { opcode: OPCODE.DMUL, operands: [] },
     offset,
   };
 }
@@ -1608,7 +1602,7 @@ function readidiv(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IDIV, operands: [], native: false },
+    result: { opcode: OPCODE.IDIV, operands: [] },
     offset,
   };
 }
@@ -1618,7 +1612,7 @@ function readldiv(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LDIV, operands: [], native: false },
+    result: { opcode: OPCODE.LDIV, operands: [] },
     offset,
   };
 }
@@ -1628,7 +1622,7 @@ function readfdiv(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FDIV, operands: [], native: false },
+    result: { opcode: OPCODE.FDIV, operands: [] },
     offset,
   };
 }
@@ -1638,7 +1632,7 @@ function readddiv(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DDIV, operands: [], native: false },
+    result: { opcode: OPCODE.DDIV, operands: [] },
     offset,
   };
 }
@@ -1648,7 +1642,7 @@ function readirem(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IREM, operands: [], native: false },
+    result: { opcode: OPCODE.IREM, operands: [] },
     offset,
   };
 }
@@ -1658,7 +1652,7 @@ function readlrem(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LREM, operands: [], native: false },
+    result: { opcode: OPCODE.LREM, operands: [] },
     offset,
   };
 }
@@ -1668,7 +1662,7 @@ function readfrem(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FREM, operands: [], native: false },
+    result: { opcode: OPCODE.FREM, operands: [] },
     offset,
   };
 }
@@ -1678,7 +1672,7 @@ function readdrem(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DREM, operands: [], native: false },
+    result: { opcode: OPCODE.DREM, operands: [] },
     offset,
   };
 }
@@ -1688,7 +1682,7 @@ function readineg(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.INEG, operands: [], native: false },
+    result: { opcode: OPCODE.INEG, operands: [] },
     offset,
   };
 }
@@ -1698,7 +1692,7 @@ function readlneg(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LNEG, operands: [], native: false },
+    result: { opcode: OPCODE.LNEG, operands: [] },
     offset,
   };
 }
@@ -1708,7 +1702,7 @@ function readfneg(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FNEG, operands: [], native: false },
+    result: { opcode: OPCODE.FNEG, operands: [] },
     offset,
   };
 }
@@ -1718,7 +1712,7 @@ function readdneg(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DNEG, operands: [], native: false },
+    result: { opcode: OPCODE.DNEG, operands: [] },
     offset,
   };
 }
@@ -1728,7 +1722,7 @@ function readishl(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISHL, operands: [], native: false },
+    result: { opcode: OPCODE.ISHL, operands: [] },
     offset,
   };
 }
@@ -1738,7 +1732,7 @@ function readlshl(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSHL, operands: [], native: false },
+    result: { opcode: OPCODE.LSHL, operands: [] },
     offset,
   };
 }
@@ -1748,7 +1742,7 @@ function readishr(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISHR, operands: [], native: false },
+    result: { opcode: OPCODE.ISHR, operands: [] },
     offset,
   };
 }
@@ -1758,7 +1752,7 @@ function readlshr(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSHR, operands: [], native: false },
+    result: { opcode: OPCODE.LSHR, operands: [] },
     offset,
   };
 }
@@ -1768,7 +1762,7 @@ function readiushr(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IUSHR, operands: [], native: false },
+    result: { opcode: OPCODE.IUSHR, operands: [] },
     offset,
   };
 }
@@ -1778,7 +1772,7 @@ function readlushr(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LUSHR, operands: [], native: false },
+    result: { opcode: OPCODE.LUSHR, operands: [] },
     offset,
   };
 }
@@ -1788,7 +1782,7 @@ function readiand(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IAND, operands: [], native: false },
+    result: { opcode: OPCODE.IAND, operands: [] },
     offset,
   };
 }
@@ -1798,7 +1792,7 @@ function readland(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LAND, operands: [], native: false },
+    result: { opcode: OPCODE.LAND, operands: [] },
     offset,
   };
 }
@@ -1808,7 +1802,7 @@ function readior(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IOR, operands: [], native: false },
+    result: { opcode: OPCODE.IOR, operands: [] },
     offset,
   };
 }
@@ -1818,7 +1812,7 @@ function readlor(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LOR, operands: [], native: false },
+    result: { opcode: OPCODE.LOR, operands: [] },
     offset,
   };
 }
@@ -1828,7 +1822,7 @@ function readixor(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IXOR, operands: [], native: false },
+    result: { opcode: OPCODE.IXOR, operands: [] },
     offset,
   };
 }
@@ -1838,7 +1832,7 @@ function readlxor(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LXOR, operands: [], native: false },
+    result: { opcode: OPCODE.LXOR, operands: [] },
     offset,
   };
 }
@@ -1856,7 +1850,6 @@ function readiinc(
     result: {
       opcode: OPCODE.IINC,
       operands: [index, constant],
-      native: false,
     },
     offset,
   };
@@ -1867,7 +1860,7 @@ function readi2l(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.I2L, operands: [], native: false },
+    result: { opcode: OPCODE.I2L, operands: [] },
     offset,
   };
 }
@@ -1877,7 +1870,7 @@ function readi2f(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.I2F, operands: [], native: false },
+    result: { opcode: OPCODE.I2F, operands: [] },
     offset,
   };
 }
@@ -1887,7 +1880,7 @@ function readi2d(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.I2D, operands: [], native: false },
+    result: { opcode: OPCODE.I2D, operands: [] },
     offset,
   };
 }
@@ -1897,7 +1890,7 @@ function readl2i(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.L2I, operands: [], native: false },
+    result: { opcode: OPCODE.L2I, operands: [] },
     offset,
   };
 }
@@ -1907,7 +1900,7 @@ function readl2f(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.L2F, operands: [], native: false },
+    result: { opcode: OPCODE.L2F, operands: [] },
     offset,
   };
 }
@@ -1917,7 +1910,7 @@ function readl2d(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.L2D, operands: [], native: false },
+    result: { opcode: OPCODE.L2D, operands: [] },
     offset,
   };
 }
@@ -1927,7 +1920,7 @@ function readf2i(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.F2I, operands: [], native: false },
+    result: { opcode: OPCODE.F2I, operands: [] },
     offset,
   };
 }
@@ -1937,7 +1930,7 @@ function readf2l(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.F2L, operands: [], native: false },
+    result: { opcode: OPCODE.F2L, operands: [] },
     offset,
   };
 }
@@ -1947,7 +1940,7 @@ function readf2d(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.F2D, operands: [], native: false },
+    result: { opcode: OPCODE.F2D, operands: [] },
     offset,
   };
 }
@@ -1957,7 +1950,7 @@ function readd2i(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.D2I, operands: [], native: false },
+    result: { opcode: OPCODE.D2I, operands: [] },
     offset,
   };
 }
@@ -1967,7 +1960,7 @@ function readd2l(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.D2L, operands: [], native: false },
+    result: { opcode: OPCODE.D2L, operands: [] },
     offset,
   };
 }
@@ -1977,7 +1970,7 @@ function readd2f(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.D2F, operands: [], native: false },
+    result: { opcode: OPCODE.D2F, operands: [] },
     offset,
   };
 }
@@ -1987,7 +1980,7 @@ function readi2b(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.I2B, operands: [], native: false },
+    result: { opcode: OPCODE.I2B, operands: [] },
     offset,
   };
 }
@@ -1997,7 +1990,7 @@ function readi2c(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.I2C, operands: [], native: false },
+    result: { opcode: OPCODE.I2C, operands: [] },
     offset,
   };
 }
@@ -2007,7 +2000,7 @@ function readi2s(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.I2S, operands: [], native: false },
+    result: { opcode: OPCODE.I2S, operands: [] },
     offset,
   };
 }
@@ -2017,7 +2010,7 @@ function readlcmp(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LCMP, operands: [], native: false },
+    result: { opcode: OPCODE.LCMP, operands: [] },
     offset,
   };
 }
@@ -2027,7 +2020,7 @@ function readfcmpl(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCMPL, operands: [], native: false },
+    result: { opcode: OPCODE.FCMPL, operands: [] },
     offset,
   };
 }
@@ -2037,7 +2030,7 @@ function readfcmpg(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCMPG, operands: [], native: false },
+    result: { opcode: OPCODE.FCMPG, operands: [] },
     offset,
   };
 }
@@ -2047,7 +2040,7 @@ function readdcmpl(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DCMPL, operands: [], native: false },
+    result: { opcode: OPCODE.DCMPL, operands: [] },
     offset,
   };
 }
@@ -2057,7 +2050,7 @@ function readdcmpg(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DCMPG, operands: [], native: false },
+    result: { opcode: OPCODE.DCMPG, operands: [] },
     offset,
   };
 }
@@ -2073,7 +2066,6 @@ function readifeq(
     result: {
       opcode: OPCODE.IFEQ,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2089,7 +2081,6 @@ function readifne(
     result: {
       opcode: OPCODE.IFNE,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2105,7 +2096,6 @@ function readiflt(
     result: {
       opcode: OPCODE.IFLT,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2121,7 +2111,6 @@ function readifge(
     result: {
       opcode: OPCODE.IFGE,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2137,7 +2126,6 @@ function readifgt(
     result: {
       opcode: OPCODE.IFGT,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2153,7 +2141,6 @@ function readifle(
     result: {
       opcode: OPCODE.IFLE,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2170,7 +2157,6 @@ function readifIcmpeq(
     result: {
       opcode: OPCODE.IFICMPEQ,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2187,7 +2173,6 @@ function readifIcmpne(
     result: {
       opcode: OPCODE.IFICMPNE,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2204,7 +2189,6 @@ function readifIcmplt(
     result: {
       opcode: OPCODE.IFICMPLT,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2221,7 +2205,6 @@ function readifIcmpge(
     result: {
       opcode: OPCODE.IFICMPGE,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2238,7 +2221,6 @@ function readifIcmpgt(
     result: {
       opcode: OPCODE.IFICMPGT,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2255,7 +2237,6 @@ function readifIcmple(
     result: {
       opcode: OPCODE.IFICMPLE,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2272,7 +2253,6 @@ function readifAcmpeq(
     result: {
       opcode: OPCODE.IFACMPEQ,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2289,7 +2269,6 @@ function readifAcmpne(
     result: {
       opcode: OPCODE.IFACMPNE,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2306,7 +2285,6 @@ function readgoto(
     result: {
       opcode: OPCODE.GOTO,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2323,7 +2301,6 @@ function readjsr(
     result: {
       opcode: OPCODE.JSR,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2337,7 +2314,7 @@ function readret(
   offset += 1;
 
   return {
-    result: { opcode: OPCODE.RET, operands: [index], native: false },
+    result: { opcode: OPCODE.RET, operands: [index] },
     offset,
   };
 }
@@ -2365,7 +2342,6 @@ function readtableswitch(
     result: {
       opcode: OPCODE.TABLESWITCH,
       operands: [def, low, high, offsets],
-      native: false,
     },
     offset,
   };
@@ -2394,7 +2370,6 @@ function readlookupswitch(
     result: {
       opcode: OPCODE.TABLESWITCH,
       operands: [def, npairCount, npairs],
-      native: false,
     },
     offset,
   };
@@ -2405,7 +2380,7 @@ function readireturn(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.IRETURN, operands: [], native: false },
+    result: { opcode: OPCODE.IRETURN, operands: [] },
     offset,
   };
 }
@@ -2415,7 +2390,7 @@ function readlreturn(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LRETURN, operands: [], native: false },
+    result: { opcode: OPCODE.LRETURN, operands: [] },
     offset,
   };
 }
@@ -2425,7 +2400,7 @@ function readfreturn(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FRETURN, operands: [], native: false },
+    result: { opcode: OPCODE.FRETURN, operands: [] },
     offset,
   };
 }
@@ -2435,7 +2410,7 @@ function readdreturn(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DRETURN, operands: [], native: false },
+    result: { opcode: OPCODE.DRETURN, operands: [] },
     offset,
   };
 }
@@ -2445,7 +2420,7 @@ function readareturn(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ARETURN, operands: [], native: false },
+    result: { opcode: OPCODE.ARETURN, operands: [] },
     offset,
   };
 }
@@ -2455,7 +2430,7 @@ function readreturn(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.RETURN, operands: [], native: false },
+    result: { opcode: OPCODE.RETURN, operands: [] },
     offset,
   };
 }
@@ -2465,14 +2440,13 @@ function readgetstatic(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.GETSTATIC,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2483,14 +2457,13 @@ function readputstatic(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.PUTSTATIC,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2501,14 +2474,13 @@ function readgetfield(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.GETFIELD,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2519,14 +2491,13 @@ function readputfield(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.PUTFIELD,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2537,14 +2508,13 @@ function readinvokevirtual(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.INVOKEVIRTUAL,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2555,14 +2525,13 @@ function readinvokespecial(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.INVOKESPECIAL,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2573,14 +2542,13 @@ function readinvokestatic(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.INVOKESTATIC,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2591,7 +2559,7 @@ function readinvokeinterface(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   const count = view.getUint8(offset);
@@ -2610,7 +2578,6 @@ function readinvokeinterface(
     result: {
       opcode: OPCODE.INVOKEINTERFACE,
       operands: [indexbyte, count],
-      native: false,
     },
     offset,
   };
@@ -2621,7 +2588,7 @@ function readinvokedynamic(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   const zero1 = view.getUint8(offset);
@@ -2640,7 +2607,6 @@ function readinvokedynamic(
     result: {
       opcode: OPCODE.INVOKEDYNAMIC,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2651,14 +2617,13 @@ function readnew(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.NEW,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2675,7 +2640,6 @@ function readnewarray(
     result: {
       opcode: OPCODE.NEWARRAY,
       operands: [atype],
-      native: false,
     },
     offset,
   };
@@ -2686,13 +2650,12 @@ function readanewarray(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
   return {
     result: {
       opcode: OPCODE.ANEWARRAY,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2706,7 +2669,6 @@ function readarraylength(
     result: {
       opcode: OPCODE.ARRAYLENGTH,
       operands: [],
-      native: false,
     },
     offset,
   };
@@ -2717,7 +2679,7 @@ function readathrow(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ATHROW, operands: [], native: false },
+    result: { opcode: OPCODE.ATHROW, operands: [] },
     offset,
   };
 }
@@ -2728,14 +2690,13 @@ function readcheckcast(
 ): { result: InstructionType; offset: number } {
   // FIXME: may have to use type checker project?
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.CHECKCAST,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2747,14 +2708,13 @@ function readinstanceof(
 ): { result: InstructionType; offset: number } {
   // FIXME: may have to use type checker project?
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   return {
     result: {
       opcode: OPCODE.INSTANCEOF,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2768,7 +2728,6 @@ function readmonitorenter(
     result: {
       opcode: OPCODE.MONITORENTER,
       operands: [],
-      native: false,
     },
     offset,
   };
@@ -2782,7 +2741,6 @@ function readmonitorexit(
     result: {
       opcode: OPCODE.MONITOREXIT,
       operands: [],
-      native: false,
     },
     offset,
   };
@@ -2796,7 +2754,7 @@ function readwide(
   offset += 1;
 
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   if (opcode == OPCODE.IINC) {
@@ -2816,7 +2774,6 @@ function readwide(
     result: {
       opcode: OPCODE.WIDE,
       operands: [indexbyte],
-      native: false,
     },
     offset,
   };
@@ -2827,7 +2784,7 @@ function readmultianewarray(
   offset: number
 ): { result: InstructionType; offset: number } {
   const indexbyte = view.getUint16(offset);
-  console.warn('FIXME: Not verified that index is unsigned. check specs.');
+
   offset += 2;
 
   const dimension = view.getUint8(offset);
@@ -2841,7 +2798,6 @@ function readmultianewarray(
     result: {
       opcode: OPCODE.MULTIANEWARRAY,
       operands: [indexbyte, dimension],
-      native: false,
     },
     offset,
   };
@@ -2858,7 +2814,6 @@ function readifnull(
     result: {
       opcode: OPCODE.IFNULL,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2875,7 +2830,6 @@ function readifnonnull(
     result: {
       opcode: OPCODE.IFNONNULL,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2891,7 +2845,6 @@ function readgotoW(
     result: {
       opcode: OPCODE.GOTOW,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2908,7 +2861,6 @@ function readjsrW(
     result: {
       opcode: OPCODE.JSRW,
       operands: [branchbyte],
-      native: false,
     },
     offset,
   };
@@ -2920,7 +2872,7 @@ function readbreakpoint(
 ): { result: InstructionType; offset: number } {
   // reserved opcode
   return {
-    result: { opcode: OPCODE.BREAKPOINT, operands: [], native: false },
+    result: { opcode: OPCODE.BREAKPOINT, operands: [] },
     offset,
   };
 }
@@ -2931,7 +2883,7 @@ function readimpdep1(
 ): { result: InstructionType; offset: number } {
   // reserved opcode
   return {
-    result: { opcode: OPCODE.IMPDEP1, operands: [], native: false },
+    result: { opcode: OPCODE.IMPDEP1, operands: [] },
     offset,
   };
 }
@@ -2942,7 +2894,7 @@ function readimpdep2(
 ): { result: InstructionType; offset: number } {
   // reserved opcode
   return {
-    result: { opcode: OPCODE.IMPDEP2, operands: [], native: false },
+    result: { opcode: OPCODE.IMPDEP2, operands: [] },
     offset,
   };
 }

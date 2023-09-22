@@ -1,10 +1,10 @@
-import { readInstruction } from '#jvm/components/ExecutionEngine/Interpreter/utils/readInstruction';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
 import { FIELDFLAGS } from '#jvm/external/ClassFile/types/fields';
 import { METHODFLAGS } from '#jvm/external/ClassFile/types/methods';
+import { readInstruction } from '#utils/parseBinary/utils/readInstruction';
 
 /**
  * Parses the class file to replace references with actual values.
@@ -111,7 +111,9 @@ export function stringifyCode(attr: AttributeCode) {
   }
 
   while (i < code.byteLength) {
-    const code = readInstruction(attr.code, i);
+    const res = readInstruction(attr.code, i);
+    i = res.offset;
+    const code = res.result;
 
     switch (code.opcode) {
       case OPCODE.NOP:

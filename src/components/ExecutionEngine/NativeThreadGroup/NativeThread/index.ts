@@ -4,10 +4,7 @@ import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
 import { MethodRef } from '#jvm/external/ClassFile/types/methods';
-import {
-  InstructionType,
-  readInstruction,
-} from '../../Interpreter/utils/readInstruction';
+import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
 
 export default class NativeThread {
   private stack: StackFrame[];
@@ -20,22 +17,6 @@ export default class NativeThread {
     this.javaThis = javaThis;
     this.stack = [];
     this.stackPointer = -1;
-  }
-
-  getCurrentInstruction(): InstructionType | MethodRef | undefined {
-    const currentFrame = this.stack?.[this.stackPointer];
-
-    if (!currentFrame) {
-      console.debug('No current frame', this.stack);
-      return;
-    }
-
-    // Instruction is a native method
-    if (checkNative(currentFrame.method) || !currentFrame.method.code) {
-      return currentFrame.method;
-    }
-
-    return readInstruction(currentFrame.method.code.code, currentFrame.pc);
   }
 
   getPC(): number {
@@ -64,6 +45,10 @@ export default class NativeThread {
 
   getMethod(): MethodRef {
     return this.stack[this.stackPointer].method;
+  }
+
+  getCode(): DataView {
+    return (this.stack[this.stackPointer].method.code as AttributeCode).code;
   }
 
   peekStackFrame() {
