@@ -44,7 +44,7 @@ describe('runLcmp', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('lcmp: value1 == value2 pushes 0I onto stack', () => {
@@ -57,7 +57,7 @@ describe('runLcmp', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('lcmp: value1 < value2 pushes 0I onto stack', () => {
@@ -70,7 +70,7 @@ describe('runLcmp', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -85,7 +85,7 @@ describe('runFcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPL: value1 == value2 pushes 0I onto stack', () => {
@@ -98,7 +98,7 @@ describe('runFcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPL: -0 == +0 pushes 0I onto stack', () => {
@@ -111,7 +111,7 @@ describe('runFcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPL: value1 < value2 pushes 0I onto stack', () => {
@@ -124,7 +124,7 @@ describe('runFcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPL: value1 is NaN pushes -1I onto stack', () => {
@@ -137,7 +137,7 @@ describe('runFcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPL: value2 is NaN pushes -1I onto stack', () => {
@@ -150,7 +150,7 @@ describe('runFcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPL: both values are NaN pushes -1I onto stack', () => {
@@ -163,7 +163,7 @@ describe('runFcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -178,7 +178,7 @@ describe('runFcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPG: value1 == value2 pushes 0I onto stack', () => {
@@ -191,7 +191,7 @@ describe('runFcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPG: -0 == +0 pushes 0I onto stack', () => {
@@ -204,7 +204,7 @@ describe('runFcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPG: value1 < value2 pushes 0I onto stack', () => {
@@ -217,7 +217,7 @@ describe('runFcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPG: value1 is NaN pushes 1I onto stack', () => {
@@ -230,7 +230,7 @@ describe('runFcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPG: value2 is NaN pushes 1I onto stack', () => {
@@ -243,7 +243,7 @@ describe('runFcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FCMPG: both values are NaN pushes 1I onto stack', () => {
@@ -256,7 +256,7 @@ describe('runFcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -271,7 +271,7 @@ describe('runDcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPL: value1 == value2 pushes 0I onto stack', () => {
@@ -284,7 +284,7 @@ describe('runDcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPL: -0 == +0 pushes 0I onto stack', () => {
@@ -297,7 +297,7 @@ describe('runDcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPL: value1 < value2 pushes 0I onto stack', () => {
@@ -310,7 +310,7 @@ describe('runDcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPL: value1 is NaN pushes -1I onto stack', () => {
@@ -323,7 +323,7 @@ describe('runDcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPL: value2 is NaN pushes -1I onto stack', () => {
@@ -336,7 +336,7 @@ describe('runDcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPL: both values are NaN pushes -1I onto stack', () => {
@@ -349,7 +349,7 @@ describe('runDcmpl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -364,7 +364,7 @@ describe('runDcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPG: value1 == value2 pushes 0I onto stack', () => {
@@ -377,7 +377,7 @@ describe('runDcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPG: -0 == +0 pushes 0I onto stack', () => {
@@ -390,7 +390,7 @@ describe('runDcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPG: value1 < value2 pushes 0I onto stack', () => {
@@ -403,7 +403,7 @@ describe('runDcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPG: value1 is NaN pushes 1I onto stack', () => {
@@ -416,7 +416,7 @@ describe('runDcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPG: value2 is NaN pushes 1I onto stack', () => {
@@ -429,7 +429,7 @@ describe('runDcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DCMPG: both values are NaN pushes 1I onto stack', () => {
@@ -442,7 +442,7 @@ describe('runDcmpg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -455,7 +455,7 @@ describe('runIfeq', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('IFEQ: zero branches', () => {
@@ -466,7 +466,7 @@ describe('runIfeq', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFEQ: -0 branches', () => {
@@ -477,7 +477,7 @@ describe('runIfeq', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 });
 
@@ -490,7 +490,7 @@ describe('runIfne', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFNE: zero no branch', () => {
@@ -501,7 +501,7 @@ describe('runIfne', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('IFNE: -0 no branch', () => {
@@ -512,7 +512,7 @@ describe('runIfne', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });
 
@@ -525,7 +525,7 @@ describe('runIflt', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFLT: zero no branch', () => {
@@ -536,7 +536,7 @@ describe('runIflt', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('IFLT: -0 no branch', () => {
@@ -547,7 +547,7 @@ describe('runIflt', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });
 
@@ -560,7 +560,7 @@ describe('runIfge', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFGE: zero branches', () => {
@@ -571,7 +571,7 @@ describe('runIfge', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFGE: -0 branches', () => {
@@ -582,7 +582,7 @@ describe('runIfge', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFGE: less than 0 no branch', () => {
@@ -593,7 +593,7 @@ describe('runIfge', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });
 
@@ -606,7 +606,7 @@ describe('runIfgt', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFGT: zero no branch', () => {
@@ -617,7 +617,7 @@ describe('runIfgt', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('IFGT: -0 no branch', () => {
@@ -628,7 +628,7 @@ describe('runIfgt', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('IFGT: less than 0 no branch', () => {
@@ -639,7 +639,7 @@ describe('runIfgt', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });
 
@@ -652,7 +652,7 @@ describe('runIfle', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('IFLE: zero branches', () => {
@@ -663,7 +663,7 @@ describe('runIfle', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFLE: -0 branches', () => {
@@ -674,7 +674,7 @@ describe('runIfle', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 
   test('IFLE: less than 0 branches', () => {
@@ -685,6 +685,6 @@ describe('runIfle', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(10);
+    expect(thread.getPC()).toBe(10);
   });
 });

@@ -43,7 +43,7 @@ describe('runPop', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -56,7 +56,7 @@ describe('runPop2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('POP2: pop stack 1 double', () => {
@@ -66,7 +66,7 @@ describe('runPop2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -80,7 +80,7 @@ describe('runDup', () => {
     expect(lastFrame.operandStack[0] === javaThread).toBe(true);
     expect(lastFrame.operandStack[1] === javaThread).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -98,7 +98,7 @@ describe('runDupX1', () => {
     expect(lastFrame.operandStack[1] === v2).toBe(true);
     expect(lastFrame.operandStack[2] === v1).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -119,7 +119,7 @@ describe('runDupX2', () => {
     expect(thread.popStack() === v3).toBe(true);
     expect(thread.popStack() === v1).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
   test('DUPX2: duplicates double', () => {
     const v1 = new JavaReference(threadClass, {});
@@ -133,7 +133,7 @@ describe('runDupX2', () => {
     expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack() === v1).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -152,7 +152,7 @@ describe('runDup2', () => {
     expect(lastFrame.operandStack[2] === v2).toBe(true);
     expect(lastFrame.operandStack[1] === v1).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
   test('DUP2: duplicates category 2', () => {
     thread.pushStack64(5.0);
@@ -163,7 +163,7 @@ describe('runDup2', () => {
     expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack64()).toBe(5.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -185,7 +185,7 @@ describe('runDup2X1', () => {
     expect(lastFrame.operandStack[3] === v2).toBe(true);
     expect(lastFrame.operandStack[4] === v1).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
   test('DUP2X1: duplicates category 2 category 1', () => {
     const v1 = new JavaReference(threadClass, {});
@@ -199,7 +199,7 @@ describe('runDup2X1', () => {
     expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack()).toBe(v1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -224,7 +224,7 @@ describe('runDup2X2', () => {
     expect(lastFrame.operandStack[4] === v2).toBe(true);
     expect(lastFrame.operandStack[5] === v1).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DUP2X2: duplicates category 1,1,2', () => {
@@ -242,7 +242,7 @@ describe('runDup2X2', () => {
     expect(thread.popStack()).toBe(v2);
     expect(thread.popStack64()).toBe(5.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DUP2X2: duplicates category 2,1,1', () => {
@@ -261,7 +261,7 @@ describe('runDup2X2', () => {
     expect(thread.popStack()).toBe(v1);
     expect(thread.popStack()).toBe(v2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
   test('DUP2X2: duplicates category 2,2', () => {
     thread.pushStack64(5.0);
@@ -274,7 +274,7 @@ describe('runDup2X2', () => {
     expect(thread.popStack64()).toBe(5.0);
     expect(thread.popStack64()).toBe(6.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -291,6 +291,6 @@ describe('runSwap', () => {
     expect(thread.popStack()).toBe(v1);
     expect(thread.popStack()).toBe(v2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });

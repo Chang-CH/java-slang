@@ -49,7 +49,7 @@ describe('runIadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IADD: int addition overflows', () => {
@@ -61,7 +61,7 @@ describe('runIadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IADD: int addition underflows', () => {
@@ -73,7 +73,7 @@ describe('runIadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MAX_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -87,7 +87,7 @@ describe('runLadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(3n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LADD: long addition overflows', () => {
@@ -99,7 +99,7 @@ describe('runLadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LADD: long addition underflows', () => {
@@ -111,7 +111,7 @@ describe('runLadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MAX_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -125,7 +125,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(4.0));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition overflow Infinity', () => {
@@ -137,7 +137,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition underflow Ininfity', () => {
@@ -149,7 +149,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition NaN returns NaN', () => {
@@ -161,7 +161,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition NaN returns NaN', () => {
@@ -173,7 +173,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition NaN returns NaN', () => {
@@ -185,7 +185,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition Infinity - Infinity = NaN', () => {
@@ -197,7 +197,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition Infinity + any = Infinity', () => {
@@ -209,7 +209,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition -Infinity + any = -Infinity', () => {
@@ -221,7 +221,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition Infinity + Infinity = Infinity', () => {
@@ -233,7 +233,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition -Infinity + -Infinity = -Infinity', () => {
@@ -245,7 +245,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition -0 + 0 = +0', () => {
@@ -257,7 +257,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition 0 + 0 = +0', () => {
@@ -269,7 +269,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition -0 + -0 = -0', () => {
@@ -281,7 +281,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition 0 + any = any', () => {
@@ -293,7 +293,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(1.33));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FADD: float addition any + any = fround of any', () => {
@@ -305,7 +305,7 @@ describe('runFadd', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(2.33));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -319,7 +319,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition overflow Infinity', () => {
@@ -331,7 +331,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition underflow Ininfity', () => {
@@ -343,7 +343,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition NaN returns NaN', () => {
@@ -355,7 +355,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition NaN returns NaN', () => {
@@ -367,7 +367,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition NaN returns NaN', () => {
@@ -379,7 +379,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition Infinity + -Infinity = NaN', () => {
@@ -391,7 +391,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition Infinity + any = Infinity', () => {
@@ -403,7 +403,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition -Infinity + any = -Infinity', () => {
@@ -415,7 +415,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition Infinity + Infinity = Infinity', () => {
@@ -427,7 +427,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition -Infinity + -Infinity = -Infinity', () => {
@@ -439,7 +439,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition -0 + 0 = +0', () => {
@@ -451,7 +451,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition 0 + 0 = +0', () => {
@@ -463,7 +463,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition -0 + -0 = -0', () => {
@@ -475,7 +475,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition 0 + any = any', () => {
@@ -487,7 +487,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.33);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DADD: double addition any + any', () => {
@@ -499,7 +499,7 @@ describe('runDadd', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2.33);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -513,7 +513,7 @@ describe('runIsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('ISUB: int subtraction overflows', () => {
@@ -525,7 +525,7 @@ describe('runIsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('ISUB: int subtraction underflows', () => {
@@ -537,7 +537,7 @@ describe('runIsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MAX_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -551,7 +551,7 @@ describe('runLsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LSUB: long subtraction overflows', () => {
@@ -563,7 +563,7 @@ describe('runLsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LSUB: long subtraction underflows', () => {
@@ -575,7 +575,7 @@ describe('runLsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MAX_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -589,7 +589,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction overflow Infinity', () => {
@@ -601,7 +601,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction underflow Ininfity', () => {
@@ -613,7 +613,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction NaN returns NaN', () => {
@@ -625,7 +625,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction NaN returns NaN', () => {
@@ -637,7 +637,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction NaN returns NaN', () => {
@@ -649,7 +649,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction Infinity - Infinity = NaN', () => {
@@ -661,7 +661,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction Infinity - any = Infinity', () => {
@@ -673,7 +673,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction -Infinity - any = -Infinity', () => {
@@ -685,7 +685,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction Infinity - Infinity = NaN', () => {
@@ -697,7 +697,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction -Infinity - Infinity = -Infinity', () => {
@@ -709,7 +709,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction 0 - 0 = +0', () => {
@@ -721,7 +721,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction 0 - -0 = +0', () => {
@@ -733,7 +733,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction -0 - 0 = -0', () => {
@@ -745,7 +745,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction 0 + any = any', () => {
@@ -757,7 +757,7 @@ describe('runFsub', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(1.33));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSUB: float subtraction any - any = fround of any', () => {
@@ -771,7 +771,7 @@ describe('runFsub', () => {
       Math.fround(Math.fround(1.33) - Math.fround(1))
     );
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -785,7 +785,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction overflow Infinity', () => {
@@ -797,7 +797,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction underflow Ininfity', () => {
@@ -809,7 +809,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction NaN returns NaN', () => {
@@ -821,7 +821,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction NaN returns NaN', () => {
@@ -833,7 +833,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction NaN returns NaN', () => {
@@ -845,7 +845,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction Infinity - Infinity = NaN', () => {
@@ -857,7 +857,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction Infinity - any = Infinity', () => {
@@ -869,7 +869,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction -Infinity - any = -Infinity', () => {
@@ -881,7 +881,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction Infinity - Infinity = NaN', () => {
@@ -893,7 +893,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction -Infinity - Infinity = -Infinity', () => {
@@ -905,7 +905,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction 0 - 0 = +0', () => {
@@ -917,7 +917,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction 0 - -0 = +0', () => {
@@ -929,7 +929,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction -0 - 0 = -0', () => {
@@ -941,7 +941,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction 0 + any = any', () => {
@@ -953,7 +953,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.33);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSUB: double subtraction any - any = any', () => {
@@ -965,7 +965,7 @@ describe('runDsub', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.33000000000000007);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -979,7 +979,7 @@ describe('runImul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IMUL: int multiplication overflows', () => {
@@ -991,7 +991,7 @@ describe('runImul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IMUL: int multiplication underflows', () => {
@@ -1003,7 +1003,7 @@ describe('runImul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IMUL: int overflow precision', () => {
@@ -1015,7 +1015,7 @@ describe('runImul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-371520463);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -1029,7 +1029,7 @@ describe('runLmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LMUL: long multiplication overflows', () => {
@@ -1041,7 +1041,7 @@ describe('runLmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-2n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LMUL: long multiplication underflows', () => {
@@ -1053,7 +1053,7 @@ describe('runLmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -1067,7 +1067,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication overflow Infinity', () => {
@@ -1079,7 +1079,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication underflow -Infinity', () => {
@@ -1091,7 +1091,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication NaN returns NaN', () => {
@@ -1103,7 +1103,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication NaN returns NaN', () => {
@@ -1115,7 +1115,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication NaN returns NaN', () => {
@@ -1127,7 +1127,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication Infinity * 0 = NaN', () => {
@@ -1139,7 +1139,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication Infinity * +any = Infinity', () => {
@@ -1151,7 +1151,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication Infinity * -any = -Infinity', () => {
@@ -1163,7 +1163,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication any * any = fround of any', () => {
@@ -1177,7 +1177,7 @@ describe('runFmul', () => {
       Math.fround(Math.fround(0.11) * Math.fround(3))
     );
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FMUL: float multiplication smallest precision = 0', () => {
@@ -1189,7 +1189,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
   test('FMUL: float multiplication negative smallest precision = -0', () => {
     thread.pushStack(4e-32);
@@ -1200,7 +1200,7 @@ describe('runFmul', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -1214,7 +1214,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication overflow Infinity', () => {
@@ -1226,7 +1226,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication underflow -Infinity', () => {
@@ -1238,7 +1238,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication NaN returns NaN', () => {
@@ -1250,7 +1250,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication NaN returns NaN', () => {
@@ -1262,7 +1262,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication NaN returns NaN', () => {
@@ -1274,7 +1274,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication Infinity * 0 = NaN', () => {
@@ -1286,7 +1286,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication Infinity * +any = Infinity', () => {
@@ -1298,7 +1298,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication Infinity * -any = -Infinity', () => {
@@ -1310,7 +1310,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication any * any = any', () => {
@@ -1322,7 +1322,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.33);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication smallest precision = 0', () => {
@@ -1334,7 +1334,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DMUL: double multiplication negative smallest precision = -0', () => {
@@ -1346,7 +1346,7 @@ describe('runDmul', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -1360,7 +1360,7 @@ describe('runIdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IDIV: int min / -1 division overflow', () => {
@@ -1372,7 +1372,7 @@ describe('runIdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IDIV: int division rounds to zero', () => {
@@ -1384,7 +1384,7 @@ describe('runIdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IDIV: negative int division rounds to zero', () => {
@@ -1396,7 +1396,7 @@ describe('runIdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IDIV: divide by zero throws ArithmeticException', () => {
@@ -1412,7 +1412,7 @@ describe('runIdiv', () => {
         'dispatchUncaughtException(Ljava/lang/Throwable;)V'
       )
     );
-    expect(lastFrame.pc).toBe(0);
+    expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
@@ -1431,7 +1431,7 @@ describe('runLdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LDIV: long division rounds to 0', () => {
@@ -1443,7 +1443,7 @@ describe('runLdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LDIV: negative long division rounds to 0', () => {
@@ -1455,7 +1455,7 @@ describe('runLdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LDIV: long min / -1 division overflows', () => {
@@ -1467,7 +1467,7 @@ describe('runLdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LDIV: divide by zero throws ArithmeticException', () => {
@@ -1483,7 +1483,7 @@ describe('runLdiv', () => {
         'dispatchUncaughtException(Ljava/lang/Throwable;)V'
       )
     );
-    expect(lastFrame.pc).toBe(0);
+    expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArithmeticException'
@@ -1501,7 +1501,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division overflow Infinity', () => {
@@ -1513,7 +1513,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division underflow -Infinity', () => {
@@ -1525,7 +1525,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division NaN returns NaN', () => {
@@ -1537,7 +1537,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division NaN returns NaN', () => {
@@ -1549,7 +1549,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division NaN returns NaN', () => {
@@ -1561,7 +1561,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division 0 / 0 = NaN', () => {
@@ -1573,7 +1573,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division any / 0 = Infinity', () => {
@@ -1585,7 +1585,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division -any / 0 = -Infinity', () => {
@@ -1597,7 +1597,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division Infinity / Infinity = NaN', () => {
@@ -1609,7 +1609,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division Infinity / +any = Infinity', () => {
@@ -1621,7 +1621,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division Infinity / -any = -Infinity', () => {
@@ -1633,7 +1633,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division any / Infinity = +0', () => {
@@ -1645,7 +1645,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division any / -Infinity = -0', () => {
@@ -1657,7 +1657,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division any / any = fround of any', () => {
@@ -1669,7 +1669,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division smallest precision = +0', () => {
@@ -1681,7 +1681,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FDIV: float division negative smallest precision = -0', () => {
@@ -1693,7 +1693,7 @@ describe('runFdiv', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -1707,7 +1707,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division overflow Infinity', () => {
@@ -1719,7 +1719,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division underflow -Infinity', () => {
@@ -1731,7 +1731,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division NaN returns NaN', () => {
@@ -1743,7 +1743,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division NaN returns NaN', () => {
@@ -1755,7 +1755,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division NaN returns NaN', () => {
@@ -1767,7 +1767,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division 0 / 0 = NaN', () => {
@@ -1779,7 +1779,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: float division any / 0 = Infinity', () => {
@@ -1791,7 +1791,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: float division -any / 0 = -Infinity', () => {
@@ -1803,7 +1803,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division Infinity / Infinity = NaN', () => {
@@ -1815,7 +1815,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division Infinity / +any = Infinity', () => {
@@ -1827,7 +1827,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division Infinity / -any = -Infinity', () => {
@@ -1839,7 +1839,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division any / Infinity = +0', () => {
@@ -1851,7 +1851,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division any / -Infinity = -0', () => {
@@ -1863,7 +1863,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division smallest precision = +0', () => {
@@ -1875,7 +1875,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DDIV: double division negative smallest precision = -0', () => {
@@ -1887,7 +1887,7 @@ describe('runDdiv', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -1901,7 +1901,7 @@ describe('runIrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IREM: int min % -1 remainder returns 0', () => {
@@ -1913,7 +1913,7 @@ describe('runIrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IREM: Any remainder zero throws ArithmeticException', () => {
@@ -1929,7 +1929,7 @@ describe('runIrem', () => {
         'dispatchUncaughtException(Ljava/lang/Throwable;)V'
       )
     );
-    expect(lastFrame.pc).toBe(0);
+    expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArithmeticException'
@@ -1947,7 +1947,7 @@ describe('runLrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LREM: long min % -1 returns 0', () => {
@@ -1959,7 +1959,7 @@ describe('runLrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LREM: Remainder by zero throws ArithmeticException', () => {
@@ -1975,7 +1975,7 @@ describe('runLrem', () => {
         'dispatchUncaughtException(Ljava/lang/Throwable;)V'
       )
     );
-    expect(lastFrame.pc).toBe(0);
+    expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArithmeticException'
@@ -1993,7 +1993,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.29999995));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder NaN returns NaN', () => {
@@ -2005,7 +2005,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder NaN returns NaN', () => {
@@ -2017,7 +2017,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder NaN returns NaN', () => {
@@ -2029,7 +2029,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder 0 % 0 = NaN', () => {
@@ -2041,7 +2041,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder Infinity % any = NaN', () => {
@@ -2053,7 +2053,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder -0 % Infinity = -0', () => {
@@ -2065,7 +2065,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder Infinity % Infinity = NaN', () => {
@@ -2077,7 +2077,7 @@ describe('runFrem', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FREM: float remainder any % any = fround of any', () => {
@@ -2091,7 +2091,7 @@ describe('runFrem', () => {
       Math.fround(Math.fround(0.99) % Math.fround(0.66))
     );
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2105,7 +2105,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.3 - 1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder NaN returns NaN', () => {
@@ -2117,7 +2117,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder NaN returns NaN', () => {
@@ -2129,7 +2129,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder NaN returns NaN', () => {
@@ -2141,7 +2141,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder 0 % 0 = NaN', () => {
@@ -2153,7 +2153,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder Infinity % any = NaN', () => {
@@ -2165,7 +2165,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder -0 % Infinity = -0', () => {
@@ -2177,7 +2177,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder Infinity % Infinity = NaN', () => {
@@ -2189,7 +2189,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DREM: double remainder any % any = any', () => {
@@ -2201,7 +2201,7 @@ describe('runDrem', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.99 - 0.66);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2214,7 +2214,7 @@ describe('runIneg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('INEG: int negation overflows', () => {
@@ -2225,7 +2225,7 @@ describe('runIneg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2238,7 +2238,7 @@ describe('runLneg', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LNEG: long negation overflows', () => {
@@ -2249,7 +2249,7 @@ describe('runLneg', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2262,7 +2262,7 @@ describe('runFneg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FNEG: negates zero', () => {
@@ -2273,7 +2273,7 @@ describe('runFneg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FNEG: NaN negated is NaN', () => {
@@ -2284,7 +2284,7 @@ describe('runFneg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FNEG: float Infinity negated is -Infinity', () => {
@@ -2295,7 +2295,7 @@ describe('runFneg', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2308,7 +2308,7 @@ describe('runDneg', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DNEG: negates zero', () => {
@@ -2319,7 +2319,7 @@ describe('runDneg', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DNEG: NaN negated is NaN', () => {
@@ -2330,7 +2330,7 @@ describe('runDneg', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DNEG: float Infinity negated is -Infinity', () => {
@@ -2341,7 +2341,7 @@ describe('runDneg', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2355,7 +2355,7 @@ describe('runIshl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('ISHL: int shift left overflows', () => {
@@ -2367,7 +2367,7 @@ describe('runIshl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('ISHL: int shift left capped at 0x1f', () => {
@@ -2379,7 +2379,7 @@ describe('runIshl', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2393,7 +2393,7 @@ describe('runLshl', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LSHL: int shift left overflows', () => {
@@ -2405,7 +2405,7 @@ describe('runLshl', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LSHL: int shift left capped at 0x3f', () => {
@@ -2417,7 +2417,7 @@ describe('runLshl', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2431,7 +2431,7 @@ describe('runIshr', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('ISHR: int shift right truncated', () => {
@@ -2443,7 +2443,7 @@ describe('runIshr', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('ISHR: int shift right capped at 0x1f', () => {
@@ -2455,7 +2455,7 @@ describe('runIshr', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2469,7 +2469,7 @@ describe('runLshr', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LSHR: int shift right truncates', () => {
@@ -2481,7 +2481,7 @@ describe('runLshr', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LSHR: int shift right capped at 0x3f', () => {
@@ -2493,7 +2493,7 @@ describe('runLshr', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2507,7 +2507,7 @@ describe('runIushr', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IUSHR: int shift right truncated', () => {
@@ -2519,7 +2519,7 @@ describe('runIushr', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IUSHR: int shift right capped at 0x1f', () => {
@@ -2531,7 +2531,7 @@ describe('runIushr', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2545,7 +2545,7 @@ describe('runLushr', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LUSHR: int shift right changes sign', () => {
@@ -2557,7 +2557,7 @@ describe('runLushr', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('9223372036854775807');
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LUSHR: int shift right truncates', () => {
@@ -2569,7 +2569,7 @@ describe('runLushr', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('1');
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LUSHR: int shift right capped at 0x3f', () => {
@@ -2581,7 +2581,7 @@ describe('runLushr', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('1');
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2595,7 +2595,7 @@ describe('runIand', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IAND: int and negatives', () => {
@@ -2607,7 +2607,7 @@ describe('runIand', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2621,7 +2621,7 @@ describe('runLand', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LAND: long and negatives', () => {
@@ -2633,7 +2633,7 @@ describe('runLand', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2647,7 +2647,7 @@ describe('runIor', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IOR: int or negatives', () => {
@@ -2659,7 +2659,7 @@ describe('runIor', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2673,7 +2673,7 @@ describe('runLor', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(3n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LOR: long or negatives', () => {
@@ -2685,7 +2685,7 @@ describe('runLor', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2699,7 +2699,7 @@ describe('runIXor', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IXOR: int Xor negatives', () => {
@@ -2711,7 +2711,7 @@ describe('runIXor', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2725,7 +2725,7 @@ describe('runLxor', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LXOR: long xor negatives', () => {
@@ -2737,7 +2737,7 @@ describe('runLxor', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-2n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -2753,6 +2753,6 @@ describe('runIinc', () => {
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(1);
     expect(lastFrame.locals[0]).toBe(30);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });

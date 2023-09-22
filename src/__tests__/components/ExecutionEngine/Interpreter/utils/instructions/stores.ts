@@ -45,7 +45,7 @@ describe('runIstore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(2);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 });
 
@@ -58,7 +58,7 @@ describe('runIstore0', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(2);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -71,7 +71,7 @@ describe('runIstore1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(2);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -84,7 +84,7 @@ describe('runIstore2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(2);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -97,7 +97,7 @@ describe('runIstore3', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(3);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -111,7 +111,7 @@ describe('runLstore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0) === 3n).toBe(true);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 });
 
@@ -124,7 +124,7 @@ describe('runLstore0', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0) === 5n).toBe(true);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -137,7 +137,7 @@ describe('runLstore1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(1) === 5n).toBe(true);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -150,7 +150,7 @@ describe('runLstore2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(2) === 5n).toBe(true);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -163,7 +163,7 @@ describe('runLstore3', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(3) === 5n).toBe(true);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -177,7 +177,7 @@ describe('runFstore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(0.5);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('FSTORE: undergoes value set conversion', () => {
@@ -189,7 +189,7 @@ describe('runFstore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(Math.fround(0.3));
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 });
 
@@ -202,7 +202,7 @@ describe('runFstore0', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSTORE0: undergoes value set conversion', () => {
@@ -213,7 +213,7 @@ describe('runFstore0', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(Math.fround(0.3));
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -226,7 +226,7 @@ describe('runFstore1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSTORE1: undergoes value set conversion', () => {
@@ -237,7 +237,7 @@ describe('runFstore1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(Math.fround(0.3));
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -250,7 +250,7 @@ describe('runFstore2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSTORE2: undergoes value set conversion', () => {
@@ -261,7 +261,7 @@ describe('runFstore2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(Math.fround(0.3));
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -274,7 +274,7 @@ describe('runFstore3', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FSTORE3: undergoes value set conversion', () => {
@@ -285,7 +285,7 @@ describe('runFstore3', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(Math.fround(0.3));
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -299,7 +299,7 @@ describe('runDstore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.5);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('DSTORE: undergoes value set conversion', () => {
@@ -311,7 +311,7 @@ describe('runDstore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 });
 
@@ -324,7 +324,7 @@ describe('runDstore0', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSTORE0: undergoes value set conversion', () => {
@@ -335,7 +335,7 @@ describe('runDstore0', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -348,7 +348,7 @@ describe('runDstore1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(1)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSTORE1: undergoes value set conversion', () => {
@@ -359,7 +359,7 @@ describe('runDstore1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(1)).toBe(0.29999995231628424);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -372,7 +372,7 @@ describe('runDstore2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(2)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSTORE2: undergoes value set conversion', () => {
@@ -383,7 +383,7 @@ describe('runDstore2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(2)).toBe(0.29999995231628424);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -396,7 +396,7 @@ describe('runDstore3', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(3)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DSTORE3: undergoes value set conversion', () => {
@@ -407,7 +407,7 @@ describe('runDstore3', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(3)).toBe(0.29999995231628424);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -422,7 +422,7 @@ describe('runAstore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(v1);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 });
 
@@ -436,7 +436,7 @@ describe('runAstore0', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(v1);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -450,7 +450,7 @@ describe('runAstore1', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(v1);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -464,7 +464,7 @@ describe('runAstore2', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(v1);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -478,7 +478,7 @@ describe('runAstore3', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(v1);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -494,7 +494,7 @@ describe('runIastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('IASTORE: throws NullPointerException', () => {
@@ -548,7 +548,7 @@ describe('runLastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0) === 5n).toBe(true);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('LASTORE: throws NullPointerException', () => {
@@ -602,7 +602,7 @@ describe('runFastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('FASTORE: throws NullPointerException', () => {
@@ -656,7 +656,7 @@ describe('runDastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(0.5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('DASTORE: throws NullPointerException', () => {
@@ -711,7 +711,7 @@ describe('runAastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(v1);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('AASTORE: throws NullPointerException', () => {
@@ -767,7 +767,7 @@ describe('runBastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('BASTORE: truncates int to byte', () => {
@@ -781,7 +781,7 @@ describe('runBastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(-128);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('BASTORE: throws NullPointerException', () => {
@@ -835,7 +835,7 @@ describe('runCastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('CASTORE: truncates int to char', () => {
@@ -849,7 +849,7 @@ describe('runCastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(0x1111);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('CASTORE: throws NullPointerException', () => {
@@ -903,7 +903,7 @@ describe('runSastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('SASTORE: truncates int to short', () => {
@@ -917,7 +917,7 @@ describe('runSastore', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(-32768);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('SASTORE: throws NullPointerException', () => {

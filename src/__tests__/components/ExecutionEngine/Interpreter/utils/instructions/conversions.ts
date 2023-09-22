@@ -44,7 +44,7 @@ describe('runI2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -58,7 +58,7 @@ describe('runI2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -72,7 +72,7 @@ describe('runI2f', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -86,7 +86,7 @@ describe('runI2b', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(127);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('I2B: int convert to byte sign lost', () => {
@@ -98,7 +98,7 @@ describe('runI2b', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -112,7 +112,7 @@ describe('runI2c', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0xffff);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('I2C: int convert to char truncates 4 LSB', () => {
@@ -124,7 +124,7 @@ describe('runI2c', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -138,7 +138,7 @@ describe('runI2s', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(32767);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('I2S: min short int converts to short', () => {
@@ -150,7 +150,7 @@ describe('runI2s', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-32768);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('I2S: int convert to short overflows', () => {
@@ -162,7 +162,7 @@ describe('runI2s', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0x5678);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -176,7 +176,7 @@ describe('runL2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('L2I: min int long converts to int', () => {
@@ -188,7 +188,7 @@ describe('runL2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('L2I: long convert to int overflows', () => {
@@ -200,7 +200,7 @@ describe('runL2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -214,7 +214,7 @@ describe('runL2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(10);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('L2F: long convert to float lose precision', () => {
@@ -226,7 +226,7 @@ describe('runL2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775806);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -240,7 +240,7 @@ describe('runL2d', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('L2D: long convert to double lose precision', () => {
@@ -252,7 +252,7 @@ describe('runL2d', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775806);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -266,7 +266,7 @@ describe('runF2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-20);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2I: float large number convert to int max', () => {
@@ -278,7 +278,7 @@ describe('runF2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2I: float small number convert to int min', () => {
@@ -290,7 +290,7 @@ describe('runF2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2I: float NaN convert to int 0', () => {
@@ -302,7 +302,7 @@ describe('runF2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2I: float infinity convert to int max', () => {
@@ -314,7 +314,7 @@ describe('runF2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2I: float -infinity convert to int min', () => {
@@ -326,7 +326,7 @@ describe('runF2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -340,7 +340,7 @@ describe('runF2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-20n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2L: float large number convert to long max', () => {
@@ -352,7 +352,7 @@ describe('runF2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2L: float small number convert to long min', () => {
@@ -364,7 +364,7 @@ describe('runF2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2L: float NaN convert to long 0', () => {
@@ -376,7 +376,7 @@ describe('runF2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2L: float infinity convert to long max', () => {
@@ -388,7 +388,7 @@ describe('runF2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('F2L: float -infinity convert to long min', () => {
@@ -400,7 +400,7 @@ describe('runF2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -414,7 +414,7 @@ describe('runF2d', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -428,7 +428,7 @@ describe('runD2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-20);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2I: double large number convert to int max', () => {
@@ -440,7 +440,7 @@ describe('runD2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2I: double small number convert to int min', () => {
@@ -452,7 +452,7 @@ describe('runD2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2I: double NaN convert to int 0', () => {
@@ -464,7 +464,7 @@ describe('runD2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2I: double infinity convert to int max', () => {
@@ -476,7 +476,7 @@ describe('runD2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2I: double -infinity convert to int min', () => {
@@ -488,7 +488,7 @@ describe('runD2i', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -502,7 +502,7 @@ describe('runD2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-20n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2L: double large number convert to long max', () => {
@@ -514,7 +514,7 @@ describe('runD2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2L: double small number convert to long min', () => {
@@ -526,7 +526,7 @@ describe('runD2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2L: double NaN convert to long 0', () => {
@@ -538,7 +538,7 @@ describe('runD2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2L: double infinity convert to long max', () => {
@@ -550,7 +550,7 @@ describe('runD2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2L: double -infinity convert to long min', () => {
@@ -562,7 +562,7 @@ describe('runD2l', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -576,7 +576,7 @@ describe('runD2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(3.4028235e38));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2F: double convert to float capped at infinity', () => {
@@ -588,7 +588,7 @@ describe('runD2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2F: double convert to float capped at -infinity', () => {
@@ -600,7 +600,7 @@ describe('runD2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2F: double nan convert to float nan', () => {
@@ -612,7 +612,7 @@ describe('runD2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2F: double Infinity convert to float Infinity', () => {
@@ -624,7 +624,7 @@ describe('runD2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 
   test('D2F: double -Infinity convert to float -Infinity', () => {
@@ -636,6 +636,6 @@ describe('runD2f', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });

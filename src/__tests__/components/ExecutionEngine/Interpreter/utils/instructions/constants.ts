@@ -55,7 +55,7 @@ describe('runNop', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -68,7 +68,7 @@ describe('runAconstNull', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(null);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -81,7 +81,7 @@ describe('runIconstM1', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -94,7 +94,7 @@ describe('runIconst0', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -107,7 +107,7 @@ describe('runIconst1', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -120,7 +120,7 @@ describe('runIconst2', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -133,7 +133,7 @@ describe('runIconst3', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -146,7 +146,7 @@ describe('runIconst4', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -159,7 +159,7 @@ describe('runIconst5', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(5);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -172,7 +172,7 @@ describe('runLconst0', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -185,7 +185,7 @@ describe('runLconst1', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -198,7 +198,7 @@ describe('runFconst0', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.0));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -211,7 +211,7 @@ describe('runFconst1', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(1.0));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -224,7 +224,7 @@ describe('runFconst2', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(2.0));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -237,7 +237,7 @@ describe('runDconst0', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -250,7 +250,7 @@ describe('runDconst1', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(1);
+    expect(thread.getPC()).toBe(1);
   });
 });
 
@@ -263,7 +263,7 @@ describe('runBipush', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-128);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 });
 
@@ -277,7 +277,7 @@ describe('runSipush', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-32768);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });
 
@@ -296,7 +296,7 @@ describe('runLdc', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-99);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('reads float from constant pool and pushes to stack', () => {
@@ -313,7 +313,7 @@ describe('runLdc', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(-0.3));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('reads string from constant pool and pushes to stack', () => {
@@ -338,7 +338,7 @@ describe('runLdc', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(strRef); // string literals should be same object
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('initializes uninitialized string from constant pool', () => {
@@ -363,7 +363,7 @@ describe('runLdc', () => {
     expect(lastFrame.operandStack[0]).toBe((strConstant as ConstantString).ref); // string literals should be same object
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('reads classref from constant pool and pushes to stack', () => {
@@ -383,7 +383,7 @@ describe('runLdc', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(clsRef);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('initializes uninitialized class from constant pool', () => {
@@ -407,7 +407,7 @@ describe('runLdc', () => {
     expect(lastFrame.operandStack[0]).toBe((classRef as ConstantClass).ref);
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('reads methodRef from constant pool and pushes to stack', () => {
@@ -428,7 +428,7 @@ describe('runLdc', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(methodRef);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 
   test('initializes uninitialized method from constant pool', () => {
@@ -473,7 +473,7 @@ describe('runLdc', () => {
     );
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(2);
+    expect(thread.getPC()).toBe(2);
   });
 });
 
@@ -492,7 +492,7 @@ describe('runLdcW', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-99);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('reads float from constant pool and pushes to stack', () => {
@@ -509,7 +509,7 @@ describe('runLdcW', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(-0.3));
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('reads string from constant pool and pushes to stack', () => {
@@ -534,7 +534,7 @@ describe('runLdcW', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(strRef); // string literals should be same object
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('initializes uninitialized string from constant pool', () => {
@@ -559,7 +559,7 @@ describe('runLdcW', () => {
     expect(lastFrame.operandStack[0]).toBe((strConstant as ConstantString).ref); // string literals should be same object
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('reads classref from constant pool and pushes to stack', () => {
@@ -579,7 +579,7 @@ describe('runLdcW', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(clsRef);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('initializes uninitialized class from constant pool', () => {
@@ -603,7 +603,7 @@ describe('runLdcW', () => {
     expect(lastFrame.operandStack[0]).toBe((classRef as ConstantClass).ref);
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('reads methodRef from constant pool and pushes to stack', () => {
@@ -623,7 +623,7 @@ describe('runLdcW', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(methodRef);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('initializes uninitialized method from constant pool', () => {
@@ -668,7 +668,7 @@ describe('runLdcW', () => {
     );
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });
 
@@ -687,7 +687,7 @@ describe('runLdc2W', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(99n);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 
   test('reads double from constant pool and pushes to stack', () => {
@@ -704,6 +704,6 @@ describe('runLdc2W', () => {
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-0.3);
     expect(lastFrame.locals.length).toBe(0);
-    expect(lastFrame.pc).toBe(3);
+    expect(thread.getPC()).toBe(3);
   });
 });
