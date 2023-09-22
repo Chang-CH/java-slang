@@ -11,7 +11,7 @@ import {
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { ConstantClass } from '#types/ConstantRef';
 
-export function runGetstatic(thread: NativeThread) {
+export function runGetstatic(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
 
   thread.offsetPc(2);
@@ -56,7 +56,7 @@ export function runGetstatic(thread: NativeThread) {
   }
 }
 
-export function runPutstatic(thread: NativeThread) {
+export function runPutstatic(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
 
   thread.offsetPc(2);
@@ -98,7 +98,7 @@ export function runPutstatic(thread: NativeThread) {
   }
 }
 
-export function runGetfield(thread: NativeThread) {
+export function runGetfield(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
 
   thread.offsetPc(2);
@@ -136,7 +136,7 @@ export function runGetfield(thread: NativeThread) {
   }
 }
 
-export function runPutfield(thread: NativeThread) {
+export function runPutfield(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
 
   thread.offsetPc(2);
@@ -180,7 +180,7 @@ export function runPutfield(thread: NativeThread) {
   // FIXME: load class if not loaded
 }
 
-export function runInvokevirtual(thread: NativeThread) {
+export function runInvokevirtual(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
 
   thread.offsetPc(2);
@@ -235,7 +235,7 @@ export function runInvokevirtual(thread: NativeThread) {
   tryInitialize(thread, className);
 }
 
-export function runInvokespecial(thread: NativeThread) {
+export function runInvokespecial(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -289,7 +289,7 @@ export function runInvokespecial(thread: NativeThread) {
   });
 }
 
-export function runInvokestatic(thread: NativeThread) {
+export function runInvokestatic(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -342,7 +342,7 @@ export function runInvokestatic(thread: NativeThread) {
   tryInitialize(thread, className);
 }
 
-export function runInvokeinterface(thread: NativeThread) {
+export function runInvokeinterface(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -405,7 +405,7 @@ export function runInvokeinterface(thread: NativeThread) {
   });
 }
 
-export function runInvokedynamic(thread: NativeThread) {
+export function runInvokedynamic(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -429,7 +429,7 @@ export function runInvokedynamic(thread: NativeThread) {
   throw new Error('invokedynamic: not implemented');
 }
 
-export function runNew(thread: NativeThread) {
+export function runNew(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -449,7 +449,7 @@ export function runNew(thread: NativeThread) {
   thread.pushStack(objectref);
 }
 
-export function runNewarray(thread: NativeThread) {
+export function runNewarray(thread: NativeThread): void {
   const atype = thread.getCode().getUint8(thread.getPC()); // TODO: check atype valid
   thread.offsetPc(1);
 
@@ -459,7 +459,7 @@ export function runNewarray(thread: NativeThread) {
   thread.pushStack(arrayref);
 }
 
-export function runAnewarray(thread: NativeThread) {
+export function runAnewarray(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
   const invoker = thread.getClassName();
@@ -474,12 +474,12 @@ export function runAnewarray(thread: NativeThread) {
   thread.pushStack(arrayref);
 }
 
-export function runArraylength(thread: NativeThread) {
+export function runArraylength(thread: NativeThread): void {
   const arrayref = thread.popStack() as JavaArray;
   thread.pushStack(arrayref.len());
 }
 
-export function runAthrow(thread: NativeThread) {
+export function runAthrow(thread: NativeThread): void {
   const exception = thread.popStack();
   thread.throwException(exception);
   // TODO: throw Java error
@@ -487,7 +487,7 @@ export function runAthrow(thread: NativeThread) {
   // throw new Error('runInstruction: Not implemented');
 }
 
-export function runCheckcast(thread: NativeThread) {
+export function runCheckcast(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -508,7 +508,7 @@ export function runCheckcast(thread: NativeThread) {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runInstanceof(thread: NativeThread) {
+export function runInstanceof(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -537,10 +537,10 @@ export function runInstanceof(thread: NativeThread) {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runMonitorenter(thread: NativeThread) {
+export function runMonitorenter(thread: NativeThread): void {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runMonitorexit(thread: NativeThread) {
+export function runMonitorexit(thread: NativeThread): void {
   throw new Error('runInstruction: Not implemented');
 }

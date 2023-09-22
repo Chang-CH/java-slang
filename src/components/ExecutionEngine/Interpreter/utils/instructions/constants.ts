@@ -13,99 +13,83 @@ import {
   ConstantString,
 } from '#types/ConstantRef';
 
-export function runNop(thread: NativeThread) {
-  thread.offsetPc(1);
+export function runNop(thread: NativeThread): void {
   return;
 }
 
-export function runAconstNull(thread: NativeThread) {
+export function runAconstNull(thread: NativeThread): void {
   thread.pushStack(null);
-  thread.offsetPc(1);
 }
 
-export function runIconstM1(thread: NativeThread) {
+export function runIconstM1(thread: NativeThread): void {
   thread.pushStack(-1);
-  thread.offsetPc(1);
 }
 
-export function runIconst0(thread: NativeThread) {
+export function runIconst0(thread: NativeThread): void {
   thread.pushStack(0);
-  thread.offsetPc(1);
 }
 
-export function runIconst1(thread: NativeThread) {
+export function runIconst1(thread: NativeThread): void {
   thread.pushStack(1);
-  thread.offsetPc(1);
 }
 
-export function runIconst2(thread: NativeThread) {
+export function runIconst2(thread: NativeThread): void {
   thread.pushStack(2);
-  thread.offsetPc(1);
 }
 
-export function runIconst3(thread: NativeThread) {
+export function runIconst3(thread: NativeThread): void {
   thread.pushStack(3);
-  thread.offsetPc(1);
 }
 
-export function runIconst4(thread: NativeThread) {
+export function runIconst4(thread: NativeThread): void {
   thread.pushStack(4);
-  thread.offsetPc(1);
 }
 
-export function runIconst5(thread: NativeThread) {
+export function runIconst5(thread: NativeThread): void {
   thread.pushStack(5);
-  thread.offsetPc(1);
 }
 
-export function runLconst0(thread: NativeThread) {
+export function runLconst0(thread: NativeThread): void {
   thread.pushStack64(0n);
-  thread.offsetPc(1);
 }
 
-export function runLconst1(thread: NativeThread) {
+export function runLconst1(thread: NativeThread): void {
   thread.pushStack64(1n);
-  thread.offsetPc(1);
 }
 
-export function runFconst0(thread: NativeThread) {
+export function runFconst0(thread: NativeThread): void {
   thread.pushStack(0.0);
-  thread.offsetPc(1);
 }
 
-export function runFconst1(thread: NativeThread) {
+export function runFconst1(thread: NativeThread): void {
   thread.pushStack(1.0);
-  thread.offsetPc(1);
 }
 
-export function runFconst2(thread: NativeThread) {
+export function runFconst2(thread: NativeThread): void {
   thread.pushStack(2.0);
-  thread.offsetPc(1);
 }
 
-export function runDconst0(thread: NativeThread) {
+export function runDconst0(thread: NativeThread): void {
   thread.pushStack64(0.0);
-  thread.offsetPc(1);
 }
 
-export function runDconst1(thread: NativeThread) {
+export function runDconst1(thread: NativeThread): void {
   thread.pushStack64(1.0);
-  thread.offsetPc(1);
 }
 
-export function runBipush(thread: NativeThread) {
+export function runBipush(thread: NativeThread): void {
   const byte = thread.getCode().getInt8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack(byte);
 }
 
-export function runSipush(thread: NativeThread) {
+export function runSipush(thread: NativeThread): void {
   const short = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   thread.pushStack(short);
 }
 
-export function runLdc(thread: NativeThread) {
+export function runLdc(thread: NativeThread): void {
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   const item = thread.getClass().getConstant(thread, index);
@@ -129,7 +113,7 @@ export function runLdc(thread: NativeThread) {
   thread.pushStack((item as ConstantIntegerInfo | ConstantFloatInfo).value);
 }
 
-export function runLdcW(thread: NativeThread) {
+export function runLdcW(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
   const item = thread.getClass().getConstant(thread, indexbyte);
@@ -155,7 +139,7 @@ export function runLdcW(thread: NativeThread) {
   thread.pushStack((item as ConstantIntegerInfo | ConstantFloatInfo).value);
 }
 
-export function runLdc2W(thread: NativeThread) {
+export function runLdc2W(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
   const item = thread.getClass().getConstant(thread, indexbyte) as

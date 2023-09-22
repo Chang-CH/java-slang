@@ -1,18 +1,18 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { asDouble, asFloat } from '..';
 
-export function runGoto(thread: NativeThread) {
+export function runGoto(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(branchbyte - 3);
 }
 
-export function runJsr(thread: NativeThread) {
+export function runJsr(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   thread.pushStack(branchbyte);
 }
 
-export function runRet(thread: NativeThread) {
+export function runRet(thread: NativeThread): void {
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   const retAddr = thread.loadLocal(index);
@@ -20,7 +20,7 @@ export function runRet(thread: NativeThread) {
   throw new Error('runInstruction: ret not implemented');
 }
 
-export function runTableswitch(thread: NativeThread) {
+export function runTableswitch(thread: NativeThread): void {
   thread.offsetPc(thread.getPC() % 4); // padding
 
   const def = thread.getCode().getInt32(thread.getPC());
@@ -38,9 +38,9 @@ export function runTableswitch(thread: NativeThread) {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runLookupswitch(thread: NativeThread) {
+export function runLookupswitch(thread: NativeThread): void {
   if (thread.getPC() % 4 !== 0) {
-    thread.offsetPc((thread.getPC() % 4)); // padding
+    thread.offsetPc(thread.getPC() % 4); // padding
   }
 
   const def = thread.getCode().getInt32(thread.getPC());
@@ -56,36 +56,36 @@ export function runLookupswitch(thread: NativeThread) {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runIreturn(thread: NativeThread) {
+export function runIreturn(thread: NativeThread): void {
   const ret = thread.popStack();
   thread.popStackFrame();
   thread.pushStack(ret);
 }
 
-export function runLreturn(thread: NativeThread) {
+export function runLreturn(thread: NativeThread): void {
   const ret = thread.popStack64();
   thread.popStackFrame();
   thread.pushStack64(ret);
 }
 
-export function runFreturn(thread: NativeThread) {
+export function runFreturn(thread: NativeThread): void {
   const ret = asFloat(thread.popStack());
   thread.popStackFrame();
   thread.pushStack(ret);
 }
 
-export function runDreturn(thread: NativeThread) {
+export function runDreturn(thread: NativeThread): void {
   const ret = asDouble(thread.popStack64());
   thread.popStackFrame();
   thread.pushStack64(ret);
 }
 
-export function runAreturn(thread: NativeThread) {
+export function runAreturn(thread: NativeThread): void {
   const ret = thread.popStack();
   thread.popStackFrame();
   thread.pushStack(ret);
 }
 
-export function runReturn(thread: NativeThread) {
+export function runReturn(thread: NativeThread): void {
   thread.popStackFrame();
 }

@@ -46,14 +46,15 @@ export default function runInstruction(
     if (result !== undefined) {
       thread.pushStack(result);
     }
-    return result;
+    return;
   }
 
   if (method.code === null) {
     // native method
     return;
   }
-  const opcode = method.code.code.getUint8(thread.getPC());
+
+  const opcode = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
 
   let result;
@@ -110,7 +111,6 @@ export default function runInstruction(
       result = constants.runBipush(thread);
       break;
     case OPCODE.SIPUSH:
-      instruction;
       result = constants.runSipush(thread);
       break;
     case OPCODE.LDC:
@@ -680,5 +680,5 @@ export default function runInstruction(
     default:
       throw new Error(`runInstruction: Unknown opcode ${opcode} received!`);
   }
-  return result;
+  return;
 }

@@ -2,28 +2,24 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JavaReference } from '#types/dataTypes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-export function runWide(thread: NativeThread) {
+export function runWide(thread: NativeThread): void {
   const opcode = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
 
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
-  if (opcode == OPCODE.IINC) {
-    const constbyte = thread.getCode().getUint16(thread.getPC());
-    thread.offsetPc(2);
+  let constbyte;
 
-    return {
-      opcode: OPCODE.WIDE,
-      operands: [indexbyte, constbyte],
-      native: false,
-    };
+  if (opcode == OPCODE.IINC) {
+    constbyte = thread.getCode().getUint16(thread.getPC());
+    thread.offsetPc(2);
   }
 
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runMultianewarray(thread: NativeThread) {
+export function runMultianewarray(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
 
@@ -36,7 +32,7 @@ export function runMultianewarray(thread: NativeThread) {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runIfnull(thread: NativeThread) {
+export function runIfnull(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
 
@@ -47,7 +43,7 @@ export function runIfnull(thread: NativeThread) {
   }
 }
 
-export function runIfnonnull(thread: NativeThread) {
+export function runIfnonnull(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
 
@@ -58,14 +54,14 @@ export function runIfnonnull(thread: NativeThread) {
   }
 }
 
-export function runGotoW(thread: NativeThread) {
+export function runGotoW(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt32(thread.getPC());
   thread.offsetPc(4);
 
   thread.offsetPc(branchbyte);
 }
 
-export function runJsrW(thread: NativeThread) {
+export function runJsrW(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt32(thread.getPC());
   thread.offsetPc(4);
 

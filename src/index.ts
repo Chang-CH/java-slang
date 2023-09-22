@@ -3,7 +3,6 @@ import JsSystem from '#utils/JsSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
-import NativeThread from './components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from './components/JNI';
 
 export default class JVM {
@@ -27,12 +26,15 @@ export default class JVM {
     this.jni = new JNI();
     this.engine = new ExecutionEngine(this.jni);
 
-    // Load thread class manually
-    this.applicationClassLoader.load('java/lang/Thread');
+    const threadCls =
+      this.applicationClassLoader._resolveClass('java/lang/Thread');
+    this.applicationClassLoader.load('java/lang/System');
+    const sysCls =
+      this.applicationClassLoader._resolveClass('java/lang/System');
+    this.engine.runMethod(threadCls, sysCls, 'initializeSystemClass()V');
   }
 
   runClass(className: string) {
-    // TODO: check JVM status initialized
     // convert args to Java String[]
     const cls = this.applicationClassLoader._resolveClass(className);
 

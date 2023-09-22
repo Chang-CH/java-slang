@@ -1,18 +1,21 @@
+import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { ClassRef } from '#types/ConstantRef';
 import { ArrayType, JavaArray, JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
+import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
+let code: DataView;
+let jni: JNI;
 let javaThread: JavaReference;
 
 beforeEach(() => {
-  const jni = new JNI();
+  jni = new JNI();
   const nativeSystem = new JsSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
@@ -21,11 +24,13 @@ beforeEach(() => {
   threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
   javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
+  const method = threadClass.getMethod(thread, '<init>()V');
+  code = (method.code as AttributeCode).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],
     class: threadClass,
-    method: threadClass.getMethod(thread, '<init>()V'),
+    method,
     pc: 0,
   });
 });
@@ -33,10 +38,10 @@ beforeEach(() => {
 describe('runIstore', () => {
   test('ISTORE: stores int into locals', () => {
     thread.pushStack(2);
-    runInstruction(thread, {
-      opcode: OPCODE.ISTORE,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.ISTORE);
+    code.setUint8(1, 0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(2);
@@ -47,10 +52,9 @@ describe('runIstore', () => {
 describe('runIstore0', () => {
   test('ISTORE0: stores int into locals', () => {
     thread.pushStack(2);
-    runInstruction(thread, {
-      opcode: OPCODE.ISTORE0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ISTORE0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(2);
@@ -61,10 +65,9 @@ describe('runIstore0', () => {
 describe('runIstore1', () => {
   test('ISTORE1: stores int into locals', () => {
     thread.pushStack(2);
-    runInstruction(thread, {
-      opcode: OPCODE.ISTORE1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ISTORE1);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(2);
@@ -75,10 +78,9 @@ describe('runIstore1', () => {
 describe('runIstore2', () => {
   test('ISTORE2: stores int into locals', () => {
     thread.pushStack(2);
-    runInstruction(thread, {
-      opcode: OPCODE.ISTORE2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ISTORE2);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(2);
@@ -89,10 +91,9 @@ describe('runIstore2', () => {
 describe('runIstore3', () => {
   test('ISTORE3: stores int into locals', () => {
     thread.pushStack(3);
-    runInstruction(thread, {
-      opcode: OPCODE.ISTORE3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ISTORE3);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(3);
@@ -103,10 +104,10 @@ describe('runIstore3', () => {
 describe('runLstore', () => {
   test('LSTORE: stores long into locals', () => {
     thread.pushStack64(3n);
-    runInstruction(thread, {
-      opcode: OPCODE.LSTORE,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LSTORE);
+    code.setUint8(1, 0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0) === 3n).toBe(true);
@@ -117,10 +118,9 @@ describe('runLstore', () => {
 describe('runLstore0', () => {
   test('LSTORE0: stores long into locals', () => {
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LSTORE0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LSTORE0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0) === 5n).toBe(true);
@@ -131,10 +131,9 @@ describe('runLstore0', () => {
 describe('runLstore1', () => {
   test('LSTORE1: stores long into locals', () => {
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LSTORE1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LSTORE1);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(1) === 5n).toBe(true);
@@ -145,10 +144,9 @@ describe('runLstore1', () => {
 describe('runLstore2', () => {
   test('LSTORE2: stores long into locals', () => {
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LSTORE2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LSTORE2);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(2) === 5n).toBe(true);
@@ -159,10 +157,9 @@ describe('runLstore2', () => {
 describe('runLstore3', () => {
   test('LSTORE3: stores long into locals', () => {
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LSTORE3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LSTORE3);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(3) === 5n).toBe(true);
@@ -173,10 +170,10 @@ describe('runLstore3', () => {
 describe('runFstore', () => {
   test('FSTORE: stores double into locals', () => {
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.FSTORE);
+    code.setUint8(1, 0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(0.5);
@@ -185,10 +182,10 @@ describe('runFstore', () => {
 
   test('FSTORE: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.FSTORE);
+    code.setUint8(1, 0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(Math.fround(0.3));
@@ -199,10 +196,9 @@ describe('runFstore', () => {
 describe('runFstore0', () => {
   test('FSTORE0: stores float into locals', () => {
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(0.5);
@@ -211,10 +207,9 @@ describe('runFstore0', () => {
 
   test('FSTORE0: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(Math.fround(0.3));
@@ -225,10 +220,9 @@ describe('runFstore0', () => {
 describe('runFstore1', () => {
   test('FSTORE1: stores float into locals', () => {
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE1);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(0.5);
@@ -237,10 +231,9 @@ describe('runFstore1', () => {
 
   test('FSTORE1: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE1);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(Math.fround(0.3));
@@ -251,10 +244,9 @@ describe('runFstore1', () => {
 describe('runFstore2', () => {
   test('FSTORE2: stores float into locals', () => {
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE2);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(0.5);
@@ -263,10 +255,9 @@ describe('runFstore2', () => {
 
   test('FSTORE2: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE2);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(Math.fround(0.3));
@@ -277,10 +268,9 @@ describe('runFstore2', () => {
 describe('runFstore3', () => {
   test('FSTORE3: stores float into locals', () => {
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE3);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(0.5);
@@ -289,10 +279,9 @@ describe('runFstore3', () => {
 
   test('FSTORE3: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    runInstruction(thread, {
-      opcode: OPCODE.FSTORE3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FSTORE3);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(Math.fround(0.3));
@@ -303,10 +292,10 @@ describe('runFstore3', () => {
 describe('runDstore', () => {
   test('DSTORE: stores double into locals', () => {
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.DSTORE);
+    code.setUint8(1, 0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.5);
@@ -315,10 +304,10 @@ describe('runDstore', () => {
 
   test('DSTORE: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.DSTORE);
+    code.setUint8(1, 0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
@@ -329,10 +318,9 @@ describe('runDstore', () => {
 describe('runDstore0', () => {
   test('DSTORE0: stores double into locals', () => {
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.5);
@@ -341,10 +329,9 @@ describe('runDstore0', () => {
 
   test('DSTORE0: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
@@ -355,10 +342,9 @@ describe('runDstore0', () => {
 describe('runDstore1', () => {
   test('DSTORE1: stores double into locals', () => {
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE1);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(1)).toBe(0.5);
@@ -367,10 +353,9 @@ describe('runDstore1', () => {
 
   test('DSTORE1: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE1);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(1)).toBe(0.29999995231628424);
@@ -381,10 +366,9 @@ describe('runDstore1', () => {
 describe('runDstore2', () => {
   test('DSTORE2: stores double into locals', () => {
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE2);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(2)).toBe(0.5);
@@ -393,10 +377,9 @@ describe('runDstore2', () => {
 
   test('DSTORE2: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE2);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(2)).toBe(0.29999995231628424);
@@ -407,10 +390,9 @@ describe('runDstore2', () => {
 describe('runDstore3', () => {
   test('DSTORE3: stores double into locals', () => {
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE3);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(3)).toBe(0.5);
@@ -419,10 +401,9 @@ describe('runDstore3', () => {
 
   test('DSTORE3: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    runInstruction(thread, {
-      opcode: OPCODE.DSTORE3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DSTORE3);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal64(3)).toBe(0.29999995231628424);
@@ -434,10 +415,10 @@ describe('runAstore', () => {
   test('ASTORE: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.ASTORE,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.ASTORE);
+    code.setUint8(1, 0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(v1);
@@ -449,10 +430,9 @@ describe('runAstore0', () => {
   test('ASTORE0: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.ASTORE0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ASTORE0);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(v1);
@@ -464,10 +444,9 @@ describe('runAstore1', () => {
   test('ASTORE1: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.ASTORE1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ASTORE1);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(1)).toBe(v1);
@@ -479,10 +458,9 @@ describe('runAstore2', () => {
   test('ASTORE2: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.ASTORE2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ASTORE2);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(2)).toBe(v1);
@@ -494,10 +472,9 @@ describe('runAstore3', () => {
   test('ASTORE3: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.ASTORE3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ASTORE3);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(3)).toBe(v1);
@@ -511,10 +488,9 @@ describe('runIastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.IASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.IASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
@@ -525,10 +501,8 @@ describe('runIastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.IASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.IASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -540,10 +514,8 @@ describe('runIastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.IASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.IASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -555,10 +527,8 @@ describe('runIastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.IASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.IASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -572,10 +542,9 @@ describe('runLastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0) === 5n).toBe(true);
@@ -586,10 +555,8 @@ describe('runLastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -601,10 +568,8 @@ describe('runLastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -616,10 +581,8 @@ describe('runLastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(5n);
-    runInstruction(thread, {
-      opcode: OPCODE.LASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -633,10 +596,9 @@ describe('runFastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(0.5);
@@ -647,10 +609,8 @@ describe('runFastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -662,10 +622,8 @@ describe('runFastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -677,10 +635,8 @@ describe('runFastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.FASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -694,10 +650,9 @@ describe('runDastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(0.5);
@@ -708,10 +663,8 @@ describe('runDastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -723,10 +676,8 @@ describe('runDastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -738,10 +689,8 @@ describe('runDastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(0.5);
-    runInstruction(thread, {
-      opcode: OPCODE.DASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -756,10 +705,9 @@ describe('runAastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.AASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.AASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(v1);
@@ -770,10 +718,8 @@ describe('runAastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack(null);
-    runInstruction(thread, {
-      opcode: OPCODE.AASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.AASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -786,10 +732,8 @@ describe('runAastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.AASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.AASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -802,10 +746,8 @@ describe('runAastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(v1);
-    runInstruction(thread, {
-      opcode: OPCODE.AASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.AASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -819,10 +761,9 @@ describe('runBastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.BASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.BASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
@@ -834,10 +775,9 @@ describe('runBastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(128);
-    runInstruction(thread, {
-      opcode: OPCODE.BASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.BASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(-128);
@@ -848,10 +788,8 @@ describe('runBastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.BASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.BASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -863,10 +801,8 @@ describe('runBastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.BASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.BASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -878,10 +814,8 @@ describe('runBastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.BASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.BASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -895,10 +829,9 @@ describe('runCastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.CASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.CASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
@@ -910,10 +843,9 @@ describe('runCastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0x11111);
-    runInstruction(thread, {
-      opcode: OPCODE.CASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.CASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(0x1111);
@@ -924,10 +856,8 @@ describe('runCastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.CASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.CASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -939,10 +869,8 @@ describe('runCastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.CASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.CASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -954,10 +882,8 @@ describe('runCastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.CASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.CASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -971,10 +897,9 @@ describe('runSastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.SASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.SASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(5);
@@ -986,10 +911,9 @@ describe('runSastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(32768);
-    runInstruction(thread, {
-      opcode: OPCODE.SASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.SASTORE);
+
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(arrayref.get(0)).toBe(-32768);
@@ -1000,10 +924,8 @@ describe('runSastore', () => {
     thread.pushStack(null);
     thread.pushStack(0);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.SASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.SASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
@@ -1015,10 +937,8 @@ describe('runSastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.SASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.SASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
@@ -1030,10 +950,8 @@ describe('runSastore', () => {
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
-    runInstruction(thread, {
-      opcode: OPCODE.SASTORE,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.SASTORE);
+    runInstruction(thread, jni, () => {});
     const exceptionObj = thread.loadLocal(1) as JavaReference;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'

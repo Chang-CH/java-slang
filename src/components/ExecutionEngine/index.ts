@@ -1,3 +1,4 @@
+import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
@@ -34,6 +35,22 @@ export default class ExecutionEngine {
     this.interpreter.runFor(mainThread, 1000, () => {
       console.debug('finished');
       process.exit();
+    });
+  }
+
+  runMethod(threadCls: ClassRef, cls: ClassRef, method: string, args?: any[]) {
+    const javaThread = new JavaReference(threadCls, {});
+    const mainThread = new NativeThread(threadCls, javaThread);
+
+    mainThread.pushStackFrame({
+      operandStack: [],
+      locals: args ?? [],
+      class: cls,
+      method: cls.getMethod(mainThread, method),
+      pc: 0,
+    });
+    this.interpreter.runFor(mainThread, 10000, () => {
+      console.debug('runMethod Finish');
     });
   }
 }

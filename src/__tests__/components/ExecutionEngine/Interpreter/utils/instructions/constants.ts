@@ -19,12 +19,15 @@ import {
   ConstantStringInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
+import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
+let code: DataView;
+let jni: JNI;
 
 beforeEach(() => {
-  const jni = new JNI();
+  jni = new JNI();
   const nativeSystem = new JsSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
@@ -33,21 +36,21 @@ beforeEach(() => {
   threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
+  const method = threadClass.getMethod(thread, '<init>()V');
+  code = (method.code as AttributeCode).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],
     class: threadClass,
-    method: threadClass.getMethod(thread, '<init>()V'),
+    method,
     pc: 0,
   });
 });
 
 describe('runNop', () => {
   test('does not modify stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.NOP,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.NOP);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
@@ -58,10 +61,8 @@ describe('runNop', () => {
 
 describe('runAconstNull', () => {
   test('pushes null to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ACONSTNULL,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ACONSTNULL);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -73,10 +74,8 @@ describe('runAconstNull', () => {
 
 describe('runIconstM1', () => {
   test('pushes -1 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ICONSTM1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ICONSTM1);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -88,10 +87,8 @@ describe('runIconstM1', () => {
 
 describe('runIconst0', () => {
   test('pushes 0 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ICONST0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ICONST0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -103,10 +100,8 @@ describe('runIconst0', () => {
 
 describe('runIconst1', () => {
   test('pushes 1 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ICONST1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ICONST1);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -118,10 +113,8 @@ describe('runIconst1', () => {
 
 describe('runIconst2', () => {
   test('pushes 2 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ICONST2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ICONST2);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -133,10 +126,8 @@ describe('runIconst2', () => {
 
 describe('runIconst3', () => {
   test('pushes 3 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ICONST3,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ICONST3);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -148,10 +139,8 @@ describe('runIconst3', () => {
 
 describe('runIconst4', () => {
   test('pushes 4 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ICONST4,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ICONST4);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -163,10 +152,8 @@ describe('runIconst4', () => {
 
 describe('runIconst5', () => {
   test('pushes 5 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.ICONST5,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.ICONST5);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -178,10 +165,8 @@ describe('runIconst5', () => {
 
 describe('runLconst0', () => {
   test('pushes long 0 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.LCONST0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LCONST0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -193,10 +178,8 @@ describe('runLconst0', () => {
 
 describe('runLconst1', () => {
   test('pushes long 1 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.LCONST1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.LCONST1);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -208,10 +191,8 @@ describe('runLconst1', () => {
 
 describe('runFconst0', () => {
   test('pushes float 0 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.FCONST0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FCONST0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -223,10 +204,8 @@ describe('runFconst0', () => {
 
 describe('runFconst1', () => {
   test('pushes float 1 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.FCONST1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FCONST1);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -238,10 +217,8 @@ describe('runFconst1', () => {
 
 describe('runFconst2', () => {
   test('pushes float 2 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.FCONST2,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.FCONST2);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -253,10 +230,8 @@ describe('runFconst2', () => {
 
 describe('runDconst0', () => {
   test('pushes double 0 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.DCONST0,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DCONST0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -268,10 +243,8 @@ describe('runDconst0', () => {
 
 describe('runDconst1', () => {
   test('pushes double 1 to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.DCONST1,
-      operands: [],
-    });
+    code.setUint8(0, OPCODE.DCONST1);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -283,14 +256,12 @@ describe('runDconst1', () => {
 
 describe('runBipush', () => {
   test('pushes byte to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.BIPUSH,
-      operands: [0xff],
-    });
-
+    code.setUint8(0, OPCODE.BIPUSH);
+    code.setInt8(1, 128);
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(0xff);
+    expect(lastFrame.operandStack[0]).toBe(-128);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(2);
   });
@@ -298,14 +269,13 @@ describe('runBipush', () => {
 
 describe('runSipush', () => {
   test('pushes short to stack', () => {
-    runInstruction(thread, {
-      opcode: OPCODE.SIPUSH,
-      operands: [0xffff],
-    });
+    code.setUint8(0, OPCODE.SIPUSH);
+    code.setInt16(1, 32768);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(0xffff);
+    expect(lastFrame.operandStack[0]).toBe(-32768);
     expect(lastFrame.locals.length).toBe(0);
     expect(lastFrame.pc).toBe(3);
   });
@@ -318,10 +288,9 @@ describe('runLdc', () => {
       value: -99,
     };
     (threadClass as any).constantPool[0] = intConstant;
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -336,10 +305,9 @@ describe('runLdc', () => {
       value: Math.fround(-0.3),
     };
     (threadClass as any).constantPool[0] = intConstant;
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -362,10 +330,9 @@ describe('runLdc', () => {
     } as ConstantString;
     (threadClass as any).constantPool[0] = strConstant;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -387,10 +354,9 @@ describe('runLdc', () => {
     (threadClass as any).constantPool[0] = strConstant;
     (threadClass as any).constantPool[1] = strContent;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -409,10 +375,9 @@ describe('runLdc', () => {
     } as ConstantClass;
     (threadClass as any).constantPool[0] = classRef;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -433,10 +398,9 @@ describe('runLdc', () => {
     (threadClass as any).constantPool[0] = classRef;
     (threadClass as any).constantPool[1] = className;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -456,10 +420,9 @@ describe('runLdc', () => {
     } as ConstantMethodref;
     (threadClass as any).constantPool[0] = constMethod;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -499,10 +462,9 @@ describe('runLdc', () => {
       length: 30,
     };
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDC,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -522,10 +484,9 @@ describe('runLdcW', () => {
       value: -99,
     };
     (threadClass as any).constantPool[0] = intConstant;
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -540,10 +501,9 @@ describe('runLdcW', () => {
       value: Math.fround(-0.3),
     };
     (threadClass as any).constantPool[0] = intConstant;
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -566,10 +526,9 @@ describe('runLdcW', () => {
     } as ConstantString;
     (threadClass as any).constantPool[0] = strConstant;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -591,10 +550,9 @@ describe('runLdcW', () => {
     (threadClass as any).constantPool[0] = strConstant;
     (threadClass as any).constantPool[1] = strContent;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -613,10 +571,9 @@ describe('runLdcW', () => {
     } as ConstantClass;
     (threadClass as any).constantPool[0] = classRef;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -637,10 +594,9 @@ describe('runLdcW', () => {
     (threadClass as any).constantPool[0] = classRef;
     (threadClass as any).constantPool[1] = className;
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -659,10 +615,9 @@ describe('runLdcW', () => {
       ref: methodRef,
     } as ConstantMethodref;
     (threadClass as any).constantPool[0] = constMethod;
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -702,10 +657,9 @@ describe('runLdcW', () => {
       length: 30,
     };
 
-    runInstruction(thread, {
-      opcode: OPCODE.LDCW,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDCW);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -725,10 +679,9 @@ describe('runLdc2W', () => {
       value: 99n,
     };
     (threadClass as any).constantPool[0] = longConstant;
-    runInstruction(thread, {
-      opcode: OPCODE.LDC2W,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC2W);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -743,10 +696,9 @@ describe('runLdc2W', () => {
       value: -0.3,
     };
     (threadClass as any).constantPool[0] = intConstant;
-    runInstruction(thread, {
-      opcode: OPCODE.LDC2W,
-      operands: [0],
-    });
+    code.setUint8(0, OPCODE.LDC2W);
+    code.setUint16(1, 0);
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
