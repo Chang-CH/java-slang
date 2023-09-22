@@ -110,6 +110,7 @@ describe('runIreturn', () => {
     thread.popStackFrame();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
+  // IllegalMonitorStateException
 });
 
 describe('runLreturn', () => {
@@ -135,6 +136,7 @@ describe('runLreturn', () => {
     thread.popStackFrame();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
+  // IllegalMonitorStateException
 });
 
 describe('runFreturn', () => {
@@ -183,6 +185,7 @@ describe('runFreturn', () => {
     thread.popStackFrame();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
+  // IllegalMonitorStateException
 });
 
 describe('runDreturn', () => {
@@ -208,6 +211,7 @@ describe('runDreturn', () => {
     thread.popStackFrame();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
+  // IllegalMonitorStateException
 });
 
 describe('runAreturn', () => {
@@ -234,6 +238,7 @@ describe('runAreturn', () => {
     thread.popStackFrame();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
+  // IllegalMonitorStateException
 });
 
 describe('runreturn', () => {
@@ -259,4 +264,6 @@ describe('runreturn', () => {
     thread.popStackFrame();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
+
+  // IllegalMonitorStateException
 });
