@@ -61,35 +61,41 @@ export function runLookupswitch(thread: NativeThread): void {
 }
 
 export function runIreturn(thread: NativeThread): void {
+  console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
   thread.popStackFrame();
   thread.pushStack(ret);
 }
 
 export function runLreturn(thread: NativeThread): void {
+  console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack64();
   thread.popStackFrame();
   thread.pushStack64(ret);
 }
 
 export function runFreturn(thread: NativeThread): void {
+  console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = asFloat(thread.popStack());
   thread.popStackFrame();
   thread.pushStack(ret);
 }
 
 export function runDreturn(thread: NativeThread): void {
+  console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = asDouble(thread.popStack64());
   thread.popStackFrame();
   thread.pushStack64(ret);
 }
 
 export function runAreturn(thread: NativeThread): void {
+  console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
   thread.popStackFrame();
   thread.pushStack(ret);
 }
 
 export function runReturn(thread: NativeThread): void {
+  console.warn('IRETURN: monitor not implemented jvms 6.5');
   thread.popStackFrame();
 }

@@ -86,9 +86,13 @@ export default class NativeThread {
     return value;
   }
 
-  popStackFrame() {
+  popStackFrame(): StackFrame {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
+    if (sf === undefined) {
+      throw new Error('Stack Underflow');
+    }
+    return sf;
   }
 
   pushStackFrame(frame: StackFrame) {
