@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc -p tsconfig.json",
     "test": "jest --silent",
-    "dev": "npx tsx watch src/utils/cli -f example/Exception/Exception.class -p --nowarn"
+    "dev": "npx tsx watch src/utils/cli -f example/Static/Static.class -p --nowarn"
   },
   "keywords": [
     "Java",

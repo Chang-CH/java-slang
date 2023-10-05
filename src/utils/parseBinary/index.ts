@@ -1,4 +1,5 @@
 import { ClassFile } from '#jvm/external/ClassFile/types';
+import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import {
   ConstantClassInfo,
   ConstantUtf8Info,
@@ -20,9 +21,14 @@ export default function parseBin(view: DataView) {
     thisClass: 0,
     superClass: 0,
     interfaces: [],
-    fields: {},
-    methods: {},
+    fields: [],
+    methods: [],
     attributes: [],
+    constantPoolCount: 0,
+    interfacesCount: 0,
+    fieldsCount: 0,
+    methodsCount: 0,
+    attributesCount: 0
   };
 
   cls.magic = view.getUint32(offset);
@@ -56,20 +62,15 @@ export default function parseBin(view: DataView) {
   offset += 2;
   cls.interfaces = [];
   for (let i = 0; i < interfacesCount; i += 1) {
-    const interfaceIdx = cls.constantPool[
-      view.getUint16(offset)
-    ] as ConstantClassInfo;
-    const className = cls.constantPool[
-      interfaceIdx.nameIndex
-    ] as ConstantUtf8Info;
-    cls.interfaces.push(className.value);
+    const interfaceIdx = view.getUint16(offset);
+    cls.interfaces.push(interfaceIdx);
     offset += 2;
   }
 
   const fieldsCount = view.getUint16(offset);
   offset += 2;
 
-  cls.fields = {};
+  cls.fields = [];
   for (let i = 0; i < fieldsCount; i += 1) {
     const { result, offset: resultOffset } = readField(
       cls.constantPool,
@@ -80,14 +81,14 @@ export default function parseBin(view: DataView) {
     const fieldDesc = cls.constantPool[
       result.descriptorIndex
     ] as ConstantUtf8Info;
-    cls.fields[fieldName.value + fieldDesc.value] = result;
+    cls.fields.push(result);
     offset = resultOffset;
   }
 
   const methodsCount = view.getUint16(offset);
   offset += 2;
 
-  cls.methods = {};
+  cls.methods = [];
   for (let i = 0; i < methodsCount; i += 1) {
     const { result, offset: resultOffset } = readMethod(
       cls.constantPool,
@@ -95,7 +96,7 @@ export default function parseBin(view: DataView) {
       offset
     );
 
-    cls.methods[getMethodName(result, cls.constantPool)] = result;
+    cls.methods.push(result);
     offset = resultOffset;
   }
 
@@ -109,7 +110,7 @@ export default function parseBin(view: DataView) {
       view,
       offset
     );
-    cls.attributes.push(result);
+    cls.attributes.push(result as unknown as AttributeInfo);
     offset = resultOffset;
   }
 

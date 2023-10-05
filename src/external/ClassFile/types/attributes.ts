@@ -1,26 +1,27 @@
-export interface AttributeType {
-  [key: string]: any;
-}
-
-export interface AttributeConstantValue {
+export interface ConstantValueAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   constantvalueIndex: number;
 }
 
-export interface ExceptionType {
+export interface ExceptionHandler {
   startPc: number;
   endPc: number;
   handlerPc: number;
   catchType: number;
 }
 
-export interface AttributeCode {
+export interface CodeAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   maxStack: number;
   maxLocals: number;
+  codeLength: number;
   code: DataView;
-  exceptionTable: Array<ExceptionType>;
-  attributes: Array<AttributeType>;
+  exceptionTableLength: number;
+  exceptionTable: Array<ExceptionHandler>;
+  attributesCount: number;
+  attributes: Array<AttributeInfo>;
 }
 
 export interface TopVariableInfo {
@@ -61,7 +62,7 @@ export interface UninitializedVariableInfo {
   offset: number;
 }
 
-export type verificationTypeInfo =
+export type VerificationTypeInfo =
   | TopVariableInfo
   | IntegerVariableInfo
   | FloatVariableInfo
@@ -72,65 +73,68 @@ export type verificationTypeInfo =
   | ObjectVariableInfo
   | UninitializedVariableInfo;
 
-export interface sameFrame {
+export interface SameFrame {
   frameType: number /* 0-63 */;
 }
 
-export interface sameLocals1_stackItemFrame {
+export interface SameLocals1StackItemFrame {
   frameType: number /* 64-127 */;
-  stack: Array<verificationTypeInfo>;
+  stack: Array<VerificationTypeInfo>;
 }
 
-export interface sameLocals1_stackItemFrameExtended {
+export interface SameLocals1StackItemFrameExtended {
   frameType: number /* 247 */;
   offsetDelta: number;
-  stack: Array<verificationTypeInfo>;
+  stack: Array<VerificationTypeInfo>;
 }
 
-export interface chopFrame {
+export interface ChopFrame {
   frameType: number /* 248-250 */;
   offsetDelta: number;
 }
 
-export interface sameFrameExtended {
+export interface SameFrameExtended {
   frameType: number /* 251 */;
   offsetDelta: number;
 }
 
-export interface appendFrame {
+export interface AppendFrame {
   frameType: number /* 252-254 */;
   offsetDelta: number;
-  stack: Array<verificationTypeInfo>;
+  stack: Array<VerificationTypeInfo>;
 }
 
-export interface fullFrame {
+export interface FullFrame {
   frameType: number /* 255 */;
   offsetDelta: number;
-  locals: Array<verificationTypeInfo>;
-  stack: Array<verificationTypeInfo>;
+  locals: Array<VerificationTypeInfo>;
+  stack: Array<VerificationTypeInfo>;
 }
 
-export type stackMapFrame =
-  | sameFrame
-  | sameLocals1_stackItemFrame
-  | sameLocals1_stackItemFrameExtended
-  | chopFrame
-  | sameFrameExtended
-  | appendFrame
-  | fullFrame;
+export type StackMapFrame =
+  | SameFrame
+  | SameLocals1StackItemFrame
+  | SameLocals1StackItemFrameExtended
+  | ChopFrame
+  | SameFrameExtended
+  | AppendFrame
+  | FullFrame;
 
-export interface AttributeStackMapTable {
+export interface StackMapTableAttribute {
   attributeNameIndex: number;
-  entries: Array<stackMapFrame>;
+  attributeLength: number;
+  entries: Array<StackMapFrame>;
 }
 
-export interface AttributeExceptions {
+export interface ExceptionsAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   exceptionIndexTable: Array<number>;
 }
 
-export interface AttributeInnerClasses {
+export interface InnerClassesAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   classes: Array<{
     innerClassInfoIndex: number;
     outerClassInfoIndex: number;
@@ -139,33 +143,39 @@ export interface AttributeInnerClasses {
   }>;
 }
 
-export interface AttributeEnclosingMethod {
+export interface EnclosingMethodAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   classIndex: number;
   methodIndex: number;
 }
 
-export interface AttributeSynthetic {
+export interface SyntheticAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
 }
 
-export interface AttributeSignature {
+export interface SignatureAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   signatureIndex: number;
 }
 
-export interface AttributeSourceFile {
+export interface SourceFileAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   sourcefileIndex: number;
 }
 
-export interface AttributeSourceDebugExtension {
+export interface SourceDebugExtensionAttribute {
   attributeNameIndex: number;
-  debugExtension: Array<number>; // TODO: maybe store as utf-8 string?
+  attributeLength: number;
+  debugExtension: Array<number>;
 }
 
-export interface AttributeLineNumberTable {
+export interface LineNumberTableAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   lineNumberTableLength: number;
   lineNumberTable: Array<{
     startPc: number;
@@ -173,8 +183,9 @@ export interface AttributeLineNumberTable {
   }>;
 }
 
-export interface AttributeLocalVariableTable {
+export interface LocalVariableTableAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   localVariableTableLength: number;
   localVariableTable: Array<{
     startPc: number;
@@ -185,8 +196,9 @@ export interface AttributeLocalVariableTable {
   }>;
 }
 
-export interface AttributeLocalVariableTypeTable {
+export interface LocalVariableTypeTableAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   localVariableTypeTableLength: number;
   localVariableTypeTable: Array<{
     startPc: number;
@@ -197,13 +209,11 @@ export interface AttributeLocalVariableTypeTable {
   }>;
 }
 
-export interface AttributeDeprecated {
+export interface DeprecatedAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
 }
 
-/**
- * TODO: Annotations + RuntimeVisibleAnnotations onwards not finished, see https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
- */
 export interface AnnotationType {
   typeIndex: number;
   numElementValuePairs: number;
@@ -213,8 +223,9 @@ export interface AnnotationType {
   }>;
 }
 
-export interface AttributeBootstrapMethods {
+export interface BootstrapMethodsAttribute {
   attributeNameIndex: number;
+  attributeLength: number;
   numBootstrapMethods: number;
   bootstrapMethods: Array<BootstrapMethod>;
 }
@@ -224,3 +235,21 @@ export interface BootstrapMethod {
   numBootstrapArguments: number;
   bootstrapArguments: Array<number>;
 }
+
+
+export type AttributeInfo =
+  | ConstantValueAttribute
+  | CodeAttribute
+  | StackMapTableAttribute
+  | ExceptionsAttribute
+  | InnerClassesAttribute
+  | EnclosingMethodAttribute
+  | SyntheticAttribute
+  | SignatureAttribute
+  | SourceFileAttribute
+  | SourceDebugExtensionAttribute
+  | LineNumberTableAttribute
+  | LocalVariableTableAttribute
+  | LocalVariableTypeTableAttribute
+  | DeprecatedAttribute
+  | BootstrapMethodsAttribute 

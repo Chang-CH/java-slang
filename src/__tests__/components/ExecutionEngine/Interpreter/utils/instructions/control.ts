@@ -19,7 +19,7 @@ import {
   ConstantStringInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -37,7 +37,7 @@ beforeEach(() => {
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as AttributeCode).code;
+  code = (method.code as CodeAttribute).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],
@@ -230,8 +230,8 @@ describe('runAreturn', () => {
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(2);
-    expect(thread.popStack64()).toBe(obj);
+    expect(lastFrame.operandStack.length).toBe(1);
+    expect(thread.popStack()).toBe(obj);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
@@ -256,8 +256,7 @@ describe('runreturn', () => {
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(2);
-    expect(thread.popStack64()).toBe(obj);
+    expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 

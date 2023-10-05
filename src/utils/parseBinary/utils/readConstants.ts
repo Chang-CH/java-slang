@@ -1,6 +1,6 @@
 import {
   CONSTANT_TAG,
-  CONSTANT_TAGMap,
+  constantTagMap,
 } from '#jvm/external/ClassFile/constants/constants';
 import {
   ConstantClassInfo,
@@ -17,7 +17,7 @@ import {
   ConstantMethodHandleInfo,
   ConstantMethodTypeInfo,
   ConstantInvokeDynamicInfo,
-  ConstantType,
+  ConstantInfo,
 } from '#jvm/external/ClassFile/types/constants';
 function readConstantClass(
   view: DataView,
@@ -351,12 +351,12 @@ export function readConstants(
   constantPoolCount: number
 ) {
   // constant pool 1 indexed, dummy value at index 0
-  const constantPool: ConstantType[] = [
+  const constantPool: ConstantInfo[] = [
     { tag: CONSTANT_TAG.Class, nameIndex: 0 },
   ];
 
   for (let i = 0; i < constantPoolCount - 1; i += 1) {
-    const tag = CONSTANT_TAGMap[view.getUint8(offset)];
+    const tag = constantTagMap[view.getUint8(offset)];
     offset += 1;
     const { result, offset: resultOffset } = readConstant(view, offset, tag); // TODO: check index's in readConstant
     constantPool.push(result);

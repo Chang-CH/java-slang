@@ -4,18 +4,26 @@ import { initString } from '#jvm/components/JNI/utils';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import {
-  AttributeBootstrapMethods,
-  AttributeType,
+  AttributeInfo,
+  BootstrapMethodsAttribute,
+  CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
 import {
   ConstantClassInfo,
-  ConstantNameAndTypeInfo,
-  ConstantType,
   ConstantUtf8Info,
+  ConstantNameAndTypeInfo,
+  ConstantInfo,
 } from '#jvm/external/ClassFile/types/constants';
-import { FieldType } from '#jvm/external/ClassFile/types/fields';
-import { MethodRef } from '#jvm/external/ClassFile/types/methods';
+import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { JavaReference } from '#types/dataTypes';
+
+export interface MethodRef {
+  accessFlags: number;
+  name: string;
+  descriptor: string;
+  attributes: Array<AttributeInfo>;
+  code: CodeAttribute | null; // native methods have no code
+}
 
 export interface ConstantClass {
   tag: CONSTANT_TAG;
@@ -50,12 +58,20 @@ export interface ConstantInvokeDynamic {
 }
 
 export type ConstantRef =
-  | ConstantType
+  | ConstantInfo
   | ConstantClass
   | ConstantMethodref
   | ConstantInterfaceMethodref
   | ConstantString
   | ConstantInvokeDynamic;
+
+export interface FieldRef {
+  accessFlags: number;
+  nameIndex: number;
+  descriptorIndex: number;
+  attributes: Array<AttributeInfo>;
+  data?: any;
+}
 
 export class ClassRef {
   public isInitialized: boolean = false;
@@ -68,23 +84,24 @@ export class ClassRef {
   private thisClass: string;
   private superClass: number | ClassRef;
 
-  private interfaces: Array<string | ClassRef>;
+  private interfaces: Array<number | ClassRef>;
 
   private fields: {
-    [fieldName: string]: FieldType;
+    [fieldName: string]: FieldInfo;
   };
 
   private methods: {
     [methodName: string]: MethodRef;
   };
 
-  private bootstrapMethods?: AttributeBootstrapMethods;
-  private attributes: Array<AttributeType>;
+  private bootstrapMethods?: BootstrapMethodsAttribute;
+  private attributes: Array<AttributeInfo>;
 
   constructor(classfile: ClassFile, loader: AbstractClassLoader) {
     this.constantPool = classfile.constantPool;
     this.accessFlags = classfile.accessFlags;
 
+    // resolve classname
     const clsInfo = classfile.constantPool[
       classfile.thisClass
     ] as ConstantClassInfo;
@@ -97,8 +114,48 @@ export class ClassRef {
 
     this.interfaces = classfile.interfaces;
 
-    this.fields = classfile.fields;
-    this.methods = classfile.methods;
+    // convert field array to object
+    this.fields = {};
+    classfile.fields.forEach(field => {
+      const fieldName = classfile.constantPool[
+        field.nameIndex
+      ] as ConstantUtf8Info;
+      const fieldDesc = classfile.constantPool[
+        field.descriptorIndex
+      ] as ConstantUtf8Info;
+      this.fields[fieldName.value + fieldDesc.value] = field;
+    });
+
+    this.methods = {};
+    classfile.methods.forEach(method => {
+      const methodRef: MethodRef = {
+        accessFlags: method.accessFlags,
+        name: '',
+        descriptor: '',
+        attributes: method.attributes,
+        code: null,
+      };
+
+      // get name and descriptor
+      methodRef.name = (
+        classfile.constantPool[method.nameIndex] as ConstantUtf8Info
+      ).value;
+      methodRef.descriptor = (
+        classfile.constantPool[method.descriptorIndex] as ConstantUtf8Info
+      ).value;
+
+      // get code attribute
+      methodRef.attributes.forEach(attr => {
+        const attrname = (
+          classfile.constantPool[attr.attributeNameIndex] as ConstantUtf8Info
+        ).value;
+        if (attrname === 'Code') {
+          methodRef.code = attr as CodeAttribute;
+        }
+      });
+
+      this.methods[methodRef.name + methodRef.descriptor] = methodRef;
+    });
 
     this.attributes = classfile.attributes;
 
@@ -107,6 +164,12 @@ export class ClassRef {
 
   private resolveClassRef(thread: NativeThread, clsRef: ConstantClass) {
     const className = this.constantPool[clsRef.nameIndex] as ConstantUtf8Info;
+
+    // array class, no need to resolve
+    if (className.value[0] === '[') {
+      return;
+    }
+
     const ref = this.loader.resolveClass(thread, className.value);
 
     if (!ref) {

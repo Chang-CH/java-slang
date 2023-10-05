@@ -1,9 +1,9 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { ClassFile } from '#jvm/external/ClassFile/types';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
-import { FIELDFLAGS } from '#jvm/external/ClassFile/types/fields';
-import { METHODFLAGS } from '#jvm/external/ClassFile/types/methods';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
+import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { readInstruction } from '#utils/parseBinary/utils/readInstruction';
 
 /**
@@ -99,7 +99,7 @@ function resolveReferences(cls: any) {
   return result;
 }
 
-export function stringifyCode(attr: AttributeCode) {
+export function stringifyCode(attr: CodeAttribute) {
   const code = attr.code;
   if (code === undefined) {
     return [];
@@ -117,41 +117,41 @@ export function stringifyCode(attr: AttributeCode) {
 
     switch (code.opcode) {
       case OPCODE.NOP:
-      case OPCODE.ACONSTNULL:
-      case OPCODE.ICONSTM1:
-      case OPCODE.ICONST0:
-      case OPCODE.ICONST1:
-      case OPCODE.ICONST2:
-      case OPCODE.ICONST3:
-      case OPCODE.ICONST4:
-      case OPCODE.ICONST5:
-      case OPCODE.LCONST0:
-      case OPCODE.LCONST1:
-      case OPCODE.FCONST0:
-      case OPCODE.FCONST1:
-      case OPCODE.FCONST2:
-      case OPCODE.DCONST0:
-      case OPCODE.DCONST1:
-      case OPCODE.ILOAD0:
-      case OPCODE.ILOAD1:
-      case OPCODE.ILOAD2:
-      case OPCODE.ILOAD3:
-      case OPCODE.LLOAD0:
-      case OPCODE.LLOAD1:
-      case OPCODE.LLOAD2:
-      case OPCODE.LLOAD3:
-      case OPCODE.FLOAD0:
-      case OPCODE.FLOAD1:
-      case OPCODE.FLOAD2:
-      case OPCODE.FLOAD3:
-      case OPCODE.DLOAD0:
-      case OPCODE.DLOAD1:
-      case OPCODE.DLOAD2:
-      case OPCODE.DLOAD3:
-      case OPCODE.ALOAD0:
-      case OPCODE.ALOAD1:
-      case OPCODE.ALOAD2:
-      case OPCODE.ALOAD3:
+      case OPCODE.ACONST_NULL:
+      case OPCODE.ICONST_M1:
+      case OPCODE.ICONST_0:
+      case OPCODE.ICONST_1:
+      case OPCODE.ICONST_2:
+      case OPCODE.ICONST_3:
+      case OPCODE.ICONST_4:
+      case OPCODE.ICONST_5:
+      case OPCODE.LCONST_0:
+      case OPCODE.LCONST_1:
+      case OPCODE.FCONST_0:
+      case OPCODE.FCONST_1:
+      case OPCODE.FCONST_2:
+      case OPCODE.DCONST_0:
+      case OPCODE.DCONST_1:
+      case OPCODE.ILOAD_0:
+      case OPCODE.ILOAD_1:
+      case OPCODE.ILOAD_2:
+      case OPCODE.ILOAD_3:
+      case OPCODE.LLOAD_0:
+      case OPCODE.LLOAD_1:
+      case OPCODE.LLOAD_2:
+      case OPCODE.LLOAD_3:
+      case OPCODE.FLOAD_0:
+      case OPCODE.FLOAD_1:
+      case OPCODE.FLOAD_2:
+      case OPCODE.FLOAD_3:
+      case OPCODE.DLOAD_0:
+      case OPCODE.DLOAD_1:
+      case OPCODE.DLOAD_2:
+      case OPCODE.DLOAD_3:
+      case OPCODE.ALOAD_0:
+      case OPCODE.ALOAD_1:
+      case OPCODE.ALOAD_2:
+      case OPCODE.ALOAD_3:
       case OPCODE.IALOAD:
       case OPCODE.LALOAD:
       case OPCODE.FALOAD:
@@ -160,26 +160,26 @@ export function stringifyCode(attr: AttributeCode) {
       case OPCODE.BALOAD:
       case OPCODE.CALOAD:
       case OPCODE.SALOAD:
-      case OPCODE.ISTORE0:
-      case OPCODE.ISTORE1:
-      case OPCODE.ISTORE2:
-      case OPCODE.ISTORE3:
-      case OPCODE.LSTORE0:
-      case OPCODE.LSTORE1:
-      case OPCODE.LSTORE2:
-      case OPCODE.LSTORE3:
-      case OPCODE.FSTORE0:
-      case OPCODE.FSTORE1:
-      case OPCODE.FSTORE2:
-      case OPCODE.FSTORE3:
-      case OPCODE.DSTORE0:
-      case OPCODE.DSTORE1:
-      case OPCODE.DSTORE2:
-      case OPCODE.DSTORE3:
-      case OPCODE.ASTORE0:
-      case OPCODE.ASTORE1:
-      case OPCODE.ASTORE2:
-      case OPCODE.ASTORE3:
+      case OPCODE.ISTORE_0:
+      case OPCODE.ISTORE_1:
+      case OPCODE.ISTORE_2:
+      case OPCODE.ISTORE_3:
+      case OPCODE.LSTORE_0:
+      case OPCODE.LSTORE_1:
+      case OPCODE.LSTORE_2:
+      case OPCODE.LSTORE_3:
+      case OPCODE.FSTORE_0:
+      case OPCODE.FSTORE_1:
+      case OPCODE.FSTORE_2:
+      case OPCODE.FSTORE_3:
+      case OPCODE.DSTORE_0:
+      case OPCODE.DSTORE_1:
+      case OPCODE.DSTORE_2:
+      case OPCODE.DSTORE_3:
+      case OPCODE.ASTORE_0:
+      case OPCODE.ASTORE_1:
+      case OPCODE.ASTORE_2:
+      case OPCODE.ASTORE_3:
       case OPCODE.IASTORE:
       case OPCODE.LASTORE:
       case OPCODE.FASTORE:
@@ -191,11 +191,11 @@ export function stringifyCode(attr: AttributeCode) {
       case OPCODE.POP:
       case OPCODE.POP2:
       case OPCODE.DUP:
-      case OPCODE.DUPX1:
-      case OPCODE.DUPX2:
+      case OPCODE.DUP_X1:
+      case OPCODE.DUP_X2:
       case OPCODE.DUP2:
-      case OPCODE.DUP2X1:
-      case OPCODE.DUP2X2:
+      case OPCODE.DUP2_X1:
+      case OPCODE.DUP2_X2:
       case OPCODE.SWAP:
       case OPCODE.IADD:
       case OPCODE.LADD:
@@ -285,8 +285,8 @@ export function stringifyCode(attr: AttributeCode) {
         i += 2;
         break;
       case OPCODE.SIPUSH:
-      case OPCODE.LDCW:
-      case OPCODE.LDC2W:
+      case OPCODE.LDC:
+      case OPCODE.LDC2_W:
       case OPCODE.IINC:
       case OPCODE.IFEQ:
       case OPCODE.IFNE:
@@ -294,14 +294,14 @@ export function stringifyCode(attr: AttributeCode) {
       case OPCODE.IFGE:
       case OPCODE.IFGT:
       case OPCODE.IFLE:
-      case OPCODE.IFICMPEQ:
-      case OPCODE.IFICMPNE:
-      case OPCODE.IFICMPLT:
-      case OPCODE.IFICMPGE:
-      case OPCODE.IFICMPGT:
-      case OPCODE.IFICMPLE:
-      case OPCODE.IFACMPEQ:
-      case OPCODE.IFACMPNE:
+      case OPCODE.IF_ICMPEQ:
+      case OPCODE.IF_ICMPNE:
+      case OPCODE.IF_ICMPLT:
+      case OPCODE.IF_ICMPGE:
+      case OPCODE.IF_ICMPGT:
+      case OPCODE.IF_ICMPLE:
+      case OPCODE.IF_ACMPEQ:
+      case OPCODE.IF_ACMPNE:
       case OPCODE.GOTO:
       case OPCODE.JSR:
       case OPCODE.GETSTATIC:
@@ -324,8 +324,8 @@ export function stringifyCode(attr: AttributeCode) {
         break;
       case OPCODE.INVOKEINTERFACE:
       case OPCODE.INVOKEDYNAMIC:
-      case OPCODE.GOTOW:
-      case OPCODE.JSRW:
+      case OPCODE.GOTO_W:
+      case OPCODE.JSR_W:
         i += 5;
         break;
       case OPCODE.WIDE:
@@ -363,15 +363,15 @@ function getAllFlags(cls: any) {
 export function getFieldFlag(field: any) {
   const flags = field.accessFlags;
   const fieldflags = [];
-  if (flags & FIELDFLAGS.ACCPUBLIC) fieldflags.push('ACCPUBLIC');
-  if (flags & FIELDFLAGS.ACCPRIVATE) fieldflags.push('ACCPRIVATE');
-  if (flags & FIELDFLAGS.ACCPROTECTED) fieldflags.push('ACCPROTECTED');
-  if (flags & FIELDFLAGS.ACCSTATIC) fieldflags.push('ACCSTATIC');
-  if (flags & FIELDFLAGS.ACCFINAL) fieldflags.push('ACCFINAL');
-  if (flags & FIELDFLAGS.ACCVOLATILE) fieldflags.push('ACCVOLATILE');
-  if (flags & FIELDFLAGS.ACCTRANSIENT) fieldflags.push('ACCTRANSIENT');
-  if (flags & FIELDFLAGS.ACCSYNTHETIC) fieldflags.push('ACCSYNTHETIC');
-  if (flags & FIELDFLAGS.ACCENUM) fieldflags.push('ACCENUM');
+  if (flags & FIELD_FLAGS.ACC_PUBLIC) fieldflags.push('ACCPUBLIC');
+  if (flags & FIELD_FLAGS.ACC_PRIVATE) fieldflags.push('ACCPRIVATE');
+  if (flags & FIELD_FLAGS.ACC_PROTECTED) fieldflags.push('ACCPROTECTED');
+  if (flags & FIELD_FLAGS.ACC_STATIC) fieldflags.push('ACCSTATIC');
+  if (flags & FIELD_FLAGS.ACC_FINAL) fieldflags.push('ACCFINAL');
+  if (flags & FIELD_FLAGS.ACC_VOLATILE) fieldflags.push('ACCVOLATILE');
+  if (flags & FIELD_FLAGS.ACC_TRANSIENT) fieldflags.push('ACCTRANSIENT');
+  if (flags & FIELD_FLAGS.ACC_SYNTHETIC) fieldflags.push('ACCSYNTHETIC');
+  if (flags & FIELD_FLAGS.ACC_ENUM) fieldflags.push('ACCENUM');
 
   return fieldflags;
 }
@@ -380,18 +380,19 @@ export function getMethodFlag(method: any) {
   const flags = method.accessFlags;
 
   const methodflags = [];
-  if (flags & METHODFLAGS.ACCPUBLIC) methodflags.push('ACCPUBLIC');
-  if (flags & METHODFLAGS.ACCPRIVATE) methodflags.push('ACCPRIVATE');
-  if (flags & METHODFLAGS.ACCPROTECTED) methodflags.push('ACCPROTECTED');
-  if (flags & METHODFLAGS.ACCSTATIC) methodflags.push('ACCSTATIC');
-  if (flags & METHODFLAGS.ACCFINAL) methodflags.push('ACCFINAL');
-  if (flags & METHODFLAGS.ACCSYNCHRONIZED) methodflags.push('ACCSYNCHRONIZED');
-  if (flags & METHODFLAGS.ACCBRIDGE) methodflags.push('ACCBRIDGE');
-  if (flags & METHODFLAGS.ACCVARARGS) methodflags.push('ACCVARARGS');
-  if (flags & METHODFLAGS.ACCNATIVE) methodflags.push('ACCNATIVE');
-  if (flags & METHODFLAGS.ACCABSTRACT) methodflags.push('ACCABSTRACT');
-  if (flags & METHODFLAGS.ACCSTRICT) methodflags.push('ACCSTRICT');
-  if (flags & METHODFLAGS.ACCSYNTHETIC) methodflags.push('ACCSYNTHETIC');
+  if (flags & METHOD_FLAGS.ACC_PUBLIC) methodflags.push('ACCPUBLIC');
+  if (flags & METHOD_FLAGS.ACC_PRIVATE) methodflags.push('ACCPRIVATE');
+  if (flags & METHOD_FLAGS.ACC_PROTECTED) methodflags.push('ACCPROTECTED');
+  if (flags & METHOD_FLAGS.ACC_STATIC) methodflags.push('ACCSTATIC');
+  if (flags & METHOD_FLAGS.ACC_FINAL) methodflags.push('ACCFINAL');
+  if (flags & METHOD_FLAGS.ACC_SYNCHRONIZED)
+    methodflags.push('ACCSYNCHRONIZED');
+  if (flags & METHOD_FLAGS.ACC_BRIDGE) methodflags.push('ACCBRIDGE');
+  if (flags & METHOD_FLAGS.ACC_VARARGS) methodflags.push('ACCVARARGS');
+  if (flags & METHOD_FLAGS.ACC_NATIVE) methodflags.push('ACCNATIVE');
+  if (flags & METHOD_FLAGS.ACC_ABSTRACT) methodflags.push('ACCABSTRACT');
+  if (flags & METHOD_FLAGS.ACC_STRICT) methodflags.push('ACCSTRICT');
+  if (flags & METHOD_FLAGS.ACC_SYNTHETIC) methodflags.push('ACCSYNTHETIC');
 
   return methodflags;
 }

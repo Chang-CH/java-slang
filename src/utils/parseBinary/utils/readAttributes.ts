@@ -1,15 +1,16 @@
 import { PREDEF_ATTRIBUTE } from '#jvm/external/ClassFile/constants/attributes';
 import {
-  AttributeCode,
-  ExceptionType,
+  AttributeInfo,
+  CodeAttribute,
+  ExceptionHandler,
 } from '#jvm/external/ClassFile/types/attributes';
 import {
-  ConstantType,
+  ConstantInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 
 export function readAttribute(
-  constPool: Array<ConstantType>,
+  constPool: Array<ConstantInfo>,
   view: DataView,
   offset: number
 ): { result: { [key: string]: any }; offset: number } {
@@ -34,7 +35,7 @@ export function readAttribute(
         offset
       );
     case PREDEF_ATTRIBUTE.Code:
-      return readAttributeCode(
+      return readCodeAttribute(
         constPool,
         attributeNameIndex,
         attributeLength,
@@ -197,7 +198,7 @@ export function readAttribute(
 }
 
 function readAttributeConstantValue(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -215,14 +216,14 @@ function readAttributeConstantValue(
   };
 }
 
-function readAttributeCode(
-  constantPool: Array<ConstantType>,
+function readCodeAttribute(
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
   offset: number
 ): {
-  result: AttributeCode;
+  result: CodeAttribute;
   offset: number;
 } {
   const maxStack = view.getUint16(offset);
@@ -242,7 +243,7 @@ function readAttributeCode(
   const exceptionTableLength = view.getUint16(offset);
   offset += 2;
 
-  const exceptionTable: ExceptionType[] = [];
+  const exceptionTable: ExceptionHandler[] = [];
   for (let i = 0; i < exceptionTableLength; i++) {
     const startPc = view.getUint16(offset);
     offset += 2;
@@ -258,14 +259,14 @@ function readAttributeCode(
   const attributesCount = view.getUint16(offset);
   offset += 2;
 
-  const attributes = [];
+  const attributes: AttributeInfo[] = [];
   for (let i = 0; i < attributesCount; i++) {
     const { result, offset: resultOffset } = readAttribute(
       constantPool,
       view,
       offset
     );
-    attributes.push(result);
+    attributes.push(result as unknown as AttributeInfo);
     offset = resultOffset;
   }
 
@@ -277,13 +278,17 @@ function readAttributeCode(
       code,
       exceptionTable,
       attributes,
+      attributeLength: attributeLength,
+      codeLength: codeLength,
+      exceptionTableLength: exceptionTableLength,
+      attributesCount: attributesCount,
     },
     offset,
   };
 }
 
 function readAttributeStackMapTable(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -306,7 +311,7 @@ function readAttributeStackMapTable(
   };
 }
 function readAttributeExceptions(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -329,7 +334,7 @@ function readAttributeExceptions(
   };
 }
 function readAttributeInnerClasses(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -352,7 +357,7 @@ function readAttributeInnerClasses(
   };
 }
 function readAttributeEnclosingMethod(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -375,7 +380,7 @@ function readAttributeEnclosingMethod(
   };
 }
 function readAttributeSynthetic(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -398,7 +403,7 @@ function readAttributeSynthetic(
   };
 }
 function readAttributeSignature(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -421,7 +426,7 @@ function readAttributeSignature(
   };
 }
 function readAttributeSourceFile(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -444,7 +449,7 @@ function readAttributeSourceFile(
   };
 }
 function readAttributeSourceDebugExtension(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -467,7 +472,7 @@ function readAttributeSourceDebugExtension(
   };
 }
 function readAttributeLineNumberTable(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -498,7 +503,7 @@ function readAttributeLineNumberTable(
   };
 }
 function readAttributeLocalVariableTable(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -521,7 +526,7 @@ function readAttributeLocalVariableTable(
   };
 }
 function readAttributeLocalVariableTypeTable(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -544,7 +549,7 @@ function readAttributeLocalVariableTypeTable(
   };
 }
 function readAttributeDeprecated(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -567,7 +572,7 @@ function readAttributeDeprecated(
   };
 }
 function readAttributeRuntimeVisibleAnnotations(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -590,7 +595,7 @@ function readAttributeRuntimeVisibleAnnotations(
   };
 }
 function readAttributeRuntimeInvisibleAnnotations(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -613,7 +618,7 @@ function readAttributeRuntimeInvisibleAnnotations(
   };
 }
 function readAttributeRuntimeVisibleParameterAnnotations(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -638,7 +643,7 @@ function readAttributeRuntimeVisibleParameterAnnotations(
   };
 }
 function readAttributeRuntimeInvisibleParameterAnnotations(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -663,7 +668,7 @@ function readAttributeRuntimeInvisibleParameterAnnotations(
   };
 }
 function readAttributeAnnotationDefault(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -686,7 +691,7 @@ function readAttributeAnnotationDefault(
   };
 }
 function readAttributeBootstrapMethods(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,
@@ -726,7 +731,7 @@ function readAttributeBootstrapMethods(
 
 // Non predefined attribute, ignored.
 function readAttributeGeneric(
-  constantPool: Array<ConstantType>,
+  constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
   attributeLength: number,
   view: DataView,

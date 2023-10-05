@@ -4,7 +4,7 @@ import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
 import { MethodRef } from '#jvm/external/ClassFile/types/methods';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 export default class NativeThread {
   private stack: StackFrame[];
@@ -48,7 +48,7 @@ export default class NativeThread {
   }
 
   getCode(): DataView {
-    return (this.stack[this.stackPointer].method.code as AttributeCode).code;
+    return (this.stack[this.stackPointer].method.code as CodeAttribute).code;
   }
 
   peekStackFrame() {

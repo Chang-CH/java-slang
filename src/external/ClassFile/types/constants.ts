@@ -1,4 +1,4 @@
-import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
+import { CONSTANT_TAG } from "../constants/constants";
 
 export interface ConstantClassInfo {
   tag: CONSTANT_TAG;
@@ -60,7 +60,7 @@ export interface ConstantUtf8Info {
   value: string;
 }
 
-export enum REFERENCEKIND {
+export enum REFERENCE_KIND {
   GetField,
   GetStatic,
   PutField,
@@ -74,7 +74,7 @@ export enum REFERENCEKIND {
 
 export interface ConstantMethodHandleInfo {
   tag: CONSTANT_TAG;
-  referenceKind: REFERENCEKIND;
+  referenceKind: REFERENCE_KIND;
   referenceIndex: number;
 }
 
@@ -89,7 +89,7 @@ export interface ConstantInvokeDynamicInfo {
   nameAndTypeIndex: number;
 }
 
-export type ConstantType =
+export type ConstantInfo =
   | ConstantClassInfo
   | ConstantFieldrefInfo
   | ConstantMethodrefInfo

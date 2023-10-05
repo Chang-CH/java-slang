@@ -4,7 +4,7 @@ import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 
@@ -24,7 +24,7 @@ beforeEach(() => {
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as AttributeCode).code;
+  code = (method.code as CodeAttribute).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],

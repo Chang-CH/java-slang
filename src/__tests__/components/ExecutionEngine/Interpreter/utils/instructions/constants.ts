@@ -19,7 +19,7 @@ import {
   ConstantStringInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -37,7 +37,7 @@ beforeEach(() => {
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as AttributeCode).code;
+  code = (method.code as CodeAttribute).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],
@@ -61,7 +61,7 @@ describe('runNop', () => {
 
 describe('runAconstNull', () => {
   test('pushes null to stack', () => {
-    code.setUint8(0, OPCODE.ACONSTNULL);
+    code.setUint8(0, OPCODE.ACONST_NULL);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -74,7 +74,7 @@ describe('runAconstNull', () => {
 
 describe('runIconstM1', () => {
   test('pushes -1 to stack', () => {
-    code.setUint8(0, OPCODE.ICONSTM1);
+    code.setUint8(0, OPCODE.ICONST_M1);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -87,7 +87,7 @@ describe('runIconstM1', () => {
 
 describe('runIconst0', () => {
   test('pushes 0 to stack', () => {
-    code.setUint8(0, OPCODE.ICONST0);
+    code.setUint8(0, OPCODE.ICONST_0);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -100,7 +100,7 @@ describe('runIconst0', () => {
 
 describe('runIconst1', () => {
   test('pushes 1 to stack', () => {
-    code.setUint8(0, OPCODE.ICONST1);
+    code.setUint8(0, OPCODE.ICONST_1);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -113,7 +113,7 @@ describe('runIconst1', () => {
 
 describe('runIconst2', () => {
   test('pushes 2 to stack', () => {
-    code.setUint8(0, OPCODE.ICONST2);
+    code.setUint8(0, OPCODE.ICONST_2);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -126,7 +126,7 @@ describe('runIconst2', () => {
 
 describe('runIconst3', () => {
   test('pushes 3 to stack', () => {
-    code.setUint8(0, OPCODE.ICONST3);
+    code.setUint8(0, OPCODE.ICONST_3);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -139,7 +139,7 @@ describe('runIconst3', () => {
 
 describe('runIconst4', () => {
   test('pushes 4 to stack', () => {
-    code.setUint8(0, OPCODE.ICONST4);
+    code.setUint8(0, OPCODE.ICONST_4);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -152,7 +152,7 @@ describe('runIconst4', () => {
 
 describe('runIconst5', () => {
   test('pushes 5 to stack', () => {
-    code.setUint8(0, OPCODE.ICONST5);
+    code.setUint8(0, OPCODE.ICONST_5);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -165,7 +165,7 @@ describe('runIconst5', () => {
 
 describe('runLconst0', () => {
   test('pushes long 0 to stack', () => {
-    code.setUint8(0, OPCODE.LCONST0);
+    code.setUint8(0, OPCODE.LCONST_0);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -178,7 +178,7 @@ describe('runLconst0', () => {
 
 describe('runLconst1', () => {
   test('pushes long 1 to stack', () => {
-    code.setUint8(0, OPCODE.LCONST1);
+    code.setUint8(0, OPCODE.LCONST_1);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -191,7 +191,7 @@ describe('runLconst1', () => {
 
 describe('runFconst0', () => {
   test('pushes float 0 to stack', () => {
-    code.setUint8(0, OPCODE.FCONST0);
+    code.setUint8(0, OPCODE.FCONST_0);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -204,7 +204,7 @@ describe('runFconst0', () => {
 
 describe('runFconst1', () => {
   test('pushes float 1 to stack', () => {
-    code.setUint8(0, OPCODE.FCONST1);
+    code.setUint8(0, OPCODE.FCONST_1);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -217,7 +217,7 @@ describe('runFconst1', () => {
 
 describe('runFconst2', () => {
   test('pushes float 2 to stack', () => {
-    code.setUint8(0, OPCODE.FCONST2);
+    code.setUint8(0, OPCODE.FCONST_2);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -230,7 +230,7 @@ describe('runFconst2', () => {
 
 describe('runDconst0', () => {
   test('pushes double 0 to stack', () => {
-    code.setUint8(0, OPCODE.DCONST0);
+    code.setUint8(0, OPCODE.DCONST_0);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -243,7 +243,7 @@ describe('runDconst0', () => {
 
 describe('runDconst1', () => {
   test('pushes double 1 to stack', () => {
-    code.setUint8(0, OPCODE.DCONST1);
+    code.setUint8(0, OPCODE.DCONST_1);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -484,7 +484,7 @@ describe('runLdcW', () => {
       value: -99,
     };
     (threadClass as any).constantPool[0] = intConstant;
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -501,7 +501,7 @@ describe('runLdcW', () => {
       value: Math.fround(-0.3),
     };
     (threadClass as any).constantPool[0] = intConstant;
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -526,7 +526,7 @@ describe('runLdcW', () => {
     } as ConstantString;
     (threadClass as any).constantPool[0] = strConstant;
 
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -550,7 +550,7 @@ describe('runLdcW', () => {
     (threadClass as any).constantPool[0] = strConstant;
     (threadClass as any).constantPool[1] = strContent;
 
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -571,7 +571,7 @@ describe('runLdcW', () => {
     } as ConstantClass;
     (threadClass as any).constantPool[0] = classRef;
 
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -594,7 +594,7 @@ describe('runLdcW', () => {
     (threadClass as any).constantPool[0] = classRef;
     (threadClass as any).constantPool[1] = className;
 
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -615,7 +615,7 @@ describe('runLdcW', () => {
       ref: methodRef,
     } as ConstantMethodref;
     (threadClass as any).constantPool[0] = constMethod;
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -657,7 +657,7 @@ describe('runLdcW', () => {
       length: 30,
     };
 
-    code.setUint8(0, OPCODE.LDCW);
+    code.setUint8(0, OPCODE.LDC);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -679,7 +679,7 @@ describe('runLdc2W', () => {
       value: 99n,
     };
     (threadClass as any).constantPool[0] = longConstant;
-    code.setUint8(0, OPCODE.LDC2W);
+    code.setUint8(0, OPCODE.LDC2_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -696,7 +696,7 @@ describe('runLdc2W', () => {
       value: -0.3,
     };
     (threadClass as any).constantPool[0] = intConstant;
-    code.setUint8(0, OPCODE.LDC2W);
+    code.setUint8(0, OPCODE.LDC2_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 

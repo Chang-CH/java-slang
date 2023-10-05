@@ -133,4 +133,4 @@ dist
 bin/*
 
 #java natives
-natives/*
+natives

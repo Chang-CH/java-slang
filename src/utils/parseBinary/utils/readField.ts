@@ -1,12 +1,13 @@
-import { ConstantType } from '#jvm/external/ClassFile/types/constants';
-import { FieldType, FIELDFLAGS } from '#jvm/external/ClassFile/types/fields';
+import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
+import { ConstantInfo } from '#jvm/external/ClassFile/types/constants';
+import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { readAttribute } from './readAttributes';
 
 export function readField(
-  constPool: Array<ConstantType>,
+  constPool: Array<ConstantInfo>,
   view: DataView,
   offset: number
-): { result: FieldType; offset: number } {
+): { result: FieldInfo; offset: number } {
   const accessFlags = view.getUint16(offset);
   offset += 2;
 
@@ -30,7 +31,7 @@ export function readField(
     );
 
     // TODO: only some attributes are recognised, should ignore non recognised
-    attributes.push(result);
+    attributes.push(result as unknown as AttributeInfo);
     offset = newOffset;
   }
 
@@ -40,39 +41,40 @@ export function readField(
       nameIndex,
       descriptorIndex,
       attributes,
+      attributesCount: attributesCount,
     },
     offset,
   };
 }
 
-export function checkPublic(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCPUBLIC) !== 0;
+export function checkPublic(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_PUBLIC) !== 0;
 }
 
-export function checkPrivate(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCPRIVATE) !== 0;
+export function checkPrivate(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_PRIVATE) !== 0;
 }
 
-export function checkProtected(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCPROTECTED) !== 0;
+export function checkProtected(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_PROTECTED) !== 0;
 }
 
-export function checkStatic(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCSTATIC) !== 0;
+export function checkStatic(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_STATIC) !== 0;
 }
 
-export function checkFinal(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCFINAL) !== 0;
+export function checkFinal(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_FINAL) !== 0;
 }
 
-export function checkVolatile(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCVOLATILE) !== 0;
+export function checkVolatile(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_VOLATILE) !== 0;
 }
 
-export function checkTransient(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCTRANSIENT) !== 0;
+export function checkTransient(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_TRANSIENT) !== 0;
 }
 
-export function checkSynthetic(field: FieldType): boolean {
-  return (field.accessFlags & FIELDFLAGS.ACCSYNTHETIC) !== 0;
+export function checkSynthetic(field: FieldInfo): boolean {
+  return (field.accessFlags & FIELD_FLAGS.ACC_SYNTHETIC) !== 0;
 }

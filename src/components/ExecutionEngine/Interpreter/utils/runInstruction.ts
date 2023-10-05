@@ -12,9 +12,9 @@ import * as references from './instructions/references';
 import * as reserved from './instructions/reserved';
 import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
-import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { JNI } from '#jvm/components/JNI';
+import { MethodRef } from '#types/ConstantRef';
 
 export default function runInstruction(
   thread: NativeThread,
@@ -62,49 +62,49 @@ export default function runInstruction(
     case OPCODE.NOP:
       result = constants.runNop(thread);
       break;
-    case OPCODE.ACONSTNULL:
+    case OPCODE.ACONST_NULL:
       result = constants.runAconstNull(thread);
       break;
-    case OPCODE.ICONSTM1:
+    case OPCODE.ICONST_M1:
       result = constants.runIconstM1(thread);
       break;
-    case OPCODE.ICONST0:
+    case OPCODE.ICONST_0:
       result = constants.runIconst0(thread);
       break;
-    case OPCODE.ICONST1:
+    case OPCODE.ICONST_1:
       result = constants.runIconst1(thread);
       break;
-    case OPCODE.ICONST2:
+    case OPCODE.ICONST_2:
       result = constants.runIconst2(thread);
       break;
-    case OPCODE.ICONST3:
+    case OPCODE.ICONST_3:
       result = constants.runIconst3(thread);
       break;
-    case OPCODE.ICONST4:
+    case OPCODE.ICONST_4:
       result = constants.runIconst4(thread);
       break;
-    case OPCODE.ICONST5:
+    case OPCODE.ICONST_5:
       result = constants.runIconst5(thread);
       break;
-    case OPCODE.LCONST0:
+    case OPCODE.LCONST_0:
       result = constants.runLconst0(thread);
       break;
-    case OPCODE.LCONST1:
+    case OPCODE.LCONST_1:
       result = constants.runLconst1(thread);
       break;
-    case OPCODE.FCONST0:
+    case OPCODE.FCONST_0:
       result = constants.runFconst0(thread);
       break;
-    case OPCODE.FCONST1:
+    case OPCODE.FCONST_1:
       result = constants.runFconst1(thread);
       break;
-    case OPCODE.FCONST2:
+    case OPCODE.FCONST_2:
       result = constants.runFconst2(thread);
       break;
-    case OPCODE.DCONST0:
+    case OPCODE.DCONST_0:
       result = constants.runDconst0(thread);
       break;
-    case OPCODE.DCONST1:
+    case OPCODE.DCONST_1:
       result = constants.runDconst1(thread);
       break;
     case OPCODE.BIPUSH:
@@ -116,10 +116,10 @@ export default function runInstruction(
     case OPCODE.LDC:
       result = constants.runLdc(thread);
       break;
-    case OPCODE.LDCW:
+    case OPCODE.LDC:
       result = constants.runLdcW(thread);
       break;
-    case OPCODE.LDC2W:
+    case OPCODE.LDC2_W:
       result = constants.runLdc2W(thread);
       break;
     case OPCODE.ILOAD:
@@ -137,64 +137,64 @@ export default function runInstruction(
     case OPCODE.ALOAD:
       result = loads.runAload(thread);
       break;
-    case OPCODE.ILOAD0:
+    case OPCODE.ILOAD_0:
       result = loads.runIload0(thread);
       break;
-    case OPCODE.ILOAD1:
+    case OPCODE.ILOAD_1:
       result = loads.runIload1(thread);
       break;
-    case OPCODE.ILOAD2:
+    case OPCODE.ILOAD_2:
       result = loads.runIload2(thread);
       break;
-    case OPCODE.ILOAD3:
+    case OPCODE.ILOAD_3:
       result = loads.runIload3(thread);
       break;
-    case OPCODE.LLOAD0:
+    case OPCODE.LLOAD_0:
       result = loads.runLload0(thread);
       break;
-    case OPCODE.LLOAD1:
+    case OPCODE.LLOAD_1:
       result = loads.runLload1(thread);
       break;
-    case OPCODE.LLOAD2:
+    case OPCODE.LLOAD_2:
       result = loads.runLload2(thread);
       break;
-    case OPCODE.LLOAD3:
+    case OPCODE.LLOAD_3:
       result = loads.runLload3(thread);
       break;
-    case OPCODE.FLOAD0:
+    case OPCODE.FLOAD_0:
       result = loads.runFload0(thread);
       break;
-    case OPCODE.FLOAD1:
+    case OPCODE.FLOAD_1:
       result = loads.runFload1(thread);
       break;
-    case OPCODE.FLOAD2:
+    case OPCODE.FLOAD_2:
       result = loads.runFload2(thread);
       break;
-    case OPCODE.FLOAD3:
+    case OPCODE.FLOAD_3:
       result = loads.runFload3(thread);
       break;
-    case OPCODE.DLOAD0:
+    case OPCODE.DLOAD_0:
       result = loads.runDload0(thread);
       break;
-    case OPCODE.DLOAD1:
+    case OPCODE.DLOAD_1:
       result = loads.runDload1(thread);
       break;
-    case OPCODE.DLOAD2:
+    case OPCODE.DLOAD_2:
       result = loads.runDload2(thread);
       break;
-    case OPCODE.DLOAD3:
+    case OPCODE.DLOAD_3:
       result = loads.runDload3(thread);
       break;
-    case OPCODE.ALOAD0:
+    case OPCODE.ALOAD_0:
       result = loads.runAload0(thread);
       break;
-    case OPCODE.ALOAD1:
+    case OPCODE.ALOAD_1:
       result = loads.runAload1(thread);
       break;
-    case OPCODE.ALOAD2:
+    case OPCODE.ALOAD_2:
       result = loads.runAload2(thread);
       break;
-    case OPCODE.ALOAD3:
+    case OPCODE.ALOAD_3:
       result = loads.runAload3(thread);
       break;
     case OPCODE.IALOAD:
@@ -236,64 +236,64 @@ export default function runInstruction(
     case OPCODE.ASTORE:
       result = stores.runAstore(thread);
       break;
-    case OPCODE.ISTORE0:
+    case OPCODE.ISTORE_0:
       result = stores.runIstore0(thread);
       break;
-    case OPCODE.ISTORE1:
+    case OPCODE.ISTORE_1:
       result = stores.runIstore1(thread);
       break;
-    case OPCODE.ISTORE2:
+    case OPCODE.ISTORE_2:
       result = stores.runIstore2(thread);
       break;
-    case OPCODE.ISTORE3:
+    case OPCODE.ISTORE_3:
       result = stores.runIstore3(thread);
       break;
-    case OPCODE.LSTORE0:
+    case OPCODE.LSTORE_0:
       result = stores.runLstore0(thread);
       break;
-    case OPCODE.LSTORE1:
+    case OPCODE.LSTORE_1:
       result = stores.runLstore1(thread);
       break;
-    case OPCODE.LSTORE2:
+    case OPCODE.LSTORE_2:
       result = stores.runLstore2(thread);
       break;
-    case OPCODE.LSTORE3:
+    case OPCODE.LSTORE_3:
       result = stores.runLstore3(thread);
       break;
-    case OPCODE.FSTORE0:
+    case OPCODE.FSTORE_0:
       result = stores.runFstore0(thread);
       break;
-    case OPCODE.FSTORE1:
+    case OPCODE.FSTORE_1:
       result = stores.runFstore1(thread);
       break;
-    case OPCODE.FSTORE2:
+    case OPCODE.FSTORE_2:
       result = stores.runFstore2(thread);
       break;
-    case OPCODE.FSTORE3:
+    case OPCODE.FSTORE_3:
       result = stores.runFstore3(thread);
       break;
-    case OPCODE.DSTORE0:
+    case OPCODE.DSTORE_0:
       result = stores.runDstore0(thread);
       break;
-    case OPCODE.DSTORE1:
+    case OPCODE.DSTORE_1:
       result = stores.runDstore1(thread);
       break;
-    case OPCODE.DSTORE2:
+    case OPCODE.DSTORE_2:
       result = stores.runDstore2(thread);
       break;
-    case OPCODE.DSTORE3:
+    case OPCODE.DSTORE_3:
       result = stores.runDstore3(thread);
       break;
-    case OPCODE.ASTORE0:
+    case OPCODE.ASTORE_0:
       result = stores.runAstore0(thread);
       break;
-    case OPCODE.ASTORE1:
+    case OPCODE.ASTORE_1:
       result = stores.runAstore1(thread);
       break;
-    case OPCODE.ASTORE2:
+    case OPCODE.ASTORE_2:
       result = stores.runAstore2(thread);
       break;
-    case OPCODE.ASTORE3:
+    case OPCODE.ASTORE_3:
       result = stores.runAstore3(thread);
       break;
     case OPCODE.IASTORE:
@@ -329,10 +329,10 @@ export default function runInstruction(
     case OPCODE.DUP:
       result = stack.runDup(thread);
       break;
-    case OPCODE.DUPX1:
+    case OPCODE.DUP_X1:
       result = stack.runDupX1(thread);
       break;
-    case OPCODE.DUPX2:
+    case OPCODE.DUP_X2:
       result = stack.runDupX2(thread);
       break;
     case OPCODE.DUP2:
@@ -341,10 +341,10 @@ export default function runInstruction(
     case OPCODE.DUP2:
       result = stack.runDup2(thread);
       break;
-    case OPCODE.DUP2X1:
+    case OPCODE.DUP2_X1:
       result = stack.runDup2X1(thread);
       break;
-    case OPCODE.DUP2X2:
+    case OPCODE.DUP2_X2:
       result = stack.runDup2X2(thread);
       break;
     case OPCODE.SWAP:
@@ -539,28 +539,28 @@ export default function runInstruction(
     case OPCODE.IFLE:
       result = comparisons.runIfle(thread);
       break;
-    case OPCODE.IFICMPEQ:
+    case OPCODE.IF_ICMPEQ:
       result = comparisons.runIfIcmpeq(thread);
       break;
-    case OPCODE.IFICMPNE:
+    case OPCODE.IF_ICMPNE:
       result = comparisons.runIfIcmpne(thread);
       break;
-    case OPCODE.IFICMPLT:
+    case OPCODE.IF_ICMPLT:
       result = comparisons.runIfIcmplt(thread);
       break;
-    case OPCODE.IFICMPGE:
+    case OPCODE.IF_ICMPGE:
       result = comparisons.runIfIcmpge(thread);
       break;
-    case OPCODE.IFICMPGT:
+    case OPCODE.IF_ICMPGT:
       result = comparisons.runIfIcmpgt(thread);
       break;
-    case OPCODE.IFICMPLE:
+    case OPCODE.IF_ICMPLE:
       result = comparisons.runIfIcmple(thread);
       break;
-    case OPCODE.IFACMPEQ:
+    case OPCODE.IF_ACMPEQ:
       result = comparisons.runIfAcmpeq(thread);
       break;
-    case OPCODE.IFACMPNE:
+    case OPCODE.IF_ACMPNE:
       result = comparisons.runIfAcmpne(thread);
       break;
     case OPCODE.GOTO:
@@ -662,10 +662,10 @@ export default function runInstruction(
     case OPCODE.IFNONNULL:
       result = extended.runIfnonnull(thread);
       break;
-    case OPCODE.GOTO:
+    case OPCODE.GOTO_W:
       result = extended.runGotoW(thread);
       break;
-    case OPCODE.JSR:
+    case OPCODE.JSR_W:
       result = extended.runJsrW(thread);
       break;
     case OPCODE.BREAKPOINT:

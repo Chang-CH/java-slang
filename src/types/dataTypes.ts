@@ -1,13 +1,12 @@
 import { ClassRef } from '#types/ConstantRef';
 
 export class JavaArray {
-  type: string | ArrayType;
+  type: string | ArrayPrimitiveType;
   length: number;
   array: any[];
 
-  constructor(length: number, type: string | ArrayType, arr?: any[]) {
+  constructor(length: number, type: string | ArrayPrimitiveType, arr?: any[]) {
     this.length = length;
-    this.array = [];
     this.type = type;
 
     if (arr) {
@@ -17,37 +16,35 @@ export class JavaArray {
 
     let def;
     switch (this.type) {
-      case ArrayType.boolean:
+      case ArrayPrimitiveType.boolean:
         def = false;
         break;
-      case ArrayType.char:
+      case ArrayPrimitiveType.char:
         def = '';
         break;
-      case ArrayType.float:
+      case ArrayPrimitiveType.float:
         def = 0.0;
         break;
-      case ArrayType.double:
+      case ArrayPrimitiveType.double:
         def = 0.0;
         break;
-      case ArrayType.byte:
+      case ArrayPrimitiveType.byte:
         def = 0;
         break;
-      case ArrayType.short:
+      case ArrayPrimitiveType.short:
         def = 0;
         break;
-      case ArrayType.int:
+      case ArrayPrimitiveType.int:
         def = 0;
         break;
-      case ArrayType.long:
+      case ArrayPrimitiveType.long:
         def = 0n;
         break;
       default:
         def = null;
     }
 
-    for (let i = 0; i < length; i++) {
-      this.array.push(def);
-    }
+    this.array = new Array(length).fill(def);
   }
 
   get(index: number) {
@@ -104,7 +101,7 @@ export interface FieldRef {
   fieldName: string;
 }
 
-export enum ArrayType {
+export enum ArrayPrimitiveType {
   boolean = 4,
   char = 5,
   float = 6,

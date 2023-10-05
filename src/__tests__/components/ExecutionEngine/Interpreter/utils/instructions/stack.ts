@@ -6,7 +6,7 @@ import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -25,7 +25,7 @@ beforeEach(() => {
   javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as AttributeCode).code;
+  code = (method.code as CodeAttribute).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],
@@ -90,7 +90,7 @@ describe('runDupX1', () => {
     const v2 = new JavaReference(threadClass, {});
     thread.pushStack(v2);
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.DUPX1);
+    code.setUint8(0, OPCODE.DUP_X1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(3);
@@ -110,7 +110,7 @@ describe('runDupX2', () => {
     thread.pushStack(v3);
     thread.pushStack(v2);
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.DUPX2);
+    code.setUint8(0, OPCODE.DUP_X2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
@@ -125,7 +125,7 @@ describe('runDupX2', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack64(5.0);
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.DUPX2);
+    code.setUint8(0, OPCODE.DUP_X2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
@@ -175,7 +175,7 @@ describe('runDup2X1', () => {
     thread.pushStack(v3);
     thread.pushStack(v2);
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.DUP2X1);
+    code.setUint8(0, OPCODE.DUP2_X1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(5);
@@ -191,7 +191,7 @@ describe('runDup2X1', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack64(5.0);
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.DUP2X1);
+    code.setUint8(0, OPCODE.DUP2_X1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(5);
@@ -213,7 +213,7 @@ describe('runDup2X2', () => {
     thread.pushStack(v3);
     thread.pushStack(v2);
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.DUP2X2);
+    code.setUint8(0, OPCODE.DUP2_X2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
@@ -233,7 +233,7 @@ describe('runDup2X2', () => {
     thread.pushStack(v2);
     thread.pushStack(v1);
     thread.pushStack64(5.0);
-    code.setUint8(0, OPCODE.DUP2X2);
+    code.setUint8(0, OPCODE.DUP2_X2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
@@ -251,7 +251,7 @@ describe('runDup2X2', () => {
     thread.pushStack64(5.0);
     thread.pushStack(v2);
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.DUP2X2);
+    code.setUint8(0, OPCODE.DUP2_X2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
@@ -266,7 +266,7 @@ describe('runDup2X2', () => {
   test('DUP2X2: duplicates category 2,2', () => {
     thread.pushStack64(5.0);
     thread.pushStack64(6.0);
-    code.setUint8(0, OPCODE.DUP2X2);
+    code.setUint8(0, OPCODE.DUP2_X2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);

@@ -1,6 +1,37 @@
 import { JavaType } from '#types/dataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
+export function parseFirstDescriptor(descriptor: string) {
+  let index = 0;
+  switch (descriptor[0]) {
+    case JavaType.byte:
+      return { type: JavaType.byte, index: index + 1 };
+    case JavaType.char:
+      return { type: JavaType.char, index: index + 1 };
+    case JavaType.double:
+      return { type: JavaType.double, index: index + 1 };
+    case JavaType.float:
+      return { type: JavaType.float, index: index + 1 };
+    case JavaType.int:
+      return { type: JavaType.int, index: index + 1 };
+    case JavaType.long:
+      return { type: JavaType.long, index: index + 1 };
+    case JavaType.short:
+      return { type: JavaType.short, index: index + 1 };
+    case JavaType.boolean:
+      return { type: JavaType.boolean, index: index + 1 };
+    case JavaType.array:
+      return { type: JavaType.array, index };
+    case JavaType.reference:
+      const end = descriptor.indexOf(';');
+      return { type: JavaType.reference, index: index + end + 1 };
+    case JavaType.void:
+      return { type: JavaType.void, index: index + 1 };
+    default:
+      throw new Error(`Unknown type ${descriptor[index]}`);
+  }
+}
+
 export function parseFieldDescriptor(descriptor: string, index: number) {
   switch (descriptor[index]) {
     case JavaType.byte:

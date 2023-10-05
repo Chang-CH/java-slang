@@ -8,7 +8,9 @@ public class Reference {
     }
 
     public static void main(String[] args) {
-        Reference[] numbers = { new Reference(1) };
-        numbers[0].a = 99;
+        char[] c = { 'a', 'b', 'c' };
+        String s = new String(c);
+        // Reference r = new Reference(0);
+        // r.a = 99;
     }
 }

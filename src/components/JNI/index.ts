@@ -1,5 +1,5 @@
 import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
-import { ArrayType, JavaArray, JavaType } from '#types/dataTypes';
+import { ArrayPrimitiveType, JavaArray, JavaType } from '#types/dataTypes';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -23,7 +23,7 @@ export class JNI {
 
       switch (retType) {
         case JavaType.array:
-          return () => new JavaArray(0, ArrayType.int);
+          return () => new JavaArray(0, ArrayPrimitiveType.int);
         case JavaType.byte:
           return () => 0;
         case JavaType.char:

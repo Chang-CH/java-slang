@@ -1,8 +1,12 @@
 import { ClassRef } from '#types/ConstantRef';
-import { JavaArray, ArrayType, JavaReference } from '#types/dataTypes';
+import { JavaArray, ArrayPrimitiveType, JavaReference } from '#types/dataTypes';
 
 export function newCharArr(str: string): JavaArray {
-  const arrayref = new JavaArray(str.length, ArrayType.char, str.split(''));
+  const arrayref = new JavaArray(
+    str.length,
+    ArrayPrimitiveType.char,
+    str.split('')
+  );
   return arrayref;
 }
 

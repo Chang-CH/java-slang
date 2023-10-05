@@ -32,35 +32,35 @@ export function readInstruction(
   switch (opcode) {
     case OPCODE.NOP:
       return readnop(view, offset);
-    case OPCODE.ACONSTNULL:
+    case OPCODE.ACONST_NULL:
       return readaconstNull(view, offset);
-    case OPCODE.ICONSTM1:
+    case OPCODE.ICONST_M1:
       return readiconstM1(view, offset);
-    case OPCODE.ICONST0:
+    case OPCODE.ICONST_0:
       return readiconst0(view, offset);
-    case OPCODE.ICONST1:
+    case OPCODE.ICONST_1:
       return readiconst1(view, offset);
-    case OPCODE.ICONST2:
+    case OPCODE.ICONST_2:
       return readiconst2(view, offset);
-    case OPCODE.ICONST3:
+    case OPCODE.ICONST_3:
       return readiconst3(view, offset);
-    case OPCODE.ICONST4:
+    case OPCODE.ICONST_4:
       return readiconst4(view, offset);
-    case OPCODE.ICONST5:
+    case OPCODE.ICONST_5:
       return readiconst5(view, offset);
-    case OPCODE.LCONST0:
+    case OPCODE.LCONST_0:
       return readlconst0(view, offset);
-    case OPCODE.LCONST1:
+    case OPCODE.LCONST_1:
       return readlconst1(view, offset);
-    case OPCODE.FCONST0:
+    case OPCODE.FCONST_0:
       return readfconst0(view, offset);
-    case OPCODE.FCONST1:
+    case OPCODE.FCONST_1:
       return readfconst1(view, offset);
-    case OPCODE.FCONST2:
+    case OPCODE.FCONST_2:
       return readfconst2(view, offset);
-    case OPCODE.DCONST0:
+    case OPCODE.DCONST_0:
       return readdconst0(view, offset);
-    case OPCODE.DCONST1:
+    case OPCODE.DCONST_1:
       return readdconst1(view, offset);
     case OPCODE.BIPUSH:
       return readbipush(view, offset);
@@ -68,9 +68,9 @@ export function readInstruction(
       return readsipush(view, offset);
     case OPCODE.LDC:
       return readldc(view, offset);
-    case OPCODE.LDCW:
+    case OPCODE.LDC:
       return readldcW(view, offset);
-    case OPCODE.LDC2W:
+    case OPCODE.LDC2_W:
       return readldc2W(view, offset);
     case OPCODE.ILOAD:
       return readiload(view, offset);
@@ -82,45 +82,45 @@ export function readInstruction(
       return readdload(view, offset);
     case OPCODE.ALOAD:
       return readaload(view, offset);
-    case OPCODE.ILOAD0:
+    case OPCODE.ILOAD_0:
       return readiload0(view, offset);
-    case OPCODE.ILOAD1:
+    case OPCODE.ILOAD_1:
       return readiload1(view, offset);
-    case OPCODE.ILOAD2:
+    case OPCODE.ILOAD_2:
       return readiload2(view, offset);
-    case OPCODE.ILOAD3:
+    case OPCODE.ILOAD_3:
       return readiload3(view, offset);
-    case OPCODE.LLOAD0:
+    case OPCODE.LLOAD_0:
       return readlload0(view, offset);
-    case OPCODE.LLOAD1:
+    case OPCODE.LLOAD_1:
       return readlload1(view, offset);
-    case OPCODE.LLOAD2:
+    case OPCODE.LLOAD_2:
       return readlload2(view, offset);
-    case OPCODE.LLOAD3:
+    case OPCODE.LLOAD_3:
       return readlload3(view, offset);
-    case OPCODE.FLOAD0:
+    case OPCODE.FLOAD_0:
       return readfload0(view, offset);
-    case OPCODE.FLOAD1:
+    case OPCODE.FLOAD_1:
       return readfload1(view, offset);
-    case OPCODE.FLOAD2:
+    case OPCODE.FLOAD_2:
       return readfload2(view, offset);
-    case OPCODE.FLOAD3:
+    case OPCODE.FLOAD_3:
       return readfload3(view, offset);
-    case OPCODE.DLOAD0:
+    case OPCODE.DLOAD_0:
       return readdload0(view, offset);
-    case OPCODE.DLOAD1:
+    case OPCODE.DLOAD_1:
       return readdload1(view, offset);
-    case OPCODE.DLOAD2:
+    case OPCODE.DLOAD_2:
       return readdload2(view, offset);
-    case OPCODE.DLOAD3:
+    case OPCODE.DLOAD_3:
       return readdload3(view, offset);
-    case OPCODE.ALOAD0:
+    case OPCODE.ALOAD_0:
       return readaload0(view, offset);
-    case OPCODE.ALOAD1:
+    case OPCODE.ALOAD_1:
       return readaload1(view, offset);
-    case OPCODE.ALOAD2:
+    case OPCODE.ALOAD_2:
       return readaload2(view, offset);
-    case OPCODE.ALOAD3:
+    case OPCODE.ALOAD_3:
       return readaload3(view, offset);
     case OPCODE.IALOAD:
       return readiaload(view, offset);
@@ -148,45 +148,45 @@ export function readInstruction(
       return readdstore(view, offset);
     case OPCODE.ASTORE:
       return readastore(view, offset);
-    case OPCODE.ISTORE0:
+    case OPCODE.ISTORE_0:
       return readistore0(view, offset);
-    case OPCODE.ISTORE1:
+    case OPCODE.ISTORE_1:
       return readistore1(view, offset);
-    case OPCODE.ISTORE2:
+    case OPCODE.ISTORE_2:
       return readistore2(view, offset);
-    case OPCODE.ISTORE3:
+    case OPCODE.ISTORE_3:
       return readistore3(view, offset);
-    case OPCODE.LSTORE0:
+    case OPCODE.LSTORE_0:
       return readlstore0(view, offset);
-    case OPCODE.LSTORE1:
+    case OPCODE.LSTORE_1:
       return readlstore1(view, offset);
-    case OPCODE.LSTORE2:
+    case OPCODE.LSTORE_2:
       return readlstore2(view, offset);
-    case OPCODE.LSTORE3:
+    case OPCODE.LSTORE_3:
       return readlstore3(view, offset);
-    case OPCODE.FSTORE0:
+    case OPCODE.FSTORE_0:
       return readfstore0(view, offset);
-    case OPCODE.FSTORE1:
+    case OPCODE.FSTORE_1:
       return readfstore1(view, offset);
-    case OPCODE.FSTORE2:
+    case OPCODE.FSTORE_2:
       return readfstore2(view, offset);
-    case OPCODE.FSTORE3:
+    case OPCODE.FSTORE_3:
       return readfstore3(view, offset);
-    case OPCODE.DSTORE0:
+    case OPCODE.DSTORE_0:
       return readdstore0(view, offset);
-    case OPCODE.DSTORE1:
+    case OPCODE.DSTORE_1:
       return readdstore1(view, offset);
-    case OPCODE.DSTORE2:
+    case OPCODE.DSTORE_2:
       return readdstore2(view, offset);
-    case OPCODE.DSTORE3:
+    case OPCODE.DSTORE_3:
       return readdstore3(view, offset);
-    case OPCODE.ASTORE0:
+    case OPCODE.ASTORE_0:
       return readastore0(view, offset);
-    case OPCODE.ASTORE1:
+    case OPCODE.ASTORE_1:
       return readastore1(view, offset);
-    case OPCODE.ASTORE2:
+    case OPCODE.ASTORE_2:
       return readastore2(view, offset);
-    case OPCODE.ASTORE3:
+    case OPCODE.ASTORE_3:
       return readastore3(view, offset);
     case OPCODE.IASTORE:
       return readiastore(view, offset);
@@ -210,15 +210,15 @@ export function readInstruction(
       return readpop2(view, offset);
     case OPCODE.DUP:
       return readdup(view, offset);
-    case OPCODE.DUPX1:
+    case OPCODE.DUP_X1:
       return readdupX1(view, offset);
-    case OPCODE.DUPX2:
+    case OPCODE.DUP_X2:
       return readdupX2(view, offset);
     case OPCODE.DUP2:
       return readdup2(view, offset);
-    case OPCODE.DUP2X1:
+    case OPCODE.DUP2_X1:
       return readdup2X1(view, offset);
-    case OPCODE.DUP2X2:
+    case OPCODE.DUP2_X2:
       return readdup2X2(view, offset);
     case OPCODE.SWAP:
       return readswap(view, offset);
@@ -348,21 +348,21 @@ export function readInstruction(
       return readifgt(view, offset);
     case OPCODE.IFLE:
       return readifle(view, offset);
-    case OPCODE.IFICMPEQ:
+    case OPCODE.IF_ICMPEQ:
       return readifIcmpeq(view, offset);
-    case OPCODE.IFICMPNE:
+    case OPCODE.IF_ICMPNE:
       return readifIcmpne(view, offset);
-    case OPCODE.IFICMPLT:
+    case OPCODE.IF_ICMPLT:
       return readifIcmplt(view, offset);
-    case OPCODE.IFICMPGE:
+    case OPCODE.IF_ICMPGE:
       return readifIcmpge(view, offset);
-    case OPCODE.IFICMPGT:
+    case OPCODE.IF_ICMPGT:
       return readifIcmpgt(view, offset);
-    case OPCODE.IFICMPLE:
+    case OPCODE.IF_ICMPLE:
       return readifIcmple(view, offset);
-    case OPCODE.IFACMPEQ:
+    case OPCODE.IF_ACMPEQ:
       return readifAcmpeq(view, offset);
-    case OPCODE.IFACMPNE:
+    case OPCODE.IF_ACMPNE:
       return readifAcmpne(view, offset);
     case OPCODE.GOTO:
       return readgoto(view, offset);
@@ -430,9 +430,9 @@ export function readInstruction(
       return readifnull(view, offset);
     case OPCODE.IFNONNULL:
       return readifnonnull(view, offset);
-    case OPCODE.GOTOW:
+    case OPCODE.GOTO_W:
       return readgotoW(view, offset);
-    case OPCODE.JSRW:
+    case OPCODE.JSR_W:
       return readjsrW(view, offset);
     case OPCODE.BREAKPOINT:
       return readbreakpoint(view, offset);
@@ -461,7 +461,7 @@ function readaconstNull(
 ): { result: InstructionType; offset: number } {
   return {
     result: {
-      opcode: OPCODE.ACONSTNULL,
+      opcode: OPCODE.ACONST_NULL,
       operands: [],
     },
     offset,
@@ -473,7 +473,7 @@ function readiconstM1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONSTM1, operands: [] },
+    result: { opcode: OPCODE.ICONST_M1, operands: [] },
     offset,
   };
 }
@@ -483,7 +483,7 @@ function readiconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST0, operands: [] },
+    result: { opcode: OPCODE.ICONST_0, operands: [] },
     offset,
   };
 }
@@ -493,7 +493,7 @@ function readiconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST1, operands: [] },
+    result: { opcode: OPCODE.ICONST_1, operands: [] },
     offset,
   };
 }
@@ -503,7 +503,7 @@ function readiconst2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST2, operands: [] },
+    result: { opcode: OPCODE.ICONST_2, operands: [] },
     offset,
   };
 }
@@ -513,7 +513,7 @@ function readiconst3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST3, operands: [] },
+    result: { opcode: OPCODE.ICONST_3, operands: [] },
     offset,
   };
 }
@@ -523,7 +523,7 @@ function readiconst4(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST4, operands: [] },
+    result: { opcode: OPCODE.ICONST_4, operands: [] },
     offset,
   };
 }
@@ -533,7 +533,7 @@ function readiconst5(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ICONST5, operands: [] },
+    result: { opcode: OPCODE.ICONST_5, operands: [] },
     offset,
   };
 }
@@ -543,7 +543,7 @@ function readlconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LCONST0, operands: [] },
+    result: { opcode: OPCODE.LCONST_0, operands: [] },
     offset,
   };
 }
@@ -553,7 +553,7 @@ function readlconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LCONST1, operands: [] },
+    result: { opcode: OPCODE.LCONST_1, operands: [] },
     offset,
   };
 }
@@ -563,7 +563,7 @@ function readfconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCONST0, operands: [] },
+    result: { opcode: OPCODE.FCONST_0, operands: [] },
     offset,
   };
 }
@@ -573,7 +573,7 @@ function readfconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCONST1, operands: [] },
+    result: { opcode: OPCODE.FCONST_1, operands: [] },
     offset,
   };
 }
@@ -583,7 +583,7 @@ function readfconst2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FCONST2, operands: [] },
+    result: { opcode: OPCODE.FCONST_2, operands: [] },
     offset,
   };
 }
@@ -593,7 +593,7 @@ function readdconst0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DCONST0, operands: [] },
+    result: { opcode: OPCODE.DCONST_0, operands: [] },
     offset,
   };
 }
@@ -603,7 +603,7 @@ function readdconst1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DCONST1, operands: [] },
+    result: { opcode: OPCODE.DCONST_1, operands: [] },
     offset,
   };
 }
@@ -659,7 +659,7 @@ function readldcW(
 
   return {
     result: {
-      opcode: OPCODE.LDCW,
+      opcode: OPCODE.LDC,
       operands: [indexbyte],
     },
     offset,
@@ -675,7 +675,7 @@ function readldc2W(
 
   return {
     result: {
-      opcode: OPCODE.LDC2W,
+      opcode: OPCODE.LDC2_W,
       operands: [indexbyte],
     },
     offset,
@@ -752,7 +752,7 @@ function readiload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD0, operands: [] },
+    result: { opcode: OPCODE.ILOAD_0, operands: [] },
     offset,
   };
 }
@@ -762,7 +762,7 @@ function readiload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD1, operands: [] },
+    result: { opcode: OPCODE.ILOAD_1, operands: [] },
     offset,
   };
 }
@@ -772,7 +772,7 @@ function readiload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD2, operands: [] },
+    result: { opcode: OPCODE.ILOAD_2, operands: [] },
     offset,
   };
 }
@@ -782,7 +782,7 @@ function readiload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ILOAD3, operands: [] },
+    result: { opcode: OPCODE.ILOAD_3, operands: [] },
     offset,
   };
 }
@@ -792,7 +792,7 @@ function readlload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD0, operands: [] },
+    result: { opcode: OPCODE.LLOAD_0, operands: [] },
     offset,
   };
 }
@@ -802,7 +802,7 @@ function readlload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD1, operands: [] },
+    result: { opcode: OPCODE.LLOAD_1, operands: [] },
     offset,
   };
 }
@@ -812,7 +812,7 @@ function readlload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD2, operands: [] },
+    result: { opcode: OPCODE.LLOAD_2, operands: [] },
     offset,
   };
 }
@@ -822,7 +822,7 @@ function readlload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LLOAD3, operands: [] },
+    result: { opcode: OPCODE.LLOAD_3, operands: [] },
     offset,
   };
 }
@@ -832,7 +832,7 @@ function readfload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD0, operands: [] },
+    result: { opcode: OPCODE.FLOAD_0, operands: [] },
     offset,
   };
 }
@@ -842,7 +842,7 @@ function readfload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD1, operands: [] },
+    result: { opcode: OPCODE.FLOAD_1, operands: [] },
     offset,
   };
 }
@@ -852,7 +852,7 @@ function readfload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD2, operands: [] },
+    result: { opcode: OPCODE.FLOAD_2, operands: [] },
     offset,
   };
 }
@@ -862,7 +862,7 @@ function readfload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FLOAD3, operands: [] },
+    result: { opcode: OPCODE.FLOAD_3, operands: [] },
     offset,
   };
 }
@@ -872,7 +872,7 @@ function readdload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD0, operands: [] },
+    result: { opcode: OPCODE.DLOAD_0, operands: [] },
     offset,
   };
 }
@@ -882,7 +882,7 @@ function readdload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD1, operands: [] },
+    result: { opcode: OPCODE.DLOAD_1, operands: [] },
     offset,
   };
 }
@@ -892,7 +892,7 @@ function readdload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD2, operands: [] },
+    result: { opcode: OPCODE.DLOAD_2, operands: [] },
     offset,
   };
 }
@@ -902,7 +902,7 @@ function readdload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DLOAD3, operands: [] },
+    result: { opcode: OPCODE.DLOAD_3, operands: [] },
     offset,
   };
 }
@@ -912,7 +912,7 @@ function readaload0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD0, operands: [] },
+    result: { opcode: OPCODE.ALOAD_0, operands: [] },
     offset,
   };
 }
@@ -922,7 +922,7 @@ function readaload1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD1, operands: [] },
+    result: { opcode: OPCODE.ALOAD_1, operands: [] },
     offset,
   };
 }
@@ -932,7 +932,7 @@ function readaload2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD2, operands: [] },
+    result: { opcode: OPCODE.ALOAD_2, operands: [] },
     offset,
   };
 }
@@ -942,7 +942,7 @@ function readaload3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ALOAD3, operands: [] },
+    result: { opcode: OPCODE.ALOAD_3, operands: [] },
     offset,
   };
 }
@@ -1112,7 +1112,7 @@ function readistore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE0, operands: [] },
+    result: { opcode: OPCODE.ISTORE_0, operands: [] },
     offset,
   };
 }
@@ -1122,7 +1122,7 @@ function readistore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE1, operands: [] },
+    result: { opcode: OPCODE.ISTORE_1, operands: [] },
     offset,
   };
 }
@@ -1132,7 +1132,7 @@ function readistore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE2, operands: [] },
+    result: { opcode: OPCODE.ISTORE_2, operands: [] },
     offset,
   };
 }
@@ -1142,7 +1142,7 @@ function readistore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ISTORE3, operands: [] },
+    result: { opcode: OPCODE.ISTORE_3, operands: [] },
     offset,
   };
 }
@@ -1152,7 +1152,7 @@ function readlstore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE0, operands: [] },
+    result: { opcode: OPCODE.LSTORE_0, operands: [] },
     offset,
   };
 }
@@ -1162,7 +1162,7 @@ function readlstore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE1, operands: [] },
+    result: { opcode: OPCODE.LSTORE_1, operands: [] },
     offset,
   };
 }
@@ -1172,7 +1172,7 @@ function readlstore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE2, operands: [] },
+    result: { opcode: OPCODE.LSTORE_2, operands: [] },
     offset,
   };
 }
@@ -1182,7 +1182,7 @@ function readlstore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.LSTORE3, operands: [] },
+    result: { opcode: OPCODE.LSTORE_3, operands: [] },
     offset,
   };
 }
@@ -1192,7 +1192,7 @@ function readfstore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE0, operands: [] },
+    result: { opcode: OPCODE.FSTORE_0, operands: [] },
     offset,
   };
 }
@@ -1202,7 +1202,7 @@ function readfstore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE1, operands: [] },
+    result: { opcode: OPCODE.FSTORE_1, operands: [] },
     offset,
   };
 }
@@ -1212,7 +1212,7 @@ function readfstore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE2, operands: [] },
+    result: { opcode: OPCODE.FSTORE_2, operands: [] },
     offset,
   };
 }
@@ -1222,7 +1222,7 @@ function readfstore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.FSTORE3, operands: [] },
+    result: { opcode: OPCODE.FSTORE_3, operands: [] },
     offset,
   };
 }
@@ -1232,7 +1232,7 @@ function readdstore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE0, operands: [] },
+    result: { opcode: OPCODE.DSTORE_0, operands: [] },
     offset,
   };
 }
@@ -1242,7 +1242,7 @@ function readdstore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE1, operands: [] },
+    result: { opcode: OPCODE.DSTORE_1, operands: [] },
     offset,
   };
 }
@@ -1252,7 +1252,7 @@ function readdstore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE2, operands: [] },
+    result: { opcode: OPCODE.DSTORE_2, operands: [] },
     offset,
   };
 }
@@ -1262,7 +1262,7 @@ function readdstore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DSTORE3, operands: [] },
+    result: { opcode: OPCODE.DSTORE_3, operands: [] },
     offset,
   };
 }
@@ -1272,7 +1272,7 @@ function readastore0(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE0, operands: [] },
+    result: { opcode: OPCODE.ASTORE_0, operands: [] },
     offset,
   };
 }
@@ -1282,7 +1282,7 @@ function readastore1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE1, operands: [] },
+    result: { opcode: OPCODE.ASTORE_1, operands: [] },
     offset,
   };
 }
@@ -1292,7 +1292,7 @@ function readastore2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE2, operands: [] },
+    result: { opcode: OPCODE.ASTORE_2, operands: [] },
     offset,
   };
 }
@@ -1302,7 +1302,7 @@ function readastore3(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.ASTORE3, operands: [] },
+    result: { opcode: OPCODE.ASTORE_3, operands: [] },
     offset,
   };
 }
@@ -1422,7 +1422,7 @@ function readdupX1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUPX1, operands: [] },
+    result: { opcode: OPCODE.DUP_X1, operands: [] },
     offset,
   };
 }
@@ -1432,7 +1432,7 @@ function readdupX2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUPX2, operands: [] },
+    result: { opcode: OPCODE.DUP_X2, operands: [] },
     offset,
   };
 }
@@ -1452,7 +1452,7 @@ function readdup2X1(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUP2X1, operands: [] },
+    result: { opcode: OPCODE.DUP2_X1, operands: [] },
     offset,
   };
 }
@@ -1462,7 +1462,7 @@ function readdup2X2(
   offset: number
 ): { result: InstructionType; offset: number } {
   return {
-    result: { opcode: OPCODE.DUP2X2, operands: [] },
+    result: { opcode: OPCODE.DUP2_X2, operands: [] },
     offset,
   };
 }
@@ -2155,7 +2155,7 @@ function readifIcmpeq(
 
   return {
     result: {
-      opcode: OPCODE.IFICMPEQ,
+      opcode: OPCODE.IF_ICMPEQ,
       operands: [branchbyte],
     },
     offset,
@@ -2171,7 +2171,7 @@ function readifIcmpne(
 
   return {
     result: {
-      opcode: OPCODE.IFICMPNE,
+      opcode: OPCODE.IF_ICMPNE,
       operands: [branchbyte],
     },
     offset,
@@ -2187,7 +2187,7 @@ function readifIcmplt(
 
   return {
     result: {
-      opcode: OPCODE.IFICMPLT,
+      opcode: OPCODE.IF_ICMPLT,
       operands: [branchbyte],
     },
     offset,
@@ -2203,7 +2203,7 @@ function readifIcmpge(
 
   return {
     result: {
-      opcode: OPCODE.IFICMPGE,
+      opcode: OPCODE.IF_ICMPGE,
       operands: [branchbyte],
     },
     offset,
@@ -2219,7 +2219,7 @@ function readifIcmpgt(
 
   return {
     result: {
-      opcode: OPCODE.IFICMPGT,
+      opcode: OPCODE.IF_ICMPGT,
       operands: [branchbyte],
     },
     offset,
@@ -2235,7 +2235,7 @@ function readifIcmple(
 
   return {
     result: {
-      opcode: OPCODE.IFICMPLE,
+      opcode: OPCODE.IF_ICMPLE,
       operands: [branchbyte],
     },
     offset,
@@ -2251,7 +2251,7 @@ function readifAcmpeq(
 
   return {
     result: {
-      opcode: OPCODE.IFACMPEQ,
+      opcode: OPCODE.IF_ACMPEQ,
       operands: [branchbyte],
     },
     offset,
@@ -2267,7 +2267,7 @@ function readifAcmpne(
 
   return {
     result: {
-      opcode: OPCODE.IFACMPNE,
+      opcode: OPCODE.IF_ACMPNE,
       operands: [branchbyte],
     },
     offset,
@@ -2843,7 +2843,7 @@ function readgotoW(
   offset += 4;
   return {
     result: {
-      opcode: OPCODE.GOTOW,
+      opcode: OPCODE.GOTO_W,
       operands: [branchbyte],
     },
     offset,
@@ -2859,7 +2859,7 @@ function readjsrW(
 
   return {
     result: {
-      opcode: OPCODE.JSRW,
+      opcode: OPCODE.JSR_W,
       operands: [branchbyte],
     },
     offset,

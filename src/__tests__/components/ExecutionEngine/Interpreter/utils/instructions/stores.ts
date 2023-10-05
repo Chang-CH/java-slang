@@ -4,9 +4,9 @@ import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/ru
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ConstantRef';
-import { ArrayType, JavaArray, JavaReference } from '#types/dataTypes';
+import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -25,7 +25,7 @@ beforeEach(() => {
   javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as AttributeCode).code;
+  code = (method.code as CodeAttribute).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],
@@ -50,9 +50,9 @@ describe('runIstore', () => {
 });
 
 describe('runIstore0', () => {
-  test('ISTORE0: stores int into locals', () => {
+  test('ISTORE_0: stores int into locals', () => {
     thread.pushStack(2);
-    code.setUint8(0, OPCODE.ISTORE0);
+    code.setUint8(0, OPCODE.ISTORE_0);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -63,9 +63,9 @@ describe('runIstore0', () => {
 });
 
 describe('runIstore1', () => {
-  test('ISTORE1: stores int into locals', () => {
+  test('ISTORE_1: stores int into locals', () => {
     thread.pushStack(2);
-    code.setUint8(0, OPCODE.ISTORE1);
+    code.setUint8(0, OPCODE.ISTORE_1);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -76,9 +76,9 @@ describe('runIstore1', () => {
 });
 
 describe('runIstore2', () => {
-  test('ISTORE2: stores int into locals', () => {
+  test('ISTORE_2: stores int into locals', () => {
     thread.pushStack(2);
-    code.setUint8(0, OPCODE.ISTORE2);
+    code.setUint8(0, OPCODE.ISTORE_2);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -89,9 +89,9 @@ describe('runIstore2', () => {
 });
 
 describe('runIstore3', () => {
-  test('ISTORE3: stores int into locals', () => {
+  test('ISTORE_3: stores int into locals', () => {
     thread.pushStack(3);
-    code.setUint8(0, OPCODE.ISTORE3);
+    code.setUint8(0, OPCODE.ISTORE_3);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -116,9 +116,9 @@ describe('runLstore', () => {
 });
 
 describe('runLstore0', () => {
-  test('LSTORE0: stores long into locals', () => {
+  test('LSTORE_0: stores long into locals', () => {
     thread.pushStack64(5n);
-    code.setUint8(0, OPCODE.LSTORE0);
+    code.setUint8(0, OPCODE.LSTORE_0);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -129,9 +129,9 @@ describe('runLstore0', () => {
 });
 
 describe('runLstore1', () => {
-  test('LSTORE1: stores long into locals', () => {
+  test('LSTORE_1: stores long into locals', () => {
     thread.pushStack64(5n);
-    code.setUint8(0, OPCODE.LSTORE1);
+    code.setUint8(0, OPCODE.LSTORE_1);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -142,9 +142,9 @@ describe('runLstore1', () => {
 });
 
 describe('runLstore2', () => {
-  test('LSTORE2: stores long into locals', () => {
+  test('LSTORE_2: stores long into locals', () => {
     thread.pushStack64(5n);
-    code.setUint8(0, OPCODE.LSTORE2);
+    code.setUint8(0, OPCODE.LSTORE_2);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -155,9 +155,9 @@ describe('runLstore2', () => {
 });
 
 describe('runLstore3', () => {
-  test('LSTORE3: stores long into locals', () => {
+  test('LSTORE_3: stores long into locals', () => {
     thread.pushStack64(5n);
-    code.setUint8(0, OPCODE.LSTORE3);
+    code.setUint8(0, OPCODE.LSTORE_3);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -194,9 +194,9 @@ describe('runFstore', () => {
 });
 
 describe('runFstore0', () => {
-  test('FSTORE0: stores float into locals', () => {
+  test('FSTORE_0: stores float into locals', () => {
     thread.pushStack(0.5);
-    code.setUint8(0, OPCODE.FSTORE0);
+    code.setUint8(0, OPCODE.FSTORE_0);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -205,9 +205,9 @@ describe('runFstore0', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('FSTORE0: undergoes value set conversion', () => {
+  test('FSTORE_0: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    code.setUint8(0, OPCODE.FSTORE0);
+    code.setUint8(0, OPCODE.FSTORE_0);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -218,9 +218,9 @@ describe('runFstore0', () => {
 });
 
 describe('runFstore1', () => {
-  test('FSTORE1: stores float into locals', () => {
+  test('FSTORE_1: stores float into locals', () => {
     thread.pushStack(0.5);
-    code.setUint8(0, OPCODE.FSTORE1);
+    code.setUint8(0, OPCODE.FSTORE_1);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -229,9 +229,9 @@ describe('runFstore1', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('FSTORE1: undergoes value set conversion', () => {
+  test('FSTORE_1: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    code.setUint8(0, OPCODE.FSTORE1);
+    code.setUint8(0, OPCODE.FSTORE_1);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -242,9 +242,9 @@ describe('runFstore1', () => {
 });
 
 describe('runFstore2', () => {
-  test('FSTORE2: stores float into locals', () => {
+  test('FSTORE_2: stores float into locals', () => {
     thread.pushStack(0.5);
-    code.setUint8(0, OPCODE.FSTORE2);
+    code.setUint8(0, OPCODE.FSTORE_2);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -253,9 +253,9 @@ describe('runFstore2', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('FSTORE2: undergoes value set conversion', () => {
+  test('FSTORE_2: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    code.setUint8(0, OPCODE.FSTORE2);
+    code.setUint8(0, OPCODE.FSTORE_2);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -266,9 +266,9 @@ describe('runFstore2', () => {
 });
 
 describe('runFstore3', () => {
-  test('FSTORE3: stores float into locals', () => {
+  test('FSTORE_3: stores float into locals', () => {
     thread.pushStack(0.5);
-    code.setUint8(0, OPCODE.FSTORE3);
+    code.setUint8(0, OPCODE.FSTORE_3);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -277,9 +277,9 @@ describe('runFstore3', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('FSTORE3: undergoes value set conversion', () => {
+  test('FSTORE_3: undergoes value set conversion', () => {
     thread.pushStack(0.3);
-    code.setUint8(0, OPCODE.FSTORE3);
+    code.setUint8(0, OPCODE.FSTORE_3);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -316,9 +316,9 @@ describe('runDstore', () => {
 });
 
 describe('runDstore0', () => {
-  test('DSTORE0: stores double into locals', () => {
+  test('DSTORE_0: stores double into locals', () => {
     thread.pushStack64(0.5);
-    code.setUint8(0, OPCODE.DSTORE0);
+    code.setUint8(0, OPCODE.DSTORE_0);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -327,9 +327,9 @@ describe('runDstore0', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('DSTORE0: undergoes value set conversion', () => {
+  test('DSTORE_0: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    code.setUint8(0, OPCODE.DSTORE0);
+    code.setUint8(0, OPCODE.DSTORE_0);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -340,9 +340,9 @@ describe('runDstore0', () => {
 });
 
 describe('runDstore1', () => {
-  test('DSTORE1: stores double into locals', () => {
+  test('DSTORE_1: stores double into locals', () => {
     thread.pushStack64(0.5);
-    code.setUint8(0, OPCODE.DSTORE1);
+    code.setUint8(0, OPCODE.DSTORE_1);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -351,9 +351,9 @@ describe('runDstore1', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('DSTORE1: undergoes value set conversion', () => {
+  test('DSTORE_1: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    code.setUint8(0, OPCODE.DSTORE1);
+    code.setUint8(0, OPCODE.DSTORE_1);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -364,9 +364,9 @@ describe('runDstore1', () => {
 });
 
 describe('runDstore2', () => {
-  test('DSTORE2: stores double into locals', () => {
+  test('DSTORE_2: stores double into locals', () => {
     thread.pushStack64(0.5);
-    code.setUint8(0, OPCODE.DSTORE2);
+    code.setUint8(0, OPCODE.DSTORE_2);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -375,9 +375,9 @@ describe('runDstore2', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('DSTORE2: undergoes value set conversion', () => {
+  test('DSTORE_2: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    code.setUint8(0, OPCODE.DSTORE2);
+    code.setUint8(0, OPCODE.DSTORE_2);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -388,9 +388,9 @@ describe('runDstore2', () => {
 });
 
 describe('runDstore3', () => {
-  test('DSTORE3: stores double into locals', () => {
+  test('DSTORE_3: stores double into locals', () => {
     thread.pushStack64(0.5);
-    code.setUint8(0, OPCODE.DSTORE3);
+    code.setUint8(0, OPCODE.DSTORE_3);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -399,9 +399,9 @@ describe('runDstore3', () => {
     expect(thread.getPC()).toBe(1);
   });
 
-  test('DSTORE3: undergoes value set conversion', () => {
+  test('DSTORE_3: undergoes value set conversion', () => {
     thread.pushStack64(0.29999995231628423);
-    code.setUint8(0, OPCODE.DSTORE3);
+    code.setUint8(0, OPCODE.DSTORE_3);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -427,10 +427,10 @@ describe('runAstore', () => {
 });
 
 describe('runAstore0', () => {
-  test('ASTORE0: stores int into locals', () => {
+  test('ASTORE_0: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.ASTORE0);
+    code.setUint8(0, OPCODE.ASTORE_0);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -441,10 +441,10 @@ describe('runAstore0', () => {
 });
 
 describe('runAstore1', () => {
-  test('ASTORE1: stores int into locals', () => {
+  test('ASTORE_1: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.ASTORE1);
+    code.setUint8(0, OPCODE.ASTORE_1);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -455,10 +455,10 @@ describe('runAstore1', () => {
 });
 
 describe('runAstore2', () => {
-  test('ASTORE2: stores int into locals', () => {
+  test('ASTORE_2: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.ASTORE2);
+    code.setUint8(0, OPCODE.ASTORE_2);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -469,10 +469,10 @@ describe('runAstore2', () => {
 });
 
 describe('runAstore3', () => {
-  test('ASTORE3: stores int into locals', () => {
+  test('ASTORE_3: stores int into locals', () => {
     const v1 = new JavaReference(threadClass, {});
     thread.pushStack(v1);
-    code.setUint8(0, OPCODE.ASTORE3);
+    code.setUint8(0, OPCODE.ASTORE_3);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -484,7 +484,7 @@ describe('runAstore3', () => {
 
 describe('runIastore', () => {
   test('IASTORE: stores int into array', () => {
-    const arrayref = new JavaArray(1, ArrayType.int);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.int);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -510,7 +510,7 @@ describe('runIastore', () => {
   });
 
   test('IASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.int);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.int);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -523,7 +523,7 @@ describe('runIastore', () => {
   });
 
   test('IASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.int);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.int);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -538,7 +538,7 @@ describe('runIastore', () => {
 
 describe('runLastore', () => {
   test('LASTORE: stores long into array', () => {
-    const arrayref = new JavaArray(1, ArrayType.long);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.long);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(5n);
@@ -564,7 +564,7 @@ describe('runLastore', () => {
   });
 
   test('LASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.long);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.long);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(5n);
@@ -577,7 +577,7 @@ describe('runLastore', () => {
   });
 
   test('LASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.long);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.long);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(5n);
@@ -592,7 +592,7 @@ describe('runLastore', () => {
 
 describe('runFastore', () => {
   test('FASTORE: stores float into array', () => {
-    const arrayref = new JavaArray(1, ArrayType.float);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.float);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0.5);
@@ -618,7 +618,7 @@ describe('runFastore', () => {
   });
 
   test('FASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.float);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.float);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(0.5);
@@ -631,7 +631,7 @@ describe('runFastore', () => {
   });
 
   test('FASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.float);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.float);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(0.5);
@@ -646,7 +646,7 @@ describe('runFastore', () => {
 
 describe('runDastore', () => {
   test('DASTORE: stores double into array', () => {
-    const arrayref = new JavaArray(1, ArrayType.double);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.double);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(0.5);
@@ -672,7 +672,7 @@ describe('runDastore', () => {
   });
 
   test('DASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.double);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.double);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(0.5);
@@ -685,7 +685,7 @@ describe('runDastore', () => {
   });
 
   test('DASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.double);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.double);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(0.5);
@@ -757,7 +757,7 @@ describe('runAastore', () => {
 
 describe('runBastore', () => {
   test('BASTORE: stores byte into array', () => {
-    const arrayref = new JavaArray(1, ArrayType.byte);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -771,7 +771,7 @@ describe('runBastore', () => {
   });
 
   test('BASTORE: truncates int to byte', () => {
-    const arrayref = new JavaArray(1, ArrayType.byte);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(128);
@@ -797,7 +797,7 @@ describe('runBastore', () => {
   });
 
   test('BASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.byte);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -810,7 +810,7 @@ describe('runBastore', () => {
   });
 
   test('BASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.byte);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -825,7 +825,7 @@ describe('runBastore', () => {
 
 describe('runCastore', () => {
   test('CASTORE: stores char into array', () => {
-    const arrayref = new JavaArray(1, ArrayType.char);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -839,7 +839,7 @@ describe('runCastore', () => {
   });
 
   test('CASTORE: truncates int to char', () => {
-    const arrayref = new JavaArray(1, ArrayType.char);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0x11111);
@@ -865,7 +865,7 @@ describe('runCastore', () => {
   });
 
   test('CASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.char);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -878,7 +878,7 @@ describe('runCastore', () => {
   });
 
   test('CASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.char);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -893,7 +893,7 @@ describe('runCastore', () => {
 
 describe('runSastore', () => {
   test('SASTORE: stores short into array', () => {
-    const arrayref = new JavaArray(1, ArrayType.short);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.short);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -907,7 +907,7 @@ describe('runSastore', () => {
   });
 
   test('SASTORE: truncates int to short', () => {
-    const arrayref = new JavaArray(1, ArrayType.char);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(32768);
@@ -933,7 +933,7 @@ describe('runSastore', () => {
   });
 
   test('SASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.short);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.short);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -946,7 +946,7 @@ describe('runSastore', () => {
   });
 
   test('SASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayType.short);
+    const arrayref = new JavaArray(1, ArrayPrimitiveType.short);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);

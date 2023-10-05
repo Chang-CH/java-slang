@@ -4,9 +4,9 @@ import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/ru
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ConstantRef';
-import { ArrayType, JavaArray, JavaReference } from '#types/dataTypes';
+import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
 import JsSystem from '#utils/JsSystem';
-import { AttributeCode } from '#jvm/external/ClassFile/types/attributes';
+import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -24,7 +24,7 @@ beforeEach(() => {
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as AttributeCode).code;
+  code = (method.code as CodeAttribute).code;
   thread.pushStackFrame({
     operandStack: [],
     locals: [],
@@ -110,13 +110,13 @@ describe('runALOAD', () => {
   });
 });
 
-describe('runILOAD0', () => {
-  test('ILOAD0: loads int from local variable array', () => {
+describe('runILOAD_0', () => {
+  test('ILOAD_0: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
-    code.setUint8(0, OPCODE.ILOAD0);
+    code.setUint8(0, OPCODE.ILOAD_0);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -127,13 +127,13 @@ describe('runILOAD0', () => {
   });
 });
 
-describe('runILOAD1', () => {
-  test('ILOAD1: loads int from local variable array', () => {
+describe('runILOAD_1', () => {
+  test('ILOAD_1: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
-    code.setUint8(0, OPCODE.ILOAD1);
+    code.setUint8(0, OPCODE.ILOAD_1);
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
@@ -144,13 +144,13 @@ describe('runILOAD1', () => {
   });
 });
 
-describe('runILOAD2', () => {
-  test('ILOAD2: loads int from local variable array', () => {
+describe('runILOAD_2', () => {
+  test('ILOAD_2: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
-    code.setUint8(0, OPCODE.ILOAD2);
+    code.setUint8(0, OPCODE.ILOAD_2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -160,13 +160,13 @@ describe('runILOAD2', () => {
   });
 });
 
-describe('runILOAD3', () => {
-  test('ILOAD3: loads int from local variable array', () => {
+describe('runILOAD_3', () => {
+  test('ILOAD_3: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
-    code.setUint8(0, OPCODE.ILOAD3);
+    code.setUint8(0, OPCODE.ILOAD_3);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -176,13 +176,13 @@ describe('runILOAD3', () => {
   });
 });
 
-describe('runLLOAD0', () => {
-  test('LLOAD0: loads long from local variable array', () => {
+describe('runLLOAD_0', () => {
+  test('LLOAD_0: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
-    code.setUint8(0, OPCODE.LLOAD0);
+    code.setUint8(0, OPCODE.LLOAD_0);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -192,13 +192,13 @@ describe('runLLOAD0', () => {
   });
 });
 
-describe('runLLOAD1', () => {
-  test('LLOAD1: loads long from local variable array', () => {
+describe('runLLOAD_1', () => {
+  test('LLOAD_1: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
-    code.setUint8(0, OPCODE.LLOAD1);
+    code.setUint8(0, OPCODE.LLOAD_1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -208,13 +208,13 @@ describe('runLLOAD1', () => {
   });
 });
 
-describe('runLLOAD2', () => {
-  test('LLOAD2: loads long from local variable array', () => {
+describe('runLLOAD_2', () => {
+  test('LLOAD_2: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
-    code.setUint8(0, OPCODE.LLOAD2);
+    code.setUint8(0, OPCODE.LLOAD_2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -224,13 +224,13 @@ describe('runLLOAD2', () => {
   });
 });
 
-describe('runLLOAD3', () => {
-  test('LLOAD3: loads long from local variable array', () => {
+describe('runLLOAD_3', () => {
+  test('LLOAD_3: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
-    code.setUint8(0, OPCODE.LLOAD3);
+    code.setUint8(0, OPCODE.LLOAD_3);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -240,13 +240,13 @@ describe('runLLOAD3', () => {
   });
 });
 
-describe('runFLOAD0', () => {
-  test('FLOAD0: loads float from local variable array', () => {
+describe('runFLOAD_0', () => {
+  test('FLOAD_0: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.FLOAD0);
+    code.setUint8(0, OPCODE.FLOAD_0);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -256,13 +256,13 @@ describe('runFLOAD0', () => {
   });
 });
 
-describe('runFLOAD1', () => {
-  test('FLOAD1: loads float from local variable array', () => {
+describe('runFLOAD_1', () => {
+  test('FLOAD_1: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.FLOAD1);
+    code.setUint8(0, OPCODE.FLOAD_1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -272,13 +272,13 @@ describe('runFLOAD1', () => {
   });
 });
 
-describe('runFLOAD2', () => {
-  test('FLOAD2: loads float from local variable array', () => {
+describe('runFLOAD_2', () => {
+  test('FLOAD_2: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.FLOAD2);
+    code.setUint8(0, OPCODE.FLOAD_2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -288,13 +288,13 @@ describe('runFLOAD2', () => {
   });
 });
 
-describe('runFLOAD3', () => {
-  test('FLOAD3: loads float from local variable array', () => {
+describe('runFLOAD_3', () => {
+  test('FLOAD_3: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.FLOAD3);
+    code.setUint8(0, OPCODE.FLOAD_3);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -304,13 +304,13 @@ describe('runFLOAD3', () => {
   });
 });
 
-describe('runDLOAD0', () => {
-  test('DLOAD0: loads double from local variable array', () => {
+describe('runDLOAD_0', () => {
+  test('DLOAD_0: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.DLOAD0);
+    code.setUint8(0, OPCODE.DLOAD_0);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -320,13 +320,13 @@ describe('runDLOAD0', () => {
   });
 });
 
-describe('runDLOAD1', () => {
-  test('DLOAD1: loads double from local variable array', () => {
+describe('runDLOAD_1', () => {
+  test('DLOAD_1: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.DLOAD1);
+    code.setUint8(0, OPCODE.DLOAD_1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -336,13 +336,13 @@ describe('runDLOAD1', () => {
   });
 });
 
-describe('runDLOAD2', () => {
-  test('DLOAD2: loads double from local variable array', () => {
+describe('runDLOAD_2', () => {
+  test('DLOAD_2: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.DLOAD2);
+    code.setUint8(0, OPCODE.DLOAD_2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -352,13 +352,13 @@ describe('runDLOAD2', () => {
   });
 });
 
-describe('runDLOAD3', () => {
-  test('DLOAD3: loads double from local variable array', () => {
+describe('runDLOAD_3', () => {
+  test('DLOAD_3: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
-    code.setUint8(0, OPCODE.DLOAD3);
+    code.setUint8(0, OPCODE.DLOAD_3);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -368,8 +368,8 @@ describe('runDLOAD3', () => {
   });
 });
 
-describe('runALOAD0', () => {
-  test('ALOAD0: loads reference from local variable array', () => {
+describe('runALOAD_0', () => {
+  test('ALOAD_0: loads reference from local variable array', () => {
     const l0 = new JavaReference(threadClass, {});
     const l1 = new JavaReference(threadClass, {});
     const l2 = new JavaReference(threadClass, {});
@@ -378,7 +378,7 @@ describe('runALOAD0', () => {
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
-    code.setUint8(0, OPCODE.ALOAD0);
+    code.setUint8(0, OPCODE.ALOAD_0);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -388,8 +388,8 @@ describe('runALOAD0', () => {
   });
 });
 
-describe('runALOAD1', () => {
-  test('ALOAD1: loads reference from local variable array', () => {
+describe('runALOAD_1', () => {
+  test('ALOAD_1: loads reference from local variable array', () => {
     const l0 = new JavaReference(threadClass, {});
     const l1 = new JavaReference(threadClass, {});
     const l2 = new JavaReference(threadClass, {});
@@ -398,7 +398,7 @@ describe('runALOAD1', () => {
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
-    code.setUint8(0, OPCODE.ALOAD1);
+    code.setUint8(0, OPCODE.ALOAD_1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -408,8 +408,8 @@ describe('runALOAD1', () => {
   });
 });
 
-describe('runALOAD2', () => {
-  test('ALOAD2: loads reference from local variable array', () => {
+describe('runALOAD_2', () => {
+  test('ALOAD_2: loads reference from local variable array', () => {
     const l0 = new JavaReference(threadClass, {});
     const l1 = new JavaReference(threadClass, {});
     const l2 = new JavaReference(threadClass, {});
@@ -418,7 +418,7 @@ describe('runALOAD2', () => {
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
-    code.setUint8(0, OPCODE.ALOAD2);
+    code.setUint8(0, OPCODE.ALOAD_2);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -428,8 +428,8 @@ describe('runALOAD2', () => {
   });
 });
 
-describe('runALOAD3', () => {
-  test('ALOAD3: loads reference from local variable array', () => {
+describe('runALOAD_3', () => {
+  test('ALOAD_3: loads reference from local variable array', () => {
     const l0 = new JavaReference(threadClass, {});
     const l1 = new JavaReference(threadClass, {});
     const l2 = new JavaReference(threadClass, {});
@@ -438,7 +438,7 @@ describe('runALOAD3', () => {
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
-    code.setUint8(0, OPCODE.ALOAD3);
+    code.setUint8(0, OPCODE.ALOAD_3);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -450,7 +450,7 @@ describe('runALOAD3', () => {
 
 describe('runIALOAD', () => {
   test('IALOAD: loads int from array', () => {
-    const arrayRef = new JavaArray(1, ArrayType.int, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.int, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.IALOAD);
@@ -479,7 +479,7 @@ describe('runIALOAD', () => {
   });
 
   test('IALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.int, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.int, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IALOAD);
@@ -501,7 +501,7 @@ describe('runIALOAD', () => {
   });
 
   test('IALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.int, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.int, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IALOAD);
@@ -525,7 +525,7 @@ describe('runIALOAD', () => {
 
 describe('runLALOAD', () => {
   test('LALOAD: loads long from array', () => {
-    const arrayRef = new JavaArray(1, ArrayType.long, [99n]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.long, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.LALOAD);
@@ -554,7 +554,7 @@ describe('runLALOAD', () => {
   });
 
   test('LALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.long, [99n]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.long, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LALOAD);
@@ -575,7 +575,7 @@ describe('runLALOAD', () => {
   });
 
   test('LALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.long, [99n]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.long, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.LALOAD);
@@ -598,7 +598,7 @@ describe('runLALOAD', () => {
 
 describe('runFALOAD', () => {
   test('FALOAD: loads float from array', () => {
-    const arrayRef = new JavaArray(1, ArrayType.float, [99.0]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FALOAD);
@@ -627,7 +627,7 @@ describe('runFALOAD', () => {
   });
 
   test('FALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.float, [99.0]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.FALOAD);
@@ -648,7 +648,7 @@ describe('runFALOAD', () => {
   });
 
   test('FALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.float, [99.0]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.FALOAD);
@@ -671,7 +671,7 @@ describe('runFALOAD', () => {
 
 describe('runDALOAD', () => {
   test('DALOAD: loads float from array', () => {
-    const arrayRef = new JavaArray(1, ArrayType.float, [99.0]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.DALOAD);
@@ -700,7 +700,7 @@ describe('runDALOAD', () => {
   });
 
   test('DALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.float, [99.0]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.DALOAD);
@@ -721,7 +721,7 @@ describe('runDALOAD', () => {
   });
 
   test('DALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.float, [99.0]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.DALOAD);
@@ -833,7 +833,7 @@ describe('runAALOAD', () => {
 
 describe('runBALOAD', () => {
   test('BALOAD: loads boolean from array', () => {
-    const arrayRef = new JavaArray(1, ArrayType.boolean, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.boolean, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.BALOAD);
@@ -862,7 +862,7 @@ describe('runBALOAD', () => {
   });
 
   test('BALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.boolean, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.boolean, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.BALOAD);
@@ -884,7 +884,7 @@ describe('runBALOAD', () => {
   });
 
   test('BALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.boolean, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.boolean, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.BALOAD);
@@ -908,7 +908,7 @@ describe('runBALOAD', () => {
 
 describe('runCALOAD', () => {
   test('CALOAD: loads char from array', () => {
-    const arrayRef = new JavaArray(1, ArrayType.char, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.char, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.CALOAD);
@@ -937,7 +937,7 @@ describe('runCALOAD', () => {
   });
 
   test('CALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.char, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.char, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.CALOAD);
@@ -959,7 +959,7 @@ describe('runCALOAD', () => {
   });
 
   test('CALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.char, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.char, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.CALOAD);
@@ -983,7 +983,7 @@ describe('runCALOAD', () => {
 
 describe('runSALOAD', () => {
   test('SALOAD: loads short from array', () => {
-    const arrayRef = new JavaArray(1, ArrayType.short, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.short, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.SALOAD);
@@ -1012,7 +1012,7 @@ describe('runSALOAD', () => {
   });
 
   test('SALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.short, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.short, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.SALOAD);
@@ -1034,7 +1034,7 @@ describe('runSALOAD', () => {
   });
 
   test('SALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayType.short, [99]);
+    const arrayRef = new JavaArray(1, ArrayPrimitiveType.short, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.SALOAD);
