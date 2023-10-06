@@ -16,7 +16,7 @@ export default class ClassLoader extends AbstractClassLoader {
    * Attempts to load a class file
    * @param className name of class to load
    */
-  load(className: string): ClassRef | undefined {
+  load(className: string): ClassRef {
     console.debug(`ClassLoader: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
 
@@ -32,8 +32,7 @@ export default class ClassLoader extends AbstractClassLoader {
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
-      // Throw ClassNotFoundException isntead.
-      return;
+      throw new Error('ClassNotFound');
     }
 
     this.prepareClass(classFile);

@@ -7,7 +7,7 @@ export interface Folder {
   [name: string]: Folder | DataView;
 }
 
-export default class JsSystem extends AbstractSystem {
+export default class NodeSystem extends AbstractSystem {
   private files: Folder;
 
   constructor(initialFiles: Folder) {

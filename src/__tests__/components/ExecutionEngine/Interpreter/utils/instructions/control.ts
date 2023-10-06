@@ -12,7 +12,7 @@ import {
   ConstantString,
 } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
-import JsSystem from '#utils/JsSystem';
+import NodeSystem from '#utils/NodeSystem';
 import { initString } from '#jvm/components/JNI/utils';
 import {
   ConstantClassInfo,
@@ -28,7 +28,7 @@ let jni: JNI;
 
 beforeEach(() => {
   jni = new JNI();
-  const nativeSystem = new JsSystem({});
+  const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
   bscl.load('java/lang/Thread');

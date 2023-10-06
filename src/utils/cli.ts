@@ -3,7 +3,7 @@
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 
 import JVM from '#jvm/index';
-import JsSystem, { Folder } from '#utils/JsSystem';
+import NodeSystem, { Folder } from '#utils/NodeSystem';
 import { classFileToText } from '#utils/Prettify/classfile';
 import parseBin, { a2ab } from '#utils/parseBinary';
 import * as fs from 'node:fs';
@@ -65,7 +65,7 @@ export default function main() {
 
     if (options['-p']) {
       // Stubs, not used.
-      const nativeSystem = new JsSystem({
+      const nativeSystem = new NodeSystem({
         Sample: view,
       });
 
@@ -76,7 +76,7 @@ export default function main() {
     folders[fileName] = view;
   }
 
-  const nativeSystem = new JsSystem(folders);
+  const nativeSystem = new NodeSystem(folders);
   const jvm = new JVM(nativeSystem);
   // @ts-ignore
   jvm.runClass(options['-f'][0]);

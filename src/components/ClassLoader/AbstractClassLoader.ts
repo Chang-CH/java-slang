@@ -54,40 +54,35 @@ export default abstract class AbstractClassLoader {
     return cls.getClassname();
   }
 
-  protected getClassRef(className: string): ClassRef | undefined {
+  protected getClassRef(className: string): ClassRef {
     if (this.loadedClasses[className]) {
       return this.loadedClasses[className];
     }
 
     if (this.parentLoader) {
-      const res = this.parentLoader.getClassRef(className);
-      if (res) {
-        return res;
+      try {
+        const res = this.parentLoader.getClassRef(className);
+        if (res) {
+          return res;
+        }
+      } catch (e) {
+        return this.load(className);
       }
     }
-
     return this.load(className);
   }
 
   resolveClass(thread: NativeThread, className: string): ClassRef {
-    const cls = this.getClassRef(className);
-
-    if (!cls) {
+    try {
+      return this.getClassRef(className);
+    } catch (e) {
       thread.throwNewException('java/lang/ClassNotFoundException', className);
       return thread.getClass();
     }
-
-    return cls;
   }
 
   _resolveClass(className: string): ClassRef {
-    const cls = this.getClassRef(className);
-
-    if (!cls) {
-      throw new Error();
-    }
-
-    return cls;
+    return this.getClassRef(className);
   }
 
   /**
@@ -96,5 +91,5 @@ export default abstract class AbstractClassLoader {
    * @param onFinish callback if successful
    * @param onError callback if an error occurs
    */
-  abstract load(className: string): ClassRef | undefined;
+  abstract load(className: string): ClassRef;
 }

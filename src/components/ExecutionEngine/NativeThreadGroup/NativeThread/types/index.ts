@@ -1,11 +1,4 @@
-import { MethodRef } from '#jvm/external/ClassFile/types/methods';
-import { ClassRef } from '#types/ConstantRef';
-
-export interface InstructionPointer {
-  className: string;
-  methodName: string;
-  pc: number;
-}
+import { ClassRef, MethodRef } from '#types/ConstantRef';
 
 export interface StackFrame {
   operandStack: any[];

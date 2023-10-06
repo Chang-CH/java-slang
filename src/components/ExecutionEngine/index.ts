@@ -1,7 +1,7 @@
 import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
-import JsSystem from '#utils/JsSystem';
+import NodeSystem from '#utils/NodeSystem';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
 import NativeThreadGroup from './NativeThreadGroup';

@@ -51,19 +51,12 @@ export interface ConstantString {
   ref: JavaReference;
 }
 
-export interface ConstantInvokeDynamic {
-  tag: CONSTANT_TAG;
-  bootstrapMethodAttrIndex: number;
-  nameAndTypeIndex: number;
-}
-
 export type ConstantRef =
   | ConstantInfo
   | ConstantClass
   | ConstantMethodref
   | ConstantInterfaceMethodref
-  | ConstantString
-  | ConstantInvokeDynamic;
+  | ConstantString;
 
 export interface FieldRef {
   accessFlags: number;
@@ -84,7 +77,7 @@ export class ClassRef {
   private thisClass: string;
   private superClass: number | ClassRef;
 
-  private interfaces: Array<number | ClassRef>;
+  private interfaces: Array<string | ClassRef>;
 
   private fields: {
     [fieldName: string]: FieldInfo;
@@ -112,7 +105,16 @@ export class ClassRef {
 
     this.superClass = classfile.superClass;
 
-    this.interfaces = classfile.interfaces;
+    // resolve interfaces
+    this.interfaces = [];
+    classfile.interfaces.forEach(interfaceIndex => {
+      const interfaceNameIdx = (
+        classfile.constantPool[interfaceIndex] as ConstantClassInfo
+      ).nameIndex;
+      this.interfaces.push(
+        (classfile.constantPool[interfaceNameIdx] as ConstantUtf8Info).value
+      );
+    });
 
     // convert field array to object
     this.fields = {};

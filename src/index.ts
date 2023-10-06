@@ -1,5 +1,5 @@
 import { ClassRef } from '#types/ConstantRef';
-import JsSystem from '#utils/JsSystem';
+import NodeSystem from '#utils/NodeSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
@@ -9,10 +9,10 @@ export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
   private applicationClassLoader: ClassLoader;
   private engine: ExecutionEngine;
-  private nativeSystem: JsSystem;
+  private nativeSystem: NodeSystem;
   private jni: JNI;
 
-  constructor(nativeSystem: JsSystem) {
+  constructor(nativeSystem: NodeSystem) {
     this.nativeSystem = nativeSystem;
     this.bootstrapClassLoader = new BootstrapClassLoader(
       this.nativeSystem,

@@ -5,7 +5,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef, ConstantClass } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
-import JsSystem from '#utils/JsSystem';
+import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import {
@@ -20,7 +20,7 @@ let jni: JNI;
 
 beforeEach(() => {
   jni = new JNI();
-  const nativeSystem = new JsSystem({});
+  const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
   bscl.load('java/lang/Thread');
