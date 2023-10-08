@@ -1,7 +1,7 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
 import { JavaReference, JavaArray } from '#types/dataTypes';
-import { tryInitialize, parseMethodDescriptor } from '..';
+import { tryInitialize, parseMethodDescriptor, asDouble, asFloat } from '..';
 import {
   ConstantFieldrefInfo,
   ConstantNameAndTypeInfo,
@@ -9,7 +9,10 @@ import {
   ConstantClassInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { ConstantClass } from '#types/ConstantRef';
+import { ConstantClass, ConstantMethodref } from '#types/ConstantRef';
+import {
+  checkStatic,
+} from '#utils/parseBinary/utils/readMethod';
 
 export function runGetstatic(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
@@ -223,13 +226,12 @@ export function runInvokevirtual(thread: NativeThread): void {
 
   const thisObj = thread.popStack();
 
-  thread.pushStackFrame({
-    class: classRef,
-    operandStack: [],
-    method: classRef.getMethod(thread, methodName + methodDescriptor),
-    pc: 0,
-    locals: [thisObj],
-  });
+  thread.pushStackFrame(
+    classRef,
+    classRef.getMethod(thread, methodName + methodDescriptor),
+    0,
+    [thisObj]
+  );
 
   // Load + initialize if needed
   tryInitialize(thread, className);
@@ -280,13 +282,12 @@ export function runInvokespecial(thread: NativeThread): void {
     .getLoader()
     .resolveClass(thread, className);
 
-  thread.pushStackFrame({
-    class: classRef,
-    operandStack: [],
-    method: classRef.getMethod(thread, methodName + methodDescriptor),
-    pc: 0,
-    locals: [thisObj, ...args],
-  });
+  thread.pushStackFrame(
+    classRef,
+    classRef.getMethod(thread, methodName + methodDescriptor),
+    0,
+    [thisObj, ...args]
+  );
 }
 
 export function runInvokestatic(thread: NativeThread): void {
@@ -294,52 +295,50 @@ export function runInvokestatic(thread: NativeThread): void {
   thread.offsetPc(2);
 
   const invoker = thread.getClassName();
-  const methodRef = thread
-    .getClass()
-    .getConstant(thread, indexbyte) as ConstantMethodrefInfo;
+  thread.getClass().resolveReference(thread, indexbyte);
+  const methodRef = (
+    thread.getClass().getConstant(thread, indexbyte) as ConstantMethodref
+  ).ref;
+  const classRef = methodRef.class;
 
-  const className = thread
-    .getClass()
-    .getConstant(
-      thread,
-      thread.getClass().getConstant(thread, methodRef.classIndex).nameIndex
-    ).value;
-  const nameAndTypeIndex = thread
-    .getClass()
-    .getConstant(thread, methodRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
-  const methodName = thread
-    .getClass()
-    .getConstant(thread, nameAndTypeIndex.nameIndex).value;
-  const methodDescriptor = thread
-    .getClass()
-    .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
-
-  // Get arguments
-  const methodDesc = parseMethodDescriptor(methodDescriptor);
-  const args = [];
-  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
-      args[i] = thread.popStack64();
-      continue;
-    }
-    args[i] = thread.popStack();
+  if (!checkStatic(methodRef)) {
+    thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
   }
 
-  const classRef = thread
-    .getClass()
-    .getLoader()
-    .resolveClass(thread, className);
+  // Initialize class
+  tryInitialize(thread, classRef.getClassname());
 
-  thread.pushStackFrame({
-    class: classRef,
-    operandStack: [],
-    method: classRef.getMethod(thread, methodName + methodDescriptor),
-    pc: 0,
-    locals: args,
-  });
+  // Get arguments
+  const methodDesc = parseMethodDescriptor(methodRef.descriptor);
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    switch (methodDesc.args[i]) {
+      case 'V':
+        break; // should not happen
+      case 'B':
+      case 'C':
+      case 'I':
+      case 'S':
+      case 'Z':
+        args[i] = thread.popStack();
+        break;
+      case 'D':
+        args[i] = asDouble(thread.popStack64());
+        break;
+      case 'F':
+        args[i] = asFloat(thread.popStack());
+        break;
+      case 'J':
+        args[i] = thread.popStack64();
+        break;
+      case '[':
+      default: // references + arrays
+        args[i] = thread.popStack();
+    }
+  }
 
-  // Load + initialize if needed
-  tryInitialize(thread, className);
+  // Native invocation same as java method
+  thread.pushStackFrame(methodRef.class, methodRef, 0, args);
 }
 
 export function runInvokeinterface(thread: NativeThread): void {
@@ -396,13 +395,12 @@ export function runInvokeinterface(thread: NativeThread): void {
     .getLoader()
     .resolveClass(thread, className);
 
-  thread.pushStackFrame({
-    class: classRef,
-    operandStack: [],
-    method: classRef.getMethod(thread, methodName + methodDescriptor),
-    pc: 0,
-    locals: [thisObj],
-  });
+  thread.pushStackFrame(
+    classRef,
+    classRef.getMethod(thread, methodName + methodDescriptor),
+    0,
+    [thisObj]
+  );
 }
 
 export function runInvokedynamic(thread: NativeThread): void {

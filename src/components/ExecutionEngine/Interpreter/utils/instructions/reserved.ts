@@ -1,6 +1,6 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-export function runBreakpoint(thread: NativeThread) {
+export function runBreakpoint(thread: NativeThread): void {
   throw new Error('runInstruction: Not implemented');
 }
 

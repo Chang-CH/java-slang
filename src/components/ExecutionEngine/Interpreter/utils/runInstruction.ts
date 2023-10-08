@@ -14,7 +14,7 @@ import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
 import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { JNI } from '#jvm/components/JNI';
-import { MethodRef } from '#types/ConstantRef';
+import { parseMethodDescriptor } from '.';
 
 export default function runInstruction(
   thread: NativeThread,
@@ -29,23 +29,31 @@ export default function runInstruction(
   }
 
   // is native
-  const methodCast = method as MethodRef;
-  if (methodCast.accessFlags >= 0 && checkNative(methodCast)) {
+  if (method.accessFlags >= 0 && checkNative(method)) {
     const nativeMethod = jni.getNativeMethod(
       thread.getClass().getClassname(),
-      methodCast.name + methodCast.descriptor
+      method.name + method.descriptor
     );
-    console.debug(
-      `[Native] JNI:`.padEnd(20) +
-        ` ${thread.getClass().getClassname()}.${
-          methodCast.name + methodCast.descriptor
-        }`
-    );
+
+    if (!nativeMethod) {
+      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+    }
+
     const result = nativeMethod(thread, thread.peekStackFrame().locals);
     thread.popStackFrame();
-    if (result !== undefined) {
-      thread.pushStack(result);
+
+    const { ret } = parseMethodDescriptor(method.descriptor);
+
+    if (ret === 'V') {
+      return;
     }
+
+    if (ret === 'D' || ret === 'J') {
+      thread.pushStack64(result);
+      return;
+    }
+
+    thread.pushStack(result);
     return;
   }
 
@@ -116,7 +124,7 @@ export default function runInstruction(
     case OPCODE.LDC:
       result = constants.runLdc(thread);
       break;
-    case OPCODE.LDC:
+    case OPCODE.LDC_W:
       result = constants.runLdcW(thread);
       break;
     case OPCODE.LDC2_W:

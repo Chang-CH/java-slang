@@ -23,6 +23,7 @@ export interface MethodRef {
   descriptor: string;
   attributes: Array<AttributeInfo>;
   code: CodeAttribute | null; // native methods have no code
+  class: ClassRef;
 }
 
 export interface ConstantClass {
@@ -136,6 +137,7 @@ export class ClassRef {
         descriptor: '',
         attributes: method.attributes,
         code: null,
+        class: this,
       };
 
       // get name and descriptor
@@ -225,7 +227,8 @@ export class ClassRef {
     strRef.ref = initString(clsRef, strConst.value);
   }
 
-  resolveReference(thread: NativeThread, ref: ConstantRef) {
+  resolveReference(thread: NativeThread, index: number) {
+    const ref = this.constantPool[index];
     // ref has been resolved, return
     if ((ref as ConstantMethodref).ref) {
       return;
@@ -263,7 +266,7 @@ export class ClassRef {
       constItem.tag === CONSTANT_TAG.InterfaceMethodref ||
       constItem.tag === CONSTANT_TAG.String
     ) {
-      this.resolveReference(thread, constItem);
+      this.resolveReference(thread, constantIndex);
     }
     return constItem;
   }
@@ -276,7 +279,7 @@ export class ClassRef {
       constItem.tag === CONSTANT_TAG.InterfaceMethodref ||
       constItem.tag === CONSTANT_TAG.String
     ) {
-      this.resolveReference(thread, constItem);
+      this.resolveReference(thread, constantIndex);
     }
     return constItem;
   }
@@ -292,8 +295,7 @@ export class ClassRef {
   getSuperClass(thread: NativeThread): ClassRef {
     // resolve superclass if not resolved
     if (typeof this.superClass === 'number') {
-      const Class = this.getConstant(thread, this.superClass);
-      this.resolveReference(thread, Class);
+      this.resolveReference(thread, this.superClass);
     }
 
     return this.superClass as ClassRef;
