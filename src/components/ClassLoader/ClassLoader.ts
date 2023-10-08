@@ -20,20 +20,9 @@ export default class ClassLoader extends AbstractClassLoader {
     console.debug(`ClassLoader: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
 
-    if (this.parentLoader) {
-      const res = this.parentLoader.load(className);
-      if (res) {
-        return res;
-      }
-    }
-
-    let classFile;
-
-    try {
-      classFile = this.nativeSystem.readFile(path);
-    } catch (e) {
-      throw new Error('ClassNotFound');
-    }
+    const classFile = this.nativeSystem.readFile(path);
+    console.log('load');
+    console.log(JSON.stringify(classFile, null, 2));
 
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
