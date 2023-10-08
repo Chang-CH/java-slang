@@ -1,9 +1,8 @@
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef, MethodRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
-import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 export default class NativeThread {
@@ -95,8 +94,21 @@ export default class NativeThread {
     return sf;
   }
 
-  pushStackFrame(frame: StackFrame) {
-    this.stack.push(frame);
+  pushStackFrame(cls: ClassRef, method: MethodRef, pc: number, locals: any[]) {
+    // Fix array length
+    const opStack = new Array(method.code?.maxStack ?? 0);
+    opStack.fill(undefined);
+    Object.seal(opStack);
+
+    const stackframe = {
+      operandStack: opStack,
+      locals,
+      class: cls,
+      method,
+      pc,
+    };
+
+    this.stack.push(stackframe);
     this.stackPointer += 1;
   }
 
@@ -147,15 +159,14 @@ export default class NativeThread {
     }
 
     // Unhandled exception.
-    this.pushStackFrame({
-      operandStack: [],
-      class: this.cls,
-      method: this.cls.getMethod(
+    this.pushStackFrame(
+      this.cls,
+      this.cls.getMethod(
         this,
         'dispatchUncaughtException(Ljava/lang/Throwable;)V'
       ),
-      pc: 0,
-      locals: [this.javaThis, exception],
-    });
+      0,
+      [this.javaThis, exception]
+    );
   }
 }

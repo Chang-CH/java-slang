@@ -101,13 +101,12 @@ export function tryInitialize(thread: NativeThread, className: string) {
   // Class not initialized, initialize it.
   if (classRef.isInitialized) {
     if (classRef.getMethod(thread, '<clinit>()V')) {
-      thread.pushStackFrame({
-        class: classRef,
-        method: classRef.getMethod(thread, '<clinit>()V'),
-        pc: 0,
-        operandStack: [],
-        locals: [],
-      });
+      thread.pushStackFrame(
+        classRef,
+        classRef.getMethod(thread, '<clinit>()V'),
+        0,
+        []
+      );
       classRef.isInitialized = true;
       return;
     }

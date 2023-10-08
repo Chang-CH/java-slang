@@ -38,13 +38,7 @@ beforeEach(() => {
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
   code = (method.code as CodeAttribute).code;
-  thread.pushStackFrame({
-    operandStack: [],
-    locals: [],
-    class: threadClass,
-    method,
-    pc: 0,
-  });
+  thread.pushStackFrame(threadClass, method, 0, []);
 });
 
 describe('runNop', () => {
@@ -484,7 +478,7 @@ describe('runLdcW', () => {
       value: -99,
     };
     (threadClass as any).constantPool[0] = intConstant;
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -501,7 +495,7 @@ describe('runLdcW', () => {
       value: Math.fround(-0.3),
     };
     (threadClass as any).constantPool[0] = intConstant;
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -526,7 +520,7 @@ describe('runLdcW', () => {
     } as ConstantString;
     (threadClass as any).constantPool[0] = strConstant;
 
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -550,7 +544,7 @@ describe('runLdcW', () => {
     (threadClass as any).constantPool[0] = strConstant;
     (threadClass as any).constantPool[1] = strContent;
 
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -571,7 +565,7 @@ describe('runLdcW', () => {
     } as ConstantClass;
     (threadClass as any).constantPool[0] = classRef;
 
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -594,7 +588,7 @@ describe('runLdcW', () => {
     (threadClass as any).constantPool[0] = classRef;
     (threadClass as any).constantPool[1] = className;
 
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -615,7 +609,7 @@ describe('runLdcW', () => {
       ref: methodRef,
     } as ConstantMethodref;
     (threadClass as any).constantPool[0] = constMethod;
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 
@@ -657,7 +651,7 @@ describe('runLdcW', () => {
       length: 30,
     };
 
-    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, 0);
     runInstruction(thread, jni, () => {});
 

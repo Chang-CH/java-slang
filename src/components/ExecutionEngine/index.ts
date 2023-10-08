@@ -1,7 +1,5 @@
-import { MethodRef } from '#jvm/external/ClassFile/types/methods';
 import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
-import NodeSystem from '#utils/NodeSystem';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
 import NativeThreadGroup from './NativeThreadGroup';
@@ -21,13 +19,12 @@ export default class ExecutionEngine {
   runClass(threadCls: ClassRef, mainClass: ClassRef, args?: any[]) {
     const javaThread = new JavaReference(threadCls, {});
     const mainThread = new NativeThread(threadCls, javaThread);
-    mainThread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: mainClass,
-      method: mainClass.getMethod(mainThread, 'main([Ljava/lang/String;)V'),
-      pc: 0,
-    });
+    mainThread.pushStackFrame(
+      mainClass,
+      mainClass.getMethod(mainThread, 'main([Ljava/lang/String;)V'),
+      0,
+      []
+    );
 
     // TODO: pushstack string args
     this.nativeThreadGroup.addThread(mainThread);
@@ -42,13 +39,12 @@ export default class ExecutionEngine {
     const javaThread = new JavaReference(threadCls, {});
     const mainThread = new NativeThread(threadCls, javaThread);
 
-    mainThread.pushStackFrame({
-      operandStack: [],
-      locals: args ?? [],
-      class: cls,
-      method: cls.getMethod(mainThread, method),
-      pc: 0,
-    });
+    mainThread.pushStackFrame(
+      cls,
+      cls.getMethod(mainThread, method),
+      0,
+      args ?? []
+    );
     this.interpreter.runFor(mainThread, 10000, () => {
       console.debug('runMethod Finish');
     });

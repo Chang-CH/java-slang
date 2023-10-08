@@ -24,13 +24,7 @@ beforeEach(() => {
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
   code = (method.code as CodeAttribute).code;
-  thread.pushStackFrame({
-    operandStack: [],
-    locals: [],
-    class: threadClass,
-    method,
-    pc: 0,
-  });
+  thread.pushStackFrame(threadClass, method, 0, []);
 });
 
 describe('runLcmp', () => {

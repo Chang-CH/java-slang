@@ -1,24 +1,11 @@
-import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-import { tryInitialize } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import {
-  ClassRef,
-  ConstantClass,
-  ConstantMethodref,
-  ConstantString,
-} from '#types/ConstantRef';
+import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
-import { initString } from '#jvm/components/JNI/utils';
-import {
-  ConstantClassInfo,
-  ConstantStringInfo,
-  ConstantUtf8Info,
-} from '#jvm/external/ClassFile/types/constants';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
@@ -38,13 +25,7 @@ beforeEach(() => {
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod(thread, '<init>()V');
   code = (method.code as CodeAttribute).code;
-  thread.pushStackFrame({
-    operandStack: [],
-    locals: [],
-    class: threadClass,
-    method,
-    pc: 0,
-  });
+  thread.pushStackFrame(threadClass, method, 0, []);
 });
 
 describe('runGoto', () => {
