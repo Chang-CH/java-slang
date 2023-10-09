@@ -7,6 +7,7 @@ import { JavaReference } from '#types/dataTypes';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestClassLoader, TestSystem, createClass } from '#utils/test';
+import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -37,17 +38,30 @@ beforeEach(() => {
   const javaThread = new JavaReference(threadClass, {});
   thread = new NativeThread(threadClass, javaThread);
 
+  const obj = createClass({
+    className: 'java/lang/Object',
+    loader: testLoader,
+    superClass: null,
+  });
+  testLoader.loadTestClassRef('java/lang/Object', obj);
+
   // load error stubs
-  const errorClass = createClass({
+  const incompatibleClassChangeError = createClass({
     className: 'java/lang/IncompatibleClassChangeError',
     loader: testLoader,
   });
   testLoader.loadTestClassRef(
     'java/lang/IncompatibleClassChangeError',
-    errorClass
+    incompatibleClassChangeError
   );
+  const noSuchFieldError = createClass({
+    className: 'java/lang/NoSuchFieldError',
+    loader: testLoader,
+  });
+  testLoader.loadTestClassRef('java/lang/NoSuchFieldError', noSuchFieldError);
 });
 
+// TODO: 5.4.3.3 method resolution with superclasses
 describe('runInvokestatic', () => {
   test('INVOKESTATIC: Non static method throws IncompatibleClassChangeError', () => {
     const ab = new ArrayBuffer(24);
@@ -376,7 +390,7 @@ describe('runInvokestatic', () => {
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
   });
   // Test synchronized
-  // Test native method binding
+  // Test method resolution + access control
   test('INVOKESTATIC: Native method returns int', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -570,13 +584,292 @@ describe('runInvokestatic', () => {
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
 });
+
+// TODO: 5.4.3.3 field resolution with superclasses
+describe('runGetstatic', () => {
+  test('GETSTATIC: Initializes class', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let fieldIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 11,
+          value: 'staticField',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'I',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.NameAndType,
+          nameIndex: cPool.length - 3,
+          descriptorIndex: cPool.length - 2,
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.Class,
+          nameIndex: cPool.length - 2,
+        }),
+        cPool => {
+          fieldIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Fieldref,
+            classIndex: cPool.length - 1,
+            nameAndTypeIndex: cPool.length - 2,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      fields: [
+        {
+          accessFlags: [FIELD_FLAGS.ACC_PUBLIC, FIELD_FLAGS.ACC_STATIC],
+          name: 'staticField',
+          descriptor: 'I',
+          attributes: [],
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.GETSTATIC);
+    code.setUint16(1, fieldIdx);
+    const method = testClass.getMethod(thread, 'test0()V');
+    thread.pushStackFrame(testClass, method, 0, []);
+    expect(testClass.isInitialized).toBe(false);
+    runInstruction(thread, jni, () => {});
+    expect(testClass.isInitialized).toBe(true);
+  });
+  test('GETSTATIC: Gets static int', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let fieldIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 11,
+          value: 'staticField',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'I',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.NameAndType,
+          nameIndex: cPool.length - 3,
+          descriptorIndex: cPool.length - 2,
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.Class,
+          nameIndex: cPool.length - 2,
+        }),
+        cPool => {
+          fieldIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Fieldref,
+            classIndex: cPool.length - 1,
+            nameAndTypeIndex: cPool.length - 2,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      fields: [
+        {
+          accessFlags: [FIELD_FLAGS.ACC_PUBLIC, FIELD_FLAGS.ACC_STATIC],
+          name: 'staticField',
+          descriptor: 'I',
+          attributes: [],
+        },
+      ],
+      loader: testLoader,
+    });
+    testClass.putStatic(thread, 'staticFieldI', 5);
+    code.setUint8(0, OPCODE.GETSTATIC);
+    code.setUint16(1, fieldIdx);
+
+    const method = testClass.getMethod(thread, 'test0()V');
+    thread.pushStackFrame(testClass, method, 0, []);
+    runInstruction(thread, jni, () => {});
+    expect(thread.popStack()).toBe(5);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+  });
+  test('GETSTATIC: Gets static long', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let fieldIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 11,
+          value: 'staticField',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'J',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.NameAndType,
+          nameIndex: cPool.length - 3,
+          descriptorIndex: cPool.length - 2,
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.Class,
+          nameIndex: cPool.length - 2,
+        }),
+        cPool => {
+          fieldIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Fieldref,
+            classIndex: cPool.length - 1,
+            nameAndTypeIndex: cPool.length - 2,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      fields: [
+        {
+          accessFlags: [FIELD_FLAGS.ACC_PUBLIC, FIELD_FLAGS.ACC_STATIC],
+          name: 'staticField',
+          descriptor: 'J',
+          attributes: [],
+        },
+      ],
+      loader: testLoader,
+    });
+    testClass.putStatic64(thread, 'staticFieldJ', 5n);
+    code.setUint8(0, OPCODE.GETSTATIC);
+    code.setUint16(1, fieldIdx);
+
+    const method = testClass.getMethod(thread, 'test0()V');
+    thread.pushStackFrame(testClass, method, 0, []);
+    runInstruction(thread, jni, () => {});
+    expect(thread.popStack64()).toBe(5n);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+  });
+  test('GETSTATIC: Invalid field throws NoSuchFieldError', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let fieldIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 11,
+          value: 'staticField',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'J',
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.NameAndType,
+          nameIndex: cPool.length - 3,
+          descriptorIndex: cPool.length - 2,
+        }),
+        cPool => ({
+          tag: CONSTANT_TAG.Class,
+          nameIndex: cPool.length - 2,
+        }),
+        cPool => {
+          fieldIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Fieldref,
+            classIndex: cPool.length - 1,
+            nameAndTypeIndex: cPool.length - 2,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      fields: [],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.GETSTATIC);
+    code.setUint16(1, fieldIdx);
+
+    const method = testClass.getMethod(thread, 'test0()V');
+    thread.pushStackFrame(testClass, method, 0, []);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.method).toBe(
+      threadClass.getMethod(
+        thread,
+        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+      )
+    );
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NoSuchFieldError'
+    );
+  });
+});
 // Getstatic
 // Putstatic
 // Getfield
 // Putfield
 // Invokevirtual
 // Invokespecial
-// Invokestatic
 // Invokeinterface
 // Invokedynamic
 // New

@@ -9,6 +9,7 @@ import {
   ConstantNameAndTypeInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
+import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import {
   METHOD_FLAGS,
   MethodInfo,
@@ -19,6 +20,7 @@ import AbstractSystem from '#utils/AbstractSystem';
 export const createClass = (options: {
   className?: string;
   loader?: TestClassLoader;
+  superClass?: string | null;
   constants?: ((c: ConstantRef[]) => ConstantRef)[];
   methods?: {
     accessFlags?: METHOD_FLAGS[];
@@ -27,11 +29,25 @@ export const createClass = (options: {
     attributes?: AttributeInfo[];
     code: DataView;
   }[];
+  fields?: {
+    accessFlags?: FIELD_FLAGS[];
+    name?: string;
+    descriptor?: string;
+    attributes?: Array<AttributeInfo>;
+    data?: any;
+  }[];
 }): ClassRef => {
   let constantPool: ConstantRef[] = [
     { tag: 7, nameIndex: 0 }, // dummy
     { tag: 7, nameIndex: 2 }, // superclass
-    { tag: 1, length: 16, value: 'java/lang/Object' }, // superclass name
+    {
+      tag: 1,
+      length: 16,
+      value:
+        typeof options.superClass === 'string'
+          ? options.superClass
+          : 'java/lang/Object',
+    }, // superclass name
     { tag: 7, nameIndex: 4 },
     {
       tag: 1,
@@ -112,6 +128,50 @@ export const createClass = (options: {
   const loader =
     options.loader ?? new TestClassLoader(new TestSystem(), 'test/', null);
 
+  const fields: FieldInfo[] = options.fields
+    ? options.fields.map((field, index) => {
+        constantPool.push({
+          tag: CONSTANT_TAG.Utf8,
+          length: 3,
+          value: field.descriptor ?? `I`,
+        });
+        constantPool.push({
+          tag: CONSTANT_TAG.Utf8,
+          length: 6,
+          value: field.name ?? `field${index}`,
+        });
+        constantPool.push({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        });
+        constantPool.push({
+          tag: CONSTANT_TAG.NameAndType,
+          nameIndex: constantPool.length - 2,
+          descriptorIndex: constantPool.length - 3,
+        });
+        constantPool.push({
+          tag: CONSTANT_TAG.Class,
+          nameIndex: constantPool.length - 2,
+        });
+        constantPool.push({
+          tag: CONSTANT_TAG.Methodref,
+          classIndex: constantPool.length - 1,
+          nameAndTypeIndex: constantPool.length - 2,
+        });
+
+        return {
+          accessFlags: field.accessFlags
+            ? field.accessFlags.reduce((a, b) => a | b)
+            : FIELD_FLAGS.ACC_PUBLIC | FIELD_FLAGS.ACC_STATIC,
+          nameIndex: constantPool.length - 5,
+          descriptorIndex: constantPool.length - 6,
+          attributes: field.attributes ?? [],
+          attributesCount: field.attributes?.length ?? 0,
+        };
+      })
+    : [];
+
   const clsRef = new ClassRef(
     {
       magic: 0,
@@ -123,12 +183,12 @@ export const createClass = (options: {
 
       accessFlags: 33,
       thisClass: 3,
-      superClass: 1,
+      superClass: options.superClass === null ? 0 : 1,
 
       interfaces: [],
       interfacesCount: 0,
 
-      fields: [],
+      fields: fields,
       fieldsCount: 0,
 
       methods: methods,

@@ -292,10 +292,15 @@ export class ClassRef {
     return this.thisClass;
   }
 
-  getSuperClass(thread: NativeThread): ClassRef {
-    // resolve superclass if not resolved
+  getSuperClass(thread: NativeThread): ClassRef | null {
+    // Object superclass is 0
+    if (this.superClass === 0) {
+      return null;
+    }
+
     if (typeof this.superClass === 'number') {
-      this.resolveReference(thread, this.superClass);
+      const clsRef = this.getConstant(thread, this.superClass) as ConstantClass;
+      this.superClass = clsRef.ref;
     }
 
     return this.superClass as ClassRef;
@@ -309,28 +314,41 @@ export class ClassRef {
     return this.methods[methodName];
   }
 
-  getStatic(thread: NativeThread, fieldName: string): any {
-    // TODO: check initialised
-    // TODO: resolve ref if necessary
-    return this.fields[fieldName].data;
-  }
+  getStatic(thread: NativeThread, fieldName: string): FieldRef | null {
+    if (this.fields[fieldName]) {
+      return this.fields[fieldName];
+    }
 
-  getStatic64(thread: NativeThread, fieldName: string): any {
-    // TODO: check initialised
-    // TODO: resolve ref if necessary
-    return this.fields[fieldName].data;
+    for (let i = 0; i < this.interfaces.length; i++) {
+      let inter = this.interfaces[i];
+      if (typeof inter === 'string') {
+        inter = this.loader.resolveClass(thread, inter);
+        this.interfaces[i] = inter;
+      }
+      const field = inter.getStatic(thread, fieldName);
+
+      if (field) {
+        return field;
+      }
+    }
+
+    const superClass = this.getSuperClass(thread);
+
+    if (superClass === null) {
+      return null;
+    }
+
+    return superClass.getStatic(thread, fieldName);
   }
 
   /**
    * Setters
    */
   putStatic(thread: NativeThread, fieldName: string, value: any): void {
-    // TODO: check initialised
     this.fields[fieldName].data = value;
   }
 
   putStatic64(thread: NativeThread, fieldName: string, value: any): void {
-    // TODO: check initialised
     this.fields[fieldName].data = value;
   }
 }

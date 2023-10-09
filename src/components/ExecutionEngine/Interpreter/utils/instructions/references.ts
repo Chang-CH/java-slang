@@ -14,6 +14,7 @@ import {
   checkAbstract,
   checkStatic,
 } from '#utils/parseBinary/utils/readMethod';
+import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 
 export function runGetstatic(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
@@ -35,7 +36,6 @@ export function runGetstatic(thread: NativeThread): void {
     .getLoader()
     .resolveClass(thread, className);
 
-  // Load + initialize if needed
   tryInitialize(thread, className);
 
   const nameAndTypeIndex = thread
@@ -48,15 +48,24 @@ export function runGetstatic(thread: NativeThread): void {
     .getClass()
     .getConstant(thread, nameAndTypeIndex.descriptorIndex).value;
 
-  // FIXME: in theory it is legal to have 2 same field name, different type
+  const field = classRef.getStatic(thread, fieldName + fieldType);
+
+  if (field === null) {
+    thread.throwNewException('java/lang/NoSuchFieldError', '');
+    return;
+  }
+
+  if ((field.accessFlags & FIELD_FLAGS.ACC_STATIC) === 0) {
+    thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
+    return;
+  }
+
+  // TODO: IllegalAccessError
+
   if (fieldType === 'J' || fieldType === 'D') {
-    thread.pushStack64(
-      thread.getClass().getStatic64(thread, fieldName + fieldType)
-    );
+    thread.pushStack64(field.data);
   } else {
-    thread.pushStack(
-      thread.getClass().getStatic(thread, fieldName + fieldType)
-    );
+    thread.pushStack(field.data);
   }
 }
 
