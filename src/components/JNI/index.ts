@@ -13,6 +13,19 @@ export class JNI {
     this.classes = {};
   }
 
+  registerNativeMethod(
+    className: string,
+    methodName: string,
+    method: Function
+  ) {
+    if (!this.classes[className]) {
+      this.classes[className] = {
+        methods: {},
+      };
+    }
+    this.classes[className].methods[methodName] = method;
+  }
+
   getNativeMethod(className: string, methodName: string) {
     if (!this.classes?.[className]?.methods?.[methodName]) {
       // FIXME: Returns an empty function for now, but should throw an error
