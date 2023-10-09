@@ -11,6 +11,7 @@ import {
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { ConstantClass, ConstantMethodref } from '#types/ConstantRef';
 import {
+  checkAbstract,
   checkStatic,
 } from '#utils/parseBinary/utils/readMethod';
 
@@ -301,8 +302,9 @@ export function runInvokestatic(thread: NativeThread): void {
   ).ref;
   const classRef = methodRef.class;
 
-  if (!checkStatic(methodRef)) {
+  if (!checkStatic(methodRef) || checkAbstract(methodRef)) {
     thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
+    return;
   }
 
   // Initialize class

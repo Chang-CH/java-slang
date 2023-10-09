@@ -8,8 +8,8 @@ import * as conversions from './instructions/conversions';
 import * as extended from './instructions/extended';
 import * as loads from './instructions/loads';
 import * as math from './instructions/math';
-import * as references from './instructions/references';
 import * as reserved from './instructions/reserved';
+import * as references from './instructions/references';
 import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
 import { checkNative } from '#utils/parseBinary/utils/readMethod';
@@ -21,12 +21,12 @@ export default function runInstruction(
   jni: JNI,
   onFinish?: () => void
 ): void {
-  const method = thread.getMethod();
-
-  if (!method) {
+  if (thread.isStackEmpty()) {
     onFinish && onFinish();
     return;
   }
+
+  const method = thread.getMethod();
 
   // is native
   if (method.accessFlags >= 0 && checkNative(method)) {
