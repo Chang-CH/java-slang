@@ -28,10 +28,10 @@ export default class JVM {
 
     const threadCls =
       this.applicationClassLoader._resolveClass('java/lang/Thread');
-    this.applicationClassLoader.load('java/lang/System');
+    this.applicationClassLoader._resolveClass('java/lang/System');
     const sysCls =
       this.applicationClassLoader._resolveClass('java/lang/System');
-    this.engine.runMethod(threadCls, sysCls, 'initializeSystemClass()V');
+    // this.engine.runMethod(threadCls, sysCls, 'initializeSystemClass()V');
   }
 
   runClass(className: string) {
