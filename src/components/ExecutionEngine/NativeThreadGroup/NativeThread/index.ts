@@ -103,7 +103,7 @@ export default class NativeThread {
   popStackFrame(): StackFrame {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
-    if (sf === undefined) {
+    if (this.stackPointer < -1 || sf === undefined) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');
     }
