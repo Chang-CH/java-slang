@@ -98,20 +98,22 @@ export function tryInitialize(thread: NativeThread, className: string) {
     return;
   }
 
-  // Class not initialized, initialize it.
   if (classRef.isInitialized) {
-    if (classRef.getMethod(thread, '<clinit>()V')) {
-      thread.pushStackFrame(
-        classRef,
-        classRef.getMethod(thread, '<clinit>()V'),
-        0,
-        []
-      );
-      classRef.isInitialized = true;
-      return;
-    }
-    classRef.isInitialized = true;
+    return;
   }
+
+  // Class not initialized, initialize it.
+  // FIXME: need to break out of calling function to run stackframe.
+  if (classRef.getMethod(thread, '<clinit>()V')) {
+    thread.pushStackFrame(
+      classRef,
+      classRef.getMethod(thread, '<clinit>()V'),
+      0,
+      []
+    );
+  }
+  classRef.isInitialized = true;
+  return;
 }
 
 export function asDouble(value: number): number {
