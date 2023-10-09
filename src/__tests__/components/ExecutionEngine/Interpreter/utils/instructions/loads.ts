@@ -18,7 +18,7 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl.load('java/lang/Thread');
+  bscl._resolveClass('java/lang/Thread');
 
   threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
   const javaThread = new JavaReference(threadClass, {});

@@ -31,7 +31,7 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl.load('java/lang/Thread');
+  bscl._resolveClass('java/lang/Thread');
 
   threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
@@ -311,7 +311,6 @@ describe('runLdc', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    tryInitialize(thread, 'java/lang/String');
     const strClass = thread
       .getClass()
       .getLoader()
@@ -330,13 +329,12 @@ describe('runLdc', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(strRef); // string literals should be same object
+    expect(lastFrame.operandStack[0] === strRef).toBe(true); // string literals should be same object
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(2);
   });
 
   test('initializes uninitialized string from constant pool', () => {
-    tryInitialize(thread, 'java/lang/String');
     const strConstant = {
       tag: CONSTANT_TAG.String,
       stringIndex: 1,
@@ -507,7 +505,6 @@ describe('runLdcW', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    tryInitialize(thread, 'java/lang/String');
     const strClass = thread
       .getClass()
       .getLoader()
@@ -532,7 +529,6 @@ describe('runLdcW', () => {
   });
 
   test('initializes uninitialized string from constant pool', () => {
-    tryInitialize(thread, 'java/lang/String');
     const strConstant = {
       tag: CONSTANT_TAG.String,
       stringIndex: 1,

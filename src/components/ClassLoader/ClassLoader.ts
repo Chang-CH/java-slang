@@ -21,8 +21,6 @@ export default class ClassLoader extends AbstractClassLoader {
     const path = this.classPath ? this.classPath + '/' + className : className;
 
     const classFile = this.nativeSystem.readFile(path);
-    console.log('load');
-    console.log(JSON.stringify(classFile, null, 2));
 
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);

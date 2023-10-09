@@ -17,13 +17,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
   load(className: string): ClassRef {
     console.debug(`BsCL: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
-    let classFile;
-    try {
-      classFile = this.nativeSystem.readFile(path);
-    } catch (e) {
-      throw new Error('ClassNotFound');
-    }
-
+    const classFile = this.nativeSystem.readFile(path);
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
     return this.loadClass(classData);

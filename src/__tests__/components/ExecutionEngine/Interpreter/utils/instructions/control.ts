@@ -18,7 +18,7 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl.load('java/lang/Thread');
+  bscl._resolveClass('java/lang/Thread');
 
   threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
   const javaThread = new JavaReference(threadClass, {});
@@ -70,13 +70,7 @@ describe('runRet', () => {
 
 describe('runIreturn', () => {
   test('IRETURN: returns int to previous stackframe', () => {
-    thread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: threadClass,
-      method: thread.getMethod(),
-      pc: 0,
-    });
+    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(5);
     code.setUint8(0, OPCODE.IRETURN);
 
@@ -96,13 +90,7 @@ describe('runIreturn', () => {
 
 describe('runLreturn', () => {
   test('LRETURN: returns long to previous stackframe', () => {
-    thread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: threadClass,
-      method: thread.getMethod(),
-      pc: 0,
-    });
+    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LRETURN);
 
@@ -122,13 +110,7 @@ describe('runLreturn', () => {
 
 describe('runFreturn', () => {
   test('FRETURN: returns float to previous stackframe', () => {
-    thread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: threadClass,
-      method: thread.getMethod(),
-      pc: 0,
-    });
+    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FRETURN);
 
@@ -145,13 +127,7 @@ describe('runFreturn', () => {
   });
 
   test('FRETURN: undergoes value set conversion', () => {
-    thread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: threadClass,
-      method: thread.getMethod(),
-      pc: 0,
-    });
+    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(3.33);
     code.setUint8(0, OPCODE.FRETURN);
 
@@ -171,13 +147,7 @@ describe('runFreturn', () => {
 
 describe('runDreturn', () => {
   test('DRETURN: returns double to previous stackframe', () => {
-    thread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: threadClass,
-      method: thread.getMethod(),
-      pc: 0,
-    });
+    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack64(5.5);
     code.setUint8(0, OPCODE.DRETURN);
 
@@ -198,13 +168,7 @@ describe('runDreturn', () => {
 describe('runAreturn', () => {
   test('ARETURN: returns reference to previous stackframe', () => {
     const obj = new JavaReference(threadClass, {});
-    thread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: threadClass,
-      method: thread.getMethod(),
-      pc: 0,
-    });
+    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(obj);
     code.setUint8(0, OPCODE.ARETURN);
 
@@ -225,13 +189,7 @@ describe('runAreturn', () => {
 describe('runreturn', () => {
   test('RETURN: returns to previous stackframe', () => {
     const obj = new JavaReference(threadClass, {});
-    thread.pushStackFrame({
-      operandStack: [],
-      locals: [],
-      class: threadClass,
-      method: thread.getMethod(),
-      pc: 0,
-    });
+    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     code.setUint8(0, OPCODE.RETURN);
 
     runInstruction(thread, jni, () => {});
