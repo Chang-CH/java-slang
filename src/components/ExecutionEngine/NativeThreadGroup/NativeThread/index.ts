@@ -18,6 +18,10 @@ export default class NativeThread {
     this.stackPointer = -1;
   }
 
+  isStackEmpty() {
+    return this.stack.length === 0;
+  }
+
   getPC(): number {
     return this.stack[this.stackPointer].pc;
   }
@@ -54,13 +58,27 @@ export default class NativeThread {
     return this.stack[this.stackPointer];
   }
 
-  pushStack(value: any) {
-    // check for stack overflow?
+  pushStack(value: any, onError?: (e: string) => void) {
+    if (
+      this.stack[this.stackPointer].operandStack.length + 1 >
+      this.stack[this.stackPointer].maxStack
+    ) {
+      this.throwNewException('java/lang/StackOverflowError', '');
+      onError && onError('java/lang/StackOverflowError');
+      return;
+    }
     this.stack[this.stackPointer].operandStack.push(value);
   }
 
-  pushStack64(value: any) {
-    // check for stack overflow?
+  pushStack64(value: any, onError?: (e: string) => void) {
+    if (
+      this.stack[this.stackPointer].operandStack.length + 2 >
+      this.stack[this.stackPointer].maxStack
+    ) {
+      this.throwNewException('java/lang/StackOverflowError', '');
+      onError && onError('java/lang/StackOverflowError');
+      return;
+    }
     this.stack[this.stackPointer].operandStack.push(value);
     this.stack[this.stackPointer].operandStack.push(value);
   }
@@ -71,9 +89,6 @@ export default class NativeThread {
     }
     this.stack?.[this.stackPointer]?.operandStack?.pop();
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    if (value === undefined) {
-      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
-    }
     return value;
   }
 
@@ -89,19 +104,16 @@ export default class NativeThread {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
     if (sf === undefined) {
+      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');
     }
     return sf;
   }
 
   pushStackFrame(cls: ClassRef, method: MethodRef, pc: number, locals: any[]) {
-    // Fix array length
-    const opStack = new Array(method.code?.maxStack ?? 0);
-    opStack.fill(undefined);
-    Object.seal(opStack);
-
     const stackframe = {
-      operandStack: opStack,
+      operandStack: [],
+      maxStack: method.code?.maxStack ?? 0,
       locals,
       class: cls,
       method,
