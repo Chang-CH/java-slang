@@ -27,28 +27,28 @@ export default class JVM {
     this.engine = new ExecutionEngine(this.jni);
 
     const threadCls =
-      this.applicationClassLoader._resolveClass('java/lang/Thread');
-    this.applicationClassLoader._resolveClass('java/lang/System');
+      this.applicationClassLoader.getClassRef('java/lang/Thread').result;
+    this.applicationClassLoader.getClassRef('java/lang/System').result;
     const sysCls =
-      this.applicationClassLoader._resolveClass('java/lang/System');
+      this.applicationClassLoader.getClassRef('java/lang/System').result;
     // this.engine.runMethod(threadCls, sysCls, 'initializeSystemClass()V');
   }
 
   runClass(className: string) {
     // convert args to Java String[]
-    const cls = this.applicationClassLoader._resolveClass(className);
+    const mainRes = this.applicationClassLoader.getClassRef(className);
 
-    const threadCls =
-      this.applicationClassLoader._resolveClass('java/lang/Thread');
+    const threadRes =
+      this.applicationClassLoader.getClassRef('java/lang/Thread');
 
-    if (!threadCls) {
+    if (threadRes.error || !threadRes.result) {
       throw new Error('Thread class not found');
     }
 
-    if (!cls) {
+    if (mainRes.error || !mainRes.result) {
       throw new Error('Main class not found');
     }
 
-    this.engine.runClass(threadCls, cls);
+    this.engine.runClass(threadRes.result, mainRes.result);
   }
 }

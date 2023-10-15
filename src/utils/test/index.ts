@@ -5,23 +5,21 @@ import {
   AttributeInfo,
   CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
-import {
-  ConstantNameAndTypeInfo,
-  ConstantUtf8Info,
-} from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { ClassRef, ConstantRef } from '#types/ConstantRef';
+import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
+import { ConstantRef } from '#types/ConstantRef';
 import AbstractSystem from '#utils/AbstractSystem';
 
 export const createClass = (options: {
   className?: string;
   loader?: TestClassLoader;
-  superClass?: string | null;
+  superClass?: ClassRef;
   constants?: ((c: ConstantRef[]) => ConstantRef)[];
+  interfaces?: ClassRef[];
   methods?: {
     accessFlags?: METHOD_FLAGS[];
     name?: string;
@@ -36,6 +34,7 @@ export const createClass = (options: {
     attributes?: Array<AttributeInfo>;
     data?: any;
   }[];
+  status?: CLASS_STATUS;
 }): ClassRef => {
   let constantPool: ConstantRef[] = [
     { tag: 7, nameIndex: 0 }, // dummy
@@ -100,9 +99,7 @@ export const createClass = (options: {
         });
 
         const res: MethodInfo = {
-          accessFlags: method.accessFlags
-            ? method.accessFlags.reduce((a, b) => a | b)
-            : METHOD_FLAGS.ACC_PUBLIC | METHOD_FLAGS.ACC_STATIC,
+          accessFlags: (method.accessFlags ?? []).reduce((a, b) => a | b, 0),
           nameIndex: constantPool.length - 5,
           name: method.name ?? `test${index}`,
           descriptor: method.descriptor ?? `()V`,
@@ -143,7 +140,7 @@ export const createClass = (options: {
         constantPool.push({
           tag: CONSTANT_TAG.Utf8,
           length: 4,
-          value: 'Test',
+          value: options.className ?? 'Test',
         });
         constantPool.push({
           tag: CONSTANT_TAG.NameAndType,
@@ -161,9 +158,7 @@ export const createClass = (options: {
         });
 
         return {
-          accessFlags: field.accessFlags
-            ? field.accessFlags.reduce((a, b) => a | b)
-            : FIELD_FLAGS.ACC_PUBLIC | FIELD_FLAGS.ACC_STATIC,
+          accessFlags: (field.accessFlags ?? []).reduce((a, b) => a | b, 0),
           nameIndex: constantPool.length - 5,
           descriptorIndex: constantPool.length - 6,
           attributes: field.attributes ?? [],
@@ -172,41 +167,32 @@ export const createClass = (options: {
       })
     : [];
 
+  const interfaces = options.interfaces ?? [];
+
   const clsRef = new ClassRef(
-    {
-      magic: 0,
-      minorVersion: 0,
-      majorVersion: 0,
-
-      constantPool: constantPool,
-      constantPoolCount: constantPool.length,
-
-      accessFlags: 33,
-      thisClass: 3,
-      superClass: options.superClass === null ? 0 : 1,
-
-      interfaces: [],
-      interfacesCount: 0,
-
-      fields: fields,
-      fieldsCount: 0,
-
-      methods: methods,
-      methodsCount: methods.length,
-
-      attributes: [],
-      attributesCount: 0,
-    },
+    constantPool,
+    33,
+    options.className ?? 'Test/Test',
+    options.superClass ?? null,
+    interfaces,
+    fields,
+    methods,
+    [],
     loader
   );
+  clsRef.status = options.status ?? CLASS_STATUS.PREPARED;
 
   loader.loadTestClassRef(options.className ?? 'Test/Test', clsRef);
   return clsRef;
 };
 
 export class TestClassLoader extends AbstractClassLoader {
-  load(className: string): ClassRef {
-    throw new Error('Method not implemented.');
+  load(className: string): { result?: ClassRef; error?: string } {
+    const stubRef = createClass({
+      className: className,
+      loader: this,
+    });
+    return { result: stubRef };
   }
 
   loadTestClassRef(className: string, ref: ClassRef) {

@@ -1,12 +1,10 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-import { tryInitialize } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import {
-  ClassRef,
   ConstantClass,
   ConstantMethodref,
   ConstantString,
@@ -20,6 +18,8 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -31,13 +31,12 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl._resolveClass('java/lang/Thread');
 
-  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
-  const javaThread = new JavaReference(threadClass, {});
+  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  const javaThread = new JavaReference(threadClass);
   thread = new NativeThread(threadClass, javaThread);
-  const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as CodeAttribute).code;
+  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);
 });
 
@@ -275,6 +274,8 @@ describe('runSipush', () => {
   });
 });
 
+// Test MethodHandle
+// Test MethodType
 describe('runLdc', () => {
   test('reads int from constant pool and pushes to stack', () => {
     const intConstant = {
@@ -314,7 +315,7 @@ describe('runLdc', () => {
     const strClass = thread
       .getClass()
       .getLoader()
-      .resolveClass(thread, 'java/lang/String') as ClassRef;
+      .getClassRef('java/lang/String').result as ClassRef;
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
       tag: CONSTANT_TAG.String,
@@ -363,7 +364,7 @@ describe('runLdc', () => {
     const classRef = {
       tag: CONSTANT_TAG.Class,
       nameIndex: 1,
-      ref: clsRef,
+      classRef: clsRef,
     } as ConstantClass;
     (threadClass as any).constantPool[0] = classRef;
 
@@ -378,7 +379,7 @@ describe('runLdc', () => {
     expect(thread.getPC()).toBe(2);
   });
 
-  test('initializes uninitialized class from constant pool', () => {
+  test('saves class ref to constant pool', () => {
     const classRef = {
       tag: CONSTANT_TAG.Class,
       nameIndex: 1,
@@ -396,72 +397,8 @@ describe('runLdc', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe((classRef as ConstantClass).ref);
-    expect(lastFrame.operandStack[0]).toBeDefined();
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(2);
-  });
-
-  test('reads methodRef from constant pool and pushes to stack', () => {
-    const methodRef = thread.getClass().getMethod(thread, '<init>()V');
-    const constMethod = {
-      tag: CONSTANT_TAG.Methodref,
-      classIndex: 1,
-      nameAndTypeIndex: 1,
-      ref: methodRef,
-    } as ConstantMethodref;
-    (threadClass as any).constantPool[0] = constMethod;
-
-    code.setUint8(0, OPCODE.LDC);
-    code.setUint8(1, 0);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(methodRef);
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(2);
-  });
-
-  test('initializes uninitialized method from constant pool', () => {
-    (threadClass as any).constantPool[0] = {
-      tag: CONSTANT_TAG.Methodref,
-      classIndex: 1,
-      nameAndTypeIndex: 3,
-    };
-    (threadClass as any).constantPool[1] = {
-      tag: CONSTANT_TAG.Class,
-      nameIndex: 2,
-    };
-    (threadClass as any).constantPool[2] = {
-      tag: CONSTANT_TAG.Utf8,
-      value: 'java/lang/Thread',
-      length: 30,
-    };
-    (threadClass as any).constantPool[3] = {
-      tag: CONSTANT_TAG.NameAndType,
-      nameIndex: 4,
-      descriptorIndex: 5,
-    };
-    (threadClass as any).constantPool[4] = {
-      tag: CONSTANT_TAG.Utf8,
-      value: '<init>',
-      length: 30,
-    };
-    (threadClass as any).constantPool[5] = {
-      tag: CONSTANT_TAG.Utf8,
-      value: '()V',
-      length: 30,
-    };
-
-    code.setUint8(0, OPCODE.LDC);
-    code.setUint8(1, 0);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(
-      ((threadClass as any).constantPool[0] as ConstantMethodref).ref
+      (classRef as ConstantClass).classRef
     );
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
@@ -508,7 +445,7 @@ describe('runLdcW', () => {
     const strClass = thread
       .getClass()
       .getLoader()
-      .resolveClass(thread, 'java/lang/String');
+      .getClassRef('java/lang/String').result as ClassRef;
     const strRef = initString(strClass, 'hello world');
     const strConstant = {
       tag: CONSTANT_TAG.String,
@@ -557,7 +494,7 @@ describe('runLdcW', () => {
     const classRef = {
       tag: CONSTANT_TAG.Class,
       nameIndex: 1,
-      ref: clsRef,
+      classRef: clsRef,
     } as ConstantClass;
     (threadClass as any).constantPool[0] = classRef;
 
@@ -590,71 +527,8 @@ describe('runLdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe((classRef as ConstantClass).ref);
-    expect(lastFrame.operandStack[0]).toBeDefined();
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(3);
-  });
-
-  test('reads methodRef from constant pool and pushes to stack', () => {
-    const methodRef = thread.getClass().getMethod(thread, '<init>()V');
-    const constMethod = {
-      tag: CONSTANT_TAG.Methodref,
-      classIndex: 99,
-      nameAndTypeIndex: 99,
-      ref: methodRef,
-    } as ConstantMethodref;
-    (threadClass as any).constantPool[0] = constMethod;
-    code.setUint8(0, OPCODE.LDC_W);
-    code.setUint16(1, 0);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(methodRef);
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(3);
-  });
-
-  test('initializes uninitialized method from constant pool', () => {
-    (threadClass as any).constantPool[0] = {
-      tag: CONSTANT_TAG.Methodref,
-      classIndex: 1,
-      nameAndTypeIndex: 3,
-    };
-    (threadClass as any).constantPool[1] = {
-      tag: CONSTANT_TAG.Class,
-      nameIndex: 2,
-    };
-    (threadClass as any).constantPool[2] = {
-      tag: CONSTANT_TAG.Utf8,
-      value: 'java/lang/Thread',
-      length: 30,
-    };
-    (threadClass as any).constantPool[3] = {
-      tag: CONSTANT_TAG.NameAndType,
-      nameIndex: 4,
-      descriptorIndex: 5,
-    };
-    (threadClass as any).constantPool[4] = {
-      tag: CONSTANT_TAG.Utf8,
-      value: '<init>',
-      length: 30,
-    };
-    (threadClass as any).constantPool[5] = {
-      tag: CONSTANT_TAG.Utf8,
-      value: '()V',
-      length: 30,
-    };
-
-    code.setUint8(0, OPCODE.LDC_W);
-    code.setUint16(1, 0);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(
-      ((threadClass as any).constantPool[0] as ConstantMethodref).ref
+      (classRef as ConstantClass).classRef
     );
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);

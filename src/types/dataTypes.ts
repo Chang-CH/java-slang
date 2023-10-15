@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from './ClassRef';
 
 export class JavaArray {
   type: string | ArrayPrimitiveType;
@@ -70,9 +70,14 @@ export class JavaReference {
     [key: string]: any;
   };
 
-  constructor(cls: ClassRef, fields: { [key: string]: any }) {
+  constructor(cls: ClassRef) {
     this.cls = cls;
-    this.fields = fields;
+    this.fields = {};
+    for (const [fieldName, fieldRef] of Object.entries(
+      cls.getInstanceFields()
+    )) {
+      this.fields[fieldName] = fieldRef.cloneField();
+    }
   }
 
   getClass() {
@@ -94,11 +99,6 @@ export class JavaReference {
   putField64(name: string, value: any) {
     this.fields[name] = value;
   }
-}
-
-export interface FieldRef {
-  class: ClassRef;
-  fieldName: string;
 }
 
 export enum ArrayPrimitiveType {

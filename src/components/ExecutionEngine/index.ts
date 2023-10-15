@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
 import { JavaReference } from '#types/dataTypes';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
@@ -17,14 +17,15 @@ export default class ExecutionEngine {
   }
 
   runClass(threadCls: ClassRef, mainClass: ClassRef, args?: any[]) {
-    const javaThread = new JavaReference(threadCls, {});
+    const javaThread = new JavaReference(threadCls);
     const mainThread = new NativeThread(threadCls, javaThread);
-    mainThread.pushStackFrame(
-      mainClass,
-      mainClass.getMethod(mainThread, 'main([Ljava/lang/String;)V'),
-      0,
-      []
-    );
+    const mainMethod = mainClass.getMethod('main([Ljava/lang/String;)V');
+
+    if (!mainMethod) {
+      throw new Error('Main method not found');
+    }
+
+    mainThread.pushStackFrame(mainClass, mainMethod, 0, []);
 
     // TODO: pushstack string args
     this.nativeThreadGroup.addThread(mainThread);
@@ -36,7 +37,7 @@ export default class ExecutionEngine {
   }
 
   runMethod(threadCls: ClassRef, cls: ClassRef, method: string, args?: any[]) {
-    const javaThread = new JavaReference(threadCls, {});
+    const javaThread = new JavaReference(threadCls);
     const mainThread = new NativeThread(threadCls, javaThread);
 
     mainThread.pushStackFrame(

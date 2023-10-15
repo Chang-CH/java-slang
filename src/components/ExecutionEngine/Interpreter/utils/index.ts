@@ -1,3 +1,4 @@
+import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
 import { JavaType } from '#types/dataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
@@ -88,31 +89,29 @@ export function getField(ref: any, fieldName: string, type: JavaType) {
 }
 
 export function tryInitialize(thread: NativeThread, className: string) {
-  const classRef = thread
-    .getClass()
-    .getLoader()
-    .resolveClass(thread, className);
+  const classRef = thread.getClass().getLoader().getClassRef(className)
+    .result as ClassRef;
 
   if (!classRef) {
     thread.throwNewException('java/lang/ClassNotFoundException', '');
     return;
   }
 
-  if (classRef.isInitialized) {
+  if (
+    classRef.status === CLASS_STATUS.INITIALIZING ||
+    classRef.status === CLASS_STATUS.INITIALIZED
+  ) {
     return;
   }
 
   // Class not initialized, initialize it.
   // FIXME: need to break out of calling function to run stackframe.
-  if (classRef.getMethod(thread, '<clinit>()V')) {
-    thread.pushStackFrame(
-      classRef,
-      classRef.getMethod(thread, '<clinit>()V'),
-      0,
-      []
-    );
+  const staticInit = classRef.getMethod('<clinit>()V');
+  if (staticInit != null) {
+    classRef.status = CLASS_STATUS.INITIALIZING;
+    thread.pushStackFrame(classRef, staticInit, 0, []);
   }
-  classRef.isInitialized = true;
+  classRef.status = CLASS_STATUS.INITIALIZED;
   return;
 }
 

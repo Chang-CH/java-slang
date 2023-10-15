@@ -1,9 +1,9 @@
-import { ClassRef, MethodRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
-import { checkNative } from '#utils/parseBinary/utils/readMethod';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 
 export default class NativeThread {
   private stack: StackFrame[];
@@ -43,7 +43,7 @@ export default class NativeThread {
   }
 
   getMethodName(): string {
-    return this.stack[this.stackPointer].method.name;
+    return this.stack[this.stackPointer].method.getMethodName();
   }
 
   getMethod(): MethodRef {
@@ -51,7 +51,8 @@ export default class NativeThread {
   }
 
   getCode(): DataView {
-    return (this.stack[this.stackPointer].method.code as CodeAttribute).code;
+    return (this.stack[this.stackPointer].method._getCode() as CodeAttribute)
+      .code;
   }
 
   peekStackFrame() {
@@ -113,7 +114,7 @@ export default class NativeThread {
   pushStackFrame(cls: ClassRef, method: MethodRef, pc: number, locals: any[]) {
     const stackframe = {
       operandStack: [],
-      maxStack: method.code?.maxStack ?? 0,
+      maxStack: method.getMaxStack(),
       locals,
       class: cls,
       method,
@@ -146,11 +147,23 @@ export default class NativeThread {
 
     // Initialize exception
     // FIXME: push msg to stack
-    const objectref = new JavaReference(
-      this.getClass().getLoader().resolveClass(this, className) as ClassRef,
-      {}
-    );
-    this.throwException(objectref);
+    const cls = this.getClass().getLoader().getClassRef(className);
+
+    if (cls.error) {
+      if (className === 'java/lang/ClassNotFoundException') {
+        throw new Error(
+          'Infinite loop detected: ClassNotFoundException not found'
+        );
+      }
+      this.throwNewException('java/lang/ClassNotFoundException', '');
+      return;
+    }
+    // should not happen
+    if (cls.result === undefined) {
+      this.throwNewException('java/lang/ClassNotFoundException', '');
+      return;
+    }
+    this.throwException(cls.result.instantiate());
   }
 
   throwException(exception: any) {
@@ -159,26 +172,30 @@ export default class NativeThread {
       const method = this.getMethod();
 
       // Native methods cannot handle exceptions
-      if (checkNative(method)) {
+      if (method.checkNative()) {
         this.popStackFrame();
         continue;
       }
 
-      const eTable = method?.code?.exceptionTable;
+      const eTable = method.getExceptionHandlers();
 
       // TODO: check if exception is handled
       this.popStackFrame();
     }
 
-    // Unhandled exception.
-    this.pushStackFrame(
-      this.cls,
-      this.cls.getMethod(
-        this,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      ),
-      0,
-      [this.javaThis, exception]
+    const unhandledMethod = this.cls.getMethod(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
+
+    if (unhandledMethod === null) {
+      throw new Error(
+        'Uncaught exception could not be thrown: dispatchUncaughtException(Ljava/lang/Throwable;)V not found'
+      );
+    }
+
+    this.pushStackFrame(this.cls, unhandledMethod, 0, [
+      this.javaThis,
+      exception,
+    ]);
   }
 }

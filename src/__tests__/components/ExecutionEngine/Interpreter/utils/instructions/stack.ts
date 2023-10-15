@@ -3,7 +3,8 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 import { JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -19,13 +20,12 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl._resolveClass('java/lang/Thread');
 
-  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
-  javaThread = new JavaReference(threadClass, {});
+  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  javaThread = new JavaReference(threadClass);
   thread = new NativeThread(threadClass, javaThread);
-  const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as CodeAttribute).code;
+  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);
 });
 
@@ -80,8 +80,8 @@ describe('runDup', () => {
 
 describe('runDupX1', () => {
   test('DUPX1: duplicates reference', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP_X1);
@@ -98,9 +98,9 @@ describe('runDupX1', () => {
 
 describe('runDupX2', () => {
   test('DUPX2: duplicates reference', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
-    const v3 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
+    const v3 = new JavaReference(threadClass);
     thread.pushStack(v3);
     thread.pushStack(v2);
     thread.pushStack(v1);
@@ -116,7 +116,7 @@ describe('runDupX2', () => {
     expect(thread.getPC()).toBe(1);
   });
   test('DUPX2: duplicates double', () => {
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack64(5.0);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP_X2);
@@ -133,8 +133,8 @@ describe('runDupX2', () => {
 
 describe('runDup2', () => {
   test('DUP2: duplicates 2 category 1', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP2);
@@ -163,9 +163,9 @@ describe('runDup2', () => {
 
 describe('runDup2X1', () => {
   test('DUP2X1: duplicates 3 category 1', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
-    const v3 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
+    const v3 = new JavaReference(threadClass);
     thread.pushStack(v3);
     thread.pushStack(v2);
     thread.pushStack(v1);
@@ -182,7 +182,7 @@ describe('runDup2X1', () => {
     expect(thread.getPC()).toBe(1);
   });
   test('DUP2X1: duplicates category 2 category 1', () => {
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack64(5.0);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP2_X1);
@@ -199,10 +199,10 @@ describe('runDup2X1', () => {
 
 describe('runDup2X2', () => {
   test('DUP2X2: duplicates 4 category 1', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
-    const v3 = new JavaReference(threadClass, {});
-    const v4 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
+    const v3 = new JavaReference(threadClass);
+    const v4 = new JavaReference(threadClass);
     thread.pushStack(v4);
     thread.pushStack(v3);
     thread.pushStack(v2);
@@ -222,8 +222,8 @@ describe('runDup2X2', () => {
   });
 
   test('DUP2X2: duplicates category 1,1,2', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
     thread.pushStack(v2);
     thread.pushStack(v1);
     thread.pushStack64(5.0);
@@ -240,8 +240,8 @@ describe('runDup2X2', () => {
   });
 
   test('DUP2X2: duplicates category 2,1,1', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
     thread.pushStack64(5.0);
     thread.pushStack(v2);
     thread.pushStack(v1);
@@ -274,8 +274,8 @@ describe('runDup2X2', () => {
 
 describe('runSwap', () => {
   test('SWAP: swap stack operands', () => {
-    const v1 = new JavaReference(threadClass, {});
-    const v2 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
+    const v2 = new JavaReference(threadClass);
     thread.pushStack(v1);
     thread.pushStack(v2);
     code.setUint8(0, OPCODE.SWAP);

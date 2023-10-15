@@ -3,10 +3,11 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 
 const MAX_LONG = 9223372036854775807n;
 const MIN_LONG = -9223372036854775808n;
@@ -23,13 +24,12 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl._resolveClass('java/lang/Thread');
 
-  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
-  const javaThread = new JavaReference(threadClass, {});
+  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  const javaThread = new JavaReference(threadClass);
   thread = new NativeThread(threadClass, javaThread);
-  const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as CodeAttribute).code;
+  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);
 });
 
@@ -1401,10 +1401,7 @@ describe('runIdiv', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -1472,10 +1469,7 @@ describe('runLdiv', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -1918,10 +1912,7 @@ describe('runIrem', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -1964,10 +1955,7 @@ describe('runLrem', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;

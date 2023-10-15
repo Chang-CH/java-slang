@@ -8,7 +8,6 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 import {
   ConstantMethodref,
-  ConstantInterfaceMethodref,
   ConstantClass,
   ConstantString,
 } from '#types/ConstantRef';
@@ -89,60 +88,63 @@ export function runSipush(thread: NativeThread): void {
   thread.pushStack(short);
 }
 
-export function runLdc(thread: NativeThread): void {
-  const index = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
-  const item = thread.getClass().getConstant(thread, index);
-  if (
-    item.tag === CONSTANT_TAG.Methodref ||
-    item.tag === CONSTANT_TAG.InterfaceMethodref ||
-    item.tag === CONSTANT_TAG.Class ||
-    item.tag === CONSTANT_TAG.String
-  ) {
-    thread.pushStack(
-      (
-        item as
-          | ConstantMethodref
-          | ConstantInterfaceMethodref
-          | ConstantClass
-          | ConstantString
-      ).ref
-    );
-    return;
+function loadConstant(thread: NativeThread, index: number): void {
+  const invoker = thread.getClass();
+  const constant = invoker.getConstant(index);
+
+  switch (constant.tag) {
+    case CONSTANT_TAG.Integer:
+    case CONSTANT_TAG.Float:
+      thread.pushStack(
+        (constant as ConstantIntegerInfo | ConstantFloatInfo).value
+      );
+      return;
+    case CONSTANT_TAG.String:
+      const stringRes = invoker.resolveStringRef(constant as ConstantString);
+      if (stringRes.error || !stringRes.result) {
+        thread.throwNewException(
+          stringRes.error ?? 'java/lang/ClassNotFoundException',
+          ''
+        );
+        return;
+      }
+      thread.pushStack(stringRes.result);
+      return;
+    case CONSTANT_TAG.Class:
+      const { error: classResError, classRef } =
+        invoker.resolveClassRef(constant);
+      if (classResError || !classRef) {
+        thread.throwNewException(
+          classResError ?? 'java/lang/ClassNotFoundException',
+          ''
+        );
+        return;
+      }
+
+      thread.pushStack(classRef);
+      return;
+    case CONSTANT_TAG.MethodType:
+    case CONSTANT_TAG.MethodHandle:
+      throw new Error('not implemented');
   }
-  thread.pushStack((item as ConstantIntegerInfo | ConstantFloatInfo).value);
+}
+
+export function runLdc(thread: NativeThread): void {
+  const indexbyte = thread.getCode().getUint8(thread.getPC());
+  thread.offsetPc(1);
+  loadConstant(thread, indexbyte);
 }
 
 export function runLdcW(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
-  const item = thread.getClass().getConstant(thread, indexbyte);
-  if (
-    item.tag === CONSTANT_TAG.Methodref ||
-    item.tag === CONSTANT_TAG.InterfaceMethodref ||
-    item.tag === CONSTANT_TAG.Class ||
-    item.tag === CONSTANT_TAG.String
-  ) {
-    thread.pushStack(
-      (
-        item as
-          | ConstantMethodref
-          | ConstantInterfaceMethodref
-          | ConstantClass
-          | ConstantString
-      ).ref
-    );
-
-    return;
-  }
-
-  thread.pushStack((item as ConstantIntegerInfo | ConstantFloatInfo).value);
+  loadConstant(thread, indexbyte);
 }
 
 export function runLdc2W(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
-  const item = thread.getClass().getConstant(thread, indexbyte) as
+  const item = thread.getClass().getConstant(indexbyte) as
     | ConstantDoubleInfo
     | ConstantLongInfo;
 

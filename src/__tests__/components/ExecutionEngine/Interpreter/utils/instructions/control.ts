@@ -3,7 +3,8 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 import { JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -18,13 +19,12 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl._resolveClass('java/lang/Thread');
 
-  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
-  const javaThread = new JavaReference(threadClass, {});
+  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  const javaThread = new JavaReference(threadClass);
   thread = new NativeThread(threadClass, javaThread);
-  const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as CodeAttribute).code;
+  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);
 });
 
@@ -167,7 +167,7 @@ describe('runDreturn', () => {
 
 describe('runAreturn', () => {
   test('ARETURN: returns reference to previous stackframe', () => {
-    const obj = new JavaReference(threadClass, {});
+    const obj = new JavaReference(threadClass);
     thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(obj);
     code.setUint8(0, OPCODE.ARETURN);
@@ -188,7 +188,7 @@ describe('runAreturn', () => {
 
 describe('runreturn', () => {
   test('RETURN: returns to previous stackframe', () => {
-    const obj = new JavaReference(threadClass, {});
+    const obj = new JavaReference(threadClass);
     thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     code.setUint8(0, OPCODE.RETURN);
 

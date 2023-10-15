@@ -22,7 +22,7 @@ export interface ClassFile {
   attributes: Array<AttributeInfo>;
 }
 
-export enum ACCESS_FLAGS {
+export enum CLASS_FLAGS {
   ACC_PUBLIC = 0x0001,
   ACC_FINAL = 0x0010,
   ACC_SUPER = 0x0020,

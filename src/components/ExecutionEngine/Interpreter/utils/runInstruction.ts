@@ -12,7 +12,7 @@ import * as reserved from './instructions/reserved';
 import * as references from './instructions/references';
 import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
-import { checkNative } from '#utils/parseBinary/utils/readMethod';
+
 import { JNI } from '#jvm/components/JNI';
 import { parseMethodDescriptor } from '.';
 
@@ -29,10 +29,10 @@ export default function runInstruction(
   const method = thread.getMethod();
 
   // is native
-  if (method.accessFlags >= 0 && checkNative(method)) {
+  if (method.checkNative()) {
     const nativeMethod = jni.getNativeMethod(
       thread.getClass().getClassname(),
-      method.name + method.descriptor
+      method.getMethodName() + method.getMethodDesc()
     );
 
     if (!nativeMethod) {
@@ -42,7 +42,7 @@ export default function runInstruction(
     const result = nativeMethod(thread, thread.peekStackFrame().locals);
     thread.popStackFrame();
 
-    const { ret } = parseMethodDescriptor(method.descriptor);
+    const { ret } = parseMethodDescriptor(method.getMethodDesc());
 
     if (ret === 'V') {
       return;
@@ -57,7 +57,7 @@ export default function runInstruction(
     return;
   }
 
-  if (method.code === null) {
+  if (method._getCode() === null) {
     // native method
     return;
   }

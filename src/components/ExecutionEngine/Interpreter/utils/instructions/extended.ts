@@ -69,11 +69,9 @@ export function runMultianewarray(thread: NativeThread): void {
   thread.offsetPc(2);
   const arrayTypeIdx = thread
     .getClass()
-    .getConstant(thread, indexbyte) as ConstantClassInfo;
+    .getConstant(indexbyte) as ConstantClassInfo;
   const arrayType = (
-    thread
-      .getClass()
-      .getConstant(thread, arrayTypeIdx.nameIndex) as ConstantUtf8Info
+    thread.getClass().getConstant(arrayTypeIdx.nameIndex) as ConstantUtf8Info
   ).value;
 
   const dimensions = thread.getCode().getUint8(thread.getPC());

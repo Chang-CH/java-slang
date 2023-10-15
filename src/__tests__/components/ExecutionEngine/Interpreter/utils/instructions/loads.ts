@@ -3,7 +3,8 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -18,13 +19,12 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl._resolveClass('java/lang/Thread');
 
-  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
-  const javaThread = new JavaReference(threadClass, {});
+  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  const javaThread = new JavaReference(threadClass);
   thread = new NativeThread(threadClass, javaThread);
-  const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as CodeAttribute).code;
+  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);
 });
 
@@ -90,7 +90,7 @@ describe('runDLOAD', () => {
 
 describe('runALOAD', () => {
   test('ALOAD: loads reference from local variable array', () => {
-    const obj = new JavaReference(threadClass, {});
+    const obj = new JavaReference(threadClass);
     thread.peekStackFrame().locals[0] = obj;
     code.setUint8(0, OPCODE.ALOAD);
     code.setUint8(1, 0);
@@ -364,10 +364,10 @@ describe('runDLOAD_3', () => {
 
 describe('runALOAD_0', () => {
   test('ALOAD_0: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass, {});
-    const l1 = new JavaReference(threadClass, {});
-    const l2 = new JavaReference(threadClass, {});
-    const l3 = new JavaReference(threadClass, {});
+    const l0 = new JavaReference(threadClass);
+    const l1 = new JavaReference(threadClass);
+    const l2 = new JavaReference(threadClass);
+    const l3 = new JavaReference(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -384,10 +384,10 @@ describe('runALOAD_0', () => {
 
 describe('runALOAD_1', () => {
   test('ALOAD_1: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass, {});
-    const l1 = new JavaReference(threadClass, {});
-    const l2 = new JavaReference(threadClass, {});
-    const l3 = new JavaReference(threadClass, {});
+    const l0 = new JavaReference(threadClass);
+    const l1 = new JavaReference(threadClass);
+    const l2 = new JavaReference(threadClass);
+    const l3 = new JavaReference(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -404,10 +404,10 @@ describe('runALOAD_1', () => {
 
 describe('runALOAD_2', () => {
   test('ALOAD_2: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass, {});
-    const l1 = new JavaReference(threadClass, {});
-    const l2 = new JavaReference(threadClass, {});
-    const l3 = new JavaReference(threadClass, {});
+    const l0 = new JavaReference(threadClass);
+    const l1 = new JavaReference(threadClass);
+    const l2 = new JavaReference(threadClass);
+    const l3 = new JavaReference(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -424,10 +424,10 @@ describe('runALOAD_2', () => {
 
 describe('runALOAD_3', () => {
   test('ALOAD_3: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass, {});
-    const l1 = new JavaReference(threadClass, {});
-    const l2 = new JavaReference(threadClass, {});
-    const l3 = new JavaReference(threadClass, {});
+    const l0 = new JavaReference(threadClass);
+    const l1 = new JavaReference(threadClass);
+    const l2 = new JavaReference(threadClass);
+    const l3 = new JavaReference(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -481,10 +481,7 @@ describe('runIALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -503,10 +500,7 @@ describe('runIALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -556,10 +550,7 @@ describe('runLALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -577,10 +568,7 @@ describe('runLALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -629,10 +617,7 @@ describe('runFALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -650,10 +635,7 @@ describe('runFALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -702,10 +684,7 @@ describe('runDALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -723,10 +702,7 @@ describe('runDALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -789,10 +765,7 @@ describe('runAALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -811,10 +784,7 @@ describe('runAALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -864,10 +834,7 @@ describe('runBALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -886,10 +853,7 @@ describe('runBALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -939,10 +903,7 @@ describe('runCALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -961,10 +922,7 @@ describe('runCALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -1014,10 +972,7 @@ describe('runSALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 
@@ -1036,10 +991,7 @@ describe('runSALOAD', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
-      threadClass.getMethod(
-        thread,
-        'dispatchUncaughtException(Ljava/lang/Throwable;)V'
-      )
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
 

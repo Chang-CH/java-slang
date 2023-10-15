@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
 import { JavaArray, ArrayPrimitiveType, JavaReference } from '#types/dataTypes';
 
 export function newCharArr(str: string): JavaArray {
@@ -12,9 +12,10 @@ export function newCharArr(str: string): JavaArray {
 
 export function initString(strClass: ClassRef, str: string) {
   const charArr = newCharArr(str);
-  var strObj = new JavaReference(strClass, {
-    'java/lang/String/value': charArr,
-  });
+  // FIXME:  set field {'java/lang/String/value': charArr}
   // TODO: string <init>()V
+  const strObj = strClass.instantiate();
+  // TODO: intialize string with <init>()V
+  strObj.putField('Ljava/lang/String;value', str);
   return strObj;
 }

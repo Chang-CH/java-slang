@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 
@@ -16,14 +16,19 @@ export default class ClassLoader extends AbstractClassLoader {
    * Attempts to load a class file
    * @param className name of class to load
    */
-  load(className: string): ClassRef {
+  load(className: string): { result?: ClassRef; err?: string } {
     console.debug(`ClassLoader: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
 
-    const classFile = this.nativeSystem.readFile(path);
+    let classFile;
+    try {
+      classFile = this.nativeSystem.readFile(path);
+    } catch (e) {
+      return { err: 'java/lang/ClassNotFoundException' };
+    }
 
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
-    return this.loadClass(classData);
+    return { result: this.loadClass(classData) };
   }
 }

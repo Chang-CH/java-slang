@@ -3,7 +3,8 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -19,13 +20,12 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl._resolveClass('java/lang/Thread');
 
-  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
-  javaThread = new JavaReference(threadClass, {});
+  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  javaThread = new JavaReference(threadClass);
   thread = new NativeThread(threadClass, javaThread);
-  const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as CodeAttribute).code;
+  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);
 });
 
@@ -407,7 +407,7 @@ describe('runDstore3', () => {
 
 describe('runAstore', () => {
   test('ASTORE: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE);
     code.setUint8(1, 0);
@@ -422,7 +422,7 @@ describe('runAstore', () => {
 
 describe('runAstore0', () => {
   test('ASTORE_0: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_0);
 
@@ -436,7 +436,7 @@ describe('runAstore0', () => {
 
 describe('runAstore1', () => {
   test('ASTORE_1: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_1);
 
@@ -450,7 +450,7 @@ describe('runAstore1', () => {
 
 describe('runAstore2', () => {
   test('ASTORE_2: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_2);
 
@@ -464,7 +464,7 @@ describe('runAstore2', () => {
 
 describe('runAstore3', () => {
   test('ASTORE_3: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_3);
 
@@ -695,7 +695,7 @@ describe('runDastore', () => {
 describe('runAastore', () => {
   test('AASTORE: stores reference into array', () => {
     const arrayref = new JavaArray(1, 'Ljava/lang/Thread');
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(v1);
@@ -722,7 +722,7 @@ describe('runAastore', () => {
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
     const arrayref = new JavaArray(1, 'Ljava/lang/Thread');
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(v1);
@@ -736,7 +736,7 @@ describe('runAastore', () => {
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
     const arrayref = new JavaArray(1, 'Ljava/lang/Thread');
-    const v1 = new JavaReference(threadClass, {});
+    const v1 = new JavaReference(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(v1);

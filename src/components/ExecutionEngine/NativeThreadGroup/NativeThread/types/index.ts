@@ -1,4 +1,5 @@
-import { ClassRef, MethodRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 
 export interface StackFrame {
   operandStack: any[];

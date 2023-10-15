@@ -3,7 +3,8 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef, ConstantClass } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 import { JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -23,13 +24,12 @@ beforeEach(() => {
   const nativeSystem = new NodeSystem({});
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-  bscl._resolveClass('java/lang/Thread');
 
-  threadClass = bscl.resolveClass(thread, 'java/lang/Thread') as ClassRef;
-  const javaThread = new JavaReference(threadClass, {});
+  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  const javaThread = new JavaReference(threadClass);
   thread = new NativeThread(threadClass, javaThread);
-  const method = threadClass.getMethod(thread, '<init>()V');
-  code = (method.code as CodeAttribute).code;
+  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);
 });
 
@@ -48,7 +48,7 @@ describe('runIfnull', () => {
   test('IFNULL: non null does not branch', () => {
     code.setUint8(0, OPCODE.IFNULL);
     code.setInt16(1, 10);
-    thread.pushStack(new JavaReference(threadClass, {}));
+    thread.pushStack(new JavaReference(threadClass));
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
@@ -72,7 +72,7 @@ describe('runIfnonnull', () => {
   test('IFNONNULL: non null branches', () => {
     code.setUint8(0, OPCODE.IFNONNULL);
     code.setInt16(1, 10);
-    thread.pushStack(new JavaReference(threadClass, {}));
+    thread.pushStack(new JavaReference(threadClass));
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
