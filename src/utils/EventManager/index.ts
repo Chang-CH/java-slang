@@ -1,4 +1,4 @@
-export class EventManager {
+class EventManager {
   private listeners: {
     [event: string]: Array<(...args: any[]) => void>;
   } = {};
@@ -19,3 +19,6 @@ export class EventManager {
     this.listeners[event].push(listener);
   }
 }
+
+const eventManager = new EventManager();
+export default eventManager;
