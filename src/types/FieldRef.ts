@@ -2,6 +2,7 @@ import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { ClassRef } from './ClassRef';
+import { JavaType } from './dataTypes';
 
 export class FieldRef {
   private cls: ClassRef;
@@ -11,19 +12,51 @@ export class FieldRef {
   private accessFlags: number;
   private attributes: AttributeInfo[];
 
-  constructor(cls: ClassRef, field: FieldInfo) {
+  constructor(
+    cls: ClassRef,
+    fieldName: string,
+    fieldDesc: string,
+    accessFlags: number,
+    attributes: AttributeInfo[]
+  ) {
     this.cls = cls;
+    this.fieldName = fieldName;
+    this.fieldDesc = fieldDesc;
+    this.accessFlags = accessFlags;
+    this.attributes = attributes;
 
+    switch (fieldDesc) {
+      case JavaType.byte:
+      case JavaType.char:
+      case JavaType.double:
+      case JavaType.float:
+      case JavaType.int:
+      case JavaType.short:
+      case JavaType.boolean:
+        this.value = 0;
+        break;
+      case JavaType.long:
+        this.value = 0n;
+        break;
+      default:
+        this.value = null;
+        break;
+    }
+  }
+
+  static fromFieldInfo(cls: ClassRef, field: FieldInfo) {
     const fieldName = cls.getConstant(field.nameIndex) as ConstantUtf8Info;
     const fieldDesc = cls.getConstant(
       field.descriptorIndex
     ) as ConstantUtf8Info;
 
-    this.fieldName = fieldName.value;
-    this.fieldDesc = fieldDesc.value;
-    this.accessFlags = field.accessFlags;
-    this.attributes = field.attributes;
-    // TODO: set default value?
+    return new FieldRef(
+      cls,
+      fieldName.value,
+      fieldDesc.value,
+      field.accessFlags,
+      field.attributes
+    );
   }
 
   getValue() {
@@ -47,13 +80,13 @@ export class FieldRef {
   }
 
   cloneField() {
-    const field = new FieldRef(this.cls, {
-      accessFlags: this.accessFlags,
-      attributes: this.attributes,
-      attributesCount: this.attributes.length,
-      descriptorIndex: 0,
-      nameIndex: 0,
-    });
+    const field = new FieldRef(
+      this.cls,
+      this.fieldName,
+      this.fieldDesc,
+      this.accessFlags,
+      this.attributes
+    );
     return field;
   }
 
