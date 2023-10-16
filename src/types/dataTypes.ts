@@ -1,4 +1,5 @@
-import { ClassRef } from './ClassRef';
+import { CLASS_STATUS, ClassRef } from './ClassRef';
+import { FieldRef } from './FieldRef';
 
 export class JavaArray {
   type: string | ArrayPrimitiveType;
@@ -65,9 +66,11 @@ export class JavaArray {
 }
 
 export class JavaReference {
+  public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
+
   private cls: ClassRef;
   private fields: {
-    [key: string]: any;
+    [key: string]: FieldRef;
   };
 
   constructor(cls: ClassRef) {
@@ -84,20 +87,33 @@ export class JavaReference {
     return this.cls;
   }
 
-  getField(name: string) {
-    return this.fields[name];
+  getField(fieldRef: FieldRef): any {
+    const fieldName = fieldRef.getFieldName();
+    const fieldDesc = fieldRef.getFieldDesc();
+    const fieldClass = fieldRef.getClass().getClassname();
+
+    const key = `${fieldClass}.${fieldName}:${fieldDesc}`;
+
+    if (key in this.fields) {
+      return this.fields[key].getValue();
+    }
+
+    throw new Error(`Invalid field`);
   }
 
-  getField64(name: string) {
-    return this.fields[name];
-  }
+  putField(fieldRef: FieldRef, value: any) {
+    const fieldName = fieldRef.getFieldName();
+    const fieldDesc = fieldRef.getFieldDesc();
+    const fieldClass = fieldRef.getClass().getClassname();
 
-  putField(name: string, value: any) {
-    this.fields[name] = value;
-  }
+    const key = `${fieldClass}.${fieldName}${fieldDesc}`;
 
-  putField64(name: string, value: any) {
-    this.fields[name] = value;
+    if (key in this.fields) {
+      this.fields[key].putValue(value);
+      return;
+    }
+
+    throw new Error(`Invalid field`);
   }
 }
 

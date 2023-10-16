@@ -55,6 +55,7 @@ export class ClassRef {
   private fields: {
     [fieldName: string]: FieldRef;
   };
+  private instanceFields: { [key: string]: FieldRef } | null = null;
 
   private methods: {
     [methodName: string]: MethodRef;
@@ -82,7 +83,7 @@ export class ClassRef {
     this.interfaces = interfaces;
     this.fields = {};
     fields.forEach(field => {
-      const fieldRef = new FieldRef(this, field);
+      const fieldRef = FieldRef.fromFieldInfo(this, field);
       this.fields[fieldRef.getFieldName() + fieldRef.getFieldDesc()] = fieldRef;
     });
     this.methods = {};
@@ -451,7 +452,24 @@ export class ClassRef {
   getInstanceFields(): {
     [fieldName: string]: FieldRef;
   } {
-    return this.fields;
+    if (this.instanceFields !== null) {
+      return this.instanceFields;
+    }
+
+    const res = this.superClass?.getInstanceFields() ?? {};
+    this.interfaces?.forEach(inter => {
+      const fields = inter.getInstanceFields();
+      for (const [fieldName, fieldRef] of Object.entries(fields)) {
+        res[fieldName] = fieldRef;
+      }
+    });
+    for (const [fieldName, fieldRef] of Object.entries(this.fields).filter(
+      ([fn, fr]) => !fr.checkStatic()
+    )) {
+      res[`${this.thisClass}.${fieldName}`] = fieldRef;
+    }
+
+    return res;
   }
 
   getSuperClass(): ClassRef | null {

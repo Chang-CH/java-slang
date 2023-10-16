@@ -88,6 +88,7 @@ export function getField(ref: any, fieldName: string, type: JavaType) {
   ref.getField(fieldName, type);
 }
 
+// TODO: return info if calling method should be deferred
 export function tryInitialize(thread: NativeThread, className: string) {
   const classRef = thread.getClass().getLoader().getClassRef(className)
     .result as ClassRef;

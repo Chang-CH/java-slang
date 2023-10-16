@@ -69,7 +69,10 @@ function checkFieldAccess(
     return { error: 'java/lang/NoSuchFieldError' };
   }
 
-  if (isStaticAccess && !field.checkStatic()) {
+  if (
+    (isStaticAccess && !field.checkStatic()) ||
+    (!isStaticAccess && field.checkStatic())
+  ) {
     return { error: 'java/lang/IncompatibleClassChangeError' };
   }
 
@@ -167,109 +170,70 @@ export function runPutstatic(thread: NativeThread): void {
 }
 
 export function runGetfield(thread: NativeThread): void {
-  // const indexbyte = thread.getCode().getUint16(thread.getPC());
-  // thread.offsetPc(2);
-  // const invoker = thread.getClassName();
-  // const obj = thread.popStack() as JavaReference;
-  // const fieldRef = thread
-  //   .getClass()
-  //   .resolveConstant(thread, indexbyte) as ConstantFieldrefInfo;
-  // const className = thread
-  //   .getClass()
-  //   .resolveConstant(
-  //     thread,
-  //     thread.getClass().resolveConstant(thread, fieldRef.classIndex).nameIndex
-  //   ).value;
-  // // Load + initialize if needed
-  // tryInitialize(thread, className);
-  // const nameAndTypeIndex = thread
-  //   .getClass()
-  //   .resolveConstant(
-  //     thread,
-  //     fieldRef.nameAndTypeIndex
-  //   ) as ConstantNameAndTypeInfo;
-  // const fieldName = thread
-  //   .getClass()
-  //   .resolveConstant(className, nameAndTypeIndex.nameIndex).value;
-  // const fieldType = thread
-  //   .getClass()
-  //   .resolveConstant(className, nameAndTypeIndex.descriptorIndex).value;
-  // if (fieldType === 'J' || fieldType === 'D') {
-  //   thread.pushStack64(obj.getField64(fieldName + fieldType));
-  // } else {
-  //   thread.pushStack(obj.getField(fieldName + fieldType));
-  // }
+  const indexbyte = thread.getCode().getUint16(thread.getPC());
+  thread.offsetPc(2);
+  const {
+    error,
+    field: fieldRes,
+    fieldClass: fieldClassRes,
+  } = getFieldRef(thread.getClass(), thread.getMethod(), indexbyte);
+
+  if (error) {
+    thread.throwNewException(error, '');
+    return;
+  }
+  const field = fieldRes as FieldRef;
+
+  const objRef = thread.popStack() as JavaReference;
+  if (objRef === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+
+  // FIXME: Store instance field data in the classref instead.
+  // If fieldRef is Parent.X, and object is Child, Parent.X is set not Child.X
+  const value = objRef.getField(field);
+  if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
+    thread.pushStack64(value);
+  } else {
+    thread.pushStack(value);
+  }
 }
 
 export function runPutfield(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());
-
   thread.offsetPc(2);
+  const {
+    error,
+    field: fieldRes,
+    fieldClass: fieldClassRes,
+  } = getFieldRef(thread.getClass(), thread.getMethod(), indexbyte);
 
-  const invoker = thread.getClassName();
-  const fieldRef = thread
-    .getClass()
-    .getConstant(indexbyte) as ConstantFieldrefInfo;
+  if (error) {
+    thread.throwNewException(error, '');
+    return;
+  }
+  const field = fieldRes as FieldRef;
 
-  const className = thread
-    .getClass()
-    .getConstant(
-      thread.getClass().getConstant(fieldRef.classIndex).nameIndex
-    ).value;
-
-  // Load + initialize if needed
-  tryInitialize(thread, className);
-
-  const nameAndTypeIndex = thread
-    .getClass()
-    .getConstant(fieldRef.nameAndTypeIndex) as ConstantNameAndTypeInfo;
-  const fieldName = thread
-    .getClass()
-    .getConstant(nameAndTypeIndex.nameIndex).value;
-  const fieldType = thread
-    .getClass()
-    .getConstant(nameAndTypeIndex.descriptorIndex).value;
+  const objRef = thread.popStack() as JavaReference;
+  if (objRef === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
 
   // FIXME: in theory it is legal to have 2 same field name, different type
-  if (fieldType === 'J' || fieldType === 'D') {
+  if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
     const value = thread.popStack64();
     const obj = thread.popStack() as JavaReference;
-    obj.putField64(fieldName + fieldType, value);
+    obj.putField(field, value);
   } else {
     const value = thread.popStack();
     const obj = thread.popStack() as JavaReference;
-    obj.putField(fieldName + fieldType, value);
+    obj.putField(field, value);
   }
 
   // FIXME: load class if not loaded
 }
-
-// function checkMethodAccess(
-//   thread: NativeThread,
-//   invoker: ClassRef,
-//   method: MethodRef,
-//   isStaticAccess?: boolean
-// ): { err?: string } {
-//   if ((isStaticAccess && !method.checkStatic()) || method.checkAbstract()) {
-//     return { err: 'java/lang/IncompatibleClassChangeError' };
-//   }
-
-//   const methodClass = method.getClass();
-
-//   if (method.checkPrivate() && invoker !== methodClass) {
-//     return { err: 'java/lang/IllegalAccessError' };
-//   }
-
-//   if (
-//     method.checkProtected() &&
-//     !invoker.checkCast(methodClass) &&
-//     // check package match
-//     invoker.getPackageName() !== methodClass.getPackageName()
-//   ) {
-//     return { err: 'java/lang/IllegalAccessError' };
-//   }
-//   return {};
-// }
 
 export function runInvokevirtual(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC());

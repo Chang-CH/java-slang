@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ConstantRef';
+import { ClassRef } from '#types/ClassRef';
 import NodeSystem from '#utils/NodeSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
@@ -31,7 +31,11 @@ export default class JVM {
     this.applicationClassLoader.getClassRef('java/lang/System').result;
     const sysCls =
       this.applicationClassLoader.getClassRef('java/lang/System').result;
-    // this.engine.runMethod(threadCls, sysCls, 'initializeSystemClass()V');
+    // this.engine.runMethod(
+    //   threadCls as ClassRef,
+    //   sysCls as ClassRef,
+    //   'initializeSystemClass()V'
+    // );
   }
 
   runClass(className: string) {
