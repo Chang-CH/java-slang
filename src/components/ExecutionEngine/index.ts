@@ -1,4 +1,5 @@
 import { ClassRef } from '#types/ClassRef';
+import { MethodRef } from '#types/MethodRef';
 import { JavaReference } from '#types/dataTypes';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
@@ -42,7 +43,7 @@ export default class ExecutionEngine {
 
     mainThread.pushStackFrame(
       cls,
-      cls.getMethod(mainThread, method),
+      cls.getMethod(method) as MethodRef,
       0,
       args ?? []
     );
