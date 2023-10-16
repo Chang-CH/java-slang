@@ -1,5 +1,6 @@
 import { ClassRef } from '#types/ClassRef';
-import { JavaArray, ArrayPrimitiveType, JavaReference } from '#types/dataTypes';
+import { FieldRef } from '#types/FieldRef';
+import { JavaArray, ArrayPrimitiveType } from '#types/dataTypes';
 
 export function newCharArr(str: string): JavaArray {
   const arrayref = new JavaArray(
@@ -16,6 +17,8 @@ export function initString(strClass: ClassRef, str: string) {
   // TODO: string <init>()V
   const strObj = strClass.instantiate();
   // TODO: intialize string with <init>()V
-  strObj.putField('Ljava/lang/String;value', str);
+
+  const fieldRef = strClass.getFieldRef('value[B') as FieldRef;
+  strObj.putField(fieldRef as FieldRef, str);
   return strObj;
 }
