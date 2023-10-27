@@ -186,7 +186,6 @@ export default class NativeThread {
     const unhandledMethod = this.cls.getMethod(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
-
     if (unhandledMethod === null) {
       throw new Error(
         'Uncaught exception could not be thrown: dispatchUncaughtException(Ljava/lang/Throwable;)V not found'

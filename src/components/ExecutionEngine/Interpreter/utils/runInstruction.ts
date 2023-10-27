@@ -63,9 +63,13 @@ export default function runInstruction(
   }
 
   const opcode = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
 
   let result;
+  console.log(
+    `${method.getClass().getClassname()}.${
+      method.getMethodName() + method.getMethodDesc()
+    }:${OPCODE[opcode]}`
+  );
   switch (opcode) {
     case OPCODE.NOP:
       result = constants.runNop(thread);

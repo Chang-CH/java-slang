@@ -36,29 +36,89 @@ export class JNI {
 
       switch (retType) {
         case JavaType.array:
-          return () => new JavaArray(0, ArrayPrimitiveType.int);
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return new JavaArray(0, ArrayPrimitiveType.int);
+          };
         case JavaType.byte:
-          return () => 0;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return 0;
+          };
         case JavaType.char:
-          return () => '';
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return '';
+          };
         case JavaType.double:
-          return () => 0.0;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return 0.0;
+          };
         case JavaType.float:
-          return () => 0.0;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return 0.0;
+          };
         case JavaType.int:
-          return () => 0;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return 0;
+          };
         case JavaType.long:
-          return () => 0n;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return 0n;
+          };
         case JavaType.short:
-          return () => 0;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return 0;
+          };
         case JavaType.boolean:
-          return () => false;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return false;
+          };
         case JavaType.reference:
-          return () => null;
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return null;
+          };
         case JavaType.void:
-          return () => {};
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return {};
+          };
         default:
-          return () => {};
+          return (...params: any) => {
+            console.log(
+              `Dummy method ${className}.${methodName} run with params${params}`
+            );
+            return {};
+          };
       }
     }
     return this.classes[className].methods[methodName];

@@ -13,6 +13,7 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 
 export function runWide(thread: NativeThread): void {
+  thread.offsetPc(1);
   const opcode = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
 
@@ -65,6 +66,7 @@ export function runWide(thread: NativeThread): void {
 }
 
 export function runMultianewarray(thread: NativeThread): void {
+  thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
   const arrayTypeIdx = thread
@@ -155,6 +157,7 @@ export function runMultianewarray(thread: NativeThread): void {
 }
 
 export function runIfnull(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
 
@@ -166,6 +169,7 @@ export function runIfnull(thread: NativeThread): void {
 }
 
 export function runIfnonnull(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
 
@@ -177,11 +181,13 @@ export function runIfnonnull(thread: NativeThread): void {
 }
 
 export function runGotoW(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt32(thread.getPC());
   thread.offsetPc(branchbyte - 1);
 }
 
 export function runJsrW(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt32(thread.getPC());
   thread.offsetPc(4);
   thread.pushStack(thread.getPC());

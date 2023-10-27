@@ -53,13 +53,13 @@ export default function main() {
 
   const folders: Folder = {};
 
-  for (const fileName of options['-f']) {
+  for (const filePath of options['-f']) {
     if (typeof options === 'number') {
       continue;
     }
 
     // converts nodejs buffer to ArrayBuffer
-    const buffer = fs.readFileSync(fileName, null);
+    const buffer = fs.readFileSync(filePath + '.class', null);
     const arraybuffer = a2ab(buffer);
     const view = new DataView(arraybuffer);
 
@@ -73,7 +73,7 @@ export default function main() {
       const cls = parseBin(view);
       console.debug(classFileToText(cls));
     }
-    folders[fileName] = view;
+    folders[filePath] = view;
   }
 
   const nativeSystem = new NodeSystem(folders);

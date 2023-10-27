@@ -34,6 +34,7 @@ export const createClass = (options: {
     attributes?: Array<AttributeInfo>;
     data?: any;
   }[];
+  flags?: number;
   status?: CLASS_STATUS;
 }): ClassRef => {
   let constantPool: ConstantRef[] = [
@@ -171,7 +172,7 @@ export const createClass = (options: {
 
   const clsRef = new ClassRef(
     constantPool,
-    33,
+    options.flags ?? 33,
     options.className ?? 'Test/Test',
     options.superClass ?? null,
     interfaces,

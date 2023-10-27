@@ -13,76 +13,94 @@ import {
 } from '#types/ConstantRef';
 
 export function runNop(thread: NativeThread): void {
+  thread.offsetPc(1);
   return;
 }
 
 export function runAconstNull(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(null);
 }
 
 export function runIconstM1(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(-1);
 }
 
 export function runIconst0(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(0);
 }
 
 export function runIconst1(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(1);
 }
 
 export function runIconst2(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(2);
 }
 
 export function runIconst3(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(3);
 }
 
 export function runIconst4(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(4);
 }
 
 export function runIconst5(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(5);
 }
 
 export function runLconst0(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack64(0n);
 }
 
 export function runLconst1(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack64(1n);
 }
 
 export function runFconst0(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(0.0);
 }
 
 export function runFconst1(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(1.0);
 }
 
 export function runFconst2(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack(2.0);
 }
 
 export function runDconst0(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack64(0.0);
 }
 
 export function runDconst1(thread: NativeThread): void {
+  thread.offsetPc(1);
   thread.pushStack64(1.0);
 }
 
 export function runBipush(thread: NativeThread): void {
+  thread.offsetPc(1);
   const byte = thread.getCode().getInt8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack(byte);
 }
 
 export function runSipush(thread: NativeThread): void {
+  thread.offsetPc(1);
   const short = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   thread.pushStack(short);
@@ -130,18 +148,21 @@ function loadConstant(thread: NativeThread, index: number): void {
 }
 
 export function runLdc(thread: NativeThread): void {
+  thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   loadConstant(thread, indexbyte);
 }
 
 export function runLdcW(thread: NativeThread): void {
+  thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
   loadConstant(thread, indexbyte);
 }
 
 export function runLdc2W(thread: NativeThread): void {
+  thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
   const item = thread.getClass().getConstant(indexbyte) as

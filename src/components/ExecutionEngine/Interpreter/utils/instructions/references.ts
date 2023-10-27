@@ -102,9 +102,7 @@ function checkFieldAccess(
 }
 
 export function runGetstatic(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-
-  thread.offsetPc(2);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
 
   const {
     error,
@@ -119,7 +117,14 @@ export function runGetstatic(thread: NativeThread): void {
   const field = fieldRes as FieldRef;
   const fieldClass = fieldClassRes as ClassRef;
 
-  tryInitialize(thread, (fieldClass as ClassRef).getClassname());
+  const { shouldDefer } = tryInitialize(
+    thread,
+    (fieldClass as ClassRef).getClassname()
+  );
+  if (shouldDefer) {
+    return;
+  }
+  thread.offsetPc(3);
 
   if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
     thread.pushStack64(field.getValue());
@@ -129,10 +134,7 @@ export function runGetstatic(thread: NativeThread): void {
 }
 
 export function runPutstatic(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-
-  thread.offsetPc(2);
-
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const {
     error,
     field: fieldRes,
@@ -147,7 +149,15 @@ export function runPutstatic(thread: NativeThread): void {
   const field = fieldRes as FieldRef;
   const fieldClass = fieldClassRes as ClassRef;
 
-  tryInitialize(thread, (fieldClass as ClassRef).getClassname());
+  const { shouldDefer } = tryInitialize(
+    thread,
+    (fieldClass as ClassRef).getClassname()
+  );
+  if (shouldDefer) {
+    return;
+  }
+  thread.offsetPc(3);
+
   const desc = field.getFieldDesc();
   switch (desc) {
     case JavaType.long:
@@ -170,8 +180,8 @@ export function runPutstatic(thread: NativeThread): void {
 }
 
 export function runGetfield(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  thread.offsetPc(3);
   const {
     error,
     field: fieldRes,
@@ -201,8 +211,8 @@ export function runGetfield(thread: NativeThread): void {
 }
 
 export function runPutfield(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  thread.offsetPc(3);
   const {
     error,
     field: fieldRes,
@@ -215,29 +225,24 @@ export function runPutfield(thread: NativeThread): void {
   }
   const field = fieldRes as FieldRef;
 
+  let value;
+  // FIXME: in theory it is legal to have 2 same field name, different type
+  if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
+    value = thread.popStack64();
+  } else {
+    value = thread.popStack();
+  }
+
   const objRef = thread.popStack() as JavaReference;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
   }
-
-  // FIXME: in theory it is legal to have 2 same field name, different type
-  if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
-    const value = thread.popStack64();
-    const obj = thread.popStack() as JavaReference;
-    obj.putField(field, value);
-  } else {
-    const value = thread.popStack();
-    const obj = thread.popStack() as JavaReference;
-    obj.putField(field, value);
-  }
-
-  // FIXME: load class if not loaded
+  objRef.putField(field, value);
 }
 
 export function runInvokevirtual(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   let methodRef;
   const constant = thread.getClass().getConstant(indexbyte);
   const res = thread.getClass().resolveMethodRef(thread, constant);
@@ -253,8 +258,12 @@ export function runInvokevirtual(thread: NativeThread): void {
   methodRef = res.methodRef;
 
   const classRef = methodRef.getClass();
-  // Initialize class
-  tryInitialize(thread, classRef.getClassname());
+  const { shouldDefer } = tryInitialize(thread, classRef.getClassname());
+  if (shouldDefer) {
+    return;
+  }
+  thread.offsetPc(3);
+
   // Get arguments
   const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
   const args = [];
@@ -293,7 +302,8 @@ export function runInvokevirtual(thread: NativeThread): void {
   // method lookup
   const lookupResult = runtimeClassRef.lookupMethod(
     methodRef.getMethodName() + methodRef.getMethodDesc(),
-    methodRef
+    methodRef,
+    true
   );
   if (lookupResult.error || !lookupResult.methodRef) {
     thread.throwNewException(
@@ -311,66 +321,117 @@ export function runInvokevirtual(thread: NativeThread): void {
 }
 
 export function runInvokespecial(thread: NativeThread): void {
-  //   const indexbyte = thread.getCode().getUint16(thread.getPC());
-  //   thread.offsetPc(2);
-  //   const invoker = thread.getClassName();
-  //   const res = thread.getClass().resolveReference(thread, indexbyte);
-  //   if (res.error || !res.result) {
-  //     thread.throwNewException(res.error ?? 'java/lang/NoSuchMethodError', '');
-  //     return;
-  //   }
-  //   const methodRef = res.result as MethodRef;
-  //   const className = methodRef.getClass().getClassname();
-  //   const methodName = methodRef.getMethodName();
-  //   const methodDescriptor = methodRef.getMethodDesc();
-  //   // Get arguments
-  //   const methodDesc = parseMethodDescriptor(methodDescriptor);
-  //   const args = [];
-  //   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-  //     if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
-  //       args[i] = thread.popStack64();
-  //       continue;
-  //     }
-  //     args[i] = thread.popStack();
-  //   }
-  //   // Load + initialize if needed
-  //   tryInitialize(thread, className);
-  //   const thisObj = thread.popStack();
-  //   const classRef = thread.getClass().getLoader().getClassRef(className)
-  //     .result as ClassRef;
-  //   thread.pushStackFrame(classRef, methodRef, 0, [thisObj, ...args]);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  const constant = thread.getClass().getConstant(indexbyte);
+  let res;
+
+  if (constant.tag === CONSTANT_TAG.InterfaceMethodref) {
+    res = thread.getClass().resolveInterfaceMethodRef(thread, constant);
+  } else {
+    res = thread.getClass().resolveMethodRef(thread, constant);
+  }
+
+  if (res.error) {
+    thread.throwNewException(res.error, '');
+    return;
+  }
+  if (!res.methodRef) {
+    // Should not happen
+    thread.throwNewException('java/lang/NoSuchMethodError', '');
+    return;
+  }
+  const methodRef = res.methodRef;
+
+  // If all of the following are true, let C be the direct superclass of the current class:
+  //   The resolved method is not an instance initialization method (§2.9.1).
+  //   If the symbolic reference names a class (not an interface), then that class is a superclass of the current class.
+  //   The ACC_SUPER flag is set for the class file (§4.1).
+
+  const classRef = methodRef.getClass();
+  const { shouldDefer } = tryInitialize(thread, classRef.getClassname());
+  if (shouldDefer) {
+    return;
+  }
+  thread.offsetPc(3);
+
+  // Get arguments
+  const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    switch (methodDesc.args[i]) {
+      case 'V':
+        break; // should not happen
+      case 'B':
+      case 'C':
+      case 'I':
+      case 'S':
+      case 'Z':
+        args[i] = thread.popStack();
+        break;
+      case 'D':
+        args[i] = asDouble(thread.popStack64());
+        break;
+      case 'F':
+        args[i] = asFloat(thread.popStack());
+        break;
+      case 'J':
+        args[i] = thread.popStack64();
+        break;
+      case '[':
+      default: // references + arrays
+        args[i] = thread.popStack();
+    }
+  }
+
+  const objRef = thread.popStack() as JavaReference;
+  if (objRef === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+
+  // method lookup
+  const lookupResult = methodRef
+    .getClass()
+    .lookupMethod(
+      methodRef.getMethodName() + methodRef.getMethodDesc(),
+      methodRef
+    );
+  if (lookupResult.error || !lookupResult.methodRef) {
+    thread.throwNewException(
+      lookupResult.error ?? 'java/lang/AbstractMethodError',
+      ''
+    );
+    return;
+  }
+  const toInvoke = lookupResult.methodRef;
+  if (toInvoke.checkAbstract()) {
+    thread.throwNewException('java/lang/NoSuchMethodError', '');
+    return;
+  }
+  thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
 }
 
 export function runInvokestatic(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
-  let methodRef;
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+
+  let res;
   const constant = thread.getClass().getConstant(indexbyte);
-  if (constant.tag === CONSTANT_TAG.Methodref) {
-    const res = thread.getClass().resolveMethodRef(thread, constant);
-    if (res.error) {
-      thread.throwNewException(res.error, '');
-      return;
-    }
-    if (!res.methodRef) {
-      // Should not happen
-      thread.throwNewException('java/lang/NoSuchMethodError', '');
-      return;
-    }
-    methodRef = res.methodRef;
-  } else {
+  if (constant.tag === CONSTANT_TAG.InterfaceMethodref) {
     // interface method ref
-    const res = thread.getClass().resolveInterfaceMethodRef(thread, constant);
-    if (res.error) {
-      thread.throwNewException(res.error, '');
-      return;
-    }
-    if (!res.methodRef) {
-      thread.throwNewException('java/lang/NoSuchMethodError', '');
-      return;
-    }
-    methodRef = res.methodRef;
+    res = thread.getClass().resolveInterfaceMethodRef(thread, constant);
+  } else {
+    res = thread.getClass().resolveMethodRef(thread, constant);
   }
+
+  if (res.error) {
+    thread.throwNewException(res.error, '');
+    return;
+  }
+  if (!res.methodRef) {
+    thread.throwNewException('java/lang/NoSuchMethodError', '');
+    return;
+  }
+  const methodRef = res.methodRef;
 
   if (!methodRef.checkStatic()) {
     thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
@@ -379,7 +440,12 @@ export function runInvokestatic(thread: NativeThread): void {
 
   const classRef = methodRef.getClass();
   // Initialize class
-  tryInitialize(thread, classRef.getClassname());
+  const { shouldDefer } = tryInitialize(thread, classRef.getClassname());
+  if (shouldDefer) {
+    return;
+  }
+  thread.offsetPc(3);
+
   // Get arguments
   const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
   const args = [];
@@ -412,72 +478,104 @@ export function runInvokestatic(thread: NativeThread): void {
 }
 
 export function runInvokeinterface(thread: NativeThread): void {
-  // const indexbyte = thread.getCode().getUint16(thread.getPC());
-  // thread.offsetPc(2);
-  // // Not actually useful
-  // // const count = thread.getCode().getUint8(thread.getPC());
-  // // thread.offsetPc(1);
-  // // const zero = thread.getCode().getUint8(thread.getPC());
-  // // thread.offsetPc(1);
-  // thread.offsetPc(2);
-  // const invoker = thread.getClass();
-  // const interfaceMethodRef = invoker.getConstant(
-  //   indexbyte
-  // ) as ConstantInterfaceMethodrefInfo;
-  // const interfaceClass = (
-  //   invoker.resolveConstant(
-  //     thread,
-  //     interfaceMethodRef.classIndex
-  //   ) as ConstantClass
-  // ).ref;
-  // const nameAndTypeIndex = invoker.getConstant(
-  //   interfaceMethodRef.nameAndTypeIndex
-  // ) as ConstantNameAndTypeInfo;
-  // const methodName = invoker.getConstant(nameAndTypeIndex.nameIndex).value;
-  // const methodDescriptor = invoker.getConstant(
-  //   nameAndTypeIndex.descriptorIndex
-  // ).value;
-  // // Get arguments
-  // const methodDesc = parseMethodDescriptor(methodDescriptor);
-  // const args = [];
-  // for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-  //   if (methodDesc.args[i] === 'J' || methodDesc.args[i] === 'D') {
-  //     args[i] = thread.popStack64();
-  //     continue;
-  //   }
-  //   args[i] = thread.popStack();
-  // }
-  // const thisObj = thread.popStack() as JavaReference | null;
-  // if (thisObj === null) {
-  //   thread.throwNewException('java/lang/NullPointerException', '');
-  //   return;
-  // }
-  // if (
-  //   !interfaceClass.checkInterface() ||
-  //   !thisObj.getClass().checkCast(interfaceClass)
-  // ) {
-  //   thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
-  //   return;
-  // }
-  // // must be dynamically resovled
-  // const methodRef = thisObj.getClass().getMethod(methodName + methodDescriptor);
-  // if (!methodRef) {
-  //   thread.throwNewException('java/lang/NoSuchMethodError', '');
-  //   return;
-  // }
-  // checkMethodAccess(thread, invoker, methodRef);
-  // thread.pushStackFrame(thisObj.getClass(), methodRef, 0, [thisObj]);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  // Not actually useful
+  const count = thread.getCode().getUint8(thread.getPC() + 3);
+  const zero = thread.getCode().getUint8(thread.getPC() + 4);
+
+  let methodRef;
+  const constant = thread.getClass().getConstant(indexbyte);
+  const res = thread.getClass().resolveInterfaceMethodRef(thread, constant);
+  if (res.error) {
+    thread.throwNewException(res.error, '');
+    return;
+  }
+  if (!res.methodRef) {
+    // Should not happen
+    thread.throwNewException('java/lang/NoSuchMethodError', '');
+    return;
+  }
+  methodRef = res.methodRef;
+
+  const classRef = methodRef.getClass();
+  const { shouldDefer } = tryInitialize(thread, classRef.getClassname());
+  if (shouldDefer) {
+    return;
+  }
+  thread.offsetPc(6);
+
+  // Get arguments
+  const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    switch (methodDesc.args[i]) {
+      case 'V':
+        break; // should not happen
+      case 'B':
+      case 'C':
+      case 'I':
+      case 'S':
+      case 'Z':
+        args[i] = thread.popStack();
+        break;
+      case 'D':
+        args[i] = asDouble(thread.popStack64());
+        break;
+      case 'F':
+        args[i] = asFloat(thread.popStack());
+        break;
+      case 'J':
+        args[i] = thread.popStack64();
+        break;
+      case '[':
+      default: // references + arrays
+        args[i] = thread.popStack();
+    }
+  }
+  const objRef = thread.popStack() as JavaReference;
+  if (objRef === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+  if (!objRef.getClass().checkCast(classRef)) {
+    thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
+    return;
+  }
+  const runtimeClassRef = objRef.getClass();
+
+  // method lookup
+  const lookupResult = runtimeClassRef.lookupMethod(
+    methodRef.getMethodName() + methodRef.getMethodDesc(),
+    methodRef,
+    false,
+    true
+  );
+  if (lookupResult.error || !lookupResult.methodRef) {
+    thread.throwNewException(
+      lookupResult.error ?? 'java/lang/AbstractMethodError',
+      ''
+    );
+    return;
+  }
+  const toInvoke = lookupResult.methodRef;
+  if (toInvoke.checkAbstract()) {
+    thread.throwNewException('java/lang/NoSuchMethodError', '');
+    return;
+  }
+  thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
 }
 
+// TODO:
 export function runInvokedynamic(thread: NativeThread): void {
-  // const indexbyte = thread.getCode().getUint16(thread.getPC());
+  thread.offsetPc(1);
+  // const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   // thread.offsetPc(2);
-  // const zero1 = thread.getCode().getUint8(thread.getPC());
+  // const zero1 = thread.getCode().getUint8(thread.getPC() + 1);
   // if (zero1 !== 0) {
   //   throw new Error('invokedynamic third byte must be 0');
   // }
   // thread.offsetPc(1);
-  // const zero2 = thread.getCode().getUint8(thread.getPC());
+  // const zero2 = thread.getCode().getUint8(thread.getPC() + 1);
   // if (zero2 !== 0) {
   //   throw new Error('invokedynamic fourth bytes must be 0');
   // }
@@ -491,61 +589,79 @@ export function runInvokedynamic(thread: NativeThread): void {
 }
 
 export function runNew(thread: NativeThread): void {
-  // const indexbyte = thread.getCode().getUint16(thread.getPC());
-  // thread.offsetPc(2);
-  // const type = indexbyte;
-  // const res = thread.getClass().resolveConstant(thread, type);
-  // if (res.error || !res.constant) {
-  //   thread.throwNewException(
-  //     res.error ?? 'java/lang/ClassNotFoundException',
-  //     ''
-  //   );
-  //   return;
-  // }
-  // const objCls = (res.constant as ConstantClass).ref;
-  // // Load + initialize if needed
-  // tryInitialize(thread, objCls.getClassname());
-  // thread.pushStack(objCls.instantiate());
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  const invoker = thread.getClass();
+  const res = invoker.resolveClassRef(invoker.getConstant(indexbyte));
+  if (res.error || !res.classRef) {
+    thread.throwNewException(
+      res.error ?? 'java/lang/ClassNotFoundException',
+      ''
+    );
+    return;
+  }
+
+  const objCls = res.classRef;
+  // Load + initialize if needed
+  const { shouldDefer } = tryInitialize(thread, objCls.getClassname());
+  if (shouldDefer) {
+    return;
+  }
+
+  thread.offsetPc(3);
+  thread.pushStack(objCls.instantiate());
 }
 
 export function runNewarray(thread: NativeThread): void {
-  const atype = thread.getCode().getUint8(thread.getPC()); // TODO: check atype valid
-  thread.offsetPc(1);
+  const atype = thread.getCode().getUint8(thread.getPC() + 1); // TODO: check atype valid
+  thread.offsetPc(2);
 
   const count = thread.popStack();
-  const type = atype;
-  const arrayref = new JavaArray(count, type);
+  const arrayref = new JavaArray(count, atype);
   thread.pushStack(arrayref);
 }
 
+// TODO:
 export function runAnewarray(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
-  const invoker = thread.getClassName();
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  thread.offsetPc(3);
+  const invoker = thread.getClass();
   const count = thread.popStack();
 
-  const className = thread
-    .getClass()
-    .getConstant(thread.getClass().getConstant(indexbyte).nameIndex).value;
-  const arrayref = new JavaArray(count, className);
+  if (count < 0) {
+    thread.throwNewException('java/lang/NegativeArraySizeException', '');
+    return;
+  }
+
+  const classResolutionResult = invoker.resolveClassRef(
+    invoker.getConstant(indexbyte)
+  );
+  if (classResolutionResult.error || !classResolutionResult.classRef) {
+    thread.throwNewException(
+      classResolutionResult.error ?? 'java/lang/ClassNotFoundException',
+      ''
+    );
+    return;
+  }
+
+  const arrayref = new JavaArray(count, classResolutionResult.classRef);
   thread.pushStack(arrayref);
 }
 
 export function runArraylength(thread: NativeThread): void {
+  thread.offsetPc(1);
   const arrayref = thread.popStack() as JavaArray;
   thread.pushStack(arrayref.len());
 }
 
 export function runAthrow(thread: NativeThread): void {
+  thread.offsetPc(1);
   const exception = thread.popStack();
   thread.throwException(exception);
-  // TODO: throw Java error
-  // TODO: parse exception handlers
-  // throw new Error('runInstruction: Not implemented');
 }
 
 export function runCheckcast(thread: NativeThread): void {
-  // const indexbyte = thread.getCode().getUint16(thread.getPC());
+  thread.offsetPc(1);
+  // const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   // thread.offsetPc(2);
   // if (thread.popStack() === null) {
   //   thread.pushStack(null);
@@ -562,7 +678,8 @@ export function runCheckcast(thread: NativeThread): void {
 }
 
 export function runInstanceof(thread: NativeThread): void {
-  // const indexbyte = thread.getCode().getUint16(thread.getPC());
+  thread.offsetPc(1);
+  // const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   // thread.offsetPc(2);
   // const ref = thread.popStack() as JavaReference;
   // const res = thread.getClass().resolveConstant(thread, indexbyte);
@@ -594,9 +711,11 @@ export function runInstanceof(thread: NativeThread): void {
 }
 
 export function runMonitorenter(thread: NativeThread): void {
+  thread.offsetPc(1);
   throw new Error('runInstruction: Not implemented');
 }
 
 export function runMonitorexit(thread: NativeThread): void {
+  thread.offsetPc(1);
   throw new Error('runInstruction: Not implemented');
 }

@@ -2,11 +2,15 @@ import { CLASS_STATUS, ClassRef } from './ClassRef';
 import { FieldRef } from './FieldRef';
 
 export class JavaArray {
-  type: string | ArrayPrimitiveType;
+  type: string | ArrayPrimitiveType | ClassRef;
   length: number;
   array: any[];
 
-  constructor(length: number, type: string | ArrayPrimitiveType, arr?: any[]) {
+  constructor(
+    length: number,
+    type: string | ArrayPrimitiveType | ClassRef,
+    arr?: any[]
+  ) {
     this.length = length;
     this.type = type;
 

@@ -64,6 +64,8 @@ export class ClassRef {
   private bootstrapMethods?: BootstrapMethodsAttribute;
   private attributes: Array<AttributeInfo>;
 
+  // private javaObj: JavaReference;
+
   constructor(
     constantPool: Array<ConstantRef>,
     accessFlags: number,
@@ -95,6 +97,12 @@ export class ClassRef {
     this.attributes = attributes;
     this.loader = loader;
     this.bootstrapMethods = bootstrapMethods;
+
+    // const clsRes = this.loader.getClassRef('java/lang/Class');
+    // if (clsRes.error || !clsRes.result) {
+    //   throw new Error('Could not load class java/lang/Class');
+    // }
+    // this.javaObj = new JavaReference(clsRes.result);
   }
 
   private resolveClass(toResolve: string) {
@@ -124,8 +132,11 @@ export class ClassRef {
     classRef?: ClassRef;
   } {
     // resolved before
+    if (clsRef.error) {
+      return { error: clsRef.error };
+    }
     if (clsRef.classRef) {
-      return { classRef: clsRef.classRef, error: clsRef.error };
+      return { classRef: clsRef.classRef };
     }
 
     const className = this.constantPool[clsRef.nameIndex] as ConstantUtf8Info;
@@ -210,19 +221,15 @@ export class ClassRef {
         this.getPackageName() === method.getClass().getPackageName()
       );
     }
+
+    // R is private
+    return symbolClass === method.getClass();
   }
 
   private _resolveMethod(
     methodName: string,
     symbolClass: ClassRef
   ): MethodResolutionResult {
-    // 1. If C is an interface, method resolution throws an IncompatibleClassChangeError
-    if (symbolClass.checkInterface()) {
-      return {
-        error: 'java/lang/IncompatibleClassChangeError',
-      };
-    }
-
     // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
     let result = this._resolveMethodSuper(methodName);
     if (result !== null) {
@@ -280,7 +287,7 @@ export class ClassRef {
     // Previously resolved without errors
     if (methodRef.error === '') {
       return {
-        error: '',
+        methodRef: methodRef.methodRef,
       };
     }
 
@@ -289,6 +296,7 @@ export class ClassRef {
     const constantCls = invokerD.getConstant(
       methodRef.classIndex
     ) as ConstantClass;
+
     const classRes = invokerD.resolveClassRef(constantCls);
     if (classRes.error) {
       methodRef.error = methodRef.error ?? classRes.error;
@@ -314,15 +322,19 @@ export class ClassRef {
     const methodDescriptor = invokerD.getConstant(
       nameAndTypeIndex.descriptorIndex
     ).value;
-
     // 5.4.3.3. Method Resolution
     const methodRes = clsRef.resolveMethod(
       methodName + methodDescriptor,
       clsRef
     );
 
-    methodRef.error = methodRef.error ?? methodRes.error;
+    if (methodRes.error) {
+      methodRef.error = methodRef.error ?? methodRes.error;
+      return methodRes;
+    }
+
     methodRef.methodRef = methodRef.methodRef ?? methodRes.methodRef;
+    methodRef.error = '';
     return methodRes;
   }
 
@@ -499,11 +511,16 @@ export class ClassRef {
     );
   }
 
-  private _lookupMethodSuper(methodName: string, resolvedMethod: MethodRef) {
+  private _lookupMethodSuper(
+    methodName: string,
+    resolvedMethod: MethodRef,
+    checkOverride?: boolean
+  ) {
     // If C contains a declaration for an instance method m that overrides the resolved method, then m is the method to be invoked.
     if (
       this.methods[methodName] &&
-      this._checkOverrides(this.methods[methodName], resolvedMethod)
+      (!checkOverride ||
+        this._checkOverrides(this.methods[methodName], resolvedMethod))
     ) {
       return this.methods[methodName];
     }
@@ -542,12 +559,22 @@ export class ClassRef {
 
   lookupMethod(
     methodName: string,
-    resolvedMethod: MethodRef
+    resolvedMethod: MethodRef,
+    checkOverride?: boolean,
+    checkInterface?: boolean
   ): { error?: string; methodRef?: MethodRef } {
     // If C contains a declaration for an instance method m that overrides
     // the resolved method, then m is the method to be invoked.
-    let methodRef = this._lookupMethodSuper(methodName, resolvedMethod);
+    let methodRef = this._lookupMethodSuper(
+      methodName,
+      resolvedMethod,
+      checkOverride
+    );
     if (methodRef) {
+      if (checkInterface && !methodRef.checkPublic()) {
+        return { error: 'java/lang/IllegalAccessError' };
+      }
+
       if (methodRef.checkAbstract()) {
         return { error: 'java/lang/AbstractMethodError' };
       }
@@ -555,6 +582,7 @@ export class ClassRef {
         // FIXME: If the code that implements the method cannot be bound,
         // invokevirtual throws an UnsatisfiedLinkError
       }
+
       return { methodRef };
     }
 

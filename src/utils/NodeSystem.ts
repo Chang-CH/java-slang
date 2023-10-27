@@ -28,11 +28,13 @@ export default class NodeSystem extends AbstractSystem {
 
     const pathArray = [path];
 
-    let currentFolder: Folder | DataView = this.files;
+    let currentFolder: any = this.files;
     for (const folderName of pathArray) {
       // @ts-ignore
       if (!currentFolder[folderName]) {
-        throw new Error(`File not found: ${pathArray.join('/')}`);
+        // throw new Error(`File not found: ${pathArray.join('/')}`);
+        currentFolder = currentFolder[folderName];
+        break;
       }
       // @ts-ignore
       currentFolder = currentFolder[folderName];
@@ -40,6 +42,19 @@ export default class NodeSystem extends AbstractSystem {
 
     if (currentFolder instanceof DataView) {
       return parseBin(currentFolder);
+    }
+
+    if (currentFolder) {
+      return currentFolder;
+    }
+
+    // converts nodejs buffer to ArrayBuffer
+    const buffer = fs.readFileSync(path + '.class', null);
+    const arraybuffer = a2ab(buffer);
+    const view = new DataView(arraybuffer);
+    const res = parseBin(view);
+    if (res) {
+      return res;
     }
 
     throw new Error('File is not a class file');

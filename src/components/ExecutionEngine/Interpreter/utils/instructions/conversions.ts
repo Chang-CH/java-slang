@@ -7,36 +7,43 @@ const MAX_LONG = BigInt('9223372036854775807');
 const MIN_LONG = BigInt('-9223372036854775808');
 
 export function runI2l(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack();
   thread.pushStack64(BigInt(value));
 }
 
 export function runI2f(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack();
   thread.pushStack(Math.fround(value));
 }
 
 export function runI2d(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack();
   thread.pushStack64(value);
 }
 
 export function runL2i(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack64();
   thread.pushStack(Number(BigInt.asIntN(32, value)));
 }
 
 export function runL2f(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack64();
   thread.pushStack(asFloat(Number(value)));
 }
 
 export function runL2d(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack64();
   thread.pushStack64(Number(value));
 }
 
 export function runF2i(thread: NativeThread): void {
+  thread.offsetPc(1);
   let value = thread.popStack();
   if (Number.isNaN(value)) {
     value = 0;
@@ -47,6 +54,7 @@ export function runF2i(thread: NativeThread): void {
 }
 
 export function runF2l(thread: NativeThread): void {
+  thread.offsetPc(1);
   let value = thread.popStack();
   if (Number.isNaN(value)) {
     value = 0n;
@@ -62,11 +70,13 @@ export function runF2l(thread: NativeThread): void {
 }
 
 export function runF2d(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack();
   thread.pushStack64(value);
 }
 
 export function runD2i(thread: NativeThread): void {
+  thread.offsetPc(1);
   let value = asDouble(thread.popStack64());
   if (Number.isNaN(value)) {
     value = 0;
@@ -78,6 +88,7 @@ export function runD2i(thread: NativeThread): void {
 }
 
 export function runD2l(thread: NativeThread): void {
+  thread.offsetPc(1);
   const dbl = asDouble(thread.popStack64());
   let value;
   if (Number.isNaN(dbl)) {
@@ -94,24 +105,28 @@ export function runD2l(thread: NativeThread): void {
 }
 
 export function runD2f(thread: NativeThread): void {
+  thread.offsetPc(1);
   let value = asDouble(thread.popStack64());
   value = asFloat(value);
   thread.pushStack(value);
 }
 
 export function runI2b(thread: NativeThread): void {
+  thread.offsetPc(1);
   let value = thread.popStack();
   value = (value << 24) >> 24;
   thread.pushStack(value);
 }
 
 export function runI2c(thread: NativeThread): void {
+  thread.offsetPc(1);
   let value = thread.popStack();
   value = value & 0xffff;
   thread.pushStack(value);
 }
 
 export function runI2s(thread: NativeThread): void {
+  thread.offsetPc(1);
   let value = thread.popStack();
   value = (value << 16) >> 16;
   thread.pushStack(value);

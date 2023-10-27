@@ -88,21 +88,23 @@ export function getField(ref: any, fieldName: string, type: JavaType) {
   ref.getField(fieldName, type);
 }
 
-// TODO: return info if calling method should be deferred
-export function tryInitialize(thread: NativeThread, className: string) {
+export function tryInitialize(
+  thread: NativeThread,
+  className: string
+): { shouldDefer?: boolean } {
   const classRef = thread.getClass().getLoader().getClassRef(className)
     .result as ClassRef;
 
   if (!classRef) {
     thread.throwNewException('java/lang/ClassNotFoundException', '');
-    return;
+    return { shouldDefer: true };
   }
 
   if (
     classRef.status === CLASS_STATUS.INITIALIZING ||
     classRef.status === CLASS_STATUS.INITIALIZED
   ) {
-    return;
+    return {};
   }
 
   // Class not initialized, initialize it.
@@ -111,9 +113,11 @@ export function tryInitialize(thread: NativeThread, className: string) {
   if (staticInit != null) {
     classRef.status = CLASS_STATUS.INITIALIZING;
     thread.pushStackFrame(classRef, staticInit, 0, []);
+    return { shouldDefer: true };
   }
+
   classRef.status = CLASS_STATUS.INITIALIZED;
-  return;
+  return {};
 }
 
 export function asDouble(value: number): number {

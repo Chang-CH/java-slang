@@ -56,7 +56,7 @@ beforeEach(() => {
       {
         accessFlags: [FIELD_FLAGS.ACC_FINAL, FIELD_FLAGS.ACC_PRIVATE],
         name: 'value',
-        descriptor: '[B',
+        descriptor: '[C',
         attributes: [],
       },
     ],

@@ -17,8 +17,7 @@ export function initString(strClass: ClassRef, str: string) {
   // TODO: string <init>()V
   const strObj = strClass.instantiate();
   // TODO: intialize string with <init>()V
-
-  const fieldRef = strClass.getFieldRef('value[B') as FieldRef;
-  strObj.putField(fieldRef as FieldRef, str);
+  const fieldRef = strClass.getFieldRef('value[C') as FieldRef;
+  strObj.putField(fieldRef as FieldRef, charArr);
   return strObj;
 }

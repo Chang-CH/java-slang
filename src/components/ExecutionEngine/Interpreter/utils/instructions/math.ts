@@ -5,6 +5,7 @@ const MIN_INT = -2147483648;
 const MIN_LONG = BigInt('-9223372036854775808');
 
 export function runIadd(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   // 2 * MAX_INT is within max type safe int
@@ -12,12 +13,14 @@ export function runIadd(thread: NativeThread): void {
 }
 
 export function runLadd(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack64(BigInt.asIntN(64, value1 + value2));
 }
 
 export function runFadd(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
 
@@ -33,12 +36,14 @@ export function runFadd(thread: NativeThread): void {
 }
 
 export function runDadd(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 + value2);
 }
 
 export function runIsub(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   // 2 * MIN_INT within type safe int
@@ -46,12 +51,14 @@ export function runIsub(thread: NativeThread): void {
 }
 
 export function runLsub(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: bigint = thread.popStack();
   const value1: bigint = thread.popStack();
   thread.pushStack64(BigInt.asIntN(64, value1 - value2));
 }
 
 export function runFsub(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
 
@@ -67,36 +74,42 @@ export function runFsub(thread: NativeThread): void {
 }
 
 export function runDsub(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 - value2);
 }
 
 export function runImul(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack(Math.imul(value1, value2) | 0);
 }
 
 export function runLmul(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 * value2));
 }
 
 export function runFmul(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   thread.pushStack(asFloat(value1 * value2));
 }
 
 export function runDmul(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 * value2);
 }
 
 export function runIdiv(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
 
@@ -114,6 +127,7 @@ export function runIdiv(thread: NativeThread): void {
 }
 
 export function runLdiv(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
 
@@ -131,18 +145,21 @@ export function runLdiv(thread: NativeThread): void {
 }
 
 export function runFdiv(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   thread.pushStack(asFloat(value1 / value2));
 }
 
 export function runDdiv(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 / value2);
 }
 
 export function runIrem(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
 
@@ -155,6 +172,7 @@ export function runIrem(thread: NativeThread): void {
 }
 
 export function runLrem(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
 
@@ -167,62 +185,73 @@ export function runLrem(thread: NativeThread): void {
 }
 
 export function runFrem(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   thread.pushStack(asFloat(value1 % value2));
 }
 
 export function runDrem(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 % value2);
 }
 
 export function runIneg(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = thread.popStack();
   thread.pushStack(-value | 0);
 }
 
 export function runLneg(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, -value));
 }
 
 export function runFneg(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = asFloat(thread.popStack());
   thread.pushStack(asFloat(-value));
 }
 
 export function runDneg(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
   thread.pushStack64(-value);
 }
 
 export function runIshl(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 << (value2 & 0x1f)) | 0);
 }
 
 export function runLshl(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: number = thread.popStack();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 << BigInt(value2 & 0x3f)));
 }
 
 export function runIshr(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 >> (value2 & 0x1f)) | 0);
 }
 
 export function runLshr(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: number = thread.popStack();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 >> BigInt(value2 & 0x3f)));
 }
 
 export function runIushr(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: number = thread.popStack() & 0x1f;
   const value1: number = thread.popStack();
 
@@ -230,6 +259,7 @@ export function runIushr(thread: NativeThread): void {
 }
 
 export function runLushr(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: number = thread.popStack() & 0x3f;
   const value1: bigint = thread.popStack64();
 
@@ -243,42 +273,49 @@ export function runLushr(thread: NativeThread): void {
 }
 
 export function runIand(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 & value2) | 0);
 }
 
 export function runLand(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 & value2));
 }
 
 export function runIor(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack(value1 | value2 | 0);
 }
 
 export function runLor(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 | value2));
 }
 
 export function runIxor(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 ^ value2) | 0);
 }
 
 export function runLxor(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 ^ value2));
 }
 
 export function runIinc(thread: NativeThread): void {
+  thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   const constant = thread.getCode().getInt8(thread.getPC());

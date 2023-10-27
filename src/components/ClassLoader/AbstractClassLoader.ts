@@ -4,10 +4,7 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { ClassRef } from '#types/ClassRef';
-import { FieldRef } from '#types/FieldRef';
-import { MethodRef } from '#types/MethodRef';
 import AbstractSystem from '#utils/AbstractSystem';
-import NativeThread from '../ExecutionEngine/NativeThreadGroup/NativeThread';
 
 export default abstract class AbstractClassLoader {
   protected nativeSystem: AbstractSystem;
@@ -53,7 +50,7 @@ export default abstract class AbstractClassLoader {
 
     // resolve superclass
     let superClass = null;
-    if (cls.superClass === 0) {
+    if (cls.superClass !== 0) {
       const superClassIndex = cls.constantPool[
         cls.superClass
       ] as ConstantClassInfo;

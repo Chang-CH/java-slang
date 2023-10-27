@@ -2,6 +2,7 @@ import NativeThread from '../../../NativeThreadGroup/NativeThread';
 import { asDouble, asFloat } from '..';
 
 export function runLcmp(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = thread.popStack64();
   const value1 = thread.popStack64();
 
@@ -19,6 +20,7 @@ export function runLcmp(thread: NativeThread): void {
 }
 
 export function runFcmpl(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
@@ -40,6 +42,7 @@ export function runFcmpl(thread: NativeThread): void {
 }
 
 export function runFcmpg(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
@@ -61,6 +64,7 @@ export function runFcmpg(thread: NativeThread): void {
 }
 
 export function runDcmpl(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
@@ -82,6 +86,7 @@ export function runDcmpl(thread: NativeThread): void {
 }
 
 export function runDcmpg(thread: NativeThread): void {
+  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   if (Number.isNaN(value1) || Number.isNaN(value2)) {
@@ -103,6 +108,7 @@ export function runDcmpg(thread: NativeThread): void {
 }
 
 export function runIfeq(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   if (thread.popStack() === 0) {
@@ -112,6 +118,7 @@ export function runIfeq(thread: NativeThread): void {
 }
 
 export function runIfne(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   if (thread.popStack() !== 0) {
@@ -121,6 +128,7 @@ export function runIfne(thread: NativeThread): void {
 }
 
 export function runIflt(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   if (thread.popStack() < 0) {
@@ -130,6 +138,7 @@ export function runIflt(thread: NativeThread): void {
 }
 
 export function runIfge(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   if (thread.popStack() >= 0) {
@@ -139,6 +148,7 @@ export function runIfge(thread: NativeThread): void {
 }
 
 export function runIfgt(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   if (thread.popStack() > 0) {
@@ -148,6 +158,7 @@ export function runIfgt(thread: NativeThread): void {
 }
 
 export function runIfle(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   if (thread.popStack() <= 0) {
@@ -157,6 +168,7 @@ export function runIfle(thread: NativeThread): void {
 }
 
 export function runIfIcmpeq(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();
@@ -169,6 +181,7 @@ export function runIfIcmpeq(thread: NativeThread): void {
 }
 
 export function runIfIcmpne(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();
@@ -181,6 +194,7 @@ export function runIfIcmpne(thread: NativeThread): void {
 }
 
 export function runIfIcmplt(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();
@@ -193,6 +207,7 @@ export function runIfIcmplt(thread: NativeThread): void {
 }
 
 export function runIfIcmpge(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();
@@ -205,6 +220,7 @@ export function runIfIcmpge(thread: NativeThread): void {
 }
 
 export function runIfIcmpgt(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();
@@ -217,6 +233,7 @@ export function runIfIcmpgt(thread: NativeThread): void {
 }
 
 export function runIfIcmple(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();
@@ -229,6 +246,7 @@ export function runIfIcmple(thread: NativeThread): void {
 }
 
 export function runIfAcmpeq(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();
@@ -241,6 +259,7 @@ export function runIfAcmpeq(thread: NativeThread): void {
 }
 
 export function runIfAcmpne(thread: NativeThread): void {
+  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   const value2 = thread.popStack();

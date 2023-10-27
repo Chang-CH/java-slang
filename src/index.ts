@@ -3,6 +3,7 @@ import NodeSystem from '#utils/NodeSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
+import NativeThread from './components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from './components/JNI';
 
 export default class JVM {
@@ -18,27 +19,44 @@ export default class JVM {
       this.nativeSystem,
       'natives'
     );
-    this.applicationClassLoader = new ClassLoader(
-      this.nativeSystem,
-      '',
-      this.bootstrapClassLoader
-    );
+    // this.applicationClassLoader = new ClassLoader(
+    //   this.nativeSystem,
+    //   'example',
+    //   this.bootstrapClassLoader
+    // );
     this.jni = new JNI();
     this.engine = new ExecutionEngine(this.jni);
 
     const threadCls =
-      this.applicationClassLoader.getClassRef('java/lang/Thread').result;
-    this.applicationClassLoader.getClassRef('java/lang/System').result;
+      this.bootstrapClassLoader.getClassRef('java/lang/Thread').result;
+    this.bootstrapClassLoader.getClassRef('java/lang/System').result;
     const sysCls =
-      this.applicationClassLoader.getClassRef('java/lang/System').result;
-    // this.engine.runMethod(
-    //   threadCls as ClassRef,
-    //   sysCls as ClassRef,
-    //   'initializeSystemClass()V'
-    // );
+      this.bootstrapClassLoader.getClassRef('java/lang/System').result;
+    this.engine.runMethod(
+      threadCls as ClassRef,
+      sysCls as ClassRef,
+      'initializeSystemClass()V'
+    );
+
+    this.jni.registerNativeMethod(
+      'source/Source',
+      'println(I)V',
+      (thread: NativeThread, locals: any[]) => console.log(locals[0])
+    );
   }
 
-  runClass(className: string) {
+  runClass(classPath: string) {
+    let classDir: any = classPath.split('/');
+    const className = classDir.pop();
+    classDir = classDir.join('/');
+    console.log(classDir);
+
+    this.applicationClassLoader = new ClassLoader(
+      this.nativeSystem,
+      classDir,
+      this.bootstrapClassLoader
+    );
+
     // convert args to Java String[]
     const mainRes = this.applicationClassLoader.getClassRef(className);
 

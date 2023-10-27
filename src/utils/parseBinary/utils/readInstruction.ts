@@ -13,10 +13,10 @@ export function readInstructions(
   const end = offset + codeLength;
   const code: InstructionType[] = [];
   while (offset < end) {
-    ({ result: code[offset - initial], offset } = readInstruction(
-      view,
-      offset
-    ));
+    const { result, offset: newOffset } = readInstruction(view, offset);
+
+    code[offset - initial] = result;
+    offset = newOffset;
   }
 
   return { result: code, offset };
@@ -2602,11 +2602,10 @@ function readinvokedynamic(
     throw new Error('invokedynamic fourth bytes must be 0');
   }
   offset += 1;
-
   return {
     result: {
       opcode: OPCODE.INVOKEDYNAMIC,
-      operands: [indexbyte],
+      operands: [indexbyte, 0, 0, offset],
     },
     offset,
   };
