@@ -6,6 +6,7 @@ public class Static {
 
     public static void main(String[] args) {
         x = 4;
+        double x = 10;
         System.out.println(x);
     }
 
