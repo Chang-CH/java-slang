@@ -1,7 +1,7 @@
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
@@ -9,7 +9,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 
-let thread: JvmThread;
+let thread: Thread;
 let threadClass: ClassRef;
 let code: DataView;
 let jni: JNI;
@@ -22,7 +22,7 @@ beforeEach(() => {
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
 
-  thread = new JvmThread(threadClass);
+  thread = new Thread(threadClass);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);

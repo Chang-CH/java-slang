@@ -1,18 +1,14 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 import { initString } from '#jvm/components/JNI/utils';
-import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
+import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import {
   BootstrapMethodsAttribute,
   AttributeInfo,
-  CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
 import {
-  ConstantClassInfo,
   ConstantUtf8Info,
   ConstantNameAndTypeInfo,
-  ConstantInterfaceMethodrefInfo,
   ConstantMethodHandleInfo,
   REFERENCE_KIND,
   ConstantFieldrefInfo,
@@ -25,11 +21,10 @@ import {
   ConstantMethodref,
   ConstantString,
   ConstantInterfaceMethodref,
-} from './ConstantRef';
-import { FieldRef } from './FieldRef';
-import { MethodRef } from './MethodRef';
-import { JvmArray } from './reference/Array';
-import { JvmObject } from './reference/Object';
+} from '../ConstantRef';
+import { FieldRef } from '../FieldRef';
+import { MethodRef } from '../MethodRef';
+import { JvmObject } from '../reference/Object';
 
 interface MethodResolutionResult {
   error?: string;
@@ -52,7 +47,7 @@ export class ClassRef {
   private accessFlags: number;
 
   private thisClass: string;
-  private packageName: string;
+  protected packageName: string;
   private superClass: ClassRef | null;
 
   private interfaces: Array<ClassRef>;
@@ -116,27 +111,6 @@ export class ClassRef {
     //   throw new Error('Could not load class java/lang/Class');
     // }
     // this.javaObj = new JvmObject(clsRes.result);
-  }
-
-  static createArrayClassRef(
-    className: string,
-    superClass: ClassRef,
-    loader: AbstractClassLoader
-  ) {
-    const cls = new ArrayClassRef(
-      [],
-      CLASS_FLAGS.ACC_PUBLIC,
-      className,
-      superClass,
-      [],
-      [],
-      [],
-      [],
-      loader
-    );
-
-    cls.packageName = 'java/lang';
-    return cls;
   }
 
   private resolveClass(toResolve: string) {
@@ -307,7 +281,7 @@ export class ClassRef {
   }
 
   resolveMethodRef(
-    thread: JvmThread,
+    thread: Thread,
     methodRef: ConstantMethodref
   ): MethodResolutionResult {
     // 5.4.3 if initial attempt to resolve a symbolic reference fails
@@ -386,7 +360,7 @@ export class ClassRef {
   }
 
   resolveInterfaceMethodRef(
-    thread: JvmThread,
+    thread: Thread,
     methodRef: ConstantInterfaceMethodref
   ): MethodResolutionResult {
     // 5.4.3 if initial attempt to resolve a symbolic reference fails
@@ -463,7 +437,7 @@ export class ClassRef {
   }
 
   resolveMethodHandleRef(
-    thread: JvmThread,
+    thread: Thread,
     methodHandleRef: ConstantMethodHandleInfo
   ): {
     error?: any;
@@ -841,35 +815,5 @@ export class ClassRef {
 
   checkModule() {
     return (this.accessFlags & CLASS_FLAGS.ACC_MODULE) !== 0;
-  }
-}
-
-export class ArrayClassRef extends ClassRef {
-  constructor(
-    constantPool: Array<ConstantRef>,
-    accessFlags: number,
-    thisClass: string,
-    superClass: ClassRef | null,
-    interfaces: Array<ClassRef>,
-    fields: Array<FieldInfo>,
-    methods: Array<MethodInfo>,
-    attributes: Array<AttributeInfo>,
-    loader: AbstractClassLoader
-  ) {
-    super(
-      constantPool,
-      accessFlags,
-      thisClass,
-      superClass,
-      interfaces,
-      fields,
-      methods,
-      attributes,
-      loader
-    );
-  }
-
-  instantiate(): JvmObject {
-    return new JvmArray(this);
   }
 }

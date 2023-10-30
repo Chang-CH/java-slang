@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import NodeSystem from '#utils/NodeSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';

@@ -1,4 +1,4 @@
-import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
+import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { FieldRef } from '#types/FieldRef';
 
 export class JvmObject {
@@ -8,6 +8,9 @@ export class JvmObject {
   protected fields: {
     [key: string]: FieldRef;
   };
+  protected nativeFields: {
+    [key: string]: any;
+  } = {};
 
   constructor(cls: ClassRef) {
     this.cls = cls;
@@ -50,5 +53,13 @@ export class JvmObject {
     }
 
     throw new Error(`Invalid field`);
+  }
+
+  $getNativeField(name: string) {
+    return this.nativeFields[name];
+  }
+
+  $putNativeField(name: string, value: any) {
+    this.nativeFields[name] = value;
   }
 }

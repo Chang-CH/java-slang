@@ -1,7 +1,7 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { ConstantInfo } from '#jvm/external/ClassFile/types/constants';
 import { JvmObject } from '#types/reference/Object';
-import { ClassRef } from './ClassRef';
+import { ClassRef } from './class/ClassRef';
 import { MethodRef } from './MethodRef';
 
 export interface ConstantClass {

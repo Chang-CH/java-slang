@@ -1,8 +1,8 @@
 import { tryInitialize } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { JvmObject } from './Object';
+import { JvmObject } from '../../types/reference/Object';
 
 export interface StackFrame {
   operandStack: any[];
@@ -13,14 +13,18 @@ export interface StackFrame {
   locals: any[];
 }
 
-export default class JvmThread extends JvmObject {
+export default class Thread {
   private stack: StackFrame[];
   private stackPointer: number;
+  private javaObject: JvmObject;
+  private cls: ClassRef;
 
   constructor(threadClass: ClassRef) {
-    super(threadClass);
+    this.cls = threadClass;
     this.stack = [];
     this.stackPointer = -1;
+    this.javaObject = new JvmObject(threadClass);
+    this.javaObject.$putNativeField('thread', this);
   }
 
   isStackEmpty() {

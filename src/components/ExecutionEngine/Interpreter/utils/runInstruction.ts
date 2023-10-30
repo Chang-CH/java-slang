@@ -1,5 +1,5 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 
 import * as comparisons from './instructions/comparisons';
 import * as constants from './instructions/constants';
@@ -17,7 +17,7 @@ import { JNI } from '#jvm/components/JNI';
 import { parseMethodDescriptor } from '.';
 
 export default function runInstruction(
-  thread: JvmThread,
+  thread: Thread,
   jni: JNI,
   onFinish?: () => void
 ): void {

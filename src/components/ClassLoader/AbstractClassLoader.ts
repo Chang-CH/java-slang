@@ -3,7 +3,7 @@ import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import AbstractSystem from '#utils/AbstractSystem';
 
 export default abstract class AbstractClassLoader {

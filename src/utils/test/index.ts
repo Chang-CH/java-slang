@@ -10,7 +10,8 @@ import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
+import { ArrayClassRef } from '#types/class/ArrayClassRef';
+import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { ConstantRef } from '#types/ConstantRef';
 import AbstractSystem from '#utils/AbstractSystem';
 
@@ -36,6 +37,7 @@ export const createClass = (options: {
   }[];
   flags?: number;
   status?: CLASS_STATUS;
+  isArray?: boolean;
 }): ClassRef => {
   let constantPool: ConstantRef[] = [
     { tag: 7, nameIndex: 0 }, // dummy
@@ -170,17 +172,29 @@ export const createClass = (options: {
 
   const interfaces = options.interfaces ?? [];
 
-  const clsRef = new ClassRef(
-    constantPool,
-    options.flags ?? 33,
-    options.className ?? 'Test/Test',
-    options.superClass ?? null,
-    interfaces,
-    fields,
-    methods,
-    [],
-    loader
-  );
+  const clsRef = options.isArray
+    ? new ArrayClassRef(
+        constantPool,
+        options.flags ?? 33,
+        options.className ?? '[LTest;',
+        options.superClass ?? null,
+        interfaces,
+        fields,
+        methods,
+        [],
+        loader
+      )
+    : new ClassRef(
+        constantPool,
+        options.flags ?? 33,
+        options.className ?? 'Test/Test',
+        options.superClass ?? null,
+        interfaces,
+        fields,
+        methods,
+        [],
+        loader
+      );
   clsRef.status = options.status ?? CLASS_STATUS.PREPARED;
 
   loader.loadTestClassRef(options.className ?? 'Test/Test', clsRef);
@@ -191,7 +205,12 @@ export class TestClassLoader extends AbstractClassLoader {
   load(className: string): { result?: ClassRef; error?: string } {
     if (className.startsWith('[')) {
       const objRes = this.getClassRef('java/lang/Object').result as ClassRef;
-      const arrayClass = ClassRef.createArrayClassRef(className, objRes, this);
+      const arrayClass = createClass({
+        className: className,
+        loader: this,
+        superClass: objRes,
+        isArray: true,
+      });
       return { result: arrayClass };
     }
 

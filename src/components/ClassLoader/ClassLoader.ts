@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 

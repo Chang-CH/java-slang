@@ -1,5 +1,6 @@
 import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
-import { ClassRef } from '#types/ClassRef';
+import { ArrayClassRef } from '#types/class/ArrayClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 
@@ -24,9 +25,15 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
         return { error: objRes.error ?? 'java/lang/ClassNotFoundException' };
       }
 
-      const arrayClass = ClassRef.createArrayClassRef(
+      const arrayClass = new ArrayClassRef(
+        [],
+        CLASS_FLAGS.ACC_PUBLIC,
         className,
         objRes.result,
+        [],
+        [],
+        [],
+        [],
         this
       );
       return { result: arrayClass };

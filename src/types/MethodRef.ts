@@ -7,7 +7,7 @@ import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { ClassRef } from './ClassRef';
+import { ClassRef } from './class/ClassRef';
 
 export interface MethodRef {}
 

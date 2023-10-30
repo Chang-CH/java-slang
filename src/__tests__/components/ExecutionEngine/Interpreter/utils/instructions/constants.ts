@@ -1,13 +1,13 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ConstantClass, ConstantString } from '#types/ConstantRef';
 import { JvmObject } from '#types/reference/Object';
 import { initString } from '#jvm/components/JNI/utils';
 import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestSystem, TestClassLoader, createClass } from '#utils/test';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -16,7 +16,7 @@ import { MethodRef } from '#types/MethodRef';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
-let thread: JvmThread;
+let thread: Thread;
 let threadClass: ClassRef;
 let code: DataView;
 let jni: JNI;
@@ -55,7 +55,7 @@ beforeEach(() => {
       },
     ],
   });
-  thread = new JvmThread(threadClass);
+  thread = new Thread(threadClass);
 
   const ab = new ArrayBuffer(50);
   code = new DataView(ab);

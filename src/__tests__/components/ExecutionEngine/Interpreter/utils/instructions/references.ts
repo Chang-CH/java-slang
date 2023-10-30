@@ -1,8 +1,8 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 import { JNI } from '#jvm/components/JNI';
-import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
+import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
@@ -13,7 +13,7 @@ import { ArrayPrimitiveType } from '#types/dataTypes';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 
-let thread: JvmThread;
+let thread: Thread;
 let threadClass: ClassRef;
 let testLoader: TestClassLoader;
 let testSystem: TestSystem;
@@ -40,7 +40,7 @@ beforeEach(() => {
     loader: testLoader,
   });
 
-  thread = new JvmThread(threadClass);
+  thread = new Thread(threadClass);
 });
 
 // method resolution tested under classref

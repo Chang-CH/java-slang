@@ -1,4 +1,4 @@
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { asFloat, asDouble, parseFirstDescriptor } from '..';
 import {
@@ -8,7 +8,7 @@ import {
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 
-export function runWide(thread: JvmThread): void {
+export function runWide(thread: Thread): void {
   thread.offsetPc(1);
   const opcode = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
@@ -61,7 +61,7 @@ export function runWide(thread: JvmThread): void {
   throw new Error('Invalid opcode');
 }
 
-export function runMultianewarray(thread: JvmThread): void {
+export function runMultianewarray(thread: Thread): void {
   thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
@@ -146,7 +146,7 @@ export function runMultianewarray(thread: JvmThread): void {
   thread.pushStack(res);
 }
 
-export function runIfnull(thread: JvmThread): void {
+export function runIfnull(thread: Thread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -158,7 +158,7 @@ export function runIfnull(thread: JvmThread): void {
   }
 }
 
-export function runIfnonnull(thread: JvmThread): void {
+export function runIfnonnull(thread: Thread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -170,13 +170,13 @@ export function runIfnonnull(thread: JvmThread): void {
   }
 }
 
-export function runGotoW(thread: JvmThread): void {
+export function runGotoW(thread: Thread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt32(thread.getPC());
   thread.offsetPc(branchbyte - 1);
 }
 
-export function runJsrW(thread: JvmThread): void {
+export function runJsrW(thread: Thread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt32(thread.getPC());
   thread.offsetPc(4);

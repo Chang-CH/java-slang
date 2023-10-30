@@ -1,10 +1,10 @@
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 import { asDouble, asFloat } from '..';
 
 const MIN_INT = -2147483648;
 const MIN_LONG = BigInt('-9223372036854775808');
 
-export function runIadd(thread: JvmThread): void {
+export function runIadd(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
@@ -12,14 +12,14 @@ export function runIadd(thread: JvmThread): void {
   thread.pushStack((value1 + value2) | 0);
 }
 
-export function runLadd(thread: JvmThread): void {
+export function runLadd(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack64(BigInt.asIntN(64, value1 + value2));
 }
 
-export function runFadd(thread: JvmThread): void {
+export function runFadd(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
@@ -35,14 +35,14 @@ export function runFadd(thread: JvmThread): void {
   thread.pushStack(asFloat(value1 + value2));
 }
 
-export function runDadd(thread: JvmThread): void {
+export function runDadd(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 + value2);
 }
 
-export function runIsub(thread: JvmThread): void {
+export function runIsub(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
@@ -50,14 +50,14 @@ export function runIsub(thread: JvmThread): void {
   thread.pushStack((value1 - value2) | 0);
 }
 
-export function runLsub(thread: JvmThread): void {
+export function runLsub(thread: Thread): void {
   thread.offsetPc(1);
   const value2: bigint = thread.popStack();
   const value1: bigint = thread.popStack();
   thread.pushStack64(BigInt.asIntN(64, value1 - value2));
 }
 
-export function runFsub(thread: JvmThread): void {
+export function runFsub(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
@@ -73,42 +73,42 @@ export function runFsub(thread: JvmThread): void {
   thread.pushStack(asFloat(value1 - value2));
 }
 
-export function runDsub(thread: JvmThread): void {
+export function runDsub(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 - value2);
 }
 
-export function runImul(thread: JvmThread): void {
+export function runImul(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack(Math.imul(value1, value2) | 0);
 }
 
-export function runLmul(thread: JvmThread): void {
+export function runLmul(thread: Thread): void {
   thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 * value2));
 }
 
-export function runFmul(thread: JvmThread): void {
+export function runFmul(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   thread.pushStack(asFloat(value1 * value2));
 }
 
-export function runDmul(thread: JvmThread): void {
+export function runDmul(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 * value2);
 }
 
-export function runIdiv(thread: JvmThread): void {
+export function runIdiv(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
@@ -126,7 +126,7 @@ export function runIdiv(thread: JvmThread): void {
   thread.pushStack((value1 / value2) | 0);
 }
 
-export function runLdiv(thread: JvmThread): void {
+export function runLdiv(thread: Thread): void {
   thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
@@ -144,21 +144,21 @@ export function runLdiv(thread: JvmThread): void {
   thread.pushStack64(BigInt.asIntN(64, value1 / value2));
 }
 
-export function runFdiv(thread: JvmThread): void {
+export function runFdiv(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   thread.pushStack(asFloat(value1 / value2));
 }
 
-export function runDdiv(thread: JvmThread): void {
+export function runDdiv(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 / value2);
 }
 
-export function runIrem(thread: JvmThread): void {
+export function runIrem(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
@@ -171,7 +171,7 @@ export function runIrem(thread: JvmThread): void {
   thread.pushStack(value1 % value2 | 0);
 }
 
-export function runLrem(thread: JvmThread): void {
+export function runLrem(thread: Thread): void {
   thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
@@ -184,73 +184,73 @@ export function runLrem(thread: JvmThread): void {
   thread.pushStack64(BigInt.asIntN(64, value1 % value2));
 }
 
-export function runFrem(thread: JvmThread): void {
+export function runFrem(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
   thread.pushStack(asFloat(value1 % value2));
 }
 
-export function runDrem(thread: JvmThread): void {
+export function runDrem(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
   thread.pushStack64(value1 % value2);
 }
 
-export function runIneg(thread: JvmThread): void {
+export function runIneg(thread: Thread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.pushStack(-value | 0);
 }
 
-export function runLneg(thread: JvmThread): void {
+export function runLneg(thread: Thread): void {
   thread.offsetPc(1);
   const value: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, -value));
 }
 
-export function runFneg(thread: JvmThread): void {
+export function runFneg(thread: Thread): void {
   thread.offsetPc(1);
   const value = asFloat(thread.popStack());
   thread.pushStack(asFloat(-value));
 }
 
-export function runDneg(thread: JvmThread): void {
+export function runDneg(thread: Thread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
   thread.pushStack64(-value);
 }
 
-export function runIshl(thread: JvmThread): void {
+export function runIshl(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 << (value2 & 0x1f)) | 0);
 }
 
-export function runLshl(thread: JvmThread): void {
+export function runLshl(thread: Thread): void {
   thread.offsetPc(1);
   const value2: number = thread.popStack();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 << BigInt(value2 & 0x3f)));
 }
 
-export function runIshr(thread: JvmThread): void {
+export function runIshr(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 >> (value2 & 0x1f)) | 0);
 }
 
-export function runLshr(thread: JvmThread): void {
+export function runLshr(thread: Thread): void {
   thread.offsetPc(1);
   const value2: number = thread.popStack();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 >> BigInt(value2 & 0x3f)));
 }
 
-export function runIushr(thread: JvmThread): void {
+export function runIushr(thread: Thread): void {
   thread.offsetPc(1);
   const value2: number = thread.popStack() & 0x1f;
   const value1: number = thread.popStack();
@@ -258,7 +258,7 @@ export function runIushr(thread: JvmThread): void {
   thread.pushStack((value1 >>> value2) | 0);
 }
 
-export function runLushr(thread: JvmThread): void {
+export function runLushr(thread: Thread): void {
   thread.offsetPc(1);
   const value2: number = thread.popStack() & 0x3f;
   const value1: bigint = thread.popStack64();
@@ -272,49 +272,49 @@ export function runLushr(thread: JvmThread): void {
   thread.pushStack64((value1 & 0xffffffffffffffffn) >> BigInt(value2));
 }
 
-export function runIand(thread: JvmThread): void {
+export function runIand(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 & value2) | 0);
 }
 
-export function runLand(thread: JvmThread): void {
+export function runLand(thread: Thread): void {
   thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 & value2));
 }
 
-export function runIor(thread: JvmThread): void {
+export function runIor(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack(value1 | value2 | 0);
 }
 
-export function runLor(thread: JvmThread): void {
+export function runLor(thread: Thread): void {
   thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 | value2));
 }
 
-export function runIxor(thread: JvmThread): void {
+export function runIxor(thread: Thread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   thread.pushStack((value1 ^ value2) | 0);
 }
 
-export function runLxor(thread: JvmThread): void {
+export function runLxor(thread: Thread): void {
   thread.offsetPc(1);
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 ^ value2));
 }
 
-export function runIinc(thread: JvmThread): void {
+export function runIinc(thread: Thread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);

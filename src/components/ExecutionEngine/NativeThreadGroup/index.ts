@@ -1,9 +1,9 @@
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 
 export default class NativeThreadGroup {
-  private threads: JvmThread[] = [];
+  private threads: Thread[] = [];
 
-  addThread(initialThread: JvmThread) {
+  addThread(initialThread: Thread) {
     this.threads.push(initialThread);
   }
 

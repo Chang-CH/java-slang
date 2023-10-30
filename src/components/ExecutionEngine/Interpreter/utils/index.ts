@@ -1,6 +1,6 @@
-import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
+import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 
 export function parseFirstDescriptor(descriptor: string) {
   switch (descriptor[0]) {
@@ -88,7 +88,7 @@ export function getField(ref: any, fieldName: string, type: JavaType) {
 }
 
 export function tryInitialize(
-  thread: JvmThread,
+  thread: Thread,
   className: string
 ): { shouldDefer?: boolean } {
   const classRef = thread.getClass().getLoader().getClassRef(className)

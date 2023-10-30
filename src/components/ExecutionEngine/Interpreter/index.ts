@@ -1,5 +1,5 @@
 import { JNI } from '#jvm/components/JNI';
-import JvmThread from '#types/reference/Thread';
+import Thread from '#jvm/components/Threads/Thread';
 import runInstruction from './utils/runInstruction';
 
 /**
@@ -12,7 +12,7 @@ export default class Interpreter {
     this.jni = jni;
   }
 
-  runFor(thread: JvmThread, instructions: number, onFinish?: () => void) {
+  runFor(thread: Thread, instructions: number, onFinish?: () => void) {
     for (let i = 0; i < instructions; i++) {
       runInstruction(thread, this.jni, onFinish);
     }

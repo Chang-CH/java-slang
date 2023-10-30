@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import { ArrayPrimitiveType, JavaType } from '#types/dataTypes';
 import { JvmObject } from './Object';
 

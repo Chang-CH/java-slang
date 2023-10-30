@@ -1,7 +1,7 @@
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
-import { ClassRef } from './ClassRef';
+import { ClassRef } from './class/ClassRef';
 import { JavaType } from './dataTypes';
 
 export class FieldRef {
