@@ -1,3 +1,4 @@
+import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import { ClassRef } from '#types/ClassRef';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
@@ -16,6 +17,21 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
    */
   load(className: string): { result?: ClassRef; error?: string } {
     console.debug(`BsCL: loading ${className}`);
+    // array class
+    if (className.startsWith('[')) {
+      const objRes = this.getClassRef('java/lang/Object');
+      if (objRes.error || !objRes.result) {
+        return { error: objRes.error ?? 'java/lang/ClassNotFoundException' };
+      }
+
+      const arrayClass = ClassRef.createArrayClassRef(
+        className,
+        objRes.result,
+        this
+      );
+      return { result: arrayClass };
+    }
+
     const path = this.classPath ? this.classPath + '/' + className : className;
 
     let classFile;

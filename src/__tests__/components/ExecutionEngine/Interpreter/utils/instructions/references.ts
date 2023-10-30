@@ -4,7 +4,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { JavaReference } from '#types/dataTypes';
+import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestClassLoader, TestSystem, createClass } from '#utils/test';
@@ -4281,5 +4281,519 @@ describe('runPutstatic', () => {
     runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldZ')?.getValue()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
+  });
+});
+
+describe('runNew', () => {
+  test('NEW: creates new object', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: classIdx - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.NEW);
+    code.setUint16(1, classIdx);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(1);
+    expect(thread.popStack().getClass() === testClass).toBe(true);
+  });
+
+  test('NEW: Interface class throws InstantiationError', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      flags: CLASS_FLAGS.ACC_INTERFACE,
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: classIdx - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.NEW);
+    code.setUint16(1, classIdx);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.method).toBe(
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
+    );
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/InstantiationError'
+    );
+  });
+
+  test('NEW: Abstract class throws InstantiationError', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      flags: CLASS_FLAGS.ACC_ABSTRACT,
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: classIdx - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.NEW);
+    code.setUint16(1, classIdx);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.method).toBe(
+      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
+    );
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/InstantiationError'
+    );
+  });
+
+  test('NEW: initializes class', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIdx = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: classIdx - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.NEW);
+    code.setUint16(1, classIdx);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
+    runInstruction(thread, jni, () => {});
+    expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
+  });
+});
+
+describe('runNewarray', () => {
+  test('NEWARRAY: creates new array', () => {
+    const ab = new ArrayBuffer(16);
+    const code = new DataView(ab);
+
+    const testClass = createClass({
+      className: 'Test',
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.NEWARRAY);
+    code.setUint8(1, ArrayPrimitiveType.boolean);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(0);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(1);
+    const arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.getClass().getClassname()).toBe('[Z');
+    expect(arrayObj.len()).toBe(0);
+  });
+
+  test('NEWARRAY: sets elements to default value', () => {
+    const ab = new ArrayBuffer(16);
+    const code = new DataView(ab);
+
+    const testClass = createClass({
+      className: 'Test',
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.NEWARRAY);
+
+    // boolean
+    code.setUint8(1, ArrayPrimitiveType.boolean);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    let arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0)).toBe(0);
+    thread.popStackFrame();
+
+    // char
+    code.setUint8(1, ArrayPrimitiveType.char);
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0)).toBe(0);
+    thread.popStackFrame();
+
+    // float
+    code.setUint8(1, ArrayPrimitiveType.float);
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0)).toBe(0);
+    thread.popStackFrame();
+
+    // double
+    code.setUint8(1, ArrayPrimitiveType.double);
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0)).toBe(0);
+    thread.popStackFrame();
+
+    // byte
+    code.setUint8(1, ArrayPrimitiveType.byte);
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0)).toBe(0);
+    thread.popStackFrame();
+
+    // short
+    code.setUint8(1, ArrayPrimitiveType.short);
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0)).toBe(0);
+    thread.popStackFrame();
+
+    // int
+    code.setUint8(1, ArrayPrimitiveType.int);
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0)).toBe(0);
+    thread.popStackFrame();
+
+    // long
+    code.setUint8(1, ArrayPrimitiveType.long);
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0) === 0n).toBe(true);
+    thread.popStackFrame();
+  });
+
+  test('NEWARRAY: negative array size throws NegativeArraySizeException', () => {
+    const ab = new ArrayBuffer(16);
+    const code = new DataView(ab);
+
+    const testClass = createClass({
+      className: 'Test',
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.NEWARRAY);
+    code.setUint8(1, ArrayPrimitiveType.boolean);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(-1);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(
+      lastFrame.method.getMethodName() + lastFrame.method.getMethodDesc()
+    ).toBe('dispatchUncaughtException(Ljava/lang/Throwable;)V');
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NegativeArraySizeException'
+    );
+  });
+});
+
+describe('runAnewarray', () => {
+  test('ANEWARRAY: creates new array', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ANEWARRAY);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(0);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(1);
+    const arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
+    expect(arrayObj.len()).toBe(0);
+  });
+
+  test('ANEWARRAY: initializes class', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ANEWARRAY);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(0);
+    expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
+    runInstruction(thread, jni, () => {});
+    expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
+  });
+
+  test('ANEWARRAY: sets elements to default value', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ANEWARRAY);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    const arrayObj = thread.popStack() as JavaArray;
+    expect(arrayObj.get(0) === null).toBe(true);
+  });
+
+  test('ANEWARRAY: negative array size throws NegativeArraySizeException', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ANEWARRAY);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(testClass, method as MethodRef, 0, []);
+    thread.pushStack(-1);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(
+      lastFrame.method.getMethodName() + lastFrame.method.getMethodDesc()
+    ).toBe('dispatchUncaughtException(Ljava/lang/Throwable;)V');
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NegativeArraySizeException'
+    );
   });
 });

@@ -1,6 +1,11 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { JavaReference, JavaArray, JavaType } from '#types/dataTypes';
+import {
+  JavaReference,
+  JavaArray,
+  JavaType,
+  ArrayPrimitiveType,
+} from '#types/dataTypes';
 import { tryInitialize, parseMethodDescriptor, asDouble, asFloat } from '..';
 import {
   ConstantFieldrefInfo,
@@ -533,6 +538,7 @@ export function runInvokeinterface(thread: NativeThread): void {
     }
   }
   const objRef = thread.popStack() as JavaReference;
+
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -601,6 +607,11 @@ export function runNew(thread: NativeThread): void {
   }
 
   const objCls = res.classRef;
+  if (objCls.checkAbstract() || objCls.checkInterface()) {
+    thread.throwNewException('java/lang/InstantiationError', '');
+    return;
+  }
+
   // Load + initialize if needed
   const { shouldDefer } = tryInitialize(thread, objCls.getClassname());
   if (shouldDefer) {
@@ -616,14 +627,56 @@ export function runNewarray(thread: NativeThread): void {
   thread.offsetPc(2);
 
   const count = thread.popStack();
-  const arrayref = new JavaArray(count, atype);
+  if (count < 0) {
+    thread.throwNewException('java/lang/NegativeArraySizeException', '');
+    return;
+  }
+
+  let className = '';
+  switch (atype) {
+    case ArrayPrimitiveType.boolean:
+      className = '[' + JavaType.boolean;
+      break;
+    case ArrayPrimitiveType.char:
+      className = '[' + JavaType.char;
+      break;
+    case ArrayPrimitiveType.float:
+      className = '[' + JavaType.float;
+      break;
+    case ArrayPrimitiveType.double:
+      className = '[' + JavaType.double;
+      break;
+    case ArrayPrimitiveType.byte:
+      className = '[' + JavaType.byte;
+      break;
+    case ArrayPrimitiveType.short:
+      className = '[' + JavaType.short;
+      break;
+    case ArrayPrimitiveType.int:
+      className = '[' + JavaType.int;
+      break;
+    case ArrayPrimitiveType.long:
+      className = '[' + JavaType.long;
+      break;
+    default:
+      throw new Error('Invalid atype, reference types should use anewarray');
+  }
+  const classResolutionResult = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(className);
+  if (classResolutionResult.error || !classResolutionResult.result) {
+    throw new Error('Failed to load primitive array class');
+  }
+
+  const arrayCls = classResolutionResult.result;
+  const arrayref = arrayCls.instantiate() as JavaArray;
+  arrayref.initialize(count);
   thread.pushStack(arrayref);
 }
 
-// TODO:
 export function runAnewarray(thread: NativeThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
-  thread.offsetPc(3);
   const invoker = thread.getClass();
   const count = thread.popStack();
 
@@ -632,18 +685,32 @@ export function runAnewarray(thread: NativeThread): void {
     return;
   }
 
-  const classResolutionResult = invoker.resolveClassRef(
-    invoker.getConstant(indexbyte)
-  );
-  if (classResolutionResult.error || !classResolutionResult.classRef) {
+  const classRes = invoker.resolveClassRef(invoker.getConstant(indexbyte));
+  if (classRes.error || !classRes.classRef) {
     thread.throwNewException(
-      classResolutionResult.error ?? 'java/lang/ClassNotFoundException',
+      classRes.error ?? 'java/lang/ClassNotFoundException',
       ''
     );
     return;
   }
+  if (tryInitialize(thread, classRes.classRef.getClassname()).shouldDefer) {
+    return;
+  }
 
-  const arrayref = new JavaArray(count, classResolutionResult.classRef);
+  const arrayClassRes = invoker
+    .getLoader()
+    .getClassRef('[L' + classRes.classRef.getClassname() + ';');
+  if (arrayClassRes.error || !arrayClassRes.result) {
+    throw new Error('Failed to load array class');
+  }
+  if (tryInitialize(thread, arrayClassRes.result.getClassname()).shouldDefer) {
+    return;
+  }
+  thread.offsetPc(3);
+
+  const arrayCls = arrayClassRes.result;
+  const arrayref = arrayCls.instantiate() as JavaArray;
+  arrayref.initialize(count);
   thread.pushStack(arrayref);
 }
 

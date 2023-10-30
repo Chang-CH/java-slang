@@ -3,33 +3,32 @@ import { JavaType } from '#types/dataTypes';
 import NativeThread from '../../NativeThreadGroup/NativeThread';
 
 export function parseFirstDescriptor(descriptor: string) {
-  let index = 0;
   switch (descriptor[0]) {
     case JavaType.byte:
-      return { type: JavaType.byte, index: index + 1 };
+      return { type: JavaType.byte, index: 1 };
     case JavaType.char:
-      return { type: JavaType.char, index: index + 1 };
+      return { type: JavaType.char, index: 1 };
     case JavaType.double:
-      return { type: JavaType.double, index: index + 1 };
+      return { type: JavaType.double, index: 1 };
     case JavaType.float:
-      return { type: JavaType.float, index: index + 1 };
+      return { type: JavaType.float, index: 1 };
     case JavaType.int:
-      return { type: JavaType.int, index: index + 1 };
+      return { type: JavaType.int, index: 1 };
     case JavaType.long:
-      return { type: JavaType.long, index: index + 1 };
+      return { type: JavaType.long, index: 1 };
     case JavaType.short:
-      return { type: JavaType.short, index: index + 1 };
+      return { type: JavaType.short, index: 1 };
     case JavaType.boolean:
-      return { type: JavaType.boolean, index: index + 1 };
+      return { type: JavaType.boolean, index: 1 };
     case JavaType.array:
-      return { type: JavaType.array, index };
+      return { type: JavaType.array, index: 0 };
     case JavaType.reference:
       const end = descriptor.indexOf(';');
-      return { type: JavaType.reference, index: index + end + 1 };
+      return { type: JavaType.reference, index: end + 1 };
     case JavaType.void:
-      return { type: JavaType.void, index: index + 1 };
+      return { type: JavaType.void, index: 1 };
     default:
-      throw new Error(`Unknown type ${descriptor[index]}`);
+      throw new Error(`Unknown type ${descriptor[0]}`);
   }
 }
 

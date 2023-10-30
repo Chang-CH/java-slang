@@ -11,6 +11,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
+let bscl: BootstrapClassLoader;
 let code: DataView;
 let jni: JNI;
 
@@ -18,7 +19,7 @@ beforeEach(() => {
   jni = new JNI();
   const nativeSystem = new NodeSystem({});
 
-  const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
+  bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
   const javaThread = new JavaReference(threadClass);
@@ -444,7 +445,9 @@ describe('runALOAD_3', () => {
 
 describe('runIALOAD', () => {
   test('IALOAD: loads int from array', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.int, [99]);
+    const arrCls = bscl.getClassRef('[I').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.IALOAD);
@@ -463,7 +466,7 @@ describe('runIALOAD', () => {
     code.setUint8(0, OPCODE.IALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -473,13 +476,15 @@ describe('runIALOAD', () => {
   });
 
   test('IALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.int, [99]);
+    const arrCls = bscl.getClassRef('[I').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -492,13 +497,15 @@ describe('runIALOAD', () => {
   });
 
   test('IALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.int, [99]);
+    const arrCls = bscl.getClassRef('[I').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -513,7 +520,9 @@ describe('runIALOAD', () => {
 
 describe('runLALOAD', () => {
   test('LALOAD: loads long from array', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.long, [99n]);
+    const arrCls = bscl.getClassRef('[J').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.LALOAD);
@@ -532,7 +541,7 @@ describe('runLALOAD', () => {
     code.setUint8(0, OPCODE.LALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -542,13 +551,15 @@ describe('runLALOAD', () => {
   });
 
   test('LALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.long, [99n]);
+    const arrCls = bscl.getClassRef('[J').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -560,13 +571,15 @@ describe('runLALOAD', () => {
   });
 
   test('LALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.long, [99n]);
+    const arrCls = bscl.getClassRef('[J').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.LALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -580,7 +593,9 @@ describe('runLALOAD', () => {
 
 describe('runFALOAD', () => {
   test('FALOAD: loads float from array', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FALOAD);
@@ -599,7 +614,7 @@ describe('runFALOAD', () => {
     code.setUint8(0, OPCODE.FALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -609,13 +624,15 @@ describe('runFALOAD', () => {
   });
 
   test('FALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.FALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -627,13 +644,15 @@ describe('runFALOAD', () => {
   });
 
   test('FALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.FALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -647,7 +666,9 @@ describe('runFALOAD', () => {
 
 describe('runDALOAD', () => {
   test('DALOAD: loads float from array', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.DALOAD);
@@ -666,7 +687,7 @@ describe('runDALOAD', () => {
     code.setUint8(0, OPCODE.DALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -676,13 +697,15 @@ describe('runDALOAD', () => {
   });
 
   test('DALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.DALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -694,13 +717,15 @@ describe('runDALOAD', () => {
   });
 
   test('DALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.float, [99.0]);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.DALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -714,7 +739,9 @@ describe('runDALOAD', () => {
 
 describe('runAALOAD', () => {
   test('AALOAD: loads ref from array', () => {
-    const arrayRef = new JavaArray(1, 'Ljava/lang/Thread', [null]);
+    const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [null]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.AALOAD);
@@ -727,15 +754,19 @@ describe('runAALOAD', () => {
   });
 
   test('AALOAD: loads arrayref from array', () => {
-    const ref = new JavaArray(1, 'Ljava/lang/Thread', [null]);
-    const arrayRef = new JavaArray(1, '[Ljava/lang/Thread', [ref]);
+    const iarrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
+    const iarrayRef = iarrCls.instantiate() as JavaArray;
+    iarrayRef.initialize(1, [null]);
+    const arrCls = bscl.getClassRef('[[Ljava/lang/Thread').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [iarrayRef]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.AALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(ref);
+    expect(lastFrame.operandStack[0] === iarrayRef).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -747,7 +778,7 @@ describe('runAALOAD', () => {
     code.setUint8(0, OPCODE.AALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -757,13 +788,15 @@ describe('runAALOAD', () => {
   });
 
   test('AALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, '[Ljava/lang/Thread', [null]);
+    const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.AALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -776,13 +809,15 @@ describe('runAALOAD', () => {
   });
 
   test('AALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, '[Ljava/lang/Thread', [null]);
+    const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.AALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -797,7 +832,9 @@ describe('runAALOAD', () => {
 
 describe('runBALOAD', () => {
   test('BALOAD: loads boolean from array', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.boolean, [99]);
+    const arrCls = bscl.getClassRef('[Z').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.BALOAD);
@@ -816,7 +853,7 @@ describe('runBALOAD', () => {
     code.setUint8(0, OPCODE.BALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -826,13 +863,15 @@ describe('runBALOAD', () => {
   });
 
   test('BALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.boolean, [99]);
+    const arrCls = bscl.getClassRef('[Z').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.BALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -845,13 +884,15 @@ describe('runBALOAD', () => {
   });
 
   test('BALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.boolean, [99]);
+    const arrCls = bscl.getClassRef('[Z').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.BALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -866,7 +907,9 @@ describe('runBALOAD', () => {
 
 describe('runCALOAD', () => {
   test('CALOAD: loads char from array', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.char, [99]);
+    const arrCls = bscl.getClassRef('[C').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.CALOAD);
@@ -885,7 +928,7 @@ describe('runCALOAD', () => {
     code.setUint8(0, OPCODE.CALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -895,13 +938,15 @@ describe('runCALOAD', () => {
   });
 
   test('CALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.char, [99]);
+    const arrCls = bscl.getClassRef('[C').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.CALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -914,13 +959,15 @@ describe('runCALOAD', () => {
   });
 
   test('CALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.char, [99]);
+    const arrCls = bscl.getClassRef('[C').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.CALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -935,7 +982,9 @@ describe('runCALOAD', () => {
 
 describe('runSALOAD', () => {
   test('SALOAD: loads short from array', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.short, [99]);
+    const arrCls = bscl.getClassRef('[S').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.SALOAD);
@@ -954,7 +1003,7 @@ describe('runSALOAD', () => {
     code.setUint8(0, OPCODE.SALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JavaReference;
@@ -964,13 +1013,15 @@ describe('runSALOAD', () => {
   });
 
   test('SALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.short, [99]);
+    const arrCls = bscl.getClassRef('[S').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.SALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
@@ -983,13 +1034,15 @@ describe('runSALOAD', () => {
   });
 
   test('SALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrayRef = new JavaArray(1, ArrayPrimitiveType.short, [99]);
+    const arrCls = bscl.getClassRef('[S').result as ClassRef;
+    const arrayRef = arrCls.instantiate() as JavaArray;
+    arrayRef.initialize(1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.SALOAD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );

@@ -25,7 +25,7 @@ import {
 } from './ConstantRef';
 import { FieldRef } from './FieldRef';
 import { MethodRef } from './MethodRef';
-import { JavaReference } from './dataTypes';
+import { JavaArray, JavaReference } from './dataTypes';
 
 interface MethodResolutionResult {
   error?: string;
@@ -48,6 +48,7 @@ export class ClassRef {
   private accessFlags: number;
 
   private thisClass: string;
+  private packageName: string;
   private superClass: ClassRef | null;
 
   private interfaces: Array<ClassRef>;
@@ -81,6 +82,7 @@ export class ClassRef {
     this.constantPool = constantPool;
     this.accessFlags = accessFlags;
     this.thisClass = thisClass;
+    this.packageName = thisClass.split('/').slice(0, -1).join('/');
     this.superClass = superClass;
     this.interfaces = interfaces;
     this.fields = {};
@@ -103,6 +105,27 @@ export class ClassRef {
     //   throw new Error('Could not load class java/lang/Class');
     // }
     // this.javaObj = new JavaReference(clsRes.result);
+  }
+
+  static createArrayClassRef(
+    className: string,
+    superClass: ClassRef,
+    loader: AbstractClassLoader
+  ) {
+    const cls = new ArrayClassRef(
+      [],
+      CLASS_FLAGS.ACC_PUBLIC,
+      className,
+      superClass,
+      [],
+      [],
+      [],
+      [],
+      loader
+    );
+
+    cls.packageName = 'java/lang';
+    return cls;
   }
 
   private resolveClass(toResolve: string) {
@@ -421,15 +444,11 @@ export class ClassRef {
       return { result: strRef.ref };
     }
     const strConst = this.constantPool[strRef.stringIndex] as ConstantUtf8Info;
-
-    const res = this.loader.getClassRef('java/lang/String');
-
-    if (res.error || !res.result) {
-      return { error: 'java/lang/ClassNotFoundException' };
+    const stringRes = initString(this.loader, strConst.value);
+    if (stringRes.result && !stringRes.error) {
+      strRef.ref = stringRes.result;
     }
-
-    strRef.ref = initString(res.result, strConst.value);
-    return { result: strRef.ref };
+    return stringRes;
   }
 
   /**
@@ -458,7 +477,7 @@ export class ClassRef {
   }
 
   getPackageName(): string {
-    return this.thisClass.split('/').slice(0, -1).join('/');
+    return this.packageName;
   }
 
   getInstanceFields(): {
@@ -679,5 +698,37 @@ export class ClassRef {
 
   checkModule() {
     return (this.accessFlags & CLASS_FLAGS.ACC_MODULE) !== 0;
+  }
+}
+
+export class ArrayClassRef extends ClassRef {
+  constructor(
+    constantPool: Array<ConstantRef>,
+    accessFlags: number,
+    thisClass: string,
+    superClass: ClassRef | null,
+    interfaces: Array<ClassRef>,
+    fields: Array<FieldInfo>,
+    methods: Array<MethodInfo>,
+    attributes: Array<AttributeInfo>,
+    loader: AbstractClassLoader,
+    bootstrapMethods?: BootstrapMethodsAttribute
+  ) {
+    super(
+      constantPool,
+      accessFlags,
+      thisClass,
+      superClass,
+      interfaces,
+      fields,
+      methods,
+      attributes,
+      loader,
+      bootstrapMethods
+    );
+  }
+
+  instantiate(): JavaReference {
+    return new JavaArray(this);
   }
 }

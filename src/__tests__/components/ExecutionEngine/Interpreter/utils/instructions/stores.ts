@@ -11,6 +11,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
+let bscl: BootstrapClassLoader;
 let code: DataView;
 let jni: JNI;
 let javaThread: JavaReference;
@@ -19,7 +20,7 @@ beforeEach(() => {
   jni = new JNI();
   const nativeSystem = new NodeSystem({});
 
-  const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
+  bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
   javaThread = new JavaReference(threadClass);
@@ -478,7 +479,10 @@ describe('runAstore3', () => {
 
 describe('runIastore', () => {
   test('IASTORE: stores int into array', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.int);
+    const arrCls = bscl.getClassRef('[I').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
+
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -504,7 +508,9 @@ describe('runIastore', () => {
   });
 
   test('IASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.int);
+    const arrCls = bscl.getClassRef('[I').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -517,7 +523,9 @@ describe('runIastore', () => {
   });
 
   test('IASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.int);
+    const arrCls = bscl.getClassRef('[I').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -532,7 +540,9 @@ describe('runIastore', () => {
 
 describe('runLastore', () => {
   test('LASTORE: stores long into array', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.long);
+    const arrCls = bscl.getClassRef('[J').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(5n);
@@ -558,7 +568,9 @@ describe('runLastore', () => {
   });
 
   test('LASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.long);
+    const arrCls = bscl.getClassRef('[J').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(5n);
@@ -571,7 +583,9 @@ describe('runLastore', () => {
   });
 
   test('LASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.long);
+    const arrCls = bscl.getClassRef('[J').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(5n);
@@ -586,7 +600,9 @@ describe('runLastore', () => {
 
 describe('runFastore', () => {
   test('FASTORE: stores float into array', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.float);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0.5);
@@ -612,7 +628,9 @@ describe('runFastore', () => {
   });
 
   test('FASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.float);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(0.5);
@@ -625,7 +643,9 @@ describe('runFastore', () => {
   });
 
   test('FASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.float);
+    const arrCls = bscl.getClassRef('[F').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(0.5);
@@ -640,7 +660,9 @@ describe('runFastore', () => {
 
 describe('runDastore', () => {
   test('DASTORE: stores double into array', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.double);
+    const arrCls = bscl.getClassRef('[D').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(0.5);
@@ -666,7 +688,9 @@ describe('runDastore', () => {
   });
 
   test('DASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.double);
+    const arrCls = bscl.getClassRef('[D').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(0.5);
@@ -679,7 +703,9 @@ describe('runDastore', () => {
   });
 
   test('DASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.double);
+    const arrCls = bscl.getClassRef('[D').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(0.5);
@@ -694,7 +720,9 @@ describe('runDastore', () => {
 
 describe('runAastore', () => {
   test('AASTORE: stores reference into array', () => {
-    const arrayref = new JavaArray(1, 'Ljava/lang/Thread');
+    const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     const v1 = new JavaReference(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(0);
@@ -721,7 +749,9 @@ describe('runAastore', () => {
   });
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, 'Ljava/lang/Thread');
+    const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     const v1 = new JavaReference(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(1);
@@ -735,7 +765,9 @@ describe('runAastore', () => {
   });
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, 'Ljava/lang/Thread');
+    const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     const v1 = new JavaReference(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
@@ -751,7 +783,9 @@ describe('runAastore', () => {
 
 describe('runBastore', () => {
   test('BASTORE: stores byte into array', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
+    const arrCls = bscl.getClassRef('[B').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -765,7 +799,9 @@ describe('runBastore', () => {
   });
 
   test('BASTORE: truncates int to byte', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
+    const arrCls = bscl.getClassRef('[B').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(128);
@@ -791,7 +827,9 @@ describe('runBastore', () => {
   });
 
   test('BASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
+    const arrCls = bscl.getClassRef('[B').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -804,7 +842,9 @@ describe('runBastore', () => {
   });
 
   test('BASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.byte);
+    const arrCls = bscl.getClassRef('[B').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -819,7 +859,9 @@ describe('runBastore', () => {
 
 describe('runCastore', () => {
   test('CASTORE: stores char into array', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
+    const arrCls = bscl.getClassRef('[C').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -833,7 +875,9 @@ describe('runCastore', () => {
   });
 
   test('CASTORE: truncates int to char', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
+    const arrCls = bscl.getClassRef('[C').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0x11111);
@@ -859,7 +903,9 @@ describe('runCastore', () => {
   });
 
   test('CASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
+    const arrCls = bscl.getClassRef('[C').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -872,7 +918,9 @@ describe('runCastore', () => {
   });
 
   test('CASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
+    const arrCls = bscl.getClassRef('[C').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -887,7 +935,9 @@ describe('runCastore', () => {
 
 describe('runSastore', () => {
   test('SASTORE: stores short into array', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.short);
+    const arrCls = bscl.getClassRef('[S').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -901,7 +951,9 @@ describe('runSastore', () => {
   });
 
   test('SASTORE: truncates int to short', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.char);
+    const arrCls = bscl.getClassRef('[S').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(32768);
@@ -927,7 +979,9 @@ describe('runSastore', () => {
   });
 
   test('SASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.short);
+    const arrCls = bscl.getClassRef('[S').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -940,7 +994,9 @@ describe('runSastore', () => {
   });
 
   test('SASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrayref = new JavaArray(1, ArrayPrimitiveType.short);
+    const arrCls = bscl.getClassRef('[S').result as ClassRef;
+    const arrayref = arrCls.instantiate() as JavaArray;
+    arrayref.initialize(1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);

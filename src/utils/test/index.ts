@@ -189,6 +189,12 @@ export const createClass = (options: {
 
 export class TestClassLoader extends AbstractClassLoader {
   load(className: string): { result?: ClassRef; error?: string } {
+    if (className.startsWith('[')) {
+      const objRes = this.getClassRef('java/lang/Object').result as ClassRef;
+      const arrayClass = ClassRef.createArrayClassRef(className, objRes, this);
+      return { result: arrayClass };
+    }
+
     const stubRef = createClass({
       className: className,
       loader: this,

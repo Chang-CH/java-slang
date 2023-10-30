@@ -93,55 +93,49 @@ export function runMultianewarray(thread: NativeThread): void {
     dimArray[dimensions - i - 1] = dim;
   }
 
-  let currentType = arrayType.slice(1); // first item '['
-  const res = new JavaArray(dimArray[0], currentType);
+  let currentType = arrayType;
+  const classResolutionResult = thread
+    .getClass()
+    .getLoader()
+    .getClassRef(currentType);
+  if (classResolutionResult.error || !classResolutionResult.result) {
+    thread.throwNewException(
+      classResolutionResult.error ?? 'java/lang/ClassNotFoundException',
+      ''
+    );
+    return;
+  }
+
+  const arrayCls = classResolutionResult.result;
+  const res = arrayCls.instantiate() as JavaArray;
+  res.initialize(dimArray[0]);
+
   let pendingInit = [res];
   let nextInit = [];
 
   for (let i = 1; i < dimensions; i++) {
+    currentType = currentType.slice(1); // remove leading '[', array type should be '[[[...'
     const len = dimArray[i];
-    const descriptor: any = parseFirstDescriptor(currentType);
 
-    switch (descriptor.type) {
-      case JavaType.boolean:
-        descriptor.type = ArrayPrimitiveType.boolean;
-        break;
-      case JavaType.char:
-        descriptor.type = ArrayPrimitiveType.char;
-        break;
-      case JavaType.float:
-        descriptor.type = ArrayPrimitiveType.float;
-        break;
-      case JavaType.double:
-        descriptor.type = ArrayPrimitiveType.double;
-        break;
-      case JavaType.byte:
-        descriptor.type = ArrayPrimitiveType.byte;
-        break;
-      case JavaType.short:
-        descriptor.type = ArrayPrimitiveType.short;
-        break;
-      case JavaType.int:
-        descriptor.type = ArrayPrimitiveType.int;
-        break;
-      case JavaType.long:
-        descriptor.type = ArrayPrimitiveType.long;
-        break;
-      case JavaType.array:
-        descriptor.type = currentType.slice(1);
-        break;
-      case JavaType.reference:
-        descriptor.type = currentType.slice(1);
-        break;
+    const classResolutionResult = thread
+      .getClass()
+      .getLoader()
+      .getClassRef(currentType);
+    if (classResolutionResult.error || !classResolutionResult.result) {
+      thread.throwNewException(
+        classResolutionResult.error ?? 'java/lang/ClassNotFoundException',
+        ''
+      );
+      return;
     }
-
-    currentType = currentType.slice(descriptor.index);
+    const arrayCls = classResolutionResult.result;
 
     for (const arr of pendingInit) {
       for (let j = 0; j < dimArray[i]; j++) {
-        const newArr = new JavaArray(len, descriptor.type);
-        arr.set(j, newArr);
-        nextInit.push(newArr);
+        const obj = arrayCls.instantiate() as JavaArray;
+        obj.initialize(dimArray[i]);
+        arr.set(j, obj);
+        nextInit.push(obj);
       }
     }
 

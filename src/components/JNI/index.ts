@@ -40,7 +40,7 @@ export class JNI {
             console.log(
               `Dummy method ${className}.${methodName} run with params${params}`
             );
-            return new JavaArray(0, ArrayPrimitiveType.int);
+            return null;
           };
         case JavaType.byte:
           return (...params: any) => {

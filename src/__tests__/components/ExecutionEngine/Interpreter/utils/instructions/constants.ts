@@ -5,15 +5,9 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ConstantClass, ConstantString } from '#types/ConstantRef';
 import { JavaReference } from '#types/dataTypes';
-import NodeSystem from '#utils/NodeSystem';
 import { initString } from '#jvm/components/JNI/utils';
-import {
-  ConstantClassInfo,
-  ConstantStringInfo,
-  ConstantUtf8Info,
-} from '#jvm/external/ClassFile/types/constants';
+import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { ClassRef } from '#types/ClassRef';
-import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestSystem, TestClassLoader, createClass } from '#utils/test';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -352,6 +346,7 @@ describe('runSipush', () => {
   });
 });
 
+// FIXME: classref should push class object not classref onto stack
 // Test MethodHandle
 // Test MethodType
 describe('runLdc', () => {
@@ -436,7 +431,8 @@ describe('runLdc', () => {
 
   test('reads string from constant pool and pushes to stack', () => {
     thread.popStackFrame();
-    const strRef = initString(strClass, 'hello world');
+    const strRef = initString(testLoader, 'hello world')
+      .result as JavaReference;
     const strConstant = {
       tag: CONSTANT_TAG.String,
       ref: strRef,
@@ -515,9 +511,10 @@ describe('runLdc', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(
-      (strConstant as unknown as ConstantString).ref
-    ); // string literals should be same object
+    expect(
+      lastFrame.operandStack[0] ===
+        (strConstant as unknown as ConstantString).ref
+    ).toBe(true); // string literals should be same object
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(2);
@@ -564,7 +561,7 @@ describe('runLdc', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(testClass);
+    expect(lastFrame.operandStack[0] === testClass).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(2);
   });
@@ -609,7 +606,7 @@ describe('runLdc', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(testClass);
+    expect(lastFrame.operandStack[0] === testClass).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(2);
   });
@@ -697,7 +694,8 @@ describe('runLdcW', () => {
 
   test('reads string from constant pool and pushes to stack', () => {
     thread.popStackFrame();
-    const strRef = initString(strClass, 'hello world');
+    const strRef = initString(testLoader, 'hello world')
+      .result as JavaReference;
     const strConstant = {
       tag: CONSTANT_TAG.String,
       ref: strRef,
@@ -776,9 +774,10 @@ describe('runLdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(
-      (strConstant as unknown as ConstantString).ref
-    ); // string literals should be same object
+    expect(
+      lastFrame.operandStack[0] ===
+        (strConstant as unknown as ConstantString).ref
+    ).toBe(true); // string literals should be same object
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
@@ -825,7 +824,7 @@ describe('runLdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(testClass);
+    expect(lastFrame.operandStack[0] === testClass).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -870,7 +869,7 @@ describe('runLdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0]).toBe(testClass);
+    expect(lastFrame.operandStack[0] === testClass).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });

@@ -102,6 +102,7 @@ export function runAreturn(thread: NativeThread): void {
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
   thread.popStackFrame();
+  console.log('areturn: ', ret);
   thread.pushStack(ret);
 }
 

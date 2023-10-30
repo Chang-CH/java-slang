@@ -5,7 +5,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { JavaReference } from '#types/dataTypes';
+import { JavaArray, JavaReference } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
@@ -277,14 +277,18 @@ describe('runMultianewarray', () => {
     expect(lastFrame.pc).toBe(4);
     expect(thread.getPC()).toBe(4);
     expect(lastFrame.locals.length).toBe(0);
-    const arrayRef = thread.popStack();
+    const arrayRef = thread.popStack() as JavaArray;
     expect(arrayRef.len()).toBe(2);
-    expect(arrayRef.type).toBe('[Ljava/lang/Thread;');
+    expect(arrayRef.getClass().getClassname()).toBe('[[Ljava/lang/Thread;');
     expect(arrayRef.get(0).len()).toBe(3);
-    expect(arrayRef.get(0).type).toBe('Ljava/lang/Thread;');
+    expect(arrayRef.get(0).getClass().getClassname()).toBe(
+      '[Ljava/lang/Thread;'
+    );
     expect(arrayRef.get(0).get(2)).toBe(null);
     expect(arrayRef.get(1).len()).toBe(3);
-    expect(arrayRef.get(1).type).toBe('Ljava/lang/Thread;');
+    expect(arrayRef.get(1).getClass().getClassname()).toBe(
+      '[Ljava/lang/Thread;'
+    );
     expect(arrayRef.get(1).get(2)).toBe(null);
   });
 
@@ -350,6 +354,6 @@ describe('runMultianewarray', () => {
     expect(lastFrame.locals.length).toBe(0);
     const arrayRef = thread.popStack();
     expect(arrayRef.len()).toBe(0);
-    expect(arrayRef.type).toBe('[Ljava/lang/Thread;');
+    expect(arrayRef.getClass().getClassname()).toBe('[[Ljava/lang/Thread;');
   });
 });

@@ -139,6 +139,7 @@ function loadConstant(thread: NativeThread, index: number): void {
         return;
       }
 
+      // FIXME: should be class object not classref on stack.
       thread.pushStack(classRef);
       return;
     case CONSTANT_TAG.MethodType:
