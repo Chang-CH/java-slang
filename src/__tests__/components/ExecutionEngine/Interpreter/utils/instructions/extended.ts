@@ -5,7 +5,6 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { JavaArray } from '#types/dataTypes';
 import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -14,6 +13,7 @@ import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
+import { JvmArray } from '#types/reference/Array';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -278,7 +278,7 @@ describe('runMultianewarray', () => {
     expect(lastFrame.pc).toBe(4);
     expect(thread.getPC()).toBe(4);
     expect(lastFrame.locals.length).toBe(0);
-    const arrayRef = thread.popStack() as JavaArray;
+    const arrayRef = thread.popStack() as JvmArray;
     expect(arrayRef.len()).toBe(2);
     expect(arrayRef.getClass().getClassname()).toBe('[[Ljava/lang/Thread;');
     expect(arrayRef.get(0).len()).toBe(3);

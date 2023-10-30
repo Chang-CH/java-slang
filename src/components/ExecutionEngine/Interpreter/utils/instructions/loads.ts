@@ -1,4 +1,4 @@
-import { JavaArray } from '#types/dataTypes';
+import { JvmArray } from '#types/reference/Array';
 import NativeThread from '../../../NativeThreadGroup/NativeThread';
 
 export function runIload(thread: NativeThread): void {
@@ -139,7 +139,7 @@ export function runAload3(thread: NativeThread): void {
 export function runIaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -157,7 +157,7 @@ export function runIaload(thread: NativeThread): void {
 export function runLaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -175,7 +175,7 @@ export function runLaload(thread: NativeThread): void {
 export function runFaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -193,7 +193,7 @@ export function runFaload(thread: NativeThread): void {
 export function runDaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -211,7 +211,7 @@ export function runDaload(thread: NativeThread): void {
 export function runAaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -229,7 +229,7 @@ export function runAaload(thread: NativeThread): void {
 export function runBaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -247,7 +247,7 @@ export function runBaload(thread: NativeThread): void {
 export function runCaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -265,7 +265,7 @@ export function runCaload(thread: NativeThread): void {
 export function runSaload(thread: NativeThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
-  const arrayref: JavaArray | null = thread.popStack();
+  const arrayref: JvmArray | null = thread.popStack();
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;

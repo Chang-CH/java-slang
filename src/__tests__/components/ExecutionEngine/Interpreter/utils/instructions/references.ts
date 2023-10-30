@@ -4,12 +4,14 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { ArrayPrimitiveType, JavaArray, JvmObject } from '#types/dataTypes';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestClassLoader, TestSystem, createClass } from '#utils/test';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
+import { ArrayPrimitiveType } from '#types/dataTypes';
+import { JvmArray } from '#types/reference/Array';
+import { JvmObject } from '#types/reference/Object';
 
 let thread: NativeThread;
 let threadClass: ClassRef;
@@ -4489,7 +4491,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    const arrayObj = thread.popStack() as JavaArray;
+    const arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.getClass().getClassname()).toBe('[Z');
     expect(arrayObj.len()).toBe(0);
   });
@@ -4519,7 +4521,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    let arrayObj = thread.popStack() as JavaArray;
+    let arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.popStackFrame();
 
@@ -4528,7 +4530,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    arrayObj = thread.popStack() as JavaArray;
+    arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.popStackFrame();
 
@@ -4537,7 +4539,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    arrayObj = thread.popStack() as JavaArray;
+    arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.popStackFrame();
 
@@ -4546,7 +4548,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    arrayObj = thread.popStack() as JavaArray;
+    arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.popStackFrame();
 
@@ -4555,7 +4557,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    arrayObj = thread.popStack() as JavaArray;
+    arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.popStackFrame();
 
@@ -4564,7 +4566,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    arrayObj = thread.popStack() as JavaArray;
+    arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.popStackFrame();
 
@@ -4573,7 +4575,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    arrayObj = thread.popStack() as JavaArray;
+    arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.popStackFrame();
 
@@ -4582,7 +4584,7 @@ describe('runNewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    arrayObj = thread.popStack() as JavaArray;
+    arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0) === 0n).toBe(true);
     thread.popStackFrame();
   });
@@ -4662,7 +4664,7 @@ describe('runAnewarray', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    const arrayObj = thread.popStack() as JavaArray;
+    const arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
     expect(arrayObj.len()).toBe(0);
   });
@@ -4745,7 +4747,7 @@ describe('runAnewarray', () => {
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
-    const arrayObj = thread.popStack() as JavaArray;
+    const arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0) === null).toBe(true);
   });
 

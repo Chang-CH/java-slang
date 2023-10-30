@@ -28,7 +28,7 @@ import {
 } from './ConstantRef';
 import { FieldRef } from './FieldRef';
 import { MethodRef } from './MethodRef';
-import { JavaArray } from './dataTypes';
+import { JvmArray } from './reference/Array';
 import { JvmObject } from './reference/Object';
 
 interface MethodResolutionResult {
@@ -870,6 +870,6 @@ export class ArrayClassRef extends ClassRef {
   }
 
   instantiate(): JvmObject {
-    return new JavaArray(this);
+    return new JvmArray(this);
   }
 }

@@ -1,5 +1,5 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import { JavaArray } from '#types/dataTypes';
+import { JvmArray } from '#types/reference/Array';
 import { asDouble, asFloat } from '..';
 
 export function runIstore(thread: NativeThread): void {
@@ -161,7 +161,7 @@ export function runIastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -180,7 +180,7 @@ export function runLastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -199,7 +199,7 @@ export function runFastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -218,7 +218,7 @@ export function runDastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -237,7 +237,7 @@ export function runAastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -256,7 +256,7 @@ export function runBastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -275,7 +275,7 @@ export function runCastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -294,7 +294,7 @@ export function runSastore(thread: NativeThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');

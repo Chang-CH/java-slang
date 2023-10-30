@@ -1,5 +1,5 @@
+import { JavaType } from '#types/dataTypes';
 import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
-import { ArrayPrimitiveType, JavaArray, JavaType } from '#types/dataTypes';
 export class JNI {
   private classes: {
     [className: string]: {

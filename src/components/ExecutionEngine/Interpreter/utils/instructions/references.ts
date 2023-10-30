@@ -1,12 +1,9 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import { JavaArray, JavaType, ArrayPrimitiveType } from '#types/dataTypes';
 import { tryInitialize, parseMethodDescriptor, asDouble, asFloat } from '..';
 import {
   ConstantFieldrefInfo,
   ConstantNameAndTypeInfo,
-  ConstantClassInfo,
-  ConstantInterfaceMethodrefInfo,
   ConstantInvokeDynamicInfo,
   ConstantMethodHandleInfo,
 } from '#jvm/external/ClassFile/types/constants';
@@ -16,6 +13,8 @@ import { FieldRef } from '#types/FieldRef';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { JvmObject } from '#types/reference/Object';
+import { JavaType, ArrayPrimitiveType } from '#types/dataTypes';
+import { JvmArray } from '#types/reference/Array';
 
 function getFieldRef(
   invokerClass: ClassRef,
@@ -719,7 +718,7 @@ export function runNewarray(thread: NativeThread): void {
   }
 
   const arrayCls = classResolutionResult.result;
-  const arrayref = arrayCls.instantiate() as JavaArray;
+  const arrayref = arrayCls.instantiate() as JvmArray;
   arrayref.initialize(count);
   thread.pushStack(arrayref);
 }
@@ -758,14 +757,14 @@ export function runAnewarray(thread: NativeThread): void {
   thread.offsetPc(3);
 
   const arrayCls = arrayClassRes.result;
-  const arrayref = arrayCls.instantiate() as JavaArray;
+  const arrayref = arrayCls.instantiate() as JvmArray;
   arrayref.initialize(count);
   thread.pushStack(arrayref);
 }
 
 export function runArraylength(thread: NativeThread): void {
   thread.offsetPc(1);
-  const arrayref = thread.popStack() as JavaArray;
+  const arrayref = thread.popStack() as JvmArray;
   thread.pushStack(arrayref.len());
 }
 

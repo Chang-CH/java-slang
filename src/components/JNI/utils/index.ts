@@ -1,19 +1,16 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { FieldRef } from '#types/FieldRef';
-import { JavaArray } from '#types/dataTypes';
+import { JvmArray } from '#types/dataTypes';
 import { JvmObject } from '#types/reference/Object';
 
-export function newCharArr(
-  loader: AbstractClassLoader,
-  str: string
-): JavaArray {
+export function newCharArr(loader: AbstractClassLoader, str: string): JvmArray {
   const cArrRes = loader.getClassRef('[C');
   if (cArrRes.error || !cArrRes.result) {
     throw new Error('Could not resolve char array class');
   }
 
   const cArrCls = cArrRes.result;
-  const cArr = cArrCls.instantiate() as JavaArray;
+  const cArr = cArrCls.instantiate() as JvmArray;
   const jsArr = [];
   for (let i = 0; i < str.length; i++) {
     jsArr.push(str.charCodeAt(i));

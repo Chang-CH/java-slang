@@ -1,16 +1,12 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
-import {
-  ArrayPrimitiveType,
-  JavaArray,
-  JvmObject,
-  JavaType,
-} from '#types/dataTypes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { asFloat, asDouble, parseFirstDescriptor } from '..';
 import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
+import { JvmArray } from '#types/reference/Array';
+import { JvmObject } from '#types/reference/Object';
 
 export function runWide(thread: NativeThread): void {
   thread.offsetPc(1);
@@ -107,7 +103,7 @@ export function runMultianewarray(thread: NativeThread): void {
   }
 
   const arrayCls = classResolutionResult.result;
-  const res = arrayCls.instantiate() as JavaArray;
+  const res = arrayCls.instantiate() as JvmArray;
   res.initialize(dimArray[0]);
 
   let pendingInit = [res];
@@ -132,7 +128,7 @@ export function runMultianewarray(thread: NativeThread): void {
 
     for (const arr of pendingInit) {
       for (let j = 0; j < dimArray[i]; j++) {
-        const obj = arrayCls.instantiate() as JavaArray;
+        const obj = arrayCls.instantiate() as JvmArray;
         obj.initialize(dimArray[i]);
         arr.set(j, obj);
         nextInit.push(obj);
