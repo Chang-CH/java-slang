@@ -13,6 +13,9 @@ import {
   ConstantUtf8Info,
   ConstantNameAndTypeInfo,
   ConstantInterfaceMethodrefInfo,
+  ConstantMethodHandleInfo,
+  REFERENCE_KIND,
+  ConstantFieldrefInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
@@ -25,7 +28,8 @@ import {
 } from './ConstantRef';
 import { FieldRef } from './FieldRef';
 import { MethodRef } from './MethodRef';
-import { JavaArray, JavaReference } from './dataTypes';
+import { JavaArray } from './dataTypes';
+import { JvmObject } from './reference/Object';
 
 interface MethodResolutionResult {
   error?: string;
@@ -65,7 +69,7 @@ export class ClassRef {
   private bootstrapMethods?: BootstrapMethodsAttribute;
   private attributes: Array<AttributeInfo>;
 
-  // private javaObj: JavaReference;
+  // private javaObj: JvmObject;
 
   constructor(
     constantPool: Array<ConstantRef>,
@@ -76,8 +80,7 @@ export class ClassRef {
     fields: Array<FieldInfo>,
     methods: Array<MethodInfo>,
     attributes: Array<AttributeInfo>,
-    loader: AbstractClassLoader,
-    bootstrapMethods?: BootstrapMethodsAttribute
+    loader: AbstractClassLoader
   ) {
     this.constantPool = constantPool;
     this.accessFlags = accessFlags;
@@ -98,13 +101,21 @@ export class ClassRef {
     });
     this.attributes = attributes;
     this.loader = loader;
-    this.bootstrapMethods = bootstrapMethods;
+
+    for (const attribute of attributes) {
+      const attrName = (
+        this.constantPool[attribute.attributeNameIndex] as ConstantUtf8Info
+      ).value;
+      if (attrName === 'BootstrapMethods') {
+        this.bootstrapMethods = attribute as BootstrapMethodsAttribute;
+      }
+    }
 
     // const clsRes = this.loader.getClassRef('java/lang/Class');
     // if (clsRes.error || !clsRes.result) {
     //   throw new Error('Could not load class java/lang/Class');
     // }
-    // this.javaObj = new JavaReference(clsRes.result);
+    // this.javaObj = new JvmObject(clsRes.result);
   }
 
   static createArrayClassRef(
@@ -438,7 +449,7 @@ export class ClassRef {
 
   resolveStringRef(strRef: ConstantString): {
     error?: string;
-    result?: JavaReference;
+    result?: JvmObject;
   } {
     if (strRef.ref) {
       return { result: strRef.ref };
@@ -449,6 +460,130 @@ export class ClassRef {
       strRef.ref = stringRes.result;
     }
     return stringRes;
+  }
+
+  resolveMethodHandleRef(
+    thread: NativeThread,
+    methodHandleRef: ConstantMethodHandleInfo
+  ): {
+    error?: any;
+    result?: string;
+  } {
+    const kind = methodHandleRef.referenceKind;
+
+    let methodDesc: string;
+
+    switch (kind) {
+      // #region field types
+      case REFERENCE_KIND.GetField:
+        const constantField = this.getConstant(
+          methodHandleRef.referenceIndex
+        ) as ConstantFieldrefInfo;
+        const classResolutionRes = this.resolveClassRef(
+          this.getConstant(constantField.classIndex)
+        );
+
+        if (classResolutionRes.error || !classResolutionRes.classRef) {
+          return {
+            error:
+              classResolutionRes.error ?? 'java/lang/ClassNotFoundException',
+          };
+        }
+        const fieldClass = classResolutionRes.classRef;
+
+        const nameAndTypeIndex = this.getConstant(
+          constantField.nameAndTypeIndex
+        ) as ConstantNameAndTypeInfo;
+        const fieldName = this.getConstant(nameAndTypeIndex.nameIndex).value;
+        const fieldType = this.getConstant(
+          nameAndTypeIndex.descriptorIndex
+        ).value;
+
+        const fieldRef = fieldClass.getFieldRef(fieldName + fieldType);
+
+        throw new Error('not implemented');
+      case REFERENCE_KIND.GetStatic:
+        throw new Error('not implemented');
+      case REFERENCE_KIND.PutField:
+        throw new Error('not implemented');
+      case REFERENCE_KIND.PutStatic:
+        throw new Error('not implemented');
+      // #endregion
+
+      // #region method types
+      case REFERENCE_KIND.InvokeVirtual:
+      case REFERENCE_KIND.InvokeStatic:
+      case REFERENCE_KIND.InvokeSpecial:
+      case REFERENCE_KIND.NewInvokeSpecial:
+        const methodRes = this.resolveMethodRef(
+          thread,
+          this.getConstant(methodHandleRef.referenceIndex)
+        );
+        if (methodRes.error || !methodRes.methodRef) {
+          return {
+            error: methodRes.error ?? 'java/lang/NoSuchMethodError',
+          };
+        }
+        const method = methodRes.methodRef;
+
+        // constraints checking
+        if (
+          kind === REFERENCE_KIND.NewInvokeSpecial &&
+          (method.getMethodName() !== '<init>' ||
+            !method.getMethodDesc().endsWith(')V'))
+        ) {
+          return { error: 'java/lang/IllegalAccessError' };
+        }
+        // TODO: 5.4.3.5
+
+        // symbolic references to classes and interfaces whose names correspond to each type in A*, and to the type T, in that order.
+        let methodDesc = method.getMethodDesc();
+        methodDesc = methodDesc.slice(1, methodDesc.indexOf(')'));
+        const paramTypes = methodDesc.split(';');
+
+        for (const param of paramTypes) {
+          if (param.length <= 1) {
+            // primitive type or ended
+            continue;
+          }
+
+          let classType = param;
+          if (param[0] === 'L') {
+            // ref type
+            classType = param.slice(1);
+          }
+
+          const res = this.resolveClass(classType);
+
+          if (res.error || !res.result) {
+            return {
+              error: res.error ?? 'java/lang/ClassNotFoundException',
+            };
+          }
+        }
+
+        if (
+          kind === REFERENCE_KIND.InvokeVirtual ||
+          kind === REFERENCE_KIND.InvokeSpecial
+        ) {
+          methodDesc = `(L${method.getClass().getClassname()};${method
+            .getMethodDesc()
+            .slice(1)}`;
+        } else if (kind === REFERENCE_KIND.NewInvokeSpecial) {
+          methodDesc = `${method.getMethodDesc().slice(0, -1)}L${method
+            .getClass()
+            .getClassname()}`;
+        } else {
+          methodDesc = method.getMethodDesc();
+        }
+        return { result: methodDesc };
+      // #endregion
+
+      // #region interface types
+      case REFERENCE_KIND.InvokeInterface:
+        throw new Error('not implemented');
+      // #endregion
+    }
   }
 
   /**
@@ -635,6 +770,14 @@ export class ClassRef {
     return superClass.getFieldRef(fieldName);
   }
 
+  getBootstrapMethod(methodIndex: number) {
+    if (!this.bootstrapMethods) {
+      throw new Error('No bootstrap methods');
+    }
+
+    return this.bootstrapMethods.bootstrapMethods[methodIndex];
+  }
+
   /**
    * Setters
    */
@@ -660,8 +803,8 @@ export class ClassRef {
     return superClass.checkCast(castTo);
   }
 
-  instantiate(): JavaReference {
-    return new JavaReference(this);
+  instantiate(): JvmObject {
+    return new JvmObject(this);
   }
 
   checkPublic() {
@@ -711,8 +854,7 @@ export class ArrayClassRef extends ClassRef {
     fields: Array<FieldInfo>,
     methods: Array<MethodInfo>,
     attributes: Array<AttributeInfo>,
-    loader: AbstractClassLoader,
-    bootstrapMethods?: BootstrapMethodsAttribute
+    loader: AbstractClassLoader
   ) {
     super(
       constantPool,
@@ -723,12 +865,11 @@ export class ArrayClassRef extends ClassRef {
       fields,
       methods,
       attributes,
-      loader,
-      bootstrapMethods
+      loader
     );
   }
 
-  instantiate(): JavaReference {
+  instantiate(): JvmObject {
     return new JavaArray(this);
   }
 }

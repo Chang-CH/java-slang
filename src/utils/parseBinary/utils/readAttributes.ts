@@ -697,7 +697,6 @@ function readAttributeBootstrapMethods(
   view: DataView,
   offset: number
 ) {
-  console.warn('readAttributeBootstrapMethods is not implemented!');
   const numBootstrapMethods = view.getUint16(offset);
   offset += 2;
 
@@ -723,6 +722,8 @@ function readAttributeBootstrapMethods(
   return {
     result: {
       attributeNameIndex,
+      attributeLength,
+      numBootstrapMethods,
       bootstrapMethods,
     },
     offset,

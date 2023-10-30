@@ -3,7 +3,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { JavaReference } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
@@ -21,7 +21,7 @@ beforeEach(() => {
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-  const javaThread = new JavaReference(threadClass);
+  const javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;

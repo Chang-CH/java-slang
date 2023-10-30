@@ -1,4 +1,4 @@
-import { JavaReference } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 import { tryInitialize } from '../../Interpreter/utils';
 import { StackFrame } from './types';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -8,10 +8,10 @@ import { MethodRef } from '#types/MethodRef';
 export default class NativeThread {
   private stack: StackFrame[];
   private stackPointer: number;
-  private javaThis?: JavaReference;
+  private javaThis?: JvmObject;
   private cls: ClassRef;
 
-  constructor(threadClass: ClassRef, javaThis: JavaReference) {
+  constructor(threadClass: ClassRef, javaThis: JvmObject) {
     this.cls = threadClass;
     this.javaThis = javaThis;
     this.stack = [];

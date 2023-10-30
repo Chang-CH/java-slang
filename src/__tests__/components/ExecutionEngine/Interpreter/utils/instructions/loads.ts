@@ -5,7 +5,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
+import { ArrayPrimitiveType, JavaArray, JvmObject } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
@@ -22,7 +22,7 @@ beforeEach(() => {
   bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-  const javaThread = new JavaReference(threadClass);
+  const javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
@@ -91,7 +91,7 @@ describe('runDLOAD', () => {
 
 describe('runALOAD', () => {
   test('ALOAD: loads reference from local variable array', () => {
-    const obj = new JavaReference(threadClass);
+    const obj = new JvmObject(threadClass);
     thread.peekStackFrame().locals[0] = obj;
     code.setUint8(0, OPCODE.ALOAD);
     code.setUint8(1, 0);
@@ -365,10 +365,10 @@ describe('runDLOAD_3', () => {
 
 describe('runALOAD_0', () => {
   test('ALOAD_0: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass);
-    const l1 = new JavaReference(threadClass);
-    const l2 = new JavaReference(threadClass);
-    const l3 = new JavaReference(threadClass);
+    const l0 = new JvmObject(threadClass);
+    const l1 = new JvmObject(threadClass);
+    const l2 = new JvmObject(threadClass);
+    const l3 = new JvmObject(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -385,10 +385,10 @@ describe('runALOAD_0', () => {
 
 describe('runALOAD_1', () => {
   test('ALOAD_1: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass);
-    const l1 = new JavaReference(threadClass);
-    const l2 = new JavaReference(threadClass);
-    const l3 = new JavaReference(threadClass);
+    const l0 = new JvmObject(threadClass);
+    const l1 = new JvmObject(threadClass);
+    const l2 = new JvmObject(threadClass);
+    const l3 = new JvmObject(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -405,10 +405,10 @@ describe('runALOAD_1', () => {
 
 describe('runALOAD_2', () => {
   test('ALOAD_2: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass);
-    const l1 = new JavaReference(threadClass);
-    const l2 = new JavaReference(threadClass);
-    const l3 = new JavaReference(threadClass);
+    const l0 = new JvmObject(threadClass);
+    const l1 = new JvmObject(threadClass);
+    const l2 = new JvmObject(threadClass);
+    const l3 = new JvmObject(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -425,10 +425,10 @@ describe('runALOAD_2', () => {
 
 describe('runALOAD_3', () => {
   test('ALOAD_3: loads reference from local variable array', () => {
-    const l0 = new JavaReference(threadClass);
-    const l1 = new JavaReference(threadClass);
-    const l2 = new JavaReference(threadClass);
-    const l3 = new JavaReference(threadClass);
+    const l0 = new JvmObject(threadClass);
+    const l1 = new JvmObject(threadClass);
+    const l2 = new JvmObject(threadClass);
+    const l3 = new JvmObject(threadClass);
     thread.peekStackFrame().locals[0] = l0;
     thread.peekStackFrame().locals[1] = l1;
     thread.peekStackFrame().locals[2] = l2;
@@ -469,7 +469,7 @@ describe('runIALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -490,7 +490,7 @@ describe('runIALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -511,7 +511,7 @@ describe('runIALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -544,7 +544,7 @@ describe('runLALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -564,7 +564,7 @@ describe('runLALOAD', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -584,7 +584,7 @@ describe('runLALOAD', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -617,7 +617,7 @@ describe('runFALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -637,7 +637,7 @@ describe('runFALOAD', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -657,7 +657,7 @@ describe('runFALOAD', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -690,7 +690,7 @@ describe('runDALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -710,7 +710,7 @@ describe('runDALOAD', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -730,7 +730,7 @@ describe('runDALOAD', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -781,7 +781,7 @@ describe('runAALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -802,7 +802,7 @@ describe('runAALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -823,7 +823,7 @@ describe('runAALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -856,7 +856,7 @@ describe('runBALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -877,7 +877,7 @@ describe('runBALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -898,7 +898,7 @@ describe('runBALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -931,7 +931,7 @@ describe('runCALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -952,7 +952,7 @@ describe('runCALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -973,7 +973,7 @@ describe('runCALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -1006,7 +1006,7 @@ describe('runSALOAD', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -1027,7 +1027,7 @@ describe('runSALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -1048,7 +1048,7 @@ describe('runSALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );

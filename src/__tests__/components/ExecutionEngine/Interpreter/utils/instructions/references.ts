@@ -4,7 +4,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
+import { ArrayPrimitiveType, JavaArray, JvmObject } from '#types/dataTypes';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestClassLoader, TestSystem, createClass } from '#utils/test';
@@ -37,7 +37,7 @@ beforeEach(() => {
     ],
     loader: testLoader,
   });
-  const javaThread = new JavaReference(threadClass);
+  const javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
 });
 
@@ -108,7 +108,7 @@ describe('runInvokestatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
@@ -375,7 +375,7 @@ describe('runInvokestatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IllegalAccessError'
     );
@@ -620,7 +620,7 @@ describe('runInvokestatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NoSuchMethodError'
     );
@@ -879,7 +879,7 @@ describe('runinvokevirtual', () => {
 
     const method = testClass.getMethod('test0()V') as MethodRef;
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(testClass);
+    const objRef = new JvmObject(testClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -942,7 +942,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = testClass.getMethod('test0(IDJ)V');
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(testClass);
+    const objRef = new JvmObject(testClass);
     thread.pushStack(objRef);
     thread.pushStack(1);
     thread.pushStack64(2.5);
@@ -1008,7 +1008,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = testClass.getMethod('test0(FD)V');
     thread.pushStackFrame(testClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(testClass);
+    const objRef = new JvmObject(testClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
@@ -1085,7 +1085,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(mainClass);
+    const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
@@ -1095,7 +1095,7 @@ describe('runinvokevirtual', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IllegalAccessError'
     );
@@ -1163,7 +1163,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(mainClass);
+    const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
@@ -1237,7 +1237,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(superClass);
+    const objRef = new JvmObject(superClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     expect(thread.getClassName()).toBe('superClass');
@@ -1318,7 +1318,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(mainClass);
+    const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     expect(thread.getClassName()).toBe('mainClass');
@@ -1393,7 +1393,7 @@ describe('runinvokevirtual', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -1461,7 +1461,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(mainClass);
+    const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -1469,7 +1469,7 @@ describe('runinvokevirtual', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/AbstractMethodError'
     );
@@ -1584,7 +1584,7 @@ describe('runinvokevirtual', () => {
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(failLookupClass);
+    const objRef = new JvmObject(failLookupClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -1592,7 +1592,7 @@ describe('runinvokevirtual', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/AbstractMethodError'
     );
@@ -1684,7 +1684,7 @@ describe('runInvokeinterface', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(mainClass);
+    const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -1773,7 +1773,7 @@ describe('runInvokeinterface', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(mainClass);
+    const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     thread.pushStack(0.5);
     thread.pushStack64(0.5);
@@ -1867,7 +1867,7 @@ describe('runInvokeinterface', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(mainClass);
+    const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
@@ -1970,7 +1970,7 @@ describe('runInvokeinterface', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -1978,7 +1978,7 @@ describe('runInvokeinterface', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IllegalAccessError'
     );
@@ -2073,7 +2073,7 @@ describe('runInvokeinterface', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -2081,7 +2081,7 @@ describe('runInvokeinterface', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/AbstractMethodError'
     );
@@ -2195,7 +2195,7 @@ describe('runInvokeinterface', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -2203,7 +2203,7 @@ describe('runInvokeinterface', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
@@ -2289,7 +2289,7 @@ describe('runInvokeinterface', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -2297,7 +2297,7 @@ describe('runInvokeinterface', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/AbstractMethodError'
     );
@@ -2392,7 +2392,7 @@ describe('runinvokespecial', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -2485,7 +2485,7 @@ describe('runinvokespecial', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     thread.pushStack(0.5);
     thread.pushStack64(0.5);
@@ -2582,7 +2582,7 @@ describe('runinvokespecial', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
@@ -2672,7 +2672,7 @@ describe('runinvokespecial', () => {
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(interfaceClass);
+    const objRef = new JvmObject(interfaceClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -2765,7 +2765,7 @@ describe('runinvokespecial', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -2773,7 +2773,7 @@ describe('runinvokespecial', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/AbstractMethodError'
     );
@@ -2869,7 +2869,7 @@ describe('runinvokespecial', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.pushStackFrame(mainClass, method as MethodRef, 0, []);
-    const objRef = new JavaReference(objClass);
+    const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -2877,7 +2877,7 @@ describe('runinvokespecial', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
@@ -3241,7 +3241,7 @@ describe('runGetstatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IllegalAccessError'
     );
@@ -3322,7 +3322,7 @@ describe('runGetstatic', () => {
       lastFrame.method.getMethodName() + lastFrame.method.getMethodDesc()
     ).toBe('dispatchUncaughtException(Ljava/lang/Throwable;)V');
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
@@ -3390,7 +3390,7 @@ describe('runGetstatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NoSuchFieldError'
     );
@@ -3756,7 +3756,7 @@ describe('runPutstatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IllegalAccessError'
     );
@@ -3837,7 +3837,7 @@ describe('runPutstatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
@@ -3906,7 +3906,7 @@ describe('runPutstatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NoSuchFieldError'
     );
@@ -3988,7 +3988,7 @@ describe('runPutstatic', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IllegalAccessError'
     );
@@ -4139,7 +4139,7 @@ describe('runPutstatic', () => {
       lastFrame.method.getMethodName() + lastFrame.method.getMethodDesc()
     ).toBe('dispatchUncaughtException(Ljava/lang/Throwable;)V');
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/IllegalAccessError'
     );
@@ -4368,7 +4368,7 @@ describe('runNew', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/InstantiationError'
     );
@@ -4416,7 +4416,7 @@ describe('runNew', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/InstantiationError'
     );
@@ -4615,7 +4615,7 @@ describe('runNewarray', () => {
       lastFrame.method.getMethodName() + lastFrame.method.getMethodDesc()
     ).toBe('dispatchUncaughtException(Ljava/lang/Throwable;)V');
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NegativeArraySizeException'
     );
@@ -4791,7 +4791,7 @@ describe('runAnewarray', () => {
       lastFrame.method.getMethodName() + lastFrame.method.getMethodDesc()
     ).toBe('dispatchUncaughtException(Ljava/lang/Throwable;)V');
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NegativeArraySizeException'
     );

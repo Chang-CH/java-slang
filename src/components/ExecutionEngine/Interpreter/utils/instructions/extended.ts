@@ -2,7 +2,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import {
   ArrayPrimitiveType,
   JavaArray,
-  JavaReference,
+  JvmObject,
   JavaType,
 } from '#types/dataTypes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
@@ -155,7 +155,7 @@ export function runIfnull(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
 
-  const ref = thread.popStack() as JavaReference;
+  const ref = thread.popStack() as JvmObject;
   if (ref === null) {
     thread.offsetPc(branchbyte - 3);
     return;
@@ -167,7 +167,7 @@ export function runIfnonnull(thread: NativeThread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
 
-  const ref = thread.popStack() as JavaReference;
+  const ref = thread.popStack() as JvmObject;
   if (ref !== null) {
     thread.offsetPc(branchbyte - 3);
     return;

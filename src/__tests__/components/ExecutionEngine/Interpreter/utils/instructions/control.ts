@@ -5,7 +5,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { JavaReference } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
@@ -21,7 +21,7 @@ beforeEach(() => {
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-  const javaThread = new JavaReference(threadClass);
+  const javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
@@ -167,7 +167,7 @@ describe('runDreturn', () => {
 
 describe('runAreturn', () => {
   test('ARETURN: returns reference to previous stackframe', () => {
-    const obj = new JavaReference(threadClass);
+    const obj = new JvmObject(threadClass);
     thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(obj);
     code.setUint8(0, OPCODE.ARETURN);
@@ -188,7 +188,7 @@ describe('runAreturn', () => {
 
 describe('runreturn', () => {
   test('RETURN: returns to previous stackframe', () => {
-    const obj = new JavaReference(threadClass);
+    const obj = new JvmObject(threadClass);
     thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
     code.setUint8(0, OPCODE.RETURN);
 

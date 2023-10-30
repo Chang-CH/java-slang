@@ -1,23 +1,21 @@
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 
-import {
-  JavaReference,
-  JavaArray,
-  JavaType,
-  ArrayPrimitiveType,
-} from '#types/dataTypes';
+import { JavaArray, JavaType, ArrayPrimitiveType } from '#types/dataTypes';
 import { tryInitialize, parseMethodDescriptor, asDouble, asFloat } from '..';
 import {
   ConstantFieldrefInfo,
   ConstantNameAndTypeInfo,
   ConstantClassInfo,
   ConstantInterfaceMethodrefInfo,
+  ConstantInvokeDynamicInfo,
+  ConstantMethodHandleInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { ConstantClass } from '#types/ConstantRef';
+import { ConstantClass, ConstantMethodref } from '#types/ConstantRef';
 import { FieldRef } from '#types/FieldRef';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
+import { JvmObject } from '#types/reference/Object';
 
 function getFieldRef(
   invokerClass: ClassRef,
@@ -199,7 +197,7 @@ export function runGetfield(thread: NativeThread): void {
   }
   const field = fieldRes as FieldRef;
 
-  const objRef = thread.popStack() as JavaReference;
+  const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -238,7 +236,7 @@ export function runPutfield(thread: NativeThread): void {
     value = thread.popStack();
   }
 
-  const objRef = thread.popStack() as JavaReference;
+  const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -246,28 +244,27 @@ export function runPutfield(thread: NativeThread): void {
   objRef.putField(field, value);
 }
 
-export function runInvokevirtual(thread: NativeThread): void {
-  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+function invokeVirtual(
+  thread: NativeThread,
+  constant: ConstantMethodref,
+  onFinish?: () => void
+): { error?: any; shouldDefer?: boolean } {
   let methodRef;
-  const constant = thread.getClass().getConstant(indexbyte);
   const res = thread.getClass().resolveMethodRef(thread, constant);
   if (res.error) {
-    thread.throwNewException(res.error, '');
-    return;
+    return { error: res.error };
   }
   if (!res.methodRef) {
     // Should not happen
-    thread.throwNewException('java/lang/NoSuchMethodError', '');
-    return;
+    return { error: 'java/lang/NoSuchMethodError' };
   }
   methodRef = res.methodRef;
 
   const classRef = methodRef.getClass();
   const { shouldDefer } = tryInitialize(thread, classRef.getClassname());
   if (shouldDefer) {
-    return;
+    return { shouldDefer };
   }
-  thread.offsetPc(3);
 
   // Get arguments
   const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
@@ -297,10 +294,9 @@ export function runInvokevirtual(thread: NativeThread): void {
         args[i] = thread.popStack();
     }
   }
-  const objRef = thread.popStack() as JavaReference;
+  const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
-    thread.throwNewException('java/lang/NullPointerException', '');
-    return;
+    return { error: 'java/lang/NullPointerException' };
   }
   const runtimeClassRef = objRef.getClass();
 
@@ -311,18 +307,28 @@ export function runInvokevirtual(thread: NativeThread): void {
     true
   );
   if (lookupResult.error || !lookupResult.methodRef) {
-    thread.throwNewException(
-      lookupResult.error ?? 'java/lang/AbstractMethodError',
-      ''
-    );
-    return;
+    return { error: lookupResult.error ?? 'java/lang/AbstractMethodError' };
   }
   const toInvoke = lookupResult.methodRef;
   if (toInvoke.checkAbstract()) {
-    thread.throwNewException('java/lang/NoSuchMethodError', '');
+    return { error: 'java/lang/NoSuchMethodError' };
+  }
+  onFinish && onFinish();
+  thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
+  return {};
+}
+
+export function runInvokevirtual(thread: NativeThread): void {
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  const constant = thread.getClass().getConstant(indexbyte);
+  const res = invokeVirtual(thread, constant, () => thread.offsetPc(3));
+  if (res.error) {
+    thread.throwNewException(res.error, '');
     return;
   }
-  thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
+  if (res.shouldDefer) {
+    return;
+  }
 }
 
 export function runInvokespecial(thread: NativeThread): void {
@@ -388,7 +394,7 @@ export function runInvokespecial(thread: NativeThread): void {
     }
   }
 
-  const objRef = thread.popStack() as JavaReference;
+  const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -537,7 +543,7 @@ export function runInvokeinterface(thread: NativeThread): void {
         args[i] = thread.popStack();
     }
   }
-  const objRef = thread.popStack() as JavaReference;
+  const objRef = thread.popStack() as JvmObject;
 
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -573,25 +579,68 @@ export function runInvokeinterface(thread: NativeThread): void {
 
 // TODO:
 export function runInvokedynamic(thread: NativeThread): void {
-  thread.offsetPc(1);
-  // const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
-  // thread.offsetPc(2);
-  // const zero1 = thread.getCode().getUint8(thread.getPC() + 1);
-  // if (zero1 !== 0) {
-  //   throw new Error('invokedynamic third byte must be 0');
-  // }
-  // thread.offsetPc(1);
-  // const zero2 = thread.getCode().getUint8(thread.getPC() + 1);
-  // if (zero2 !== 0) {
-  //   throw new Error('invokedynamic fourth bytes must be 0');
-  // }
-  // thread.offsetPc(1);
-  // const invoker = thread.getClassName();
-  // const callSiteSpecifier = thread
-  //   .getClass()
-  //   .resolveConstant(thread, indexbyte);
-  // // resolve call site specifier
-  // throw new Error('invokedynamic: not implemented');
+  const index = thread.getCode().getUint16(thread.getPC() + 1);
+  const zero1 = thread.getCode().getUint8(thread.getPC() + 3);
+  const zero2 = thread.getCode().getUint8(thread.getPC() + 4);
+
+  const invoker = thread.getClass();
+  const callsiteConstant = invoker.getConstant(
+    index
+  ) as ConstantInvokeDynamicInfo;
+  const bootstrapIdx = callsiteConstant.bootstrapMethodAttrIndex;
+  const bootstrapMethod = thread.getClass().getBootstrapMethod(bootstrapIdx);
+  /*
+   * bootstrap method is the first method to call when invokedynamic is first run
+   * memoized after first run. returns a callsite, memoize for future uses.
+   * for lambdas: is java/lang/invoke/LambdaMetafactory.metafactory(...)
+   * First 3 params for all bootstrap methods:
+   * java/lang/invoke/MethodHandles$Lookup lookupContext, java/lang/String methodName, java/lang/invoke/MethodType dynamic method sig of this call site
+   * Depending on the bootstrap method might have 3 more params:
+   * 1. MethodType: erased method sig
+   * 2. MethodHandle: ptr to actual method
+   * 3. MethodType: non erased method sig
+   * Bootstrap method dynamically creates the inner class/generates the function object, returns a callsite object.
+   * lambda callsites do not change after first run, no conditions
+   */
+
+  // FIXME: method handle not implemented
+  const methodhandle = invoker.resolveMethodHandleRef(
+    thread,
+    invoker.getConstant(
+      bootstrapMethod.bootstrapMethodRef
+    ) as ConstantMethodHandleInfo
+  );
+  if (methodhandle.error || !methodhandle.result) {
+    thread.throwNewException(methodhandle.error, '');
+  }
+  const methodDesc = methodhandle.result;
+
+  const iRes = invoker.getLoader().getClassRef('java/lang/invoke/MethodHandle');
+  if (iRes.error || !iRes.result) {
+    thread.throwNewException(
+      iRes.error ?? 'java/lang/ClassNotFoundException',
+      ''
+    );
+    return;
+  }
+
+  // TODO: varargs
+  const mRes = iRes.result.getMethod(
+    'invoke(' +
+      // Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;
+      methodDesc?.slice(1)
+  ) as MethodRef;
+
+  invokeVirtual(
+    thread,
+    {
+      tag: CONSTANT_TAG.Methodref,
+      classIndex: 0,
+      nameAndTypeIndex: 0,
+      methodRef: mRes,
+    },
+    () => thread.offsetPc(5)
+  );
 }
 
 export function runNew(thread: NativeThread): void {
@@ -748,7 +797,7 @@ export function runInstanceof(thread: NativeThread): void {
   thread.offsetPc(1);
   // const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   // thread.offsetPc(2);
-  // const ref = thread.popStack() as JavaReference;
+  // const ref = thread.popStack() as JvmObject;
   // const res = thread.getClass().resolveConstant(thread, indexbyte);
   // if (ref === null) {
   //   thread.pushStack(0);

@@ -5,7 +5,7 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { ArrayPrimitiveType, JavaArray, JavaReference } from '#types/dataTypes';
+import { ArrayPrimitiveType, JavaArray, JvmObject } from '#types/dataTypes';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 
@@ -14,7 +14,7 @@ let threadClass: ClassRef;
 let bscl: BootstrapClassLoader;
 let code: DataView;
 let jni: JNI;
-let javaThread: JavaReference;
+let javaThread: JvmObject;
 
 beforeEach(() => {
   jni = new JNI();
@@ -23,7 +23,7 @@ beforeEach(() => {
   bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-  javaThread = new JavaReference(threadClass);
+  javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
@@ -408,7 +408,7 @@ describe('runDstore3', () => {
 
 describe('runAstore', () => {
   test('ASTORE: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE);
     code.setUint8(1, 0);
@@ -423,7 +423,7 @@ describe('runAstore', () => {
 
 describe('runAstore0', () => {
   test('ASTORE_0: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_0);
 
@@ -437,7 +437,7 @@ describe('runAstore0', () => {
 
 describe('runAstore1', () => {
   test('ASTORE_1: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_1);
 
@@ -451,7 +451,7 @@ describe('runAstore1', () => {
 
 describe('runAstore2', () => {
   test('ASTORE_2: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_2);
 
@@ -465,7 +465,7 @@ describe('runAstore2', () => {
 
 describe('runAstore3', () => {
   test('ASTORE_3: stores int into locals', () => {
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.ASTORE_3);
 
@@ -501,7 +501,7 @@ describe('runIastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.IASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -516,7 +516,7 @@ describe('runIastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.IASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -531,7 +531,7 @@ describe('runIastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.IASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -561,7 +561,7 @@ describe('runLastore', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -576,7 +576,7 @@ describe('runLastore', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -591,7 +591,7 @@ describe('runLastore', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -621,7 +621,7 @@ describe('runFastore', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -636,7 +636,7 @@ describe('runFastore', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -651,7 +651,7 @@ describe('runFastore', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -681,7 +681,7 @@ describe('runDastore', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -696,7 +696,7 @@ describe('runDastore', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -711,7 +711,7 @@ describe('runDastore', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -723,7 +723,7 @@ describe('runAastore', () => {
     const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
     const arrayref = arrCls.instantiate() as JavaArray;
     arrayref.initialize(1);
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(v1);
@@ -742,7 +742,7 @@ describe('runAastore', () => {
     thread.pushStack(null);
     code.setUint8(0, OPCODE.AASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -752,13 +752,13 @@ describe('runAastore', () => {
     const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
     const arrayref = arrCls.instantiate() as JavaArray;
     arrayref.initialize(1);
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.AASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -768,13 +768,13 @@ describe('runAastore', () => {
     const arrCls = bscl.getClassRef('[Ljava/lang/Thread').result as ClassRef;
     const arrayref = arrCls.instantiate() as JavaArray;
     arrayref.initialize(1);
-    const v1 = new JavaReference(threadClass);
+    const v1 = new JvmObject(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.AASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -820,7 +820,7 @@ describe('runBastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.BASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -835,7 +835,7 @@ describe('runBastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.BASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -850,7 +850,7 @@ describe('runBastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.BASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -896,7 +896,7 @@ describe('runCastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.CASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -911,7 +911,7 @@ describe('runCastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.CASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -926,7 +926,7 @@ describe('runCastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.CASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -972,7 +972,7 @@ describe('runSastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.SASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NullPointerException'
     );
@@ -987,7 +987,7 @@ describe('runSastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.SASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
@@ -1002,7 +1002,7 @@ describe('runSastore', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.SASTORE);
     runInstruction(thread, jni, () => {});
-    const exceptionObj = thread.loadLocal(1) as JavaReference;
+    const exceptionObj = thread.loadLocal(1) as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );

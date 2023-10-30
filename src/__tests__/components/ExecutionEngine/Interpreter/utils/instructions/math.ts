@@ -3,7 +3,7 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
-import { JavaReference } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/ClassRef';
@@ -26,7 +26,7 @@ beforeEach(() => {
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-  const javaThread = new JavaReference(threadClass);
+  const javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
@@ -1405,7 +1405,7 @@ describe('runIdiv', () => {
     );
     expect(thread.getPC()).toBe(0);
 
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArithmeticException'
     );
@@ -1472,7 +1472,7 @@ describe('runLdiv', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArithmeticException'
     );
@@ -1915,7 +1915,7 @@ describe('runIrem', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArithmeticException'
     );
@@ -1958,7 +1958,7 @@ describe('runLrem', () => {
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
     );
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/ArithmeticException'
     );

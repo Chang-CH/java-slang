@@ -1,6 +1,7 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { FieldRef } from '#types/FieldRef';
-import { JavaArray, JavaReference } from '#types/dataTypes';
+import { JavaArray } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 
 export function newCharArr(
   loader: AbstractClassLoader,
@@ -24,7 +25,7 @@ export function newCharArr(
 export function initString(
   loader: AbstractClassLoader,
   str: string
-): { error?: string; result?: JavaReference } {
+): { error?: string; result?: JvmObject } {
   const charArr = newCharArr(loader, str);
 
   const strRes = loader.getClassRef('java/lang/String');

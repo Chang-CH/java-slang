@@ -5,7 +5,8 @@ import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/Nati
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import { JavaArray, JavaReference } from '#types/dataTypes';
+import { JavaArray } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
@@ -26,7 +27,7 @@ beforeEach(() => {
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-  const javaThread = new JavaReference(threadClass);
+  const javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
@@ -48,7 +49,7 @@ describe('runIfnull', () => {
   test('IFNULL: non null does not branch', () => {
     code.setUint8(0, OPCODE.IFNULL);
     code.setInt16(1, 10);
-    thread.pushStack(new JavaReference(threadClass));
+    thread.pushStack(new JvmObject(threadClass));
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
@@ -72,7 +73,7 @@ describe('runIfnonnull', () => {
   test('IFNONNULL: non null branches', () => {
     code.setUint8(0, OPCODE.IFNONNULL);
     code.setInt16(1, 10);
-    thread.pushStack(new JavaReference(threadClass));
+    thread.pushStack(new JvmObject(threadClass));
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
@@ -318,7 +319,7 @@ describe('runMultianewarray', () => {
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(thread.getPC()).toBe(0);
-    const exceptionObj = lastFrame.locals[1] as JavaReference;
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NegativeArraySizeException'
     );

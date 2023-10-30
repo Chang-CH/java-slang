@@ -4,7 +4,7 @@ import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/ru
 import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from '#jvm/components/JNI';
 import { ConstantClass, ConstantString } from '#types/ConstantRef';
-import { JavaReference } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 import { initString } from '#jvm/components/JNI/utils';
 import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { ClassRef } from '#types/ClassRef';
@@ -55,7 +55,7 @@ beforeEach(() => {
       },
     ],
   });
-  const javaThread = new JavaReference(threadClass);
+  const javaThread = new JvmObject(threadClass);
   thread = new NativeThread(threadClass, javaThread);
 
   const ab = new ArrayBuffer(50);
@@ -431,8 +431,7 @@ describe('runLdc', () => {
 
   test('reads string from constant pool and pushes to stack', () => {
     thread.popStackFrame();
-    const strRef = initString(testLoader, 'hello world')
-      .result as JavaReference;
+    const strRef = initString(testLoader, 'hello world').result as JvmObject;
     const strConstant = {
       tag: CONSTANT_TAG.String,
       ref: strRef,
@@ -694,8 +693,7 @@ describe('runLdcW', () => {
 
   test('reads string from constant pool and pushes to stack', () => {
     thread.popStackFrame();
-    const strRef = initString(testLoader, 'hello world')
-      .result as JavaReference;
+    const strRef = initString(testLoader, 'hello world').result as JvmObject;
     const strConstant = {
       tag: CONSTANT_TAG.String,
       ref: strRef,
