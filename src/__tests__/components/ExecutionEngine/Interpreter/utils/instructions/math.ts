@@ -1,7 +1,7 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
-import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
@@ -14,7 +14,7 @@ const MIN_LONG = -9223372036854775808n;
 const MAX_INT = 2147483647;
 const MIN_INT = -2147483648;
 
-let thread: NativeThread;
+let thread: JvmThread;
 let threadClass: ClassRef;
 let code: DataView;
 let jni: JNI;
@@ -26,8 +26,8 @@ beforeEach(() => {
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-  const javaThread = new JvmObject(threadClass);
-  thread = new NativeThread(threadClass, javaThread);
+
+  thread = new JvmThread(threadClass);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
   thread.pushStackFrame(threadClass, method, 0, []);

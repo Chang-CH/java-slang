@@ -3,12 +3,11 @@ import NodeSystem from '#utils/NodeSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
-import NativeThread from './components/ExecutionEngine/NativeThreadGroup/NativeThread';
 import { JNI } from './components/JNI';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
-  private applicationClassLoader: ClassLoader;
+  private applicationClassLoader?: ClassLoader;
   private engine: ExecutionEngine;
   private nativeSystem: NodeSystem;
   private jni: JNI;

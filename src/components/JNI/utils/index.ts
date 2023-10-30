@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { FieldRef } from '#types/FieldRef';
-import { JvmArray } from '#types/dataTypes';
+import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 
 export function newCharArr(loader: AbstractClassLoader, str: string): JvmArray {

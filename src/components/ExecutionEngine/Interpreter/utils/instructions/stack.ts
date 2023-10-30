@@ -1,23 +1,23 @@
-import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 
-export function runPop(thread: NativeThread): void {
+export function runPop(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.popStack();
 }
 
-export function runPop2(thread: NativeThread): void {
+export function runPop2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.popStack64();
 }
 
-export function runDup(thread: NativeThread): void {
+export function runDup(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.pushStack(value);
   thread.pushStack(value);
 }
 
-export function runDupX1(thread: NativeThread): void {
+export function runDupX1(thread: JvmThread): void {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -26,7 +26,7 @@ export function runDupX1(thread: NativeThread): void {
   thread.pushStack(value1);
 }
 
-export function runDupX2(thread: NativeThread): void {
+export function runDupX2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -37,7 +37,7 @@ export function runDupX2(thread: NativeThread): void {
   thread.pushStack(value1);
 }
 
-export function runDup2(thread: NativeThread): void {
+export function runDup2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -47,7 +47,7 @@ export function runDup2(thread: NativeThread): void {
   thread.pushStack(value1);
 }
 
-export function runDup2X1(thread: NativeThread): void {
+export function runDup2X1(thread: JvmThread): void {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -59,7 +59,7 @@ export function runDup2X1(thread: NativeThread): void {
   thread.pushStack(value1);
 }
 
-export function runDup2X2(thread: NativeThread): void {
+export function runDup2X2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();
@@ -73,7 +73,7 @@ export function runDup2X2(thread: NativeThread): void {
   thread.pushStack(value1);
 }
 
-export function runSwap(thread: NativeThread): void {
+export function runSwap(thread: JvmThread): void {
   thread.offsetPc(1);
   const value1 = thread.popStack();
   const value2 = thread.popStack();

@@ -1,163 +1,163 @@
-import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 import { JvmArray } from '#types/reference/Array';
 import { asDouble, asFloat } from '..';
 
-export function runIstore(thread: NativeThread): void {
+export function runIstore(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.storeLocal(index, thread.popStack());
 }
 
-export function runLstore(thread: NativeThread): void {
+export function runLstore(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.storeLocal64(index, thread.popStack64());
 }
 
-export function runFstore(thread: NativeThread): void {
+export function runFstore(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.storeLocal(index, asFloat(thread.popStack()));
 }
 
-export function runDstore(thread: NativeThread): void {
+export function runDstore(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.storeLocal64(index, asDouble(thread.popStack64()));
 }
 
-export function runAstore(thread: NativeThread): void {
+export function runAstore(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.storeLocal(index, thread.popStack());
 }
 
-export function runIstore0(thread: NativeThread): void {
+export function runIstore0(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(0, value);
 }
 
-export function runIstore1(thread: NativeThread): void {
+export function runIstore1(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(1, value);
 }
 
-export function runIstore2(thread: NativeThread): void {
+export function runIstore2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(2, value);
 }
 
-export function runIstore3(thread: NativeThread): void {
+export function runIstore3(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(3, value);
 }
 
-export function runLstore0(thread: NativeThread): void {
+export function runLstore0(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   thread.storeLocal64(0, value);
 }
 
-export function runLstore1(thread: NativeThread): void {
+export function runLstore1(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   thread.storeLocal64(1, value);
 }
 
-export function runLstore2(thread: NativeThread): void {
+export function runLstore2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   thread.storeLocal64(2, value);
 }
 
-export function runLstore3(thread: NativeThread): void {
+export function runLstore3(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   thread.storeLocal64(3, value);
 }
 
-export function runFstore0(thread: NativeThread): void {
+export function runFstore0(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(0, asFloat(value));
 }
 
-export function runFstore1(thread: NativeThread): void {
+export function runFstore1(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(1, asFloat(value));
 }
 
-export function runFstore2(thread: NativeThread): void {
+export function runFstore2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(2, asFloat(value));
 }
 
-export function runFstore3(thread: NativeThread): void {
+export function runFstore3(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(3, asFloat(value));
 }
 
-export function runDstore0(thread: NativeThread): void {
+export function runDstore0(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
   thread.storeLocal64(0, value);
 }
 
-export function runDstore1(thread: NativeThread): void {
+export function runDstore1(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
   thread.storeLocal64(1, value);
 }
 
-export function runDstore2(thread: NativeThread): void {
+export function runDstore2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
   thread.storeLocal64(2, value);
 }
 
-export function runDstore3(thread: NativeThread): void {
+export function runDstore3(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
   thread.storeLocal64(3, value);
 }
 
-export function runAstore0(thread: NativeThread): void {
+export function runAstore0(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(0, value);
 }
 
-export function runAstore1(thread: NativeThread): void {
+export function runAstore1(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(1, value);
 }
 
-export function runAstore2(thread: NativeThread): void {
+export function runAstore2(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(2, value);
 }
 
-export function runAstore3(thread: NativeThread): void {
+export function runAstore3(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   thread.storeLocal(3, value);
 }
 
-export function runIastore(thread: NativeThread): void {
+export function runIastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
@@ -176,7 +176,7 @@ export function runIastore(thread: NativeThread): void {
   arrayref.set(index, value);
 }
 
-export function runLastore(thread: NativeThread): void {
+export function runLastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   const index = thread.popStack();
@@ -195,7 +195,7 @@ export function runLastore(thread: NativeThread): void {
   arrayref.set(index, value);
 }
 
-export function runFastore(thread: NativeThread): void {
+export function runFastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
@@ -214,7 +214,7 @@ export function runFastore(thread: NativeThread): void {
   arrayref.set(index, value);
 }
 
-export function runDastore(thread: NativeThread): void {
+export function runDastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
   const index = thread.popStack();
@@ -233,7 +233,7 @@ export function runDastore(thread: NativeThread): void {
   arrayref.set(index, value);
 }
 
-export function runAastore(thread: NativeThread): void {
+export function runAastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
@@ -252,7 +252,7 @@ export function runAastore(thread: NativeThread): void {
   arrayref.set(index, value);
 }
 
-export function runBastore(thread: NativeThread): void {
+export function runBastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
@@ -271,7 +271,7 @@ export function runBastore(thread: NativeThread): void {
   arrayref.set(index, (value << 24) >> 24);
 }
 
-export function runCastore(thread: NativeThread): void {
+export function runCastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();
@@ -290,7 +290,7 @@ export function runCastore(thread: NativeThread): void {
   arrayref.set(index, value & 0xffff);
 }
 
-export function runSastore(thread: NativeThread): void {
+export function runSastore(thread: JvmThread): void {
   thread.offsetPc(1);
   const value = thread.popStack();
   const index = thread.popStack();

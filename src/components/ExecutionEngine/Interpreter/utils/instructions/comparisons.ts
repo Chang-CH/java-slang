@@ -1,7 +1,7 @@
-import NativeThread from '../../../NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 import { asDouble, asFloat } from '..';
 
-export function runLcmp(thread: NativeThread): void {
+export function runLcmp(thread: JvmThread): void {
   thread.offsetPc(1);
   const value2 = thread.popStack64();
   const value1 = thread.popStack64();
@@ -19,7 +19,7 @@ export function runLcmp(thread: NativeThread): void {
   thread.pushStack(0);
 }
 
-export function runFcmpl(thread: NativeThread): void {
+export function runFcmpl(thread: JvmThread): void {
   thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
@@ -41,7 +41,7 @@ export function runFcmpl(thread: NativeThread): void {
   thread.pushStack(-1);
 }
 
-export function runFcmpg(thread: NativeThread): void {
+export function runFcmpg(thread: JvmThread): void {
   thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
@@ -63,7 +63,7 @@ export function runFcmpg(thread: NativeThread): void {
   thread.pushStack(-1);
 }
 
-export function runDcmpl(thread: NativeThread): void {
+export function runDcmpl(thread: JvmThread): void {
   thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
@@ -85,7 +85,7 @@ export function runDcmpl(thread: NativeThread): void {
   thread.pushStack(-1);
 }
 
-export function runDcmpg(thread: NativeThread): void {
+export function runDcmpg(thread: JvmThread): void {
   thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
@@ -107,7 +107,7 @@ export function runDcmpg(thread: NativeThread): void {
   thread.pushStack(-1);
 }
 
-export function runIfeq(thread: NativeThread): void {
+export function runIfeq(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -117,7 +117,7 @@ export function runIfeq(thread: NativeThread): void {
   }
 }
 
-export function runIfne(thread: NativeThread): void {
+export function runIfne(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -127,7 +127,7 @@ export function runIfne(thread: NativeThread): void {
   }
 }
 
-export function runIflt(thread: NativeThread): void {
+export function runIflt(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -137,7 +137,7 @@ export function runIflt(thread: NativeThread): void {
   }
 }
 
-export function runIfge(thread: NativeThread): void {
+export function runIfge(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -147,7 +147,7 @@ export function runIfge(thread: NativeThread): void {
   }
 }
 
-export function runIfgt(thread: NativeThread): void {
+export function runIfgt(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -157,7 +157,7 @@ export function runIfgt(thread: NativeThread): void {
   }
 }
 
-export function runIfle(thread: NativeThread): void {
+export function runIfle(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -167,7 +167,7 @@ export function runIfle(thread: NativeThread): void {
   }
 }
 
-export function runIfIcmpeq(thread: NativeThread): void {
+export function runIfIcmpeq(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -180,7 +180,7 @@ export function runIfIcmpeq(thread: NativeThread): void {
   }
 }
 
-export function runIfIcmpne(thread: NativeThread): void {
+export function runIfIcmpne(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -193,7 +193,7 @@ export function runIfIcmpne(thread: NativeThread): void {
   }
 }
 
-export function runIfIcmplt(thread: NativeThread): void {
+export function runIfIcmplt(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -206,7 +206,7 @@ export function runIfIcmplt(thread: NativeThread): void {
   }
 }
 
-export function runIfIcmpge(thread: NativeThread): void {
+export function runIfIcmpge(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -219,7 +219,7 @@ export function runIfIcmpge(thread: NativeThread): void {
   }
 }
 
-export function runIfIcmpgt(thread: NativeThread): void {
+export function runIfIcmpgt(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -232,7 +232,7 @@ export function runIfIcmpgt(thread: NativeThread): void {
   }
 }
 
-export function runIfIcmple(thread: NativeThread): void {
+export function runIfIcmple(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -245,7 +245,7 @@ export function runIfIcmple(thread: NativeThread): void {
   }
 }
 
-export function runIfAcmpeq(thread: NativeThread): void {
+export function runIfAcmpeq(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -258,7 +258,7 @@ export function runIfAcmpeq(thread: NativeThread): void {
   }
 }
 
-export function runIfAcmpne(thread: NativeThread): void {
+export function runIfAcmpne(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);

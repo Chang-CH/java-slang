@@ -1,142 +1,142 @@
 import { JvmArray } from '#types/reference/Array';
-import NativeThread from '../../../NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 
-export function runIload(thread: NativeThread): void {
+export function runIload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(index));
 }
 
-export function runLload(thread: NativeThread): void {
+export function runLload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(index));
 }
 
-export function runFload(thread: NativeThread): void {
+export function runFload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(index));
 }
 
-export function runDload(thread: NativeThread): void {
+export function runDload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(index));
 }
 
-export function runAload(thread: NativeThread): void {
+export function runAload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(index));
 }
 
-export function runIload0(thread: NativeThread): void {
+export function runIload0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(0));
 }
 
-export function runIload1(thread: NativeThread): void {
+export function runIload1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(1));
 }
 
-export function runIload2(thread: NativeThread): void {
+export function runIload2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(2));
 }
 
-export function runIload3(thread: NativeThread): void {
+export function runIload3(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(3));
 }
 
-export function runLload0(thread: NativeThread): void {
+export function runLload0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(0));
 }
 
-export function runLload1(thread: NativeThread): void {
+export function runLload1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(1));
 }
 
-export function runLload2(thread: NativeThread): void {
+export function runLload2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(2));
 }
 
-export function runLload3(thread: NativeThread): void {
+export function runLload3(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(3));
 }
 
-export function runFload0(thread: NativeThread): void {
+export function runFload0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(0));
 }
 
-export function runFload1(thread: NativeThread): void {
+export function runFload1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(1));
 }
 
-export function runFload2(thread: NativeThread): void {
+export function runFload2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(2));
 }
 
-export function runFload3(thread: NativeThread): void {
+export function runFload3(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(3));
 }
 
-export function runDload0(thread: NativeThread): void {
+export function runDload0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(0));
 }
 
-export function runDload1(thread: NativeThread): void {
+export function runDload1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(1));
 }
 
-export function runDload2(thread: NativeThread): void {
+export function runDload2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(2));
 }
 
-export function runDload3(thread: NativeThread): void {
+export function runDload3(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(thread.loadLocal64(3));
 }
 
-export function runAload0(thread: NativeThread): void {
+export function runAload0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(0));
 }
 
-export function runAload1(thread: NativeThread): void {
+export function runAload1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(1));
 }
 
-export function runAload2(thread: NativeThread): void {
+export function runAload2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(2));
 }
 
-export function runAload3(thread: NativeThread): void {
+export function runAload3(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(thread.loadLocal(3));
 }
 
-export function runIaload(thread: NativeThread): void {
+export function runIaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();
@@ -154,7 +154,7 @@ export function runIaload(thread: NativeThread): void {
   thread.pushStack(arrayref.get(index));
 }
 
-export function runLaload(thread: NativeThread): void {
+export function runLaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();
@@ -172,7 +172,7 @@ export function runLaload(thread: NativeThread): void {
   thread.pushStack64(arrayref.get(index));
 }
 
-export function runFaload(thread: NativeThread): void {
+export function runFaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();
@@ -190,7 +190,7 @@ export function runFaload(thread: NativeThread): void {
   thread.pushStack(arrayref.get(index));
 }
 
-export function runDaload(thread: NativeThread): void {
+export function runDaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();
@@ -208,7 +208,7 @@ export function runDaload(thread: NativeThread): void {
   thread.pushStack64(arrayref.get(index));
 }
 
-export function runAaload(thread: NativeThread): void {
+export function runAaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();
@@ -226,7 +226,7 @@ export function runAaload(thread: NativeThread): void {
   thread.pushStack(arrayref.get(index));
 }
 
-export function runBaload(thread: NativeThread): void {
+export function runBaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();
@@ -244,7 +244,7 @@ export function runBaload(thread: NativeThread): void {
   thread.pushStack(arrayref.get(index));
 }
 
-export function runCaload(thread: NativeThread): void {
+export function runCaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();
@@ -262,7 +262,7 @@ export function runCaload(thread: NativeThread): void {
   thread.pushStack(arrayref.get(index));
 }
 
-export function runSaload(thread: NativeThread): void {
+export function runSaload(thread: JvmThread): void {
   thread.offsetPc(1);
   const index: number = thread.popStack();
   const arrayref: JvmArray | null = thread.popStack();

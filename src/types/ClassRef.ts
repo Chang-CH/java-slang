@@ -1,5 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 import { initString } from '#jvm/components/JNI/utils';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
@@ -307,7 +307,7 @@ export class ClassRef {
   }
 
   resolveMethodRef(
-    thread: NativeThread,
+    thread: JvmThread,
     methodRef: ConstantMethodref
   ): MethodResolutionResult {
     // 5.4.3 if initial attempt to resolve a symbolic reference fails
@@ -386,7 +386,7 @@ export class ClassRef {
   }
 
   resolveInterfaceMethodRef(
-    thread: NativeThread,
+    thread: JvmThread,
     methodRef: ConstantInterfaceMethodref
   ): MethodResolutionResult {
     // 5.4.3 if initial attempt to resolve a symbolic reference fails
@@ -463,7 +463,7 @@ export class ClassRef {
   }
 
   resolveMethodHandleRef(
-    thread: NativeThread,
+    thread: JvmThread,
     methodHandleRef: ConstantMethodHandleInfo
   ): {
     error?: any;

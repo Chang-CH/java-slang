@@ -1,19 +1,24 @@
-import { JvmObject } from '#types/reference/Object';
-import { tryInitialize } from '../../Interpreter/utils';
-import { StackFrame } from './types';
+import { tryInitialize } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
+import { JvmObject } from './Object';
 
-export default class NativeThread {
+export interface StackFrame {
+  operandStack: any[];
+  maxStack: number;
+  class: ClassRef;
+  method: MethodRef;
+  pc: number;
+  locals: any[];
+}
+
+export default class JvmThread extends JvmObject {
   private stack: StackFrame[];
   private stackPointer: number;
-  private javaThis?: JvmObject;
-  private cls: ClassRef;
 
-  constructor(threadClass: ClassRef, javaThis: JvmObject) {
-    this.cls = threadClass;
-    this.javaThis = javaThis;
+  constructor(threadClass: ClassRef) {
+    super(threadClass);
     this.stack = [];
     this.stackPointer = -1;
   }
@@ -192,9 +197,6 @@ export default class NativeThread {
       );
     }
 
-    this.pushStackFrame(this.cls, unhandledMethod, 0, [
-      this.javaThis,
-      exception,
-    ]);
+    this.pushStackFrame(this.cls, unhandledMethod, 0, [this, exception]);
   }
 }

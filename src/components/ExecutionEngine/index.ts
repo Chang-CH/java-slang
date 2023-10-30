@@ -1,10 +1,10 @@
 import { ClassRef } from '#types/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { JvmObject } from '#types/reference/Object';
+import JvmThread from '#types/reference/Thread';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
 import NativeThreadGroup from './NativeThreadGroup';
-import NativeThread from './NativeThreadGroup/NativeThread';
 
 export default class ExecutionEngine {
   private nativeThreadGroup: NativeThreadGroup;
@@ -18,8 +18,7 @@ export default class ExecutionEngine {
   }
 
   runClass(threadCls: ClassRef, mainClass: ClassRef, args?: any[]) {
-    const javaThread = new JvmObject(threadCls);
-    const mainThread = new NativeThread(threadCls, javaThread);
+    const mainThread = new JvmThread(threadCls);
     const mainMethod = mainClass.getMethod('main([Ljava/lang/String;)V');
 
     if (!mainMethod) {
@@ -38,8 +37,7 @@ export default class ExecutionEngine {
   }
 
   runMethod(threadCls: ClassRef, cls: ClassRef, method: string, args?: any[]) {
-    const javaThread = new JvmObject(threadCls);
-    const mainThread = new NativeThread(threadCls, javaThread);
+    const mainThread = new JvmThread(threadCls);
 
     mainThread.pushStackFrame(
       cls,

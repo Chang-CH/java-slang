@@ -1,4 +1,4 @@
-import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 
 import { tryInitialize, parseMethodDescriptor, asDouble, asFloat } from '..';
 import {
@@ -103,7 +103,7 @@ function checkFieldAccess(
   return {};
 }
 
-export function runGetstatic(thread: NativeThread): void {
+export function runGetstatic(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
 
   const {
@@ -135,7 +135,7 @@ export function runGetstatic(thread: NativeThread): void {
   }
 }
 
-export function runPutstatic(thread: NativeThread): void {
+export function runPutstatic(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const {
     error,
@@ -181,7 +181,7 @@ export function runPutstatic(thread: NativeThread): void {
   }
 }
 
-export function runGetfield(thread: NativeThread): void {
+export function runGetfield(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   thread.offsetPc(3);
   const {
@@ -212,7 +212,7 @@ export function runGetfield(thread: NativeThread): void {
   }
 }
 
-export function runPutfield(thread: NativeThread): void {
+export function runPutfield(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   thread.offsetPc(3);
   const {
@@ -244,7 +244,7 @@ export function runPutfield(thread: NativeThread): void {
 }
 
 function invokeVirtual(
-  thread: NativeThread,
+  thread: JvmThread,
   constant: ConstantMethodref,
   onFinish?: () => void
 ): { error?: any; shouldDefer?: boolean } {
@@ -317,7 +317,7 @@ function invokeVirtual(
   return {};
 }
 
-export function runInvokevirtual(thread: NativeThread): void {
+export function runInvokevirtual(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const constant = thread.getClass().getConstant(indexbyte);
   const res = invokeVirtual(thread, constant, () => thread.offsetPc(3));
@@ -330,7 +330,7 @@ export function runInvokevirtual(thread: NativeThread): void {
   }
 }
 
-export function runInvokespecial(thread: NativeThread): void {
+export function runInvokespecial(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const constant = thread.getClass().getConstant(indexbyte);
   let res;
@@ -421,7 +421,7 @@ export function runInvokespecial(thread: NativeThread): void {
   thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
 }
 
-export function runInvokestatic(thread: NativeThread): void {
+export function runInvokestatic(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
 
   let res;
@@ -487,7 +487,7 @@ export function runInvokestatic(thread: NativeThread): void {
   thread.pushStackFrame(classRef, methodRef, 0, args);
 }
 
-export function runInvokeinterface(thread: NativeThread): void {
+export function runInvokeinterface(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   // Not actually useful
   const count = thread.getCode().getUint8(thread.getPC() + 3);
@@ -577,7 +577,7 @@ export function runInvokeinterface(thread: NativeThread): void {
 }
 
 // TODO:
-export function runInvokedynamic(thread: NativeThread): void {
+export function runInvokedynamic(thread: JvmThread): void {
   const index = thread.getCode().getUint16(thread.getPC() + 1);
   const zero1 = thread.getCode().getUint8(thread.getPC() + 3);
   const zero2 = thread.getCode().getUint8(thread.getPC() + 4);
@@ -642,7 +642,7 @@ export function runInvokedynamic(thread: NativeThread): void {
   );
 }
 
-export function runNew(thread: NativeThread): void {
+export function runNew(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const invoker = thread.getClass();
   const res = invoker.resolveClassRef(invoker.getConstant(indexbyte));
@@ -670,7 +670,7 @@ export function runNew(thread: NativeThread): void {
   thread.pushStack(objCls.instantiate());
 }
 
-export function runNewarray(thread: NativeThread): void {
+export function runNewarray(thread: JvmThread): void {
   const atype = thread.getCode().getUint8(thread.getPC() + 1); // TODO: check atype valid
   thread.offsetPc(2);
 
@@ -723,7 +723,7 @@ export function runNewarray(thread: NativeThread): void {
   thread.pushStack(arrayref);
 }
 
-export function runAnewarray(thread: NativeThread): void {
+export function runAnewarray(thread: JvmThread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const invoker = thread.getClass();
   const count = thread.popStack();
@@ -762,19 +762,19 @@ export function runAnewarray(thread: NativeThread): void {
   thread.pushStack(arrayref);
 }
 
-export function runArraylength(thread: NativeThread): void {
+export function runArraylength(thread: JvmThread): void {
   thread.offsetPc(1);
   const arrayref = thread.popStack() as JvmArray;
   thread.pushStack(arrayref.len());
 }
 
-export function runAthrow(thread: NativeThread): void {
+export function runAthrow(thread: JvmThread): void {
   thread.offsetPc(1);
   const exception = thread.popStack();
   thread.throwException(exception);
 }
 
-export function runCheckcast(thread: NativeThread): void {
+export function runCheckcast(thread: JvmThread): void {
   thread.offsetPc(1);
   // const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   // thread.offsetPc(2);
@@ -792,7 +792,7 @@ export function runCheckcast(thread: NativeThread): void {
   // throw new Error('runInstruction: Not implemented');
 }
 
-export function runInstanceof(thread: NativeThread): void {
+export function runInstanceof(thread: JvmThread): void {
   thread.offsetPc(1);
   // const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   // thread.offsetPc(2);
@@ -825,12 +825,12 @@ export function runInstanceof(thread: NativeThread): void {
   // throw new Error('runInstruction: Not implemented');
 }
 
-export function runMonitorenter(thread: NativeThread): void {
+export function runMonitorenter(thread: JvmThread): void {
   thread.offsetPc(1);
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runMonitorexit(thread: NativeThread): void {
+export function runMonitorexit(thread: JvmThread): void {
   thread.offsetPc(1);
   throw new Error('runInstruction: Not implemented');
 }

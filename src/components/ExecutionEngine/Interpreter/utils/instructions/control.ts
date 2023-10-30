@@ -1,7 +1,7 @@
-import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 import { asDouble, asFloat } from '..';
 
-export function runGoto(thread: NativeThread): void {
+export function runGoto(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(branchbyte - 1);
@@ -11,7 +11,7 @@ export function runGoto(thread: NativeThread): void {
  * Used to implement finally. pushes pc + 3 onto stack, then goto pc + branchbyte
  * @param thread
  */
-export function runJsr(thread: NativeThread): void {
+export function runJsr(thread: JvmThread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
@@ -19,7 +19,7 @@ export function runJsr(thread: NativeThread): void {
   thread.setPc(thread.getPC() + branchbyte - 3);
 }
 
-export function runRet(thread: NativeThread): void {
+export function runRet(thread: JvmThread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
@@ -27,7 +27,7 @@ export function runRet(thread: NativeThread): void {
   thread.setPc(retAddr);
 }
 
-export function runTableswitch(thread: NativeThread): void {
+export function runTableswitch(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.offsetPc(thread.getPC() % 4); // padding
 
@@ -46,7 +46,7 @@ export function runTableswitch(thread: NativeThread): void {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runLookupswitch(thread: NativeThread): void {
+export function runLookupswitch(thread: JvmThread): void {
   thread.offsetPc(1);
   if (thread.getPC() % 4 !== 0) {
     thread.offsetPc(thread.getPC() % 4); // padding
@@ -65,7 +65,7 @@ export function runLookupswitch(thread: NativeThread): void {
   throw new Error('runInstruction: Not implemented');
 }
 
-export function runIreturn(thread: NativeThread): void {
+export function runIreturn(thread: JvmThread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
@@ -73,7 +73,7 @@ export function runIreturn(thread: NativeThread): void {
   thread.pushStack(ret);
 }
 
-export function runLreturn(thread: NativeThread): void {
+export function runLreturn(thread: JvmThread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack64();
@@ -81,7 +81,7 @@ export function runLreturn(thread: NativeThread): void {
   thread.pushStack64(ret);
 }
 
-export function runFreturn(thread: NativeThread): void {
+export function runFreturn(thread: JvmThread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = asFloat(thread.popStack());
@@ -89,7 +89,7 @@ export function runFreturn(thread: NativeThread): void {
   thread.pushStack(ret);
 }
 
-export function runDreturn(thread: NativeThread): void {
+export function runDreturn(thread: JvmThread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = asDouble(thread.popStack64());
@@ -97,7 +97,7 @@ export function runDreturn(thread: NativeThread): void {
   thread.pushStack64(ret);
 }
 
-export function runAreturn(thread: NativeThread): void {
+export function runAreturn(thread: JvmThread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
@@ -106,7 +106,7 @@ export function runAreturn(thread: NativeThread): void {
   thread.pushStack(ret);
 }
 
-export function runReturn(thread: NativeThread): void {
+export function runReturn(thread: JvmThread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   thread.popStackFrame();

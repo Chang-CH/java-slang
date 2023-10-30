@@ -1,5 +1,5 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import NativeThread from '#jvm/components/ExecutionEngine/NativeThreadGroup/NativeThread';
+import JvmThread from '#types/reference/Thread';
 import {
   ConstantDoubleInfo,
   ConstantFloatInfo,
@@ -12,101 +12,101 @@ import {
   ConstantString,
 } from '#types/ConstantRef';
 
-export function runNop(thread: NativeThread): void {
+export function runNop(thread: JvmThread): void {
   thread.offsetPc(1);
   return;
 }
 
-export function runAconstNull(thread: NativeThread): void {
+export function runAconstNull(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(null);
 }
 
-export function runIconstM1(thread: NativeThread): void {
+export function runIconstM1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(-1);
 }
 
-export function runIconst0(thread: NativeThread): void {
+export function runIconst0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(0);
 }
 
-export function runIconst1(thread: NativeThread): void {
+export function runIconst1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(1);
 }
 
-export function runIconst2(thread: NativeThread): void {
+export function runIconst2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(2);
 }
 
-export function runIconst3(thread: NativeThread): void {
+export function runIconst3(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(3);
 }
 
-export function runIconst4(thread: NativeThread): void {
+export function runIconst4(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(4);
 }
 
-export function runIconst5(thread: NativeThread): void {
+export function runIconst5(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(5);
 }
 
-export function runLconst0(thread: NativeThread): void {
+export function runLconst0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(0n);
 }
 
-export function runLconst1(thread: NativeThread): void {
+export function runLconst1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(1n);
 }
 
-export function runFconst0(thread: NativeThread): void {
+export function runFconst0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(0.0);
 }
 
-export function runFconst1(thread: NativeThread): void {
+export function runFconst1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(1.0);
 }
 
-export function runFconst2(thread: NativeThread): void {
+export function runFconst2(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack(2.0);
 }
 
-export function runDconst0(thread: NativeThread): void {
+export function runDconst0(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(0.0);
 }
 
-export function runDconst1(thread: NativeThread): void {
+export function runDconst1(thread: JvmThread): void {
   thread.offsetPc(1);
   thread.pushStack64(1.0);
 }
 
-export function runBipush(thread: NativeThread): void {
+export function runBipush(thread: JvmThread): void {
   thread.offsetPc(1);
   const byte = thread.getCode().getInt8(thread.getPC());
   thread.offsetPc(1);
   thread.pushStack(byte);
 }
 
-export function runSipush(thread: NativeThread): void {
+export function runSipush(thread: JvmThread): void {
   thread.offsetPc(1);
   const short = thread.getCode().getInt16(thread.getPC());
   thread.offsetPc(2);
   thread.pushStack(short);
 }
 
-function loadConstant(thread: NativeThread, index: number): void {
+function loadConstant(thread: JvmThread, index: number): void {
   const invoker = thread.getClass();
   const constant = invoker.getConstant(index);
 
@@ -148,21 +148,21 @@ function loadConstant(thread: NativeThread, index: number): void {
   }
 }
 
-export function runLdc(thread: NativeThread): void {
+export function runLdc(thread: JvmThread): void {
   thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
   loadConstant(thread, indexbyte);
 }
 
-export function runLdcW(thread: NativeThread): void {
+export function runLdcW(thread: JvmThread): void {
   thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);
   loadConstant(thread, indexbyte);
 }
 
-export function runLdc2W(thread: NativeThread): void {
+export function runLdc2W(thread: JvmThread): void {
   thread.offsetPc(1);
   const indexbyte = thread.getCode().getUint16(thread.getPC());
   thread.offsetPc(2);

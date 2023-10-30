@@ -4,8 +4,8 @@ import { FieldRef } from '#types/FieldRef';
 export class JvmObject {
   public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
 
-  private cls: ClassRef;
-  private fields: {
+  protected cls: ClassRef;
+  protected fields: {
     [key: string]: FieldRef;
   };
 
