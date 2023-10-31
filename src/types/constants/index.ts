@@ -306,6 +306,7 @@ export class ConstantInvokeDynamic extends Constant {
   }
 }
 
+// TODO:
 export class ConstantFieldref extends Constant {
   private classConstant: ConstantClass;
   private nameAndTypeConstant: ConstantNameAndType;

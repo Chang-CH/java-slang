@@ -87,7 +87,7 @@ export class ClassRef {
   private bootstrapMethods?: BootstrapMethodsAttribute;
   private attributes: Array<AttributeInfo>;
 
-  private javaObj: JvmObject;
+  private javaObj?: JvmObject;
 
   constructor(
     constantPool: Array<ConstantInfo>,
@@ -122,21 +122,22 @@ export class ClassRef {
 
     for (const attribute of attributes) {
       const attrName = (
-        this.constantPool[attribute.attributeNameIndex] as ConstantUtf8
+        this.constantPool.get(attribute.attributeNameIndex) as ConstantUtf8
       ).get();
       if (attrName === 'BootstrapMethods') {
         this.bootstrapMethods = attribute as BootstrapMethodsAttribute;
       }
     }
+  }
 
+  // TODO: init javaobj and static fields in init function
+
+  getJavaObject(): JvmObject {
     const clsRes = this.loader.getClassRef('java/lang/Class');
     if (clsRes.error || !clsRes.result) {
       throw new Error('Could not load class java/lang/Class');
     }
     this.javaObj = new JvmObject(clsRes.result);
-  }
-
-  getJavaObject(): JvmObject {
     return this.javaObj;
   }
 
@@ -282,121 +283,122 @@ export class ClassRef {
     error?: any;
     result?: string;
   } {
-    const kind = methodHandleRef.referenceKind;
+    throw new Error('not implemented');
+    // const kind = methodHandleRef.referenceKind;
 
-    let methodDesc: string;
+    // let methodDesc: string;
 
-    switch (kind) {
-      // #region field types
-      case REFERENCE_KIND.GetField:
-        const constantField = this.getConstant(
-          methodHandleRef.referenceIndex
-        ) as ConstantFieldrefInfo;
-        const classResolutionRes = this.resolveClassRef(
-          this.getConstant(constantField.classIndex)
-        );
+    // switch (kind) {
+    //   // #region field types
+    //   case REFERENCE_KIND.GetField:
+    //     const constantField = this.getConstant(
+    //       methodHandleRef.referenceIndex
+    //     ) as ConstantFieldrefInfo;
+    //     const classResolutionRes = this.resolveClassRef(
+    //       this.getConstant(constantField.classIndex)
+    //     );
 
-        if (classResolutionRes.error || !classResolutionRes.classRef) {
-          return {
-            error:
-              classResolutionRes.error ?? 'java/lang/ClassNotFoundException',
-          };
-        }
-        const fieldClass = classResolutionRes.classRef;
+    //     if (classResolutionRes.error || !classResolutionRes.classRef) {
+    //       return {
+    //         error:
+    //           classResolutionRes.error ?? 'java/lang/ClassNotFoundException',
+    //       };
+    //     }
+    //     const fieldClass = classResolutionRes.classRef;
 
-        const nameAndTypeIndex = this.getConstant(
-          constantField.nameAndTypeIndex
-        ) as ConstantNameAndTypeInfo;
-        const fieldName = this.getConstant(nameAndTypeIndex.nameIndex).value;
-        const fieldType = this.getConstant(
-          nameAndTypeIndex.descriptorIndex
-        ).value;
+    //     const nameAndTypeIndex = this.getConstant(
+    //       constantField.nameAndTypeIndex
+    //     ) as ConstantNameAndTypeInfo;
+    //     const fieldName = this.getConstant(nameAndTypeIndex.nameIndex).value;
+    //     const fieldType = this.getConstant(
+    //       nameAndTypeIndex.descriptorIndex
+    //     ).value;
 
-        const fieldRef = fieldClass.getFieldRef(fieldName + fieldType);
+    //     const fieldRef = fieldClass.getFieldRef(fieldName + fieldType);
 
-        throw new Error('not implemented');
-      case REFERENCE_KIND.GetStatic:
-        throw new Error('not implemented');
-      case REFERENCE_KIND.PutField:
-        throw new Error('not implemented');
-      case REFERENCE_KIND.PutStatic:
-        throw new Error('not implemented');
-      // #endregion
+    //     throw new Error('not implemented');
+    //   case REFERENCE_KIND.GetStatic:
+    //     throw new Error('not implemented');
+    //   case REFERENCE_KIND.PutField:
+    //     throw new Error('not implemented');
+    //   case REFERENCE_KIND.PutStatic:
+    //     throw new Error('not implemented');
+    //   // #endregion
 
-      // #region method types
-      case REFERENCE_KIND.InvokeVirtual:
-      case REFERENCE_KIND.InvokeStatic:
-      case REFERENCE_KIND.InvokeSpecial:
-      case REFERENCE_KIND.NewInvokeSpecial:
-        const methodRes = this.resolveMethodRef(
-          thread,
-          this.getConstant(methodHandleRef.referenceIndex)
-        );
-        if (methodRes.error || !methodRes.methodRef) {
-          return {
-            error: methodRes.error ?? 'java/lang/NoSuchMethodError',
-          };
-        }
-        const method = methodRes.methodRef;
+    //   // #region method types
+    //   case REFERENCE_KIND.InvokeVirtual:
+    //   case REFERENCE_KIND.InvokeStatic:
+    //   case REFERENCE_KIND.InvokeSpecial:
+    //   case REFERENCE_KIND.NewInvokeSpecial:
+    //     const methodRes = this.resolveMethodRef(
+    //       thread,
+    //       this.getConstant(methodHandleRef.referenceIndex)
+    //     );
+    //     if (methodRes.error || !methodRes.methodRef) {
+    //       return {
+    //         error: methodRes.error ?? 'java/lang/NoSuchMethodError',
+    //       };
+    //     }
+    //     const method = methodRes.methodRef;
 
-        // constraints checking
-        if (
-          kind === REFERENCE_KIND.NewInvokeSpecial &&
-          (method.getMethodName() !== '<init>' ||
-            !method.getMethodDesc().endsWith(')V'))
-        ) {
-          return { error: 'java/lang/IllegalAccessError' };
-        }
-        // TODO: 5.4.3.5
+    //     // constraints checking
+    //     if (
+    //       kind === REFERENCE_KIND.NewInvokeSpecial &&
+    //       (method.getMethodName() !== '<init>' ||
+    //         !method.getMethodDesc().endsWith(')V'))
+    //     ) {
+    //       return { error: 'java/lang/IllegalAccessError' };
+    //     }
+    //     // TODO: 5.4.3.5
 
-        // symbolic references to classes and interfaces whose names correspond to each type in A*, and to the type T, in that order.
-        let methodDesc = method.getMethodDesc();
-        methodDesc = methodDesc.slice(1, methodDesc.indexOf(')'));
-        const paramTypes = methodDesc.split(';');
+    //     // symbolic references to classes and interfaces whose names correspond to each type in A*, and to the type T, in that order.
+    //     let methodDesc = method.getMethodDesc();
+    //     methodDesc = methodDesc.slice(1, methodDesc.indexOf(')'));
+    //     const paramTypes = methodDesc.split(';');
 
-        for (const param of paramTypes) {
-          if (param.length <= 1) {
-            // primitive type or ended
-            continue;
-          }
+    //     for (const param of paramTypes) {
+    //       if (param.length <= 1) {
+    //         // primitive type or ended
+    //         continue;
+    //       }
 
-          let classType = param;
-          if (param[0] === 'L') {
-            // ref type
-            classType = param.slice(1);
-          }
+    //       let classType = param;
+    //       if (param[0] === 'L') {
+    //         // ref type
+    //         classType = param.slice(1);
+    //       }
 
-          const res = this.resolveClass(classType);
+    //       const res = this.resolveClass(classType);
 
-          if (res.error || !res.result) {
-            return {
-              error: res.error ?? 'java/lang/ClassNotFoundException',
-            };
-          }
-        }
+    //       if (res.error || !res.result) {
+    //         return {
+    //           error: res.error ?? 'java/lang/ClassNotFoundException',
+    //         };
+    //       }
+    //     }
 
-        if (
-          kind === REFERENCE_KIND.InvokeVirtual ||
-          kind === REFERENCE_KIND.InvokeSpecial
-        ) {
-          methodDesc = `(L${method.getClass().getClassname()};${method
-            .getMethodDesc()
-            .slice(1)}`;
-        } else if (kind === REFERENCE_KIND.NewInvokeSpecial) {
-          methodDesc = `${method.getMethodDesc().slice(0, -1)}L${method
-            .getClass()
-            .getClassname()}`;
-        } else {
-          methodDesc = method.getMethodDesc();
-        }
-        return { result: methodDesc };
-      // #endregion
+    //     if (
+    //       kind === REFERENCE_KIND.InvokeVirtual ||
+    //       kind === REFERENCE_KIND.InvokeSpecial
+    //     ) {
+    //       methodDesc = `(L${method.getClass().getClassname()};${method
+    //         .getMethodDesc()
+    //         .slice(1)}`;
+    //     } else if (kind === REFERENCE_KIND.NewInvokeSpecial) {
+    //       methodDesc = `${method.getMethodDesc().slice(0, -1)}L${method
+    //         .getClass()
+    //         .getClassname()}`;
+    //     } else {
+    //       methodDesc = method.getMethodDesc();
+    //     }
+    //     return { result: methodDesc };
+    //   // #endregion
 
-      // #region interface types
-      case REFERENCE_KIND.InvokeInterface:
-        throw new Error('not implemented');
-      // #endregion
-    }
+    //   // #region interface types
+    //   case REFERENCE_KIND.InvokeInterface:
+    //     throw new Error('not implemented');
+    //   // #endregion
+    // }
   }
 
   /**
@@ -407,12 +409,12 @@ export class ClassRef {
   }
 
   getConstant(constantIndex: number): any {
-    const constItem = this.constantPool[constantIndex];
+    const constItem = this.constantPool.get(constantIndex);
     return constItem;
   }
 
   getConstant64(constantIndex: number): any {
-    const constItem = this.constantPool[constantIndex];
+    const constItem = this.constantPool.get(constantIndex);
     return constItem;
   }
 

@@ -207,4 +207,8 @@ export class ConstantPool {
 
     this.pool = pool;
   }
+
+  get(index: number): Constant {
+    return this.pool[index];
+  }
 }
