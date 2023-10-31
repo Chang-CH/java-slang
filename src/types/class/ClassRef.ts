@@ -12,19 +12,42 @@ import {
   ConstantMethodHandleInfo,
   REFERENCE_KIND,
   ConstantFieldrefInfo,
+  ConstantInfo,
+  ConstantClassInfo,
+  ConstantDoubleInfo,
+  ConstantFloatInfo,
+  ConstantIntegerInfo,
+  ConstantInterfaceMethodrefInfo,
+  ConstantInvokeDynamicInfo,
+  ConstantLongInfo,
+  ConstantMethodTypeInfo,
+  ConstantMethodrefInfo,
+  ConstantStringInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
-import {
-  ConstantRef,
-  ConstantClass,
-  ConstantMethodref,
-  ConstantString,
-  ConstantInterfaceMethodref,
-} from '../ConstantRef';
 import { FieldRef } from '../FieldRef';
 import { MethodRef } from '../MethodRef';
 import { JvmObject } from '../reference/Object';
+import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
+import {
+  Constant,
+  ConstantClass,
+  ConstantDouble,
+  ConstantFieldref,
+  ConstantFloat,
+  ConstantInteger,
+  ConstantInterfaceMethodref,
+  ConstantInvokeDynamic,
+  ConstantLong,
+  ConstantMethodHandle,
+  ConstantMethodType,
+  ConstantMethodref,
+  ConstantNameAndType,
+  ConstantString,
+  ConstantUtf8,
+} from '#types/constants';
+import { ConstantPool } from '#jvm/components/ConstantPool';
 
 interface MethodResolutionResult {
   error?: string;
@@ -43,7 +66,7 @@ export class ClassRef {
 
   private loader: AbstractClassLoader;
 
-  private constantPool: Array<ConstantRef>;
+  private constantPool: ConstantPool;
   private accessFlags: number;
 
   private thisClass: string;
@@ -64,10 +87,10 @@ export class ClassRef {
   private bootstrapMethods?: BootstrapMethodsAttribute;
   private attributes: Array<AttributeInfo>;
 
-  // private javaObj: JvmObject;
+  private javaObj: JvmObject;
 
   constructor(
-    constantPool: Array<ConstantRef>,
+    constantPool: Array<ConstantInfo>,
     accessFlags: number,
     thisClass: string,
     superClass: ClassRef | null,
@@ -77,7 +100,7 @@ export class ClassRef {
     attributes: Array<AttributeInfo>,
     loader: AbstractClassLoader
   ) {
-    this.constantPool = constantPool;
+    this.constantPool = new ConstantPool(this, constantPool);
     this.accessFlags = accessFlags;
     this.thisClass = thisClass;
     this.packageName = thisClass.split('/').slice(0, -1).join('/');
@@ -99,18 +122,22 @@ export class ClassRef {
 
     for (const attribute of attributes) {
       const attrName = (
-        this.constantPool[attribute.attributeNameIndex] as ConstantUtf8Info
-      ).value;
+        this.constantPool[attribute.attributeNameIndex] as ConstantUtf8
+      ).get();
       if (attrName === 'BootstrapMethods') {
         this.bootstrapMethods = attribute as BootstrapMethodsAttribute;
       }
     }
 
-    // const clsRes = this.loader.getClassRef('java/lang/Class');
-    // if (clsRes.error || !clsRes.result) {
-    //   throw new Error('Could not load class java/lang/Class');
-    // }
-    // this.javaObj = new JvmObject(clsRes.result);
+    const clsRes = this.loader.getClassRef('java/lang/Class');
+    if (clsRes.error || !clsRes.result) {
+      throw new Error('Could not load class java/lang/Class');
+    }
+    this.javaObj = new JvmObject(clsRes.result);
+  }
+
+  getJavaObject(): JvmObject {
+    return this.javaObj;
   }
 
   private resolveClass(toResolve: string) {
