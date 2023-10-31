@@ -140,10 +140,8 @@ export class ClassRef {
     return this.javaObj;
   }
 
-  private resolveClass(toResolve: string) {
-    const trim = toResolve.lastIndexOf('[');
-    const className = toResolve.slice(trim + 1);
-    const res = this.loader.getClassRef(className);
+  $resolveClass(toResolve: string) {
+    const res = this.loader.getClassRef(toResolve);
     if (res.error) {
       return res;
     }
@@ -161,30 +159,6 @@ export class ClassRef {
 
     return res;
   }
-
-  resolveClassRef(clsRef: ConstantClass): {
-    error?: string;
-    classRef?: ClassRef;
-  } {
-    // resolved before
-    if (clsRef.error) {
-      return { error: clsRef.error };
-    }
-    if (clsRef.classRef) {
-      return { classRef: clsRef.classRef };
-    }
-
-    const className = this.constantPool[clsRef.nameIndex] as ConstantUtf8Info;
-    const res = this.resolveClass(className.value);
-
-    clsRef.error = res.error;
-    if (res.result) {
-      clsRef.classRef = res.result;
-    }
-
-    return { classRef: res.result, error: res.error };
-  }
-
   /**
    * 5.4.3 method resolution
    */
@@ -236,7 +210,7 @@ export class ClassRef {
     return null;
   }
 
-  private _checkMethodAccess(method: MethodRef, symbolClass: ClassRef) {
+  private _checkMethodAccess(method: MethodRef, accessingClass: ClassRef) {
     // R is public
     if (method.checkPublic()) {
       return true;
@@ -252,37 +226,44 @@ export class ClassRef {
       // or is declared by a class in the same run-time package as D
       return (
         method.checkStatic() ||
-        symbolClass.checkCast(this) ||
+        accessingClass.checkCast(this) ||
         this.getPackageName() === method.getClass().getPackageName()
       );
     }
 
     // R is private
-    return symbolClass === method.getClass();
+    return accessingClass === method.getClass();
   }
 
-  private _resolveMethod(
-    methodName: string,
-    symbolClass: ClassRef
+  /**
+   * Resolves method reference from the current class.
+   * Returns exception if any.
+   * @param methodKey method name + method descriptor
+   * @param accessingClass class that is accessing the method
+   * @returns
+   */
+  $resolveMethod(
+    methodKey: string,
+    accessingClass: ClassRef
   ): MethodResolutionResult {
     // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
-    let result = this._resolveMethodSuper(methodName);
+    let result = this._resolveMethodSuper(methodKey);
     if (result !== null) {
       const res: MethodResolutionResult = {
         methodRef: result,
       };
-      !this._checkMethodAccess(result, symbolClass) &&
+      !this._checkMethodAccess(result, accessingClass) &&
         (res.error = 'java/lang/IllegalAccessError');
       return res;
     }
 
     // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
-    result = this._resolveMethodInterface(methodName);
+    result = this._resolveMethodInterface(methodKey);
     if (result !== null) {
       const res: MethodResolutionResult = {
         methodRef: result,
       };
-      !this._checkMethodAccess(result, symbolClass) &&
+      !this._checkMethodAccess(result, accessingClass) &&
         (res.error = 'java/lang/IllegalAccessError');
       return res;
     }
@@ -292,175 +273,6 @@ export class ClassRef {
     };
     result && (retn.methodRef = result);
     return retn;
-  }
-
-  private resolveMethod(
-    methodName: string,
-    symbolClass: ClassRef
-  ): MethodResolutionResult {
-    // 1. If C is an interface, method resolution throws an IncompatibleClassChangeError
-    if (symbolClass.checkInterface()) {
-      return {
-        error: 'java/lang/IncompatibleClassChangeError',
-      };
-    }
-    return this._resolveMethod(methodName, symbolClass);
-  }
-
-  resolveMethodRef(
-    thread: Thread,
-    methodRef: ConstantMethodref
-  ): MethodResolutionResult {
-    // 5.4.3 if initial attempt to resolve a symbolic reference fails
-    // then subsequent attempts to resolve the reference always fail with the same error
-    if (methodRef.error) {
-      return {
-        error: methodRef.error,
-      };
-    }
-
-    // Previously resolved without errors
-    if (methodRef.error === '') {
-      return {
-        methodRef: methodRef.methodRef,
-      };
-    }
-
-    // resolve class
-    const invokerD = thread.getClass();
-    const constantCls = invokerD.getConstant(
-      methodRef.classIndex
-    ) as ConstantClass;
-
-    const classRes = invokerD.resolveClassRef(constantCls);
-    if (classRes.error) {
-      methodRef.error = methodRef.error ?? classRes.error;
-      return {
-        error: classRes.error,
-      };
-    }
-    const className = (
-      invokerD.getConstant(constantCls.nameIndex) as ConstantUtf8Info
-    ).value;
-    const { result: clsRef, error } = invokerD
-      .getLoader()
-      .getClassRef(className);
-    if (!clsRef) {
-      throw new Error('Unexpected error, class should have been loaded');
-    }
-
-    // resolve name
-    const nameAndTypeIndex = invokerD.getConstant(
-      methodRef.nameAndTypeIndex
-    ) as ConstantNameAndTypeInfo;
-    const methodName = invokerD.getConstant(nameAndTypeIndex.nameIndex).value;
-    const methodDescriptor = invokerD.getConstant(
-      nameAndTypeIndex.descriptorIndex
-    ).value;
-    // 5.4.3.3. Method Resolution
-    const methodRes = clsRef.resolveMethod(
-      methodName + methodDescriptor,
-      clsRef
-    );
-
-    if (methodRes.error) {
-      methodRef.error = methodRef.error ?? methodRes.error;
-      return methodRes;
-    }
-
-    methodRef.methodRef = methodRef.methodRef ?? methodRes.methodRef;
-    methodRef.error = '';
-    return methodRes;
-  }
-
-  private resolveInterfaceMethod(
-    methodName: string,
-    symbolClass: ClassRef
-  ): MethodResolutionResult {
-    // 1. If C is not an interface, interface method resolution throws an IncompatibleClassChangeError.
-    if (!symbolClass.checkInterface()) {
-      return {
-        error: 'java/lang/IncompatibleClassChangeError',
-      };
-    }
-    return this._resolveMethod(methodName, symbolClass);
-  }
-
-  resolveInterfaceMethodRef(
-    thread: Thread,
-    methodRef: ConstantInterfaceMethodref
-  ): MethodResolutionResult {
-    // 5.4.3 if initial attempt to resolve a symbolic reference fails
-    // then subsequent attempts to resolve the reference always fail with the same error
-    if (methodRef.error) {
-      return {
-        error: methodRef.error,
-      };
-    }
-
-    // Previously resolved without errors
-    if (methodRef.error === '') {
-      return {
-        error: '',
-      };
-    }
-
-    // resolve class
-    const invokerD = thread.getClass();
-    const constantCls = invokerD.getConstant(
-      methodRef.classIndex
-    ) as ConstantClass;
-    const classRes = invokerD.resolveClassRef(constantCls);
-    if (classRes.error) {
-      methodRef.error = methodRef.error ?? classRes.error;
-      return {
-        error: classRes.error,
-      };
-    }
-    const className = (
-      invokerD.getConstant(constantCls.nameIndex) as ConstantUtf8Info
-    ).value;
-    const { result: clsRef, error } = invokerD
-      .getLoader()
-      .getClassRef(className);
-    if (!clsRef) {
-      throw new Error('Unexpected error, class should have been loaded');
-    }
-
-    // resolve name
-    const nameAndTypeIndex = invokerD.getConstant(
-      methodRef.nameAndTypeIndex
-    ) as ConstantNameAndTypeInfo;
-    const methodName = invokerD.getConstant(nameAndTypeIndex.nameIndex).value;
-    const methodDescriptor = invokerD.getConstant(
-      nameAndTypeIndex.descriptorIndex
-    ).value;
-
-    // 5.4.3.4. Interface Method Resolution
-    const methodRes = clsRef.resolveInterfaceMethod(
-      methodName + methodDescriptor,
-      clsRef
-    );
-
-    methodRef.error = methodRef.error ?? methodRes.error;
-    methodRef.methodRef = methodRef.methodRef ?? methodRes.methodRef;
-
-    return methodRes;
-  }
-
-  resolveStringRef(strRef: ConstantString): {
-    error?: string;
-    result?: JvmObject;
-  } {
-    if (strRef.ref) {
-      return { result: strRef.ref };
-    }
-    const strConst = this.constantPool[strRef.stringIndex] as ConstantUtf8Info;
-    const stringRes = initString(this.loader, strConst.value);
-    if (stringRes.result && !stringRes.error) {
-      strRef.ref = stringRes.result;
-    }
-    return stringRes;
   }
 
   resolveMethodHandleRef(

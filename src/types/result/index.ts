@@ -10,20 +10,20 @@ export abstract class Result<T> {
     this.resultType = ResultType;
   }
 
-  checkError(): this is Error<T> {
+  checkError(): this is ErrorResult<T> {
     return this.resultType === ResultType.ERROR;
   }
 
-  checkSuccess(): this is Success<T> {
+  checkSuccess(): this is SuccessResult<T> {
     return this.resultType === ResultType.SUCCESS;
   }
 
-  checkDefer(): this is Defer<T> {
+  checkDefer(): this is DeferResult<T> {
     return this.resultType === ResultType.DEFER;
   }
 }
 
-export class Success<T> extends Result<T> {
+export class SuccessResult<T> extends Result<T> {
   private result: T;
   constructor(result: T) {
     super(ResultType.SUCCESS);
@@ -35,7 +35,7 @@ export class Success<T> extends Result<T> {
   }
 }
 
-export class Error<T> extends Result<T> {
+export class ErrorResult<T> extends Result<T> {
   private className: string;
   private msg: string;
   constructor(className: string, msg: string) {
@@ -52,7 +52,7 @@ export class Error<T> extends Result<T> {
   }
 }
 
-export class Defer<T> extends Result<T> {
+export class DeferResult<T> extends Result<T> {
   constructor() {
     super(ResultType.DEFER);
   }

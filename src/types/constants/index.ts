@@ -1,10 +1,13 @@
+import { initString } from '#jvm/components/JNI/utils';
+import Thread from '#jvm/components/Threads/Thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import * as info from '#jvm/external/ClassFile/types/constants';
 import { FieldRef } from '#types/FieldRef';
 import { MethodRef } from '#types/MethodRef';
 import { ClassRef } from '#types/class/ClassRef';
 import { JvmObject } from '#types/reference/Object';
-import { Result, Success } from '#types/result';
+import { DeferResult, ErrorResult, Result, SuccessResult } from '#types/result';
+import { newString } from '#utils/index';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;
@@ -17,7 +20,7 @@ export abstract class Constant {
   }
 
   public resolve(...args: any[]): Result<any> {
-    return new Success<any>(this.get());
+    return new SuccessResult<any>(this.get());
   }
 
   public abstract get(): any;
@@ -148,7 +151,7 @@ export class ConstantUtf8 extends Constant {
 
 export class ConstantString extends Constant {
   private str: ConstantUtf8;
-  private javaString?: JvmObject;
+  private result?: Result<JvmObject>;
 
   constructor(cls: ClassRef, str: ConstantUtf8) {
     super(CONSTANT_TAG.String, cls);
@@ -160,12 +163,26 @@ export class ConstantString extends Constant {
     return c.getTag() === CONSTANT_TAG.String;
   }
 
-  public resolve(...args: any[]): Result<any> {
-    throw new Error('Method not implemented.');
+  public resolve(): Result<JvmObject> {
+    if (this.result) {
+      return this.result;
+    }
+
+    const strVal = this.str.get();
+    this.result = newString(this.cls.getLoader(), strVal);
+    return this.result;
   }
 
   public get() {
-    throw new Error('Method not implemented.');
+    if (!this.result) {
+      this.resolve();
+    }
+
+    if (!this.result?.checkSuccess()) {
+      throw new Error('Resolution incomplete or failed');
+    }
+
+    return this.result.getResult();
   }
 }
 
@@ -224,11 +241,36 @@ export class ConstantClass extends Constant {
   }
 
   public resolve(): Result<ClassRef> {
-    throw new Error('Method not implemented.');
+    // resolved before
+    if (this.result) {
+      return this.result;
+    }
+
+    const res = this.cls.$resolveClass(this.className.get());
+
+    // TODO: remove this when $resolve change to use Result
+    if (res.error || !res.result) {
+      this.result = new ErrorResult<ClassRef>(
+        res.error ?? 'java/lang/ClassNotFoundException',
+        ''
+      );
+    } else {
+      this.result = new SuccessResult<ClassRef>(res.result);
+    }
+
+    return this.result;
   }
 
   public get() {
-    throw new Error('Method not implemented.');
+    if (!this.result) {
+      this.resolve();
+    }
+
+    if (!this.result?.checkSuccess()) {
+      throw new Error('Resolution incomplete or failed');
+    }
+
+    return this.result.getResult();
   }
 }
 
@@ -315,8 +357,59 @@ export class ConstantMethodref extends Constant {
     return c.getTag() === CONSTANT_TAG.Methodref;
   }
 
-  public resolve(): Result<MethodRef> {
-    throw new Error('Method not implemented.');
+  public resolve(thread: Thread): Result<MethodRef> {
+    // 5.4.3 if initial attempt to resolve a symbolic reference fails
+    // then subsequent attempts to resolve the reference always fail with the same error
+    if (this.result) {
+      return this.result;
+    }
+
+    // resolve class
+    const clsResResult = this.classConstant.resolve();
+    if (!clsResResult.checkSuccess()) {
+      if (clsResResult.checkError()) {
+        const err = clsResResult.getError();
+        this.result = new ErrorResult<MethodRef>(err.className, err.msg);
+        return this.result;
+      }
+      return new DeferResult<MethodRef>();
+    }
+    const symbolClass = clsResResult.getResult();
+
+    // resolve name and type
+    if (!this.nameAndTypeConstant.resolve().checkSuccess()) {
+      throw new Error('Name and type resolution failed');
+    }
+
+    // 5.4.3.3. Method Resolution
+    // 1. If C is an interface, method resolution throws an IncompatibleClassChangeError
+    if (symbolClass.checkInterface()) {
+      this.result = new ErrorResult<MethodRef>(
+        'java/lang/IncompatibleClassChangeError',
+        ''
+      );
+      return this.result;
+    }
+
+    const nt = this.nameAndTypeConstant.get();
+    // TODO: not implemented: signature poly
+    const methodRes = symbolClass.$resolveMethod(
+      nt.name + nt.descriptor,
+      this.cls
+    );
+
+    // #region legacy error handling
+    if (methodRes.error || !methodRes.methodRef) {
+      this.result = new ErrorResult<MethodRef>(
+        methodRes.error ?? 'java/lang/NoSuchMethodError',
+        ''
+      );
+      return this.result;
+    }
+    this.result = new SuccessResult<MethodRef>(methodRes.methodRef);
+    // #endregion
+
+    return this.result;
   }
 }
 
@@ -344,7 +437,59 @@ export class ConstantInterfaceMethodref extends Constant {
   }
 
   public resolve(): Result<MethodRef> {
-    throw new Error('Method not implemented.');
+    // 5.4.3 if initial attempt to resolve a symbolic reference fails
+    // then subsequent attempts to resolve the reference always fail with the same error
+    if (this.result) {
+      return this.result;
+    }
+
+    // resolve class
+    const clsResResult = this.classConstant.resolve();
+    if (!clsResResult.checkSuccess()) {
+      if (clsResResult.checkError()) {
+        const err = clsResResult.getError();
+        this.result = new ErrorResult<MethodRef>(err.className, err.msg);
+        return this.result;
+      }
+      return new DeferResult<MethodRef>();
+    }
+    const symbolClass = clsResResult.getResult();
+
+    // resolve name and type
+    if (!this.nameAndTypeConstant.resolve().checkSuccess()) {
+      throw new Error('Name and type resolution failed');
+    }
+
+    // 5.4.3.4. Interface Method Resolution
+    const clsRef = clsResResult.getResult();
+
+    // 1. If C is not an interface, interface method resolution throws an IncompatibleClassChangeError.
+    if (!symbolClass.checkInterface()) {
+      this.result = new ErrorResult<MethodRef>(
+        'java/lang/IncompatibleClassChangeError',
+        ''
+      );
+      return this.result;
+    }
+
+    const nt = this.nameAndTypeConstant.get();
+    const methodRes = symbolClass.$resolveMethod(
+      nt.name + nt.descriptor,
+      this.cls
+    );
+
+    // #region legacy error handling
+    if (methodRes.error || !methodRes.methodRef) {
+      this.result = new ErrorResult<MethodRef>(
+        methodRes.error ?? 'java/lang/NoSuchMethodError',
+        ''
+      );
+      return this.result;
+    }
+    this.result = new SuccessResult<MethodRef>(methodRes.methodRef);
+    // #endregion
+
+    return this.result;
   }
 }
 
