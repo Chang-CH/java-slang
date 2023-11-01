@@ -25,7 +25,7 @@ export default class ExecutionEngine {
       throw new Error('Main method not found');
     }
 
-    mainThread.pushStackFrame(mainClass, mainMethod, 0, []);
+    mainThread.invokeSf(mainClass, mainMethod, 0, []);
 
     // TODO: pushstack string args
     this.nativeThreadGroup.addThread(mainThread);
@@ -39,12 +39,7 @@ export default class ExecutionEngine {
   runMethod(threadCls: ClassRef, cls: ClassRef, method: string, args?: any[]) {
     const mainThread = new Thread(threadCls);
 
-    mainThread.pushStackFrame(
-      cls,
-      cls.getMethod(method) as MethodRef,
-      0,
-      args ?? []
-    );
+    mainThread.invokeSf(cls, cls.getMethod(method) as MethodRef, 0, args ?? []);
     this.interpreter.runFor(mainThread, 10000, () => {
       console.debug('runMethod Finish');
     });

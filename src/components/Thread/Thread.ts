@@ -2,7 +2,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { JvmObject } from '../../types/reference/Object';
-import { StackFrame } from './StackFrame';
+import { InternalStackFrame, JavaStackFrame, StackFrame } from './StackFrame';
 
 export default class Thread {
   private stack: StackFrame[];
@@ -117,22 +117,37 @@ export default class Thread {
     return sf;
   }
 
-  pushStackFrame(
+  invokeSf(
     cls: ClassRef,
     method: MethodRef,
     pc: number,
     locals: any[],
     callback?: (ret: any) => void
   ) {
-    const stackframe = {
-      operandStack: [],
-      maxStack: method.getMaxStack(),
-      locals,
-      class: cls,
+    if (callback) {
+      this.stack.push(
+        new InternalStackFrame(
+          [],
+          method.getMaxStack(),
+          cls,
+          method,
+          pc,
+          locals,
+          callback
+        )
+      );
+      this.stackPointer += 1;
+      return;
+    }
+
+    const stackframe = new JavaStackFrame(
+      [],
+      method.getMaxStack(),
+      cls,
       method,
       pc,
-    };
-
+      locals
+    );
     this.stack.push(stackframe);
     this.stackPointer += 1;
   }
@@ -215,6 +230,6 @@ export default class Thread {
       );
     }
 
-    this.pushStackFrame(this.cls, unhandledMethod, 0, [this, exception]);
+    this.invokeSf(this.cls, unhandledMethod, 0, [this, exception]);
   }
 }

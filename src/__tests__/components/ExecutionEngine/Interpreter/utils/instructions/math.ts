@@ -30,7 +30,7 @@ beforeEach(() => {
   thread = new Thread(threadClass);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
-  thread.pushStackFrame(threadClass, method, 0, []);
+  thread.invokeSf(threadClass, method, 0, []);
 });
 
 describe('runIadd', () => {

@@ -389,19 +389,14 @@ export class ConstantInvokeDynamic extends Constant {
 
     // TODO: delete returned value
     // TODO: callback on popped stack frame
-    thread.pushStackFrame(
-      method?.getClass() as ClassRef,
-      method as MethodRef,
-      0,
-      [
-        this.cls.getJavaObject(),
-        bootstrapMhn,
-        methodNameStr,
-        methodType,
-        argsArr,
-        appendixArr,
-      ]
-    );
+    thread.invokeSf(method?.getClass() as ClassRef, method as MethodRef, 0, [
+      this.cls.getJavaObject(),
+      bootstrapMhn,
+      methodNameStr,
+      methodType,
+      argsArr,
+      appendixArr,
+    ]);
     // #endregion
 
     /**

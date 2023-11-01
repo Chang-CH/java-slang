@@ -151,7 +151,7 @@ export class ClassRef {
     // has static initializer
     if (this.methods['<clinit>()V']) {
       this.status = CLASS_STATUS.INITIALIZING;
-      thread.pushStackFrame(this, this.methods['<clinit>()V'], 0, []);
+      thread.invokeSf(this, this.methods['<clinit>()V'], 0, []);
       return new DeferResult<ClassRef>();
     }
 

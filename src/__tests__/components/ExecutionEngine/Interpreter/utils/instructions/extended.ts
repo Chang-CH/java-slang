@@ -114,7 +114,7 @@ beforeEach(() => {
     loader: testLoader,
   });
   const method = testClass.getMethod('test0()V') as MethodRef;
-  thread.pushStackFrame(testClass, method, 0, []);
+  thread.invokeSf(testClass, method, 0, []);
 });
 
 describe('runIfnull', () => {
@@ -370,7 +370,7 @@ describe('runMultianewarray', () => {
     code.setUint16(1, constIdx);
     code.setUint8(3, 2);
     const method = customClass.getMethod('test0()V') as MethodRef;
-    thread.pushStackFrame(customClass, method, 0, []);
+    thread.invokeSf(customClass, method, 0, []);
 
     thread.pushStack(2);
     thread.pushStack(3);
@@ -432,7 +432,7 @@ describe('runMultianewarray', () => {
     code.setUint16(1, constIdx);
     code.setUint8(3, 2);
     const method = customClass.getMethod('test0()V') as MethodRef;
-    thread.pushStackFrame(customClass, method, 0, []);
+    thread.invokeSf(customClass, method, 0, []);
 
     thread.pushStack(-1);
     thread.pushStack(3);
@@ -484,7 +484,7 @@ describe('runMultianewarray', () => {
     code.setUint16(1, constIdx);
     code.setUint8(3, 2);
     const method = customClass.getMethod('test0()V') as MethodRef;
-    thread.pushStackFrame(customClass, method, 0, []);
+    thread.invokeSf(customClass, method, 0, []);
     thread.pushStack(0);
     thread.pushStack(3);
     runInstruction(thread, jni, () => {});

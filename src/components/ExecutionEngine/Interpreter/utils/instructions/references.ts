@@ -291,7 +291,7 @@ function invokeVirtual(
     return;
   }
   onFinish && onFinish();
-  thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
+  thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
   return;
 }
 
@@ -392,7 +392,7 @@ export function runInvokespecial(thread: Thread): void {
     return;
   }
   thread.offsetPc(3);
-  thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
+  thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
 }
 
 export function runInvokestatic(thread: Thread): void {
@@ -460,7 +460,7 @@ export function runInvokestatic(thread: Thread): void {
   }
 
   thread.offsetPc(3);
-  thread.pushStackFrame(classRef, methodRef, 0, args);
+  thread.invokeSf(classRef, methodRef, 0, args);
 }
 
 export function runInvokeinterface(thread: Thread): void {
@@ -556,7 +556,7 @@ export function runInvokeinterface(thread: Thread): void {
   }
 
   thread.offsetPc(5);
-  thread.pushStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
+  thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
 }
 
 // TODO:

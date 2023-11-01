@@ -25,7 +25,7 @@ beforeEach(() => {
   thread = new Thread(threadClass);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
-  thread.pushStackFrame(threadClass, method, 0, []);
+  thread.invokeSf(threadClass, method, 0, []);
 });
 
 describe('runGoto', () => {
@@ -70,7 +70,7 @@ describe('runRet', () => {
 
 describe('runIreturn', () => {
   test('IRETURN: returns int to previous stackframe', () => {
-    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
+    thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(5);
     code.setUint8(0, OPCODE.IRETURN);
 
@@ -90,7 +90,7 @@ describe('runIreturn', () => {
 
 describe('runLreturn', () => {
   test('LRETURN: returns long to previous stackframe', () => {
-    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
+    thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LRETURN);
 
@@ -110,7 +110,7 @@ describe('runLreturn', () => {
 
 describe('runFreturn', () => {
   test('FRETURN: returns float to previous stackframe', () => {
-    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
+    thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FRETURN);
 
@@ -127,7 +127,7 @@ describe('runFreturn', () => {
   });
 
   test('FRETURN: undergoes value set conversion', () => {
-    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
+    thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(3.33);
     code.setUint8(0, OPCODE.FRETURN);
 
@@ -147,7 +147,7 @@ describe('runFreturn', () => {
 
 describe('runDreturn', () => {
   test('DRETURN: returns double to previous stackframe', () => {
-    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
+    thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack64(5.5);
     code.setUint8(0, OPCODE.DRETURN);
 
@@ -168,7 +168,7 @@ describe('runDreturn', () => {
 describe('runAreturn', () => {
   test('ARETURN: returns reference to previous stackframe', () => {
     const obj = new JvmObject(threadClass);
-    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
+    thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(obj);
     code.setUint8(0, OPCODE.ARETURN);
 
@@ -189,7 +189,7 @@ describe('runAreturn', () => {
 describe('runreturn', () => {
   test('RETURN: returns to previous stackframe', () => {
     const obj = new JvmObject(threadClass);
-    thread.pushStackFrame(threadClass, thread.getMethod(), 0, []);
+    thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     code.setUint8(0, OPCODE.RETURN);
 
     runInstruction(thread, jni, () => {});
