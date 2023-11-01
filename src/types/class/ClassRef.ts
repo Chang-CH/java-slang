@@ -110,13 +110,12 @@ export class ClassRef {
     this.fields = {};
     fields.forEach(field => {
       const fieldRef = FieldRef.fromFieldInfo(this, field);
-      this.fields[fieldRef.getFieldName() + fieldRef.getFieldDesc()] = fieldRef;
+      this.fields[fieldRef.getName() + fieldRef.getFieldDesc()] = fieldRef;
     });
     this.methods = {};
     methods.forEach(method => {
       const methodRef = new MethodRef(this, method);
-      this.methods[methodRef.getMethodName() + methodRef.getMethodDesc()] =
-        methodRef;
+      this.methods[methodRef.getName() + methodRef.getMethodDesc()] = methodRef;
     });
     this.attributes = attributes;
     this.loader = loader;
@@ -166,7 +165,7 @@ export class ClassRef {
     return this.javaObj;
   }
 
-  $resolveClass(toResolve: string): Result<ClassRef> {
+  $resolveClass(toResolve: string): ImmediateResult<ClassRef> {
     const res = this.loader.getClassRef(toResolve);
     if (res.checkError()) {
       return res;
@@ -483,7 +482,7 @@ export class ClassRef {
     const parentClass = parentMethod.getClass();
     return (
       overrideMethod.getClass().checkCast(parentMethod.getClass()) &&
-      overrideMethod.getMethodName() === parentMethod.getMethodName() &&
+      overrideMethod.getName() === parentMethod.getName() &&
       overrideMethod.getMethodDesc() === parentMethod.getMethodDesc() &&
       !overrideMethod.checkPrivate() &&
       (parentMethod.checkPublic() ||

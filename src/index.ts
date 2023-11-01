@@ -60,10 +60,10 @@ export default class JVM {
     );
 
     // convert args to Java String[]
-    const mainRes = this.applicationClassLoader.getClassRef(className);
+    const mainRes = this.applicationClassLoader.getClassRef('L' + className);
 
     const threadRes =
-      this.applicationClassLoader.getClassRef('java/lang/Thread');
+      this.applicationClassLoader.getClassRef('Ljava/lang/Thread');
 
     if (threadRes.checkError()) {
       throw new Error('Thread class not found');

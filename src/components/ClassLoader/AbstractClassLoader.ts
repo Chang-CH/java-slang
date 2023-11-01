@@ -143,6 +143,13 @@ export default abstract class AbstractClassLoader {
     return this.load(className);
   }
 
+  /**
+   * Special method for loading primitive classes.
+   * @throws Error if class is not a primitive
+   * @param className
+   */
+  abstract getPrimitiveClassRef(className: string): ClassRef;
+
   // TODO: follow classloading spec 5.3.5
   abstract load(className: string): ImmediateResult<ClassRef>;
 }

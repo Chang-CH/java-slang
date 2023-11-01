@@ -32,31 +32,33 @@ export function parseFirstDescriptor(descriptor: string) {
   }
 }
 
-export function parseFieldDescriptor(descriptor: string, index: number) {
+export function parseFieldDescriptor(
+  descriptor: string,
+  index: number
+): { type: string; referenceCls?: string; index: number } {
   switch (descriptor[index]) {
     case JavaType.byte:
-      return { type: JavaType.byte, index: index + 1 };
     case JavaType.char:
-      return { type: JavaType.char, index: index + 1 };
     case JavaType.double:
-      return { type: JavaType.double, index: index + 1 };
     case JavaType.float:
-      return { type: JavaType.float, index: index + 1 };
     case JavaType.int:
-      return { type: JavaType.int, index: index + 1 };
     case JavaType.long:
-      return { type: JavaType.long, index: index + 1 };
     case JavaType.short:
-      return { type: JavaType.short, index: index + 1 };
     case JavaType.boolean:
-      return { type: JavaType.boolean, index: index + 1 };
+      // skip semicolon
+      return { type: descriptor[index], index: index + 1 };
     case JavaType.array:
-      ({ index } = parseFieldDescriptor(descriptor, index + 1));
-      return { type: JavaType.array, index };
+      const res = parseFieldDescriptor(descriptor, index + 1);
+      const clsName = '[' + (res.referenceCls ?? res.type);
+      return { type: JavaType.array, referenceCls: clsName, index: res.index };
     case JavaType.reference:
       const sub = descriptor.substring(index);
       const end = sub.indexOf(';');
-      return { type: JavaType.reference, index: index + end + 1 };
+      return {
+        type: JavaType.reference,
+        referenceCls: descriptor.substring(1, end),
+        index: index + end + 1,
+      };
     case JavaType.void:
       return { type: JavaType.void, index: index + 1 };
     default:
@@ -71,15 +73,19 @@ export function parseMethodDescriptor(desc: string) {
 
   let index = 0;
   while (index < args.length) {
-    const { type, index: newIndex } = parseFieldDescriptor(args, index);
-    argTypes.push(type);
+    const {
+      type,
+      referenceCls,
+      index: newIndex,
+    } = parseFieldDescriptor(args, index);
+    argTypes.push({ type, referenceCls });
     index = newIndex;
   }
 
-  const { type: retType } = parseFieldDescriptor(ret, 0);
+  const retType = parseFieldDescriptor(ret, 0);
   return {
     args: argTypes,
-    ret: retType,
+    ret: { type: retType.type, referenceCls: retType.referenceCls },
   };
 }
 

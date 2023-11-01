@@ -43,7 +43,11 @@ export class MethodRef {
     this.code = code;
   }
 
-  getMethodName() {
+  static checkMethod(obj: any): obj is MethodRef {
+    return obj.code !== undefined;
+  }
+
+  getName() {
     return this.name;
   }
 

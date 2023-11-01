@@ -27,7 +27,7 @@ export class JvmObject {
   }
 
   getField(fieldRef: FieldRef): any {
-    const fieldName = fieldRef.getFieldName();
+    const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
 
@@ -42,7 +42,7 @@ export class JvmObject {
   }
 
   putField(fieldRef: FieldRef, value: any) {
-    const fieldName = fieldRef.getFieldName();
+    const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
 

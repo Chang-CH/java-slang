@@ -241,7 +241,7 @@ function invokeVirtual(
   const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i]) {
+    switch (methodDesc.args[i].type) {
       case 'V':
         break; // should not happen
       case 'B':
@@ -274,7 +274,7 @@ function invokeVirtual(
 
   // method lookup
   const lookupResult = runtimeClassRef.lookupMethod(
-    methodRef.getMethodName() + methodRef.getMethodDesc(),
+    methodRef.getName() + methodRef.getMethodDesc(),
     methodRef,
     true
   );
@@ -339,7 +339,7 @@ export function runInvokespecial(thread: Thread): void {
   const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i]) {
+    switch (methodDesc.args[i].type) {
       case 'V':
         break; // should not happen
       case 'B':
@@ -373,10 +373,7 @@ export function runInvokespecial(thread: Thread): void {
   // method lookup
   const lookupResult = methodRef
     .getClass()
-    .lookupMethod(
-      methodRef.getMethodName() + methodRef.getMethodDesc(),
-      methodRef
-    );
+    .lookupMethod(methodRef.getName() + methodRef.getMethodDesc(), methodRef);
   if (lookupResult.checkError()) {
     const err = lookupResult.getError();
     thread.throwNewException(err.className, err.msg);
@@ -430,7 +427,7 @@ export function runInvokestatic(thread: Thread): void {
   const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i]) {
+    switch (methodDesc.args[i].type) {
       case 'V':
         break; // should not happen
       case 'B':
@@ -495,7 +492,7 @@ export function runInvokeinterface(thread: Thread): void {
   const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i]) {
+    switch (methodDesc.args[i].type) {
       case 'V':
         break; // should not happen
       case 'B':
@@ -533,7 +530,7 @@ export function runInvokeinterface(thread: Thread): void {
 
   // method lookup
   const lookupResult = runtimeClassRef.lookupMethod(
-    methodRef.getMethodName() + methodRef.getMethodDesc(),
+    methodRef.getName() + methodRef.getMethodDesc(),
     methodRef,
     false,
     true

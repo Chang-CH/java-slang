@@ -32,4 +32,11 @@ export default class ClassLoader extends AbstractClassLoader {
     const classData = this.linkClass(classFile);
     return new SuccessResult(this.loadClass(classData));
   }
+
+  getPrimitiveClassRef(className: string): ClassRef {
+    if (this.parentLoader === null) {
+      throw new Error('Primitive class not found');
+    }
+    return this.parentLoader.getPrimitiveClassRef(className);
+  }
 }

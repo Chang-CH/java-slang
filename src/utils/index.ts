@@ -2,12 +2,17 @@ import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader
 import { FieldRef } from '#types/FieldRef';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { ErrorResult, Result, SuccessResult } from '#types/result';
+import {
+  ErrorResult,
+  ImmediateResult,
+  Result,
+  SuccessResult,
+} from '#types/result';
 
 export function newCharArr(
   loader: AbstractClassLoader,
   str: string
-): Result<JvmArray> {
+): ImmediateResult<JvmArray> {
   const cArrRes = loader.getClassRef('[C');
   if (cArrRes.checkError()) {
     const err = cArrRes.getError();
@@ -27,7 +32,7 @@ export function newCharArr(
 export function newString(
   loader: AbstractClassLoader,
   str: string
-): Result<JvmObject> {
+): ImmediateResult<JvmObject> {
   const charArr = newCharArr(loader, str);
 
   if (!charArr.checkSuccess()) {

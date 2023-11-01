@@ -60,11 +60,15 @@ export class FieldRef {
     );
   }
 
+  static checkField(obj: any): obj is FieldRef {
+    return obj.fieldName !== undefined;
+  }
+
   getValue() {
     return this.value;
   }
 
-  getFieldName() {
+  getName() {
     return this.fieldName;
   }
 

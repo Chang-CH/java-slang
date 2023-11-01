@@ -177,7 +177,7 @@ export const createClass = (options: {
     ? new ArrayClassRef(
         constantPool,
         options.flags ?? 33,
-        options.className ?? '[LTest;',
+        options.className ?? '[LTest',
         options.superClass ?? null,
         interfaces,
         fields,
@@ -203,6 +203,12 @@ export const createClass = (options: {
 };
 
 export class TestClassLoader extends AbstractClassLoader {
+  getPrimitiveClassRef(className: string): ClassRef {
+    if (!this.parentLoader) {
+      throw new Error('Method not implemented.');
+    }
+    return this.parentLoader.getPrimitiveClassRef(className);
+  }
   load(className: string): ImmediateResult<ClassRef> {
     if (className.startsWith('[')) {
       const objRes = (

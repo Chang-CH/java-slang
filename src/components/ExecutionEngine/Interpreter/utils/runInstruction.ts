@@ -32,7 +32,7 @@ export default function runInstruction(
   if (method.checkNative()) {
     const nativeMethod = jni.getNativeMethod(
       thread.getClass().getClassname(),
-      method.getMethodName() + method.getMethodDesc()
+      method.getName() + method.getMethodDesc()
     );
 
     if (!nativeMethod) {
@@ -43,12 +43,12 @@ export default function runInstruction(
 
     const { ret } = parseMethodDescriptor(method.getMethodDesc());
 
-    if (ret === 'V') {
+    if (ret.type === 'V') {
       thread.returnSF();
       return;
     }
 
-    if (ret === 'D' || ret === 'J') {
+    if (ret.type === 'D' || ret.type === 'J') {
       thread.returnSF(result, true);
       return;
     }
@@ -67,7 +67,7 @@ export default function runInstruction(
   let result;
   console.log(
     `${method.getClass().getClassname()}.${
-      method.getMethodName() + method.getMethodDesc()
+      method.getName() + method.getMethodDesc()
     }:${OPCODE[opcode]}, stack: ${thread.peekStackFrame().operandStack}}`
   );
   switch (opcode) {
