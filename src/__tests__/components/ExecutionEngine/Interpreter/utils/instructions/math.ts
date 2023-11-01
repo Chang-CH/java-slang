@@ -73,8 +73,8 @@ describe('runIadd', () => {
 
 describe('runLadd', () => {
   test('LADD: long addition', () => {
-    thread.pushStack(1n);
-    thread.pushStack(2n);
+    thread.pushStack64(1n);
+    thread.pushStack64(2n);
     code.setUint8(0, OPCODE.LADD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -85,8 +85,8 @@ describe('runLadd', () => {
   });
 
   test('LADD: long addition overflows', () => {
-    thread.pushStack(MAX_LONG);
-    thread.pushStack(1n);
+    thread.pushStack64(MAX_LONG);
+    thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LADD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -97,8 +97,8 @@ describe('runLadd', () => {
   });
 
   test('LADD: long addition underflows', () => {
-    thread.pushStack(MIN_LONG);
-    thread.pushStack(-1n);
+    thread.pushStack64(MIN_LONG);
+    thread.pushStack64(-1n);
     code.setUint8(0, OPCODE.LADD);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();

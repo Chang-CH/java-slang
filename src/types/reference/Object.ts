@@ -32,6 +32,7 @@ export class JvmObject {
     const fieldClass = fieldRef.getClass().getClassname();
 
     const key = `${fieldClass}.${fieldName}${fieldDesc}`;
+    console.log('GETFIELD: ', key, this.fields[key].getValue());
 
     if (key in this.fields) {
       return this.fields[key].getValue();

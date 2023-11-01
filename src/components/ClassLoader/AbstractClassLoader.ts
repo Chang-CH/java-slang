@@ -1,4 +1,4 @@
-import { ClassFile } from '#jvm/external/ClassFile/types';
+import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import {
   ConstantClassInfo,
   ConstantUtf8Info,
@@ -66,6 +66,16 @@ export default abstract class AbstractClassLoader {
 
       if (!res.result) {
         throw new Error('Class reference not found');
+      }
+      superClass = res.result;
+    }
+
+    if ((accessFlags & CLASS_FLAGS.ACC_INTERFACE) !== 0 && !superClass) {
+      // Some compilers set superclass to object by default.
+      // We force it to be java/lang/Object if it's not set.
+      const res = this.getClassRef('java/lang/Object');
+      if (res.error || !res.result) {
+        throw new Error('Object not loaded');
       }
       superClass = res.result;
     }

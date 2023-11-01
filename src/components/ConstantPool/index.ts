@@ -201,7 +201,8 @@ export class ConstantPool {
       }
     }
 
-    for (let i = 0; i < infoArr.length; i++) {
+    // 1 indexed
+    for (let i = 1; i < infoArr.length; i++) {
       init(i);
     }
 

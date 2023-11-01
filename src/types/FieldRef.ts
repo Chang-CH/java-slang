@@ -2,6 +2,7 @@ import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { ClassRef } from './class/ClassRef';
+import { ConstantUtf8 } from './constants';
 import { JavaType } from './dataTypes';
 
 export class FieldRef {
@@ -45,15 +46,15 @@ export class FieldRef {
   }
 
   static fromFieldInfo(cls: ClassRef, field: FieldInfo) {
-    const fieldName = cls.getConstant(field.nameIndex) as ConstantUtf8Info;
-    const fieldDesc = cls.getConstant(
-      field.descriptorIndex
-    ) as ConstantUtf8Info;
+    const fieldName = (cls.getConstant(field.nameIndex) as ConstantUtf8).get();
+    const fieldDesc = (
+      cls.getConstant(field.descriptorIndex) as ConstantUtf8
+    ).get();
 
     return new FieldRef(
       cls,
-      fieldName.value,
-      fieldDesc.value,
+      fieldName,
+      fieldDesc,
       field.accessFlags,
       field.attributes
     );

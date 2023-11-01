@@ -86,39 +86,6 @@ export function parseMethodDescriptor(desc: string) {
 export function getField(ref: any, fieldName: string, type: JavaType) {
   ref.getField(fieldName, type);
 }
-
-export function tryInitialize(
-  thread: Thread,
-  className: string
-): { shouldDefer?: boolean } {
-  const classRef = thread.getClass().getLoader().getClassRef(className)
-    .result as ClassRef;
-
-  if (!classRef) {
-    thread.throwNewException('java/lang/ClassNotFoundException', '');
-    return { shouldDefer: true };
-  }
-
-  if (
-    classRef.status === CLASS_STATUS.INITIALIZING ||
-    classRef.status === CLASS_STATUS.INITIALIZED
-  ) {
-    return {};
-  }
-
-  // Class not initialized, initialize it.
-  // FIXME: need to break out of calling function to run stackframe.
-  const staticInit = classRef.getMethod('<clinit>()V');
-  if (staticInit != null) {
-    classRef.status = CLASS_STATUS.INITIALIZING;
-    thread.pushStackFrame(classRef, staticInit, 0, []);
-    return { shouldDefer: true };
-  }
-
-  classRef.status = CLASS_STATUS.INITIALIZED;
-  return {};
-}
-
 export function asDouble(value: number): number {
   return value;
 }

@@ -68,7 +68,7 @@ export default function runInstruction(
   console.log(
     `${method.getClass().getClassname()}.${
       method.getMethodName() + method.getMethodDesc()
-    }:${OPCODE[opcode]}`
+    }:${OPCODE[opcode]}, stack: ${thread.peekStackFrame().operandStack}}`
   );
   switch (opcode) {
     case OPCODE.NOP:

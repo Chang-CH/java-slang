@@ -4,14 +4,14 @@ import { JvmObject } from '#types/reference/Object';
 import { ClassRef } from './class/ClassRef';
 import { MethodRef } from './MethodRef';
 
-export interface ConstantClass {
+export interface LegacyConstantClass {
   tag: CONSTANT_TAG;
   nameIndex: number;
   classRef: ClassRef;
   error?: string;
 }
 
-export interface ConstantMethodref {
+export interface LegacyConstantMethodref {
   tag: CONSTANT_TAG;
   classIndex: number;
   nameAndTypeIndex: number;
@@ -19,7 +19,7 @@ export interface ConstantMethodref {
   error?: string;
 }
 
-export interface ConstantInterfaceMethodref {
+export interface LegacyConstantInterfaceMethodref {
   tag: CONSTANT_TAG;
   classIndex: number;
   nameAndTypeIndex: number;
@@ -27,7 +27,7 @@ export interface ConstantInterfaceMethodref {
   error?: string;
 }
 
-export interface ConstantString {
+export interface LegacyConstantString {
   tag: CONSTANT_TAG;
   stringIndex: number;
   ref: JvmObject;
@@ -35,7 +35,7 @@ export interface ConstantString {
 
 export type ConstantRef =
   | ConstantInfo
-  | ConstantClass
-  | ConstantMethodref
-  | ConstantInterfaceMethodref
-  | ConstantString;
+  | LegacyConstantClass
+  | LegacyConstantMethodref
+  | LegacyConstantInterfaceMethodref
+  | LegacyConstantString;

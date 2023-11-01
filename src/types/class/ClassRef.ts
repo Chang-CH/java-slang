@@ -48,6 +48,7 @@ import {
   ConstantUtf8,
 } from '#types/constants';
 import { ConstantPool } from '#jvm/components/ConstantPool';
+import { DeferResult, ErrorResult, Result, SuccessResult } from '#types/result';
 
 interface MethodResolutionResult {
   error?: string;
@@ -131,13 +132,37 @@ export class ClassRef {
   }
 
   // TODO: init javaobj and static fields in init function
+  initialize(thread: Thread): Result<ClassRef> {
+    if (
+      this.status === CLASS_STATUS.INITIALIZED ||
+      this.status === CLASS_STATUS.INITIALIZING
+    ) {
+      // FIXME: check if current class is initializer
+      return new SuccessResult<ClassRef>(this);
+    }
 
-  getJavaObject(): JvmObject {
     const clsRes = this.loader.getClassRef('java/lang/Class');
     if (clsRes.error || !clsRes.result) {
-      throw new Error('Could not load class java/lang/Class');
+      return new ErrorResult<ClassRef>('java/lang/ClassNotFoundException', '');
     }
     this.javaObj = new JvmObject(clsRes.result);
+    this.javaObj.$putNativeField('classRef', this);
+
+    // has static initializer
+    if (this.methods['<clinit>()V']) {
+      this.status = CLASS_STATUS.INITIALIZING;
+      thread.pushStackFrame(this, this.methods['<clinit>()V'], 0, []);
+      return new DeferResult<ClassRef>();
+    }
+
+    this.status = CLASS_STATUS.INITIALIZED;
+    return new SuccessResult<ClassRef>(this);
+  }
+
+  getJavaObject(): JvmObject {
+    if (!this.javaObj) {
+      throw new Error('Class Object has not been created');
+    }
     return this.javaObj;
   }
 
@@ -408,7 +433,7 @@ export class ClassRef {
     return this.loader;
   }
 
-  getConstant(constantIndex: number): any {
+  getConstant(constantIndex: number): Constant {
     const constItem = this.constantPool.get(constantIndex);
     return constItem;
   }
@@ -597,6 +622,11 @@ export class ClassRef {
    * Setters
    */
 
+  /**
+   * Checks if the current class can be cast to the specified class
+   * @param castTo classref of supertype
+   * @returns
+   */
   checkCast(castTo: ClassRef): boolean {
     if (this === castTo) {
       return true;

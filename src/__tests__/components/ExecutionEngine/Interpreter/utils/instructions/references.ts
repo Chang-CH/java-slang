@@ -1653,7 +1653,7 @@ describe('runInvokeinterface', () => {
         cPool => {
           methodIdx = cPool.length;
           return {
-            tag: CONSTANT_TAG.Methodref,
+            tag: CONSTANT_TAG.InterfaceMethodref,
             classIndex: cPool.length - 1,
             nameAndTypeIndex: cPool.length - 2,
           };
@@ -1742,7 +1742,7 @@ describe('runInvokeinterface', () => {
         cPool => {
           methodIdx = cPool.length;
           return {
-            tag: CONSTANT_TAG.Methodref,
+            tag: CONSTANT_TAG.InterfaceMethodref,
             classIndex: cPool.length - 1,
             nameAndTypeIndex: cPool.length - 2,
           };
@@ -1836,7 +1836,7 @@ describe('runInvokeinterface', () => {
         cPool => {
           methodIdx = cPool.length;
           return {
-            tag: CONSTANT_TAG.Methodref,
+            tag: CONSTANT_TAG.InterfaceMethodref,
             classIndex: cPool.length - 1,
             nameAndTypeIndex: cPool.length - 2,
           };
@@ -1947,7 +1947,7 @@ describe('runInvokeinterface', () => {
         cPool => {
           methodIdx = cPool.length;
           return {
-            tag: CONSTANT_TAG.Methodref,
+            tag: CONSTANT_TAG.InterfaceMethodref,
             classIndex: cPool.length - 1,
             nameAndTypeIndex: cPool.length - 2,
           };
@@ -2050,7 +2050,7 @@ describe('runInvokeinterface', () => {
         cPool => {
           methodIdx = cPool.length;
           return {
-            tag: CONSTANT_TAG.Methodref,
+            tag: CONSTANT_TAG.InterfaceMethodref,
             classIndex: cPool.length - 1,
             nameAndTypeIndex: cPool.length - 2,
           };
@@ -2266,7 +2266,7 @@ describe('runInvokeinterface', () => {
         cPool => {
           methodIdx = cPool.length;
           return {
-            tag: CONSTANT_TAG.Methodref,
+            tag: CONSTANT_TAG.InterfaceMethodref,
             classIndex: cPool.length - 1,
             nameAndTypeIndex: cPool.length - 2,
           };

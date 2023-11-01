@@ -14,24 +14,107 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { JvmArray } from '#types/reference/Array';
+import { TestClassLoader, TestSystem, createClass } from '#utils/test';
+import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
+import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
+import { ConstantClass } from '#types/constants';
+import AbstractSystem from '#utils/AbstractSystem';
 
+let testSystem: AbstractSystem;
+let testLoader: TestClassLoader;
 let thread: Thread;
 let threadClass: ClassRef;
 let code: DataView;
 let jni: JNI;
+let strClass: ClassRef;
+let testClass: ClassRef;
 
 beforeEach(() => {
   jni = new JNI();
-  const nativeSystem = new NodeSystem({});
+  testSystem = new TestSystem();
+  testLoader = new TestClassLoader(testSystem, '', null);
 
-  const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-
-  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
-
+  const dispatchUncaughtCode = new DataView(new ArrayBuffer(8));
+  dispatchUncaughtCode.setUint8(0, OPCODE.RETURN);
+  threadClass = createClass({
+    className: 'java/lang/Thread',
+    methods: [
+      {
+        accessFlags: [METHOD_FLAGS.ACC_PROTECTED],
+        name: 'dispatchUncaughtException',
+        descriptor: '(Ljava/lang/Throwable;)V',
+        attributes: [],
+        code: dispatchUncaughtCode,
+      },
+    ],
+    loader: testLoader,
+  });
+  strClass = createClass({
+    className: 'java/lang/String',
+    loader: testLoader,
+    fields: [
+      {
+        accessFlags: [FIELD_FLAGS.ACC_FINAL, FIELD_FLAGS.ACC_PRIVATE],
+        name: 'value',
+        descriptor: '[C',
+        attributes: [],
+      },
+    ],
+  });
   thread = new Thread(threadClass);
-  const method = threadClass.getMethod('<init>()V') as MethodRef;
-  code = (method._getCode() as CodeAttribute).code;
-  thread.pushStackFrame(threadClass, method, 0, []);
+
+  const ab = new ArrayBuffer(50);
+  code = new DataView(ab);
+  let fieldIdx = 0;
+  testClass = createClass({
+    className: 'Test',
+    constants: [
+      () => ({
+        tag: CONSTANT_TAG.Utf8,
+        length: 11,
+        value: 'staticField',
+      }),
+      () => ({
+        tag: CONSTANT_TAG.Utf8,
+        length: 1,
+        value: 'I',
+      }),
+      () => ({
+        tag: CONSTANT_TAG.Utf8,
+        length: 4,
+        value: 'Test',
+      }),
+      cPool => ({
+        tag: CONSTANT_TAG.NameAndType,
+        nameIndex: cPool.length - 3,
+        descriptorIndex: cPool.length - 2,
+      }),
+      cPool => ({
+        tag: CONSTANT_TAG.Class,
+        nameIndex: cPool.length - 2,
+      }),
+      cPool => {
+        fieldIdx = cPool.length;
+        return {
+          tag: CONSTANT_TAG.Fieldref,
+          classIndex: cPool.length - 1,
+          nameAndTypeIndex: cPool.length - 2,
+        };
+      },
+    ],
+    methods: [
+      {
+        accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+        name: 'test0',
+        descriptor: '()V',
+        attributes: [],
+        code: code,
+      },
+    ],
+    loader: testLoader,
+  });
+  const method = testClass.getMethod('test0()V') as MethodRef;
+  thread.pushStackFrame(testClass, method, 0, []);
 });
 
 describe('runIfnull', () => {
@@ -252,22 +335,42 @@ describe('runWide', () => {
 
 describe('runMultianewarray', () => {
   test('MULTIANEWARRAY: Creates multi dimensional array', () => {
+    thread.popStackFrame();
+    let constIdx = 0;
+    const customClass = createClass({
+      className: 'custom',
+      constants: [
+        () => {
+          return {
+            tag: CONSTANT_TAG.Utf8,
+            length: 20,
+            value: '[[Ljava/lang/Thread;',
+          };
+        },
+        cPool => {
+          constIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
     code.setUint8(0, OPCODE.MULTIANEWARRAY);
-    code.setUint16(1, 0);
+    code.setUint16(1, constIdx);
     code.setUint8(3, 2);
-
-    const clsRef = thread.getClass();
-    const classRef = {
-      tag: CONSTANT_TAG.Class,
-      nameIndex: 1,
-    } as ConstantClassInfo;
-    const utf = {
-      tag: CONSTANT_TAG.Utf8,
-      length: 20,
-      value: '[[Ljava/lang/Thread;',
-    } as ConstantUtf8Info;
-    (threadClass as any).constantPool[0] = classRef;
-    (threadClass as any).constantPool[1] = utf;
+    const method = customClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(customClass, method, 0, []);
 
     thread.pushStack(2);
     thread.pushStack(3);
@@ -294,22 +397,42 @@ describe('runMultianewarray', () => {
   });
 
   test('MULTIANEWARRAY: Negative dimensions throw exception', () => {
+    thread.popStackFrame();
+    let constIdx = 0;
+    const customClass = createClass({
+      className: 'custom',
+      constants: [
+        () => {
+          return {
+            tag: CONSTANT_TAG.Utf8,
+            length: 20,
+            value: '[[Ljava/lang/Thread;',
+          };
+        },
+        cPool => {
+          constIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
     code.setUint8(0, OPCODE.MULTIANEWARRAY);
-    code.setUint16(1, 0);
+    code.setUint16(1, constIdx);
     code.setUint8(3, 2);
-
-    const clsRef = thread.getClass();
-    const classRef = {
-      tag: CONSTANT_TAG.Class,
-      nameIndex: 1,
-    } as ConstantClassInfo;
-    const utf = {
-      tag: CONSTANT_TAG.Utf8,
-      length: 20,
-      value: '[[Ljava/lang/Thread;',
-    } as ConstantUtf8Info;
-    (threadClass as any).constantPool[0] = classRef;
-    (threadClass as any).constantPool[1] = utf;
+    const method = customClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(customClass, method, 0, []);
 
     thread.pushStack(-1);
     thread.pushStack(3);
@@ -326,26 +449,44 @@ describe('runMultianewarray', () => {
   });
 
   test('MULTIANEWARRAY: 0 sized array empty', () => {
+    thread.popStackFrame();
+    let constIdx = 0;
+    const customClass = createClass({
+      className: 'custom',
+      constants: [
+        () => {
+          return {
+            tag: CONSTANT_TAG.Utf8,
+            length: 20,
+            value: '[[Ljava/lang/Thread;',
+          };
+        },
+        cPool => {
+          constIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
     code.setUint8(0, OPCODE.MULTIANEWARRAY);
-    code.setUint16(1, 0);
+    code.setUint16(1, constIdx);
     code.setUint8(3, 2);
-
-    const clsRef = thread.getClass();
-    const classRef = {
-      tag: CONSTANT_TAG.Class,
-      nameIndex: 1,
-    } as ConstantClassInfo;
-    const utf = {
-      tag: CONSTANT_TAG.Utf8,
-      length: 20,
-      value: '[[Ljava/lang/Thread;',
-    } as ConstantUtf8Info;
-    (threadClass as any).constantPool[0] = classRef;
-    (threadClass as any).constantPool[1] = utf;
-
+    const method = customClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(customClass, method, 0, []);
     thread.pushStack(0);
     thread.pushStack(3);
-
     runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();

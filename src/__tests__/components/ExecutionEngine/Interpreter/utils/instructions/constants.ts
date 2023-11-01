@@ -3,9 +3,8 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import Thread from '#jvm/components/Threads/Thread';
 import { JNI } from '#jvm/components/JNI';
-import { ConstantClass, ConstantString } from '#types/ConstantRef';
+import { LegacyConstantClass } from '#types/ConstantRef';
 import { JvmObject } from '#types/reference/Object';
-import { initString } from '#jvm/components/JNI/utils';
 import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { ClassRef } from '#types/class/ClassRef';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
@@ -13,6 +12,8 @@ import { TestSystem, TestClassLoader, createClass } from '#utils/test';
 import AbstractSystem from '#utils/AbstractSystem';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { MethodRef } from '#types/MethodRef';
+import { ConstantClass, ConstantString } from '#types/constants';
+import { SuccessResult } from '#types/result';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
@@ -430,159 +431,21 @@ describe('runLdc', () => {
 
   test('reads string from constant pool and pushes to stack', () => {
     thread.popStackFrame();
-    const strRef = initString(testLoader, 'hello world').result as JvmObject;
-    const strConstant = {
-      tag: CONSTANT_TAG.String,
-      ref: strRef,
-      stringIndex: 0,
-    } as ConstantString;
-    let constIdx = 0;
-    const customClass = createClass({
-      className: 'custom',
-      constants: [
-        cPool => {
-          constIdx = cPool.length;
-          return strConstant;
-        },
-      ],
-      methods: [
-        {
-          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-          name: 'test0',
-          descriptor: '()V',
-          attributes: [],
-          code: code,
-        },
-      ],
-      loader: testLoader,
-    });
-    const method = customClass.getMethod('test0()V') as MethodRef;
-    thread.pushStackFrame(customClass, method, 0, []);
-    code.setUint8(0, OPCODE.LDC);
-    code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0] === strRef).toBe(true); // string literals should be same object
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(2);
-  });
-
-  test('initializes uninitialized string from constant pool', () => {
-    thread.popStackFrame();
-    const strContent = {
-      tag: CONSTANT_TAG.Utf8,
-      value: 'hello world',
-    } as ConstantUtf8Info;
-    let constIdx = 0;
-    let strConstant;
-    const customClass = createClass({
-      className: 'custom',
-      constants: [
-        () => strContent,
-        cPool => {
-          constIdx = cPool.length;
-          strConstant = {
-            tag: CONSTANT_TAG.String,
-            stringIndex: cPool.length - 1,
-          };
-          return strConstant;
-        },
-      ],
-      methods: [
-        {
-          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-          name: 'test0',
-          descriptor: '()V',
-          attributes: [],
-          code: code,
-        },
-      ],
-      loader: testLoader,
-    });
-    const method = customClass.getMethod('test0()V') as MethodRef;
-    thread.pushStackFrame(customClass, method, 0, []);
-    code.setUint8(0, OPCODE.LDC);
-    code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
-    expect(
-      lastFrame.operandStack[0] ===
-        (strConstant as unknown as ConstantString).ref
-    ).toBe(true); // string literals should be same object
-    expect(lastFrame.operandStack[0]).toBeDefined();
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(2);
-  });
-
-  test('reads classref from constant pool and pushes to stack', () => {
-    thread.popStackFrame();
-    let classConstant;
-    const strContent = {
-      tag: CONSTANT_TAG.Utf8,
-      value: 'Test',
-    } as ConstantUtf8Info;
-    let constIdx = 0;
-    const customClass = createClass({
-      className: 'custom',
-      constants: [
-        () => strContent,
-        cPool => {
-          constIdx = cPool.length;
-          classConstant = {
-            tag: CONSTANT_TAG.Class,
-            nameIndex: cPool.length - 1,
-            classRef: testClass,
-          } as ConstantClass;
-          return classConstant;
-        },
-      ],
-      methods: [
-        {
-          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-          name: 'test0',
-          descriptor: '()V',
-          attributes: [],
-          code: code,
-        },
-      ],
-      loader: testLoader,
-    });
-    const method = customClass.getMethod('test0()V') as MethodRef;
-    thread.pushStackFrame(customClass, method, 0, []);
-    code.setUint8(0, OPCODE.LDC);
-    code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0] === testClass).toBe(true);
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(2);
-  });
-
-  test('saves class ref to constant pool', () => {
-    thread.popStackFrame();
-    let classConstant;
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
-          length: 4,
-          value: 'Test',
+          value: 'hello world',
+          length: 11,
         }),
         cPool => {
           constIdx = cPool.length;
-          classConstant = {
-            tag: CONSTANT_TAG.Class,
-            nameIndex: cPool.length - 1,
-          } as ConstantClass;
-          return classConstant;
+          return {
+            tag: CONSTANT_TAG.String,
+            stringIndex: constIdx - 1,
+          };
         },
       ],
       methods: [
@@ -596,6 +459,10 @@ describe('runLdc', () => {
       ],
       loader: testLoader,
     });
+
+    const cstr = customClass.getConstant(constIdx) as ConstantString;
+    const str = (cstr.resolve() as SuccessResult<JvmObject>).getResult();
+
     const method = customClass.getMethod('test0()V') as MethodRef;
     thread.pushStackFrame(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC);
@@ -604,7 +471,104 @@ describe('runLdc', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0] === testClass).toBe(true);
+    expect(lastFrame.operandStack[0] === str).toBe(true); // string literals should be same object
+    expect(lastFrame.locals.length).toBe(0);
+    expect(thread.getPC()).toBe(2);
+  });
+
+  test('initializes uninitialized string from constant pool', () => {
+    thread.popStackFrame();
+    let constIdx = 0;
+    const customClass = createClass({
+      className: 'custom',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          value: 'hello world',
+          length: 11,
+        }),
+        cPool => {
+          constIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.String,
+            stringIndex: constIdx - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const cstr = customClass.getConstant(constIdx) as ConstantString;
+
+    const method = customClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(customClass, method, 0, []);
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, constIdx);
+    runInstruction(thread, jni, () => {});
+
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(1);
+    expect(lastFrame.operandStack[0]).toBeDefined();
+    expect(lastFrame.operandStack[0] === cstr.get()).toBe(true); // string literals should be same object
+    expect(lastFrame.locals.length).toBe(0);
+    expect(thread.getPC()).toBe(2);
+  });
+
+  test('reads classref from constant pool and pushes to stack', () => {
+    thread.popStackFrame();
+    let constIdx = 0;
+    const customClass = createClass({
+      className: 'custom',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          value: 'Test',
+          length: 4,
+        }),
+        cPool => {
+          constIdx = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const clsConstant = customClass.getConstant(constIdx) as ConstantClass;
+    clsConstant.resolve();
+
+    const method = customClass.getMethod('test0()V') as MethodRef;
+    thread.pushStackFrame(customClass, method, 0, []);
+    code.setUint8(0, OPCODE.LDC);
+    code.setUint8(1, constIdx);
+    runInstruction(thread, jni, () => {});
+
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(1);
+    const clsObj = lastFrame.operandStack[0] as JvmObject;
+    expect(clsConstant.get() === testClass).toBe(true);
+    expect(clsObj.getClass().getClassname()).toBe('java/lang/Class');
+    expect(clsObj.$getNativeField('classRef') === testClass).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(2);
   });
@@ -692,19 +656,21 @@ describe('runLdcW', () => {
 
   test('reads string from constant pool and pushes to stack', () => {
     thread.popStackFrame();
-    const strRef = initString(testLoader, 'hello world').result as JvmObject;
-    const strConstant = {
-      tag: CONSTANT_TAG.String,
-      ref: strRef,
-      stringIndex: 0,
-    } as ConstantString;
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
       constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          value: 'hello world',
+          length: 11,
+        }),
         cPool => {
           constIdx = cPool.length;
-          return strConstant;
+          return {
+            tag: CONSTANT_TAG.String,
+            stringIndex: constIdx - 1,
+          };
         },
       ],
       methods: [
@@ -718,6 +684,9 @@ describe('runLdcW', () => {
       ],
       loader: testLoader,
     });
+
+    const cstr = customClass.getConstant(constIdx) as ConstantString;
+    const str = (cstr.resolve() as SuccessResult<JvmObject>).getResult();
     const method = customClass.getMethod('test0()V') as MethodRef;
     thread.pushStackFrame(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
@@ -726,30 +695,28 @@ describe('runLdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0] === strRef).toBe(true); // string literals should be same object
+    expect(lastFrame.operandStack[0] === str).toBe(true); // string literals should be same object
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
 
   test('initializes uninitialized string from constant pool', () => {
     thread.popStackFrame();
-    const strContent = {
-      tag: CONSTANT_TAG.Utf8,
-      value: 'hello world',
-    } as ConstantUtf8Info;
     let constIdx = 0;
-    let strConstant;
     const customClass = createClass({
       className: 'custom',
       constants: [
-        () => strContent,
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          value: 'hello world',
+          length: 11,
+        }),
         cPool => {
           constIdx = cPool.length;
-          strConstant = {
+          return {
             tag: CONSTANT_TAG.String,
-            stringIndex: cPool.length - 1,
+            stringIndex: constIdx - 1,
           };
-          return strConstant;
         },
       ],
       methods: [
@@ -763,6 +730,8 @@ describe('runLdcW', () => {
       ],
       loader: testLoader,
     });
+
+    const cstr = customClass.getConstant(constIdx) as ConstantString;
     const method = customClass.getMethod('test0()V') as MethodRef;
     thread.pushStackFrame(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
@@ -771,10 +740,7 @@ describe('runLdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(
-      lastFrame.operandStack[0] ===
-        (strConstant as unknown as ConstantString).ref
-    ).toBe(true); // string literals should be same object
+    expect(lastFrame.operandStack[0] === cstr.get()).toBe(true); // string literals should be same object
     expect(lastFrame.operandStack[0]).toBeDefined();
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
@@ -798,7 +764,7 @@ describe('runLdcW', () => {
             tag: CONSTANT_TAG.Class,
             nameIndex: cPool.length - 1,
             classRef: testClass,
-          } as ConstantClass;
+          } as LegacyConstantClass;
           return classConstant;
         },
       ],
@@ -821,52 +787,12 @@ describe('runLdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0] === testClass).toBe(true);
-    expect(lastFrame.locals.length).toBe(0);
-    expect(thread.getPC()).toBe(3);
-  });
-
-  test('saves class ref to constant pool', () => {
-    thread.popStackFrame();
-    let classConstant;
-    let constIdx = 0;
-    const customClass = createClass({
-      className: 'custom',
-      constants: [
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          length: 4,
-          value: 'Test',
-        }),
-        cPool => {
-          constIdx = cPool.length;
-          classConstant = {
-            tag: CONSTANT_TAG.Class,
-            nameIndex: cPool.length - 1,
-          } as ConstantClass;
-          return classConstant;
-        },
-      ],
-      methods: [
-        {
-          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-          name: 'test0',
-          descriptor: '()V',
-          attributes: [],
-          code: code,
-        },
-      ],
-      loader: testLoader,
-    });
-    const method = customClass.getMethod('test0()V') as MethodRef;
-    thread.pushStackFrame(customClass, method, 0, []);
-    code.setUint8(0, OPCODE.LDC_W);
-    code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
-
-    const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0] === testClass).toBe(true);
+    expect(lastFrame.operandStack[0].getClass().getClassname()).toBe(
+      'java/lang/Class'
+    );
+    expect(
+      lastFrame.operandStack[0].$getNativeField('classRef') === testClass
+    ).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });

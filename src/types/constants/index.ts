@@ -302,6 +302,26 @@ export class ConstantInvokeDynamic extends Constant {
   }
 
   public resolve(...args: any[]): Result<any> {
+    // instance of java.lang.invoke.MethodHandle
+    const bootstrapMethod = this.cls.getBootstrapMethod(
+      this.bootstrapMethodAttrIndex
+    );
+    const bootstrapMethodHandle = this.cls.getConstant(
+      bootstrapMethod.bootstrapMethodRef
+    ) as ConstantMethodHandle;
+    // bootstrapMethodHandle.resolve();
+    const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
+      const constant = this.cls.getConstant(index);
+      constant.resolve();
+      // FIXME: should take ldc logic -- classref resolve to class object
+      return constant;
+    });
+
+    const methodDesc = this.nameAndType.get();
+
+    console.log('indy bootstrap: ', bootstrapMethod);
+    console.log('indy TD: ', methodDesc);
+
     throw new Error('Method not implemented.');
   }
 }
@@ -330,8 +350,95 @@ export class ConstantFieldref extends Constant {
     return c.getTag() === CONSTANT_TAG.Fieldref;
   }
 
+  /**
+   * Checks if the current method has access to the field
+   * @param thread thread accessing the field
+   * @param isStaticAccess true for getstatic/putstatic
+   * @param isPut true for putstatic/putfield
+   * @returns
+   */
+  public checkAccess(
+    thread: Thread,
+    isStaticAccess: boolean = false,
+    isPut: boolean = false
+  ): Result<FieldRef> {
+    if (!this.result) {
+      this.resolve();
+      this.result!;
+    }
+
+    if (!this.result) {
+      throw new Error('Resolution incomplete or failed');
+    }
+
+    if (!this.result.checkSuccess()) {
+      return this.result;
+    }
+
+    const fieldRef = this.result.getResult();
+    // logical xor
+    if (isStaticAccess !== fieldRef.checkStatic()) {
+      return new ErrorResult<FieldRef>(
+        'java/lang/IncompatibleClassChangeError',
+        ''
+      );
+    }
+
+    const invokerClass = thread.getClass();
+    const fieldClass = fieldRef.getClass();
+    if (fieldRef.checkPrivate() && invokerClass !== fieldClass) {
+      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+    }
+
+    if (
+      fieldRef.checkProtected() &&
+      !invokerClass.checkCast(fieldClass) &&
+      invokerClass.getPackageName() !== fieldRef.getClass().getPackageName()
+    ) {
+      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+    }
+
+    const invokerMethod = thread.getMethod();
+    if (
+      isPut &&
+      fieldRef.checkFinal() &&
+      (fieldClass !== invokerClass ||
+        invokerMethod.getMethodName() !==
+          (isStaticAccess ? '<clinit>' : '<init>'))
+    ) {
+      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+    }
+
+    return this.result;
+  }
+
   public resolve(): Result<FieldRef> {
-    throw new Error('Method not implemented.');
+    if (this.result) {
+      return this.result;
+    }
+
+    // resolve class
+    const clsRes = this.classConstant.resolve();
+    if (!clsRes.checkSuccess()) {
+      if (clsRes.checkError()) {
+        const err = clsRes.getError();
+        this.result = new ErrorResult<FieldRef>(err.className, err.msg);
+        return this.result;
+      }
+      // Should not happen
+      throw new Error('Class resolution should not defer');
+    }
+    const fieldClass = clsRes.getResult();
+    const { name, descriptor } = this.nameAndTypeConstant.get();
+    const fieldRef = fieldClass.getFieldRef(name + descriptor);
+
+    if (fieldRef === null) {
+      this.result = new ErrorResult<FieldRef>('java/lang/NoSuchFieldError', '');
+      return this.result;
+    }
+
+    this.result = new SuccessResult<FieldRef>(fieldRef);
+    return this.result;
   }
 }
 
@@ -358,7 +465,7 @@ export class ConstantMethodref extends Constant {
     return c.getTag() === CONSTANT_TAG.Methodref;
   }
 
-  public resolve(thread: Thread): Result<MethodRef> {
+  public resolve(): Result<MethodRef> {
     // 5.4.3 if initial attempt to resolve a symbolic reference fails
     // then subsequent attempts to resolve the reference always fail with the same error
     if (this.result) {
@@ -462,9 +569,8 @@ export class ConstantInterfaceMethodref extends Constant {
     }
 
     // 5.4.3.4. Interface Method Resolution
-    const clsRef = clsResResult.getResult();
-
     // 1. If C is not an interface, interface method resolution throws an IncompatibleClassChangeError.
+    const isInterface = symbolClass.checkInterface();
     if (!symbolClass.checkInterface()) {
       this.result = new ErrorResult<MethodRef>(
         'java/lang/IncompatibleClassChangeError',

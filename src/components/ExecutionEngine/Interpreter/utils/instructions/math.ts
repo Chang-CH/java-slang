@@ -14,8 +14,8 @@ export function runIadd(thread: Thread): void {
 
 export function runLadd(thread: Thread): void {
   thread.offsetPc(1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
+  const value2 = thread.popStack64();
+  const value1 = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 + value2));
 }
 

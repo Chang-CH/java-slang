@@ -7,10 +7,19 @@ import {
   ConstantLongInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import {
-  ConstantMethodref,
-  ConstantClass,
-  ConstantString,
+  LegacyConstantMethodref,
+  LegacyConstantClass,
+  LegacyConstantString,
 } from '#types/ConstantRef';
+import {
+  ConstantClass,
+  ConstantDouble,
+  ConstantLong,
+  ConstantMethodHandle,
+  ConstantMethodType,
+  ConstantString,
+} from '#types/constants';
+import { ClassRef } from '#types/class/ClassRef';
 
 export function runNop(thread: Thread): void {
   thread.offsetPc(1);
@@ -106,69 +115,63 @@ export function runSipush(thread: Thread): void {
   thread.pushStack(short);
 }
 
-function loadConstant(thread: Thread, index: number): void {
+export function loadConstant(
+  thread: Thread,
+  index: number,
+  onFinish?: () => void
+): void {
   const invoker = thread.getClass();
   const constant = invoker.getConstant(index);
-
-  switch (constant.tag) {
-    case CONSTANT_TAG.Integer:
-    case CONSTANT_TAG.Float:
-      thread.pushStack(
-        (constant as ConstantIntegerInfo | ConstantFloatInfo).value
-      );
-      return;
-    case CONSTANT_TAG.String:
-      const stringRes = invoker.resolveStringRef(constant as ConstantString);
-      if (stringRes.error || !stringRes.result) {
-        thread.throwNewException(
-          stringRes.error ?? 'java/lang/ClassNotFoundException',
-          ''
-        );
-        return;
-      }
-      thread.pushStack(stringRes.result);
-      return;
-    case CONSTANT_TAG.Class:
-      const { error: classResError, classRef } =
-        invoker.resolveClassRef(constant);
-      if (classResError || !classRef) {
-        thread.throwNewException(
-          classResError ?? 'java/lang/ClassNotFoundException',
-          ''
-        );
-        return;
-      }
-
-      // FIXME: should be class object not classref on stack.
-      thread.pushStack(classRef);
-      return;
-    case CONSTANT_TAG.MethodType:
-    case CONSTANT_TAG.MethodHandle:
-      throw new Error('not implemented');
+  const resolutionRes = constant.resolve();
+  if (!resolutionRes.checkSuccess()) {
+    if (resolutionRes.checkError()) {
+      const err = resolutionRes.getError();
+      thread.throwNewException(err.className, err.msg);
+    }
+    return;
   }
+
+  let value = resolutionRes.getResult();
+  if (ConstantClass.check(constant)) {
+    const clsRef = resolutionRes.getResult() as ClassRef;
+    const initRes = clsRef.initialize(thread);
+    if (!initRes.checkSuccess()) {
+      if (initRes.checkError()) {
+        const err = initRes.getError();
+        thread.throwNewException(err.className, err.msg);
+      }
+      return;
+    }
+    console.log('ldc: ', clsRef.getClassname());
+    value = clsRef.getJavaObject();
+  } else if (
+    ConstantMethodHandle.check(constant) ||
+    ConstantMethodType.check(constant)
+  ) {
+    throw new Error('not implemented');
+  }
+
+  onFinish && onFinish();
+  thread.pushStack(value);
 }
 
 export function runLdc(thread: Thread): void {
-  thread.offsetPc(1);
-  const indexbyte = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
-  loadConstant(thread, indexbyte);
+  const indexbyte = thread.getCode().getUint8(thread.getPC() + 1);
+
+  loadConstant(thread, indexbyte, () => thread.offsetPc(2));
 }
 
 export function runLdcW(thread: Thread): void {
-  thread.offsetPc(1);
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
-  loadConstant(thread, indexbyte);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  loadConstant(thread, indexbyte, () => thread.offsetPc(3));
 }
 
 export function runLdc2W(thread: Thread): void {
-  thread.offsetPc(1);
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  thread.offsetPc(3);
   const item = thread.getClass().getConstant(indexbyte) as
-    | ConstantDoubleInfo
-    | ConstantLongInfo;
+    | ConstantDouble
+    | ConstantLong;
 
-  thread.pushStack64(item.value);
+  thread.pushStack64(item.get());
 }

@@ -2,12 +2,12 @@ import {
   AttributeInfo,
   CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
-import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
 import { ClassRef } from './class/ClassRef';
+import { ConstantUtf8 } from './constants';
 
 export interface MethodRef {}
 
@@ -21,10 +21,10 @@ export class MethodRef {
 
   constructor(cls: ClassRef, method: MethodInfo) {
     // get name and descriptor
-    this.name = (cls.getConstant(method.nameIndex) as ConstantUtf8Info).value;
+    this.name = (cls.getConstant(method.nameIndex) as ConstantUtf8).get();
     this.descriptor = (
-      cls.getConstant(method.descriptorIndex) as ConstantUtf8Info
-    ).value;
+      cls.getConstant(method.descriptorIndex) as ConstantUtf8
+    ).get();
 
     this.accessFlags = method.accessFlags;
     this.attributes = method.attributes;
@@ -32,8 +32,8 @@ export class MethodRef {
     let code = null;
     this.attributes.forEach(attr => {
       const attrname = (
-        cls.getConstant(attr.attributeNameIndex) as ConstantUtf8Info
-      ).value;
+        cls.getConstant(attr.attributeNameIndex) as ConstantUtf8
+      ).get();
       if (attrname === 'Code') {
         code = attr as CodeAttribute;
       }

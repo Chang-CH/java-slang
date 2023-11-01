@@ -1,4 +1,3 @@
-import { tryInitialize } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
@@ -151,14 +150,10 @@ export default class Thread {
   }
 
   throwNewException(className: string, msg: string) {
-    // FIXME: Potential infinite loop if ClassNotFoundException is not found
-    tryInitialize(this, className);
-
     // Initialize exception
     // FIXME: push msg to stack
-    const cls = this.getClass().getLoader().getClassRef(className);
-
-    if (cls.error) {
+    const clsRes = this.getClass().getLoader().getClassRef(className);
+    if (clsRes.error) {
       if (className === 'java/lang/ClassNotFoundException') {
         throw new Error(
           'Infinite loop detected: ClassNotFoundException not found'
@@ -168,11 +163,24 @@ export default class Thread {
       return;
     }
     // should not happen
-    if (cls.result === undefined) {
+    if (clsRes.result === undefined) {
       this.throwNewException('java/lang/ClassNotFoundException', '');
       return;
     }
-    this.throwException(cls.result.instantiate());
+
+    const exceptionCls = clsRes.result;
+    const initRes = exceptionCls.initialize(this);
+    // TODO: check infinite loops
+    if (!initRes.checkSuccess()) {
+      if (initRes.checkError()) {
+        const err = initRes.getError();
+        this.throwNewException(err.className, err.msg);
+      }
+      return;
+    }
+
+    console.log('throwing exception ', exceptionCls.getClassname());
+    this.throwException(exceptionCls.instantiate());
   }
 
   throwException(exception: any) {

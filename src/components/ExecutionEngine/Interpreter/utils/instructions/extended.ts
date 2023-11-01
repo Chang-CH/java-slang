@@ -7,6 +7,7 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
+import { ConstantClass } from '#types/constants';
 
 export function runWide(thread: Thread): void {
   thread.offsetPc(1);
@@ -62,19 +63,15 @@ export function runWide(thread: Thread): void {
 }
 
 export function runMultianewarray(thread: Thread): void {
-  thread.offsetPc(1);
-  const indexbyte = thread.getCode().getUint16(thread.getPC());
-  thread.offsetPc(2);
-  const arrayTypeIdx = thread
+  const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
+  const arrayClsConstant = thread
     .getClass()
-    .getConstant(indexbyte) as ConstantClassInfo;
-  const arrayType = (
-    thread.getClass().getConstant(arrayTypeIdx.nameIndex) as ConstantUtf8Info
-  ).value;
+    .getConstant(indexbyte) as ConstantClass;
 
-  const dimensions = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
+  const dimensions = thread.getCode().getUint8(thread.getPC() + 3);
+  thread.offsetPc(4);
 
+  // get dimensions array: [2][3] == [2,3]
   const dimArray = [];
   for (let i = 0; i < dimensions; i++) {
     const dim = thread.popStack();
@@ -89,25 +86,22 @@ export function runMultianewarray(thread: Thread): void {
     dimArray[dimensions - i - 1] = dim;
   }
 
-  let currentType = arrayType;
-  const classResolutionResult = thread
-    .getClass()
-    .getLoader()
-    .getClassRef(currentType);
-  if (classResolutionResult.error || !classResolutionResult.result) {
-    thread.throwNewException(
-      classResolutionResult.error ?? 'java/lang/ClassNotFoundException',
-      ''
-    );
+  const clsRes = arrayClsConstant.resolve();
+  if (!clsRes.checkSuccess()) {
+    if (clsRes.checkError()) {
+      const err = clsRes.getError();
+      thread.throwNewException(err.className, err.msg);
+    }
     return;
   }
 
-  const arrayCls = classResolutionResult.result;
+  const arrayCls = clsRes.getResult();
   const res = arrayCls.instantiate() as JvmArray;
   res.initialize(dimArray[0]);
 
   let pendingInit = [res];
   let nextInit = [];
+  let currentType = arrayCls.getClassname();
 
   for (let i = 1; i < dimensions; i++) {
     currentType = currentType.slice(1); // remove leading '[', array type should be '[[[...'
