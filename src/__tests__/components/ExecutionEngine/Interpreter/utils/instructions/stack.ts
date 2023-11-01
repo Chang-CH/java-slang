@@ -8,6 +8,7 @@ import { MethodRef } from '#types/MethodRef';
 import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import { SuccessResult } from '#types/result';
 
 let thread: Thread;
 let threadClass: ClassRef;
@@ -21,7 +22,9 @@ beforeEach(() => {
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
-  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  threadClass = (
+    bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassRef>
+  ).getResult();
   thread = new Thread(threadClass);
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;

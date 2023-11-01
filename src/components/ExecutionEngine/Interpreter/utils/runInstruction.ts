@@ -49,7 +49,7 @@ export default function runInstruction(
     }
 
     if (ret === 'D' || ret === 'J') {
-      thread.returnSF64(result);
+      thread.returnSF(result, true);
       return;
     }
 

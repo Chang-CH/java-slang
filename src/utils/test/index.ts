@@ -13,6 +13,7 @@ import {
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { ConstantRef } from '#types/ConstantRef';
+import { ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 
 export const createClass = (options: {
@@ -202,23 +203,25 @@ export const createClass = (options: {
 };
 
 export class TestClassLoader extends AbstractClassLoader {
-  load(className: string): { result?: ClassRef; error?: string } {
+  load(className: string): ImmediateResult<ClassRef> {
     if (className.startsWith('[')) {
-      const objRes = this.getClassRef('java/lang/Object').result as ClassRef;
+      const objRes = (
+        this.getClassRef('java/lang/Object') as SuccessResult<ClassRef>
+      ).getResult() as ClassRef;
       const arrayClass = createClass({
         className: className,
         loader: this,
         superClass: objRes,
         isArray: true,
       });
-      return { result: arrayClass };
+      return new SuccessResult(arrayClass);
     }
 
     const stubRef = createClass({
       className: className,
       loader: this,
     });
-    return { result: stubRef };
+    return new SuccessResult(stubRef);
   }
 
   loadTestClassRef(className: string, ref: ClassRef) {

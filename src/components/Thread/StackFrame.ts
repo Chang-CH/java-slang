@@ -27,7 +27,9 @@ export abstract class StackFrame {
   }
 
   public onReturn(thread: Thread, retn: any) {
-    thread.pushStack(retn);
+    if (retn !== undefined) {
+      thread.pushStack(retn);
+    }
   }
 
   public onReturn64(thread: Thread, retn: any) {

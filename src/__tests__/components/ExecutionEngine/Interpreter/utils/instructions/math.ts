@@ -8,6 +8,7 @@ import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
+import { SuccessResult } from '#types/result';
 
 const MAX_LONG = 9223372036854775807n;
 const MIN_LONG = -9223372036854775808n;
@@ -25,7 +26,9 @@ beforeEach(() => {
 
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
-  threadClass = bscl.getClassRef('java/lang/Thread').result as ClassRef;
+  threadClass = (
+    bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassRef>
+  ).getResult();
 
   thread = new Thread(threadClass);
   const method = threadClass.getMethod('<init>()V') as MethodRef;

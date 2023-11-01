@@ -65,14 +65,14 @@ export default class JVM {
     const threadRes =
       this.applicationClassLoader.getClassRef('java/lang/Thread');
 
-    if (threadRes.error || !threadRes.result) {
+    if (threadRes.checkError()) {
       throw new Error('Thread class not found');
     }
 
-    if (mainRes.error || !mainRes.result) {
+    if (mainRes.checkError()) {
       throw new Error('Main class not found');
     }
 
-    this.engine.runClass(threadRes.result, mainRes.result);
+    this.engine.runClass(threadRes.getResult(), mainRes.getResult());
   }
 }

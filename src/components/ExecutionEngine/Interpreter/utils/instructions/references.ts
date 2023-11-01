@@ -278,14 +278,12 @@ function invokeVirtual(
     methodRef,
     true
   );
-  if (lookupResult.error || !lookupResult.methodRef) {
-    thread.throwNewException(
-      lookupResult.error ?? 'java/lang/AbstractMethodError',
-      ''
-    );
+  if (lookupResult.checkError()) {
+    const err = lookupResult.getError();
+    thread.throwNewException(err.className, err.msg);
     return;
   }
-  const toInvoke = lookupResult.methodRef;
+  const toInvoke = lookupResult.getResult();
   if (toInvoke.checkAbstract()) {
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
@@ -379,14 +377,12 @@ export function runInvokespecial(thread: Thread): void {
       methodRef.getMethodName() + methodRef.getMethodDesc(),
       methodRef
     );
-  if (lookupResult.error || !lookupResult.methodRef) {
-    thread.throwNewException(
-      lookupResult.error ?? 'java/lang/AbstractMethodError',
-      ''
-    );
+  if (lookupResult.checkError()) {
+    const err = lookupResult.getError();
+    thread.throwNewException(err.className, err.msg);
     return;
   }
-  const toInvoke = lookupResult.methodRef;
+  const toInvoke = lookupResult.getResult();
   if (toInvoke.checkAbstract()) {
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
@@ -542,14 +538,12 @@ export function runInvokeinterface(thread: Thread): void {
     false,
     true
   );
-  if (lookupResult.error || !lookupResult.methodRef) {
-    thread.throwNewException(
-      lookupResult.error ?? 'java/lang/AbstractMethodError',
-      ''
-    );
+  if (lookupResult.checkError()) {
+    const err = lookupResult.getError();
+    thread.throwNewException(err.className, err.msg);
     return;
   }
-  const toInvoke = lookupResult.methodRef;
+  const toInvoke = lookupResult.getResult();
   if (toInvoke.checkAbstract()) {
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
@@ -567,7 +561,7 @@ export function runInvokedynamic(thread: Thread): void {
 
   const invoker = thread.getClass();
   const callsiteConstant = invoker.getConstant(index) as ConstantInvokeDynamic;
-  const cssRes = callsiteConstant.resolve();
+  const cssRes = callsiteConstant.resolve(thread);
 
   throw new Error('Not implemented');
   // const bootstrapIdx = callsiteConstant.bootstrapMethodAttrIndex;
@@ -701,11 +695,11 @@ export function runNewarray(thread: Thread): void {
     .getClass()
     .getLoader()
     .getClassRef(className);
-  if (classResolutionResult.error || !classResolutionResult.result) {
+  if (classResolutionResult.checkError()) {
     throw new Error('Failed to load primitive array class');
   }
 
-  const arrayCls = classResolutionResult.result;
+  const arrayCls = classResolutionResult.getResult();
   const arrayref = arrayCls.instantiate() as JvmArray;
   arrayref.initialize(count);
   thread.pushStack(arrayref);
@@ -744,10 +738,10 @@ export function runAnewarray(thread: Thread): void {
   const arrayClassRes = invoker
     .getLoader()
     .getClassRef('[L' + objCls.getClassname() + ';');
-  if (arrayClassRes.error || !arrayClassRes.result) {
+  if (arrayClassRes.checkError()) {
     throw new Error('Failed to load array class');
   }
-  const arrayCls = arrayClassRes.result;
+  const arrayCls = arrayClassRes.getResult();
   const aInitRes = arrayCls.initialize(thread);
   if (!aInitRes.checkSuccess()) {
     if (aInitRes.checkError()) {
@@ -823,24 +817,20 @@ function $checkCast(
       } else {
         const loader = thread.getClass().getLoader();
         const TCres = loader.getClassRef(targetClsName.slice(1));
-        if (TCres.error || !TCres.result) {
-          thread.throwNewException(
-            TCres.error ?? 'java/lang/ClassNotFoundException',
-            ''
-          );
+        if (TCres.checkError()) {
+          const err = TCres.getError();
+          thread.throwNewException(err.className, err.msg);
           return;
         }
-        const TC = TCres.result;
+        const TC = TCres.getResult();
 
         const SCres = loader.getClassRef(objClsS.getClassname().slice(1));
-        if (SCres.error || !SCres.result) {
-          thread.throwNewException(
-            SCres.error ?? 'java/lang/ClassNotFoundException',
-            ''
-          );
+        if (SCres.checkError()) {
+          const err = SCres.getError();
+          thread.throwNewException(err.className, err.msg);
           return;
         }
-        const SC = SCres.result;
+        const SC = SCres.getResult();
 
         if (SC.checkCast(TC)) {
           value = 1;

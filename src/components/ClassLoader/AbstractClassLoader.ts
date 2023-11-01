@@ -4,6 +4,13 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { ClassRef } from '#types/class/ClassRef';
+import {
+  ErrorResult,
+  ImmediateResult,
+  Result,
+  ResultType,
+  SuccessResult,
+} from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 
 export default abstract class AbstractClassLoader {
@@ -59,25 +66,21 @@ export default abstract class AbstractClassLoader {
       ] as ConstantUtf8Info;
       const res = this.getClassRef(superClassName.value);
 
-      if (res.error) {
-        // TODO: throw ClassNotFoundException/NoClassDefFoundError
-        throw new Error(res.error);
+      if (res.checkError()) {
+        throw new Error(res.getError().className);
       }
 
-      if (!res.result) {
-        throw new Error('Class reference not found');
-      }
-      superClass = res.result;
+      superClass = res.getResult();
     }
 
     if ((accessFlags & CLASS_FLAGS.ACC_INTERFACE) !== 0 && !superClass) {
       // Some compilers set superclass to object by default.
       // We force it to be java/lang/Object if it's not set.
       const res = this.getClassRef('java/lang/Object');
-      if (res.error || !res.result) {
-        throw new Error('Object not loaded');
+      if (res.checkError()) {
+        throw new Error(res.getError().className);
       }
-      superClass = res.result;
+      superClass = res.getResult();
     }
 
     // resolve interfaces
@@ -90,15 +93,10 @@ export default abstract class AbstractClassLoader {
         cls.constantPool[interfaceNameIdx] as ConstantUtf8Info
       ).value;
       const res = this.getClassRef(interfaceName);
-      if (res.error) {
-        // TODO: throw ClassNotFoundException/NoClassDefFoundError
-        throw new Error(res.error);
+      if (res.checkError()) {
+        throw new Error(res.getError().className);
       }
-
-      if (!res.result) {
-        throw new Error('Class reference not found');
-      }
-      interfaces.push(res.result);
+      interfaces.push(res.getResult());
     });
 
     const attributes = cls.attributes;
@@ -130,15 +128,15 @@ export default abstract class AbstractClassLoader {
     return cls.getClassname();
   }
 
-  getClassRef(className: string): { result?: ClassRef; error?: string } {
+  getClassRef(className: string): ImmediateResult<ClassRef> {
     if (this.loadedClasses[className]) {
-      return { result: this.loadedClasses[className] };
+      return new SuccessResult(this.loadedClasses[className]);
     }
 
     if (this.parentLoader) {
       const res = this.parentLoader.getClassRef(className);
 
-      if (!res.error) {
+      if (res.checkSuccess()) {
         return res;
       }
     }
@@ -146,5 +144,5 @@ export default abstract class AbstractClassLoader {
   }
 
   // TODO: follow classloading spec 5.3.5
-  abstract load(className: string): { result?: ClassRef; error?: string };
+  abstract load(className: string): ImmediateResult<ClassRef>;
 }

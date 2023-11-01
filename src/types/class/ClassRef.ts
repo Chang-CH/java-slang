@@ -1,6 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import Thread from '#jvm/components/Thread/Thread';
-import { initString } from '#jvm/components/JNI/utils';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import {
   BootstrapMethodsAttribute,
@@ -48,12 +47,13 @@ import {
   ConstantUtf8,
 } from '#types/constants';
 import { ConstantPool } from '#jvm/components/ConstantPool';
-import { DeferResult, ErrorResult, Result, SuccessResult } from '#types/result';
-
-interface MethodResolutionResult {
-  error?: string;
-  methodRef?: MethodRef;
-}
+import {
+  DeferResult,
+  ErrorResult,
+  ImmediateResult,
+  Result,
+  SuccessResult,
+} from '#types/result';
 
 export enum CLASS_STATUS {
   PREPARED,
@@ -142,10 +142,10 @@ export class ClassRef {
     }
 
     const clsRes = this.loader.getClassRef('java/lang/Class');
-    if (clsRes.error || !clsRes.result) {
-      return new ErrorResult<ClassRef>('java/lang/ClassNotFoundException', '');
+    if (clsRes.checkError()) {
+      return clsRes;
     }
-    this.javaObj = new JvmObject(clsRes.result);
+    this.javaObj = new JvmObject(clsRes.getResult());
     this.javaObj.$putNativeField('classRef', this);
 
     // has static initializer
@@ -166,21 +166,15 @@ export class ClassRef {
     return this.javaObj;
   }
 
-  $resolveClass(toResolve: string) {
+  $resolveClass(toResolve: string): Result<ClassRef> {
     const res = this.loader.getClassRef(toResolve);
-    if (res.error) {
+    if (res.checkError()) {
       return res;
     }
+    const cls = res.getResult();
 
-    if (!res.result) {
-      return { error: 'java/lang/ClassNotFoundException' };
-    }
-
-    if (
-      !res.result.checkPublic() &&
-      res.result.getPackageName() !== this.getPackageName()
-    ) {
-      return { error: 'java/lang/IllegalAccessError', result: res.result };
+    if (!cls.checkPublic() && cls.getPackageName() !== this.getPackageName()) {
+      return new ErrorResult('java/lang/IllegalAccessError', '');
     }
 
     return res;
@@ -271,34 +265,28 @@ export class ClassRef {
   $resolveMethod(
     methodKey: string,
     accessingClass: ClassRef
-  ): MethodResolutionResult {
+  ): ImmediateResult<MethodRef> {
     // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
     let result = this._resolveMethodSuper(methodKey);
     if (result !== null) {
-      const res: MethodResolutionResult = {
-        methodRef: result,
-      };
-      !this._checkMethodAccess(result, accessingClass) &&
-        (res.error = 'java/lang/IllegalAccessError');
+      const res = new SuccessResult(result);
+      if (!this._checkMethodAccess(result, accessingClass)) {
+        return new ErrorResult('java/lang/IllegalAccessError', '');
+      }
       return res;
     }
 
     // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
     result = this._resolveMethodInterface(methodKey);
     if (result !== null) {
-      const res: MethodResolutionResult = {
-        methodRef: result,
-      };
-      !this._checkMethodAccess(result, accessingClass) &&
-        (res.error = 'java/lang/IllegalAccessError');
+      const res = new SuccessResult(result);
+      if (!this._checkMethodAccess(result, accessingClass)) {
+        return new ErrorResult('java/lang/IllegalAccessError', '');
+      }
       return res;
     }
     // If method lookup fails, method resolution throws a NoSuchMethodError
-    const retn: MethodResolutionResult = {
-      error: 'java/lang/NoSuchMethodError',
-    };
-    result && (retn.methodRef = result);
-    return retn;
+    return new ErrorResult('java/lang/NoSuchMethodError', '');
   }
 
   resolveMethodHandleRef(
@@ -509,7 +497,7 @@ export class ClassRef {
     methodName: string,
     resolvedMethod: MethodRef,
     checkOverride?: boolean
-  ) {
+  ): MethodRef | null {
     // If C contains a declaration for an instance method m that overrides the resolved method, then m is the method to be invoked.
     if (
       this.methods[methodName] &&
@@ -524,16 +512,18 @@ export class ClassRef {
     return superClass ? superClass._resolveMethodSuper(methodName) : null;
   }
 
-  private _lookupMethodInterface(methodName: string): {
-    error?: string;
-    methodRef?: MethodRef;
-  } {
+  private _lookupMethodInterface(
+    methodName: string
+  ): ImmediateResult<MethodRef> {
     let res: MethodRef | null = null;
     for (const inter of this.interfaces) {
       let method = inter.getMethod(methodName);
 
       if (!method) {
-        method = inter._lookupMethodInterface(methodName)?.methodRef ?? null;
+        const interRes = inter._lookupMethodInterface(methodName);
+        if (interRes.checkSuccess()) {
+          method = interRes.getResult();
+        }
       }
 
       if (
@@ -543,12 +533,16 @@ export class ClassRef {
         !method.checkAbstract()
       ) {
         if (res) {
-          return { error: 'java/lang/IncompatibleClassChangeError' };
+          return new ErrorResult('java/lang/IncompatibleClassChangeError', '');
         }
         res = method;
       }
     }
-    return { error: 'java/lang/AbstractMethodError' };
+
+    if (res) {
+      return new SuccessResult(res);
+    }
+    return new ErrorResult('java/lang/AbstractMethodError', '');
   }
 
   lookupMethod(
@@ -556,7 +550,7 @@ export class ClassRef {
     resolvedMethod: MethodRef,
     checkOverride?: boolean,
     checkInterface?: boolean
-  ): { error?: string; methodRef?: MethodRef } {
+  ): ImmediateResult<MethodRef> {
     // If C contains a declaration for an instance method m that overrides
     // the resolved method, then m is the method to be invoked.
     let methodRef = this._lookupMethodSuper(
@@ -566,18 +560,18 @@ export class ClassRef {
     );
     if (methodRef) {
       if (checkInterface && !methodRef.checkPublic()) {
-        return { error: 'java/lang/IllegalAccessError' };
+        return new ErrorResult('java/lang/IllegalAccessError', '');
       }
 
       if (methodRef.checkAbstract()) {
-        return { error: 'java/lang/AbstractMethodError' };
+        return new ErrorResult('java/lang/AbstractMethodError', '');
       }
       if (methodRef.checkNative()) {
         // FIXME: If the code that implements the method cannot be bound,
         // invokevirtual throws an UnsatisfiedLinkError
       }
 
-      return { methodRef };
+      return new SuccessResult(methodRef);
     }
 
     return this._lookupMethodInterface(methodName);

@@ -1,6 +1,7 @@
-import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
+import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { ClassRef } from '#types/class/ClassRef';
+import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 
@@ -16,27 +17,27 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
    * Attempts to load a class file
    * @param className name of class to load
    */
-  load(className: string): { result?: ClassRef; error?: string } {
+  load(className: string): ImmediateResult<ClassRef> {
     console.debug(`BsCL: loading ${className}`);
     // array class
     if (className.startsWith('[')) {
       const objRes = this.getClassRef('java/lang/Object');
-      if (objRes.error || !objRes.result) {
-        return { error: objRes.error ?? 'java/lang/ClassNotFoundException' };
-      }
 
+      if (objRes.checkError()) {
+        return objRes;
+      }
       const arrayClass = new ArrayClassRef(
         [],
         CLASS_FLAGS.ACC_PUBLIC,
         className,
-        objRes.result,
+        objRes.getResult(),
         [],
         [],
         [],
         [],
         this
       );
-      return { result: arrayClass };
+      return new SuccessResult(arrayClass);
     }
 
     const path = this.classPath ? this.classPath + '/' + className : className;
@@ -45,11 +46,11 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
-      return { error: 'java/lang/ClassNotFoundException' };
+      return new ErrorResult('java/lang/ClassNotFoundException', '');
     }
 
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
-    return { result: this.loadClass(classData) };
+    return new SuccessResult(this.loadClass(classData));
   }
 }

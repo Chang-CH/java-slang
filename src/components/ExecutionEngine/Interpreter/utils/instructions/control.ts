@@ -76,7 +76,7 @@ export function runLreturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack64();
-  thread.returnSF64(ret);
+  thread.returnSF(ret, true);
 }
 
 export function runFreturn(thread: Thread): void {
@@ -90,7 +90,7 @@ export function runDreturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = asDouble(thread.popStack64());
-  thread.returnSF64(ret);
+  thread.returnSF(ret, true);
 }
 
 export function runAreturn(thread: Thread): void {

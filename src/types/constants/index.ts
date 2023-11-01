@@ -1,10 +1,8 @@
-import { initString } from '#jvm/components/JNI/utils';
 import Thread from '#jvm/components/Thread/Thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import * as info from '#jvm/external/ClassFile/types/constants';
 import { FieldRef } from '#types/FieldRef';
 import { MethodRef } from '#types/MethodRef';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { ClassRef } from '#types/class/ClassRef';
 import { JvmObject } from '#types/reference/Object';
 import { DeferResult, ErrorResult, Result, SuccessResult } from '#types/result';
@@ -247,17 +245,7 @@ export class ConstantClass extends Constant {
       return this.result;
     }
 
-    const res = this.cls.$resolveClass(this.className.get());
-
-    // TODO: remove this when $resolve change to use Result
-    if (res.error || !res.result) {
-      this.result = new ErrorResult<ClassRef>(
-        res.error ?? 'java/lang/ClassNotFoundException',
-        ''
-      );
-    } else {
-      this.result = new SuccessResult<ClassRef>(res.result);
-    }
+    this.result = this.cls.$resolveClass(this.className.get());
 
     return this.result;
   }
@@ -304,122 +292,122 @@ export class ConstantInvokeDynamic extends Constant {
 
   public resolve(thread: Thread): Result<any> {
     throw new Error('Method not implemented.');
-    const loader = this.cls.getLoader();
-    // boostrap method is instance of java.lang.invoke.MethodHandle
-    // #region bootstrap method
-    const bootstrapMethod = this.cls.getBootstrapMethod(
-      this.bootstrapMethodAttrIndex
-    );
-    const bootstrapMhnConst = this.cls.getConstant(
-      bootstrapMethod.bootstrapMethodRef
-    ) as ConstantMethodHandle;
-    // bootstrapMethodHandle.resolve();
-    const bootstrapMhn = bootstrapMhnConst.get();
+    // const loader = this.cls.getLoader();
+    // // boostrap method is instance of java.lang.invoke.MethodHandle
+    // // #region bootstrap method
+    // const bootstrapMethod = this.cls.getBootstrapMethod(
+    //   this.bootstrapMethodAttrIndex
+    // );
+    // const bootstrapMhnConst = this.cls.getConstant(
+    //   bootstrapMethod.bootstrapMethodRef
+    // ) as ConstantMethodHandle;
+    // // bootstrapMethodHandle.resolve();
+    // const bootstrapMhn = bootstrapMhnConst.get();
 
-    const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
-      const constant = this.cls.getConstant(index);
-      constant.resolve();
-      // FIXME: should take ldc logic -- classref resolve to class object
-      return constant;
-    });
-    // #endregion
+    // const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
+    //   const constant = this.cls.getConstant(index);
+    //   constant.resolve();
+    //   // FIXME: should take ldc logic -- classref resolve to class object
+    //   return constant;
+    // });
+    // // #endregion
 
-    // #region get arguments
-    const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
-    if (!objArrRes.result || objArrRes.error) {
-      return new ErrorResult('java/lang/ClassNotFoundException', '');
-    }
-    const arrCls = objArrRes.result as ArrayClassRef;
-    const argsArr = arrCls.instantiate();
-    //
-    argsArr.initialize(bootstrapArgs.length, bootstrapArgs);
-    // console.log('args arr', argsArr);
+    // // #region get arguments
+    // const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
+    // if (objArrRes.checkError()) {
+    //   return new ErrorResult('java/lang/ClassNotFoundException', '');
+    // }
+    // const arrCls = objArrRes.getResult() as ArrayClassRef;
+    // const argsArr = arrCls.instantiate();
+    // //
+    // argsArr.initialize(bootstrapArgs.length, bootstrapArgs);
+    // // console.log('args arr', argsArr);
 
-    const appendixArr = arrCls.instantiate();
-    appendixArr.initialize(1);
-    // #endregion
+    // const appendixArr = arrCls.instantiate();
+    // appendixArr.initialize(1);
+    // // #endregion
 
-    // #region run bootstrap method
+    // // #region run bootstrap method
 
-    /**
-     * doppio logic
-     *
-     * const mhnRes = loader.getClassRef('java/lang/invoke/MethodHandleNatives');
-     * if (!mhnRes.result || mhnRes.error) {
-     *   return new ErrorResult('java/lang/ClassNotFoundException', '');
-     * }
-     * const mhn = mhnRes.result as ClassRef;
-     * // TODO: check if we need to initialize
-     * const result = mhn.initialize(thread);
-     * if (!result.checkSuccess()) {
-     *   return result;
-     * }
-     *
-     * const method = mhn.getMethod(
-     *   'java/lang/invoke/MethodHandleNatives/linkCallSite(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
-     * );
-     */
+    // /**
+    //  * doppio logic
+    //  *
+    //  * const mhnRes = loader.getClassRef('java/lang/invoke/MethodHandleNatives');
+    //  * if (!mhnRes.result || mhnRes.error) {
+    //  *   return new ErrorResult('java/lang/ClassNotFoundException', '');
+    //  * }
+    //  * const mhn = mhnRes.result as ClassRef;
+    //  * // TODO: check if we need to initialize
+    //  * const result = mhn.initialize(thread);
+    //  * if (!result.checkSuccess()) {
+    //  *   return result;
+    //  * }
+    //  *
+    //  * const method = mhn.getMethod(
+    //  *   'java/lang/invoke/MethodHandleNatives/linkCallSite(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
+    //  * );
+    //  */
 
-    // param #1 Ljava/lang/invoke/MethodHandles$Lookup: represents the lookup context
-    // TODO: create lookup context new Lookup(Class<?> lookupClass)
+    // // param #1 Ljava/lang/invoke/MethodHandles$Lookup: represents the lookup context
+    // // TODO: create lookup context new Lookup(Class<?> lookupClass)
 
-    const methodSig = this.nameAndType.get();
-    // param #2 Ljava/lang/String methodSignature.name: method name in the call site
-    const stringName = initString(loader, methodSig.name).result as JvmObject;
-    // param #3 Ljava/lang/invoke/MethodType methodSignature.type: method type in the call site
-    // TODO: convert descriptor to methodType
-    const dySignature = methodSig.descriptor;
+    // const methodSig = this.nameAndType.get();
+    // // param #2 Ljava/lang/String methodSignature.name: method name in the call site
+    // const stringName = initString(loader, methodSig.name).result as JvmObject;
+    // // param #3 Ljava/lang/invoke/MethodType methodSignature.type: method type in the call site
+    // // TODO: convert descriptor to methodType
+    // const dySignature = methodSig.descriptor;
 
-    // param #4+: bootstrapArgs additional arguments passed to the bootstrap method
-    // For lambdas:
-    // param #4 Ljava/lang/invoke/MethodType: erased descriptor of the lambda
-    // param #5 Ljava/lang/invoke/MethodHandle: the actual lambda logic. a static method in the current class.
-    // param #6 Ljava/lang/invoke/MethodType: descriptor of the lambda
+    // // param #4+: bootstrapArgs additional arguments passed to the bootstrap method
+    // // For lambdas:
+    // // param #4 Ljava/lang/invoke/MethodType: erased descriptor of the lambda
+    // // param #5 Ljava/lang/invoke/MethodHandle: the actual lambda logic. a static method in the current class.
+    // // param #6 Ljava/lang/invoke/MethodType: descriptor of the lambda
 
-    const methodNameStrRes = initString(
-      loader,
-      methodSig.name + methodSig.descriptor
-    );
-    if (!methodNameStrRes.result || methodNameStrRes.error) {
-      return new ErrorResult('java/lang/ClassNotFoundException', '');
-    }
-    const methodNameStr = methodNameStrRes.result as JvmObject;
-    // FIXME: convert name and type to methodType
-    const methodType = methodSig;
+    // const methodNameStrRes = initString(
+    //   loader,
+    //   methodSig.name + methodSig.descriptor
+    // );
+    // if (!methodNameStrRes.result || methodNameStrRes.error) {
+    //   return new ErrorResult('java/lang/ClassNotFoundException', '');
+    // }
+    // const methodNameStr = methodNameStrRes.result as JvmObject;
+    // // FIXME: convert name and type to methodType
+    // const methodType = methodSig;
 
-    // TODO: delete returned value
-    // TODO: callback on popped stack frame
-    thread.invokeSf(method?.getClass() as ClassRef, method as MethodRef, 0, [
-      this.cls.getJavaObject(),
-      bootstrapMhn,
-      methodNameStr,
-      methodType,
-      argsArr,
-      appendixArr,
-    ]);
-    // #endregion
+    // // TODO: delete returned value
+    // // TODO: callback on popped stack frame
+    // thread.invokeSf(method?.getClass() as ClassRef, method as MethodRef, 0, [
+    //   this.cls.getJavaObject(),
+    //   bootstrapMhn,
+    //   methodNameStr,
+    //   methodType,
+    //   argsArr,
+    //   appendixArr,
+    // ]);
+    // // #endregion
 
-    /**
-     *   * Do what all OpenJDK-based JVMs do: Call
-     * MethodHandleNatives.linkCallSite with:
-     * - The class w/ the invokedynamic instruction `this.cls.getJavaObject()`
-     * - The bootstrap method `bootstrapMhn`
-     * - The name string from the nameAndTypeInfo `methodNameStr`
-     * - The methodType object from the nameAndTypeInfo `methodType`
-     * - The static arguments from the bootstrap method. `argsArr`
-     * - A 1-length appendix box. `appendixArr`
-     *
-     * On finish:
-     * returns a MemberName object, which contains:
-     * - The class containing the invokedynamic instruction
-     * - method to be run
-     */
-    console.log('indy bootstrap: ', bootstrapMethod);
-    console.log('indy TD: ', methodSig);
-    // The result of call site specifier resolution is a tuple consisting of:
-    // the reference to an instance of java.lang.invoke.MethodHandle,
-    // the reference to an instance of java.lang.invoke.MethodType,
-    // the references to instances of Class, java.lang.invoke.MethodHandle, java.lang.invoke.MethodType, and String.
+    // /**
+    //  *   * Do what all OpenJDK-based JVMs do: Call
+    //  * MethodHandleNatives.linkCallSite with:
+    //  * - The class w/ the invokedynamic instruction `this.cls.getJavaObject()`
+    //  * - The bootstrap method `bootstrapMhn`
+    //  * - The name string from the nameAndTypeInfo `methodNameStr`
+    //  * - The methodType object from the nameAndTypeInfo `methodType`
+    //  * - The static arguments from the bootstrap method. `argsArr`
+    //  * - A 1-length appendix box. `appendixArr`
+    //  *
+    //  * On finish:
+    //  * returns a MemberName object, which contains:
+    //  * - The class containing the invokedynamic instruction
+    //  * - method to be run
+    //  */
+    // console.log('indy bootstrap: ', bootstrapMethod);
+    // console.log('indy TD: ', methodSig);
+    // // The result of call site specifier resolution is a tuple consisting of:
+    // // the reference to an instance of java.lang.invoke.MethodHandle,
+    // // the reference to an instance of java.lang.invoke.MethodType,
+    // // the references to instances of Class, java.lang.invoke.MethodHandle, java.lang.invoke.MethodType, and String.
   }
 }
 
@@ -598,20 +586,7 @@ export class ConstantMethodref extends Constant {
 
     const nt = this.nameAndTypeConstant.get();
     // TODO: not implemented: signature poly
-    const methodRes = symbolClass.$resolveMethod(
-      nt.name + nt.descriptor,
-      this.cls
-    );
-
-    // #region legacy error handling
-    if (methodRes.error || !methodRes.methodRef) {
-      this.result = new ErrorResult<MethodRef>(
-        methodRes.error ?? 'java/lang/NoSuchMethodError',
-        ''
-      );
-      return this.result;
-    }
-    this.result = new SuccessResult<MethodRef>(methodRes.methodRef);
+    this.result = symbolClass.$resolveMethod(nt.name + nt.descriptor, this.cls);
     // #endregion
 
     return this.result;
@@ -677,20 +652,7 @@ export class ConstantInterfaceMethodref extends Constant {
     }
 
     const nt = this.nameAndTypeConstant.get();
-    const methodRes = symbolClass.$resolveMethod(
-      nt.name + nt.descriptor,
-      this.cls
-    );
-
-    // #region legacy error handling
-    if (methodRes.error || !methodRes.methodRef) {
-      this.result = new ErrorResult<MethodRef>(
-        methodRes.error ?? 'java/lang/NoSuchMethodError',
-        ''
-      );
-      return this.result;
-    }
-    this.result = new SuccessResult<MethodRef>(methodRes.methodRef);
+    this.result = symbolClass.$resolveMethod(nt.name + nt.descriptor, this.cls);
     // #endregion
 
     return this.result;

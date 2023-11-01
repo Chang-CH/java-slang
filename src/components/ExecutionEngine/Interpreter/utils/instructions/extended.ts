@@ -111,14 +111,12 @@ export function runMultianewarray(thread: Thread): void {
       .getClass()
       .getLoader()
       .getClassRef(currentType);
-    if (classResolutionResult.error || !classResolutionResult.result) {
-      thread.throwNewException(
-        classResolutionResult.error ?? 'java/lang/ClassNotFoundException',
-        ''
-      );
+    if (classResolutionResult.checkError()) {
+      const err = classResolutionResult.getError();
+      thread.throwNewException(err.className, err.msg);
       return;
     }
-    const arrayCls = classResolutionResult.result;
+    const arrayCls = classResolutionResult.getResult();
 
     for (const arr of pendingInit) {
       for (let j = 0; j < dimArray[i]; j++) {

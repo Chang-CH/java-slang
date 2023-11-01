@@ -57,3 +57,5 @@ export class DeferResult<T> extends Result<T> {
     super(ResultType.DEFER);
   }
 }
+
+export type ImmediateResult<T> = SuccessResult<T> | ErrorResult<T>;

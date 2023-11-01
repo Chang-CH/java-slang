@@ -9,14 +9,12 @@ export function newCharArr(
   str: string
 ): Result<JvmArray> {
   const cArrRes = loader.getClassRef('[C');
-  if (cArrRes.error || !cArrRes.result) {
-    return new ErrorResult<JvmArray>(
-      cArrRes.error ?? 'java/lang/ClassNotFoundException',
-      ''
-    );
+  if (cArrRes.checkError()) {
+    const err = cArrRes.getError();
+    return new ErrorResult<JvmArray>(err.className, err.msg);
   }
 
-  const cArrCls = cArrRes.result;
+  const cArrCls = cArrRes.getResult();
   const cArr = cArrCls.instantiate() as JvmArray;
   const jsArr = [];
   for (let i = 0; i < str.length; i++) {
@@ -38,10 +36,11 @@ export function newString(
 
   const strRes = loader.getClassRef('java/lang/String');
 
-  if (strRes.error || !strRes.result) {
-    return new ErrorResult<JvmObject>('java/lang/ClassNotFoundException', '');
+  if (strRes.checkError()) {
+    const err = strRes.getError();
+    return new ErrorResult<JvmObject>(err.className, err.msg);
   }
-  const strCls = strRes.result;
+  const strCls = strRes.getResult();
   const strObj = strCls.instantiate();
   // TODO: intialize string with <init>()V
   const fieldRef = strCls.getFieldRef('value[C') as FieldRef;

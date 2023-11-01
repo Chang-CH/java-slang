@@ -93,27 +93,15 @@ export default class Thread {
     return value;
   }
 
-  returnSF(ret?: any): StackFrame {
+  returnSF(ret?: any, isWide: boolean = false): StackFrame {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
-    if (this.stackPointer < 0 || sf === undefined) {
+    if (this.stackPointer < -1 || sf === undefined) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');
     }
 
-    sf.onReturn(this, ret);
-    return sf;
-  }
-
-  returnSF64(ret?: any): StackFrame {
-    const sf = this.stack.pop();
-    this.stackPointer -= 1;
-    if (this.stackPointer < 0 || sf === undefined) {
-      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
-      throw new Error('Stack Underflow');
-    }
-
-    sf.onReturn64(this, ret);
+    isWide ? sf.onReturn64(this, ret) : sf.onReturn(this, ret);
     return sf;
   }
 
@@ -172,22 +160,19 @@ export default class Thread {
     // Initialize exception
     // FIXME: push msg to stack
     const clsRes = this.getClass().getLoader().getClassRef(className);
-    if (clsRes.error) {
-      if (className === 'java/lang/ClassNotFoundException') {
+    if (clsRes.checkError()) {
+      const err = clsRes.getError();
+      if (err.className === 'java/lang/ClassNotFoundException') {
         throw new Error(
           'Infinite loop detected: ClassNotFoundException not found'
         );
       }
-      this.throwNewException('java/lang/ClassNotFoundException', '');
-      return;
-    }
-    // should not happen
-    if (clsRes.result === undefined) {
-      this.throwNewException('java/lang/ClassNotFoundException', '');
+
+      this.throwNewException(err.className, err.msg);
       return;
     }
 
-    const exceptionCls = clsRes.result;
+    const exceptionCls = clsRes.getResult();
     const initRes = exceptionCls.initialize(this);
     // TODO: check infinite loops
     if (!initRes.checkSuccess()) {
