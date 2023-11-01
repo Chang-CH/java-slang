@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { JvmArray } from '#types/reference/Array';
 import { asDouble, asFloat } from '..';
 

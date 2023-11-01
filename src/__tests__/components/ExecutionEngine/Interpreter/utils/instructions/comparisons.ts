@@ -6,7 +6,7 @@ import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 
 let thread: Thread;
 let threadClass: ClassRef;

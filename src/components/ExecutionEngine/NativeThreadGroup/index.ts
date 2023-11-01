@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 
 export default class NativeThreadGroup {
   private threads: Thread[] = [];

@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { asDouble, asFloat } from '..';
 
 export function runGoto(thread: Thread): void {
@@ -69,44 +69,39 @@ export function runIreturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
-  thread.popStackFrame();
-  thread.pushStack(ret);
+  thread.returnSF(ret);
 }
 
 export function runLreturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack64();
-  thread.popStackFrame();
-  thread.pushStack64(ret);
+  thread.returnSF64(ret);
 }
 
 export function runFreturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = asFloat(thread.popStack());
-  thread.popStackFrame();
-  thread.pushStack(ret);
+  thread.returnSF(ret);
 }
 
 export function runDreturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = asDouble(thread.popStack64());
-  thread.popStackFrame();
-  thread.pushStack64(ret);
+  thread.returnSF64(ret);
 }
 
 export function runAreturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
-  thread.popStackFrame();
-  thread.pushStack(ret);
+  thread.returnSF(ret);
 }
 
 export function runReturn(thread: Thread): void {
   thread.offsetPc(1);
   console.warn('IRETURN: monitor not implemented jvms 6.5');
-  thread.popStackFrame();
+  thread.returnSF();
 }

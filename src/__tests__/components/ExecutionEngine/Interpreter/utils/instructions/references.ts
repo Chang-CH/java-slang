@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
@@ -449,7 +449,7 @@ describe('runInvokestatic', () => {
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     runInstruction(thread, jni, () => {});
-    expect(thread.getClassName()).toBe('mainClass');
+    expect(thread.getClass().getClassname()).toBe('mainClass');
     expect(thread.peekStackFrame().locals[0]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
   });
@@ -540,7 +540,7 @@ describe('runInvokestatic', () => {
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     runInstruction(thread, jni, () => {});
-    expect(thread.getClassName()).toBe('superClass');
+    expect(thread.getClass().getClassname()).toBe('superClass');
     expect(thread.peekStackFrame().locals[0]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
   });
@@ -1242,7 +1242,7 @@ describe('runinvokevirtual', () => {
     const objRef = new JvmObject(superClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
-    expect(thread.getClassName()).toBe('superClass');
+    expect(thread.getClass().getClassname()).toBe('superClass');
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
   });
   test('INVOKEVIRTUAL: method lookup override OK', () => {
@@ -1323,7 +1323,7 @@ describe('runinvokevirtual', () => {
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
-    expect(thread.getClassName()).toBe('mainClass');
+    expect(thread.getClass().getClassname()).toBe('mainClass');
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
   });
   test('INVOKEVIRTUAL: objectref is null, throws a NullPointerException', () => {
@@ -4523,7 +4523,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     let arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
-    thread.popStackFrame();
+    thread.returnSF();
 
     // char
     code.setUint8(1, ArrayPrimitiveType.char);
@@ -4532,7 +4532,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
-    thread.popStackFrame();
+    thread.returnSF();
 
     // float
     code.setUint8(1, ArrayPrimitiveType.float);
@@ -4541,7 +4541,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
-    thread.popStackFrame();
+    thread.returnSF();
 
     // double
     code.setUint8(1, ArrayPrimitiveType.double);
@@ -4550,7 +4550,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
-    thread.popStackFrame();
+    thread.returnSF();
 
     // byte
     code.setUint8(1, ArrayPrimitiveType.byte);
@@ -4559,7 +4559,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
-    thread.popStackFrame();
+    thread.returnSF();
 
     // short
     code.setUint8(1, ArrayPrimitiveType.short);
@@ -4568,7 +4568,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
-    thread.popStackFrame();
+    thread.returnSF();
 
     // int
     code.setUint8(1, ArrayPrimitiveType.int);
@@ -4577,7 +4577,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
-    thread.popStackFrame();
+    thread.returnSF();
 
     // long
     code.setUint8(1, ArrayPrimitiveType.long);
@@ -4586,7 +4586,7 @@ describe('runNewarray', () => {
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0) === 0n).toBe(true);
-    thread.popStackFrame();
+    thread.returnSF();
   });
 
   test('NEWARRAY: negative array size throws NegativeArraySizeException', () => {

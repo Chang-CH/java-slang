@@ -1,7 +1,7 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { LegacyConstantClass } from '#types/ConstantRef';
 import { JvmObject } from '#types/reference/Object';
@@ -352,7 +352,7 @@ describe('runSipush', () => {
 describe('runLdc', () => {
   test('reads int from constant pool and pushes to stack', () => {
     // use custom class
-    thread.popStackFrame();
+    thread.returnSF();
     const intConstant = {
       tag: CONSTANT_TAG.Integer,
       value: -99,
@@ -391,7 +391,7 @@ describe('runLdc', () => {
   });
 
   test('reads float from constant pool and pushes to stack', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     const floatConstant = {
       tag: CONSTANT_TAG.Float,
       value: Math.fround(-0.3),
@@ -430,7 +430,7 @@ describe('runLdc', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
@@ -477,7 +477,7 @@ describe('runLdc', () => {
   });
 
   test('initializes uninitialized string from constant pool', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
@@ -524,7 +524,7 @@ describe('runLdc', () => {
   });
 
   test('reads classref from constant pool and pushes to stack', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
@@ -577,7 +577,7 @@ describe('runLdc', () => {
 describe('runLdcW', () => {
   test('reads int from constant pool and pushes to stack', () => {
     // use custom class
-    thread.popStackFrame();
+    thread.returnSF();
     const intConstant = {
       tag: CONSTANT_TAG.Integer,
       value: -99,
@@ -616,7 +616,7 @@ describe('runLdcW', () => {
   });
 
   test('reads float from constant pool and pushes to stack', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     const floatConstant = {
       tag: CONSTANT_TAG.Float,
       value: Math.fround(-0.3),
@@ -655,7 +655,7 @@ describe('runLdcW', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
@@ -701,7 +701,7 @@ describe('runLdcW', () => {
   });
 
   test('initializes uninitialized string from constant pool', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
@@ -747,7 +747,7 @@ describe('runLdcW', () => {
   });
 
   test('reads classref from constant pool and pushes to stack', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let classConstant;
     const strContent = {
       tag: CONSTANT_TAG.Utf8,
@@ -801,7 +801,7 @@ describe('runLdcW', () => {
 describe('runLdc2W', () => {
   test('reads long from constant pool and pushes to stack', () => {
     // use custom class
-    thread.popStackFrame();
+    thread.returnSF();
     const longConstant = {
       tag: CONSTANT_TAG.Long,
       value: 99n,
@@ -841,7 +841,7 @@ describe('runLdc2W', () => {
 
   test('reads double from constant pool and pushes to stack', () => {
     // use custom class
-    thread.popStackFrame();
+    thread.returnSF();
     const doubleConstant = {
       tag: CONSTANT_TAG.Double,
       value: -0.3,

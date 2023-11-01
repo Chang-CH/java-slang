@@ -1,5 +1,5 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 
 import * as comparisons from './instructions/comparisons';
 import * as constants from './instructions/constants';
@@ -40,20 +40,20 @@ export default function runInstruction(
     }
 
     const result = nativeMethod(thread, thread.peekStackFrame().locals);
-    thread.popStackFrame();
 
     const { ret } = parseMethodDescriptor(method.getMethodDesc());
 
     if (ret === 'V') {
+      thread.returnSF();
       return;
     }
 
     if (ret === 'D' || ret === 'J') {
-      thread.pushStack64(result);
+      thread.returnSF64(result);
       return;
     }
 
-    thread.pushStack(result);
+    thread.returnSF(result);
     return;
   }
 

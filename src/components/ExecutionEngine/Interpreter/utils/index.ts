@@ -1,6 +1,6 @@
 import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 
 export function parseFirstDescriptor(descriptor: string) {
   switch (descriptor[0]) {

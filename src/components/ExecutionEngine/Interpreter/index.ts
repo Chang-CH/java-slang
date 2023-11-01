@@ -1,5 +1,5 @@
 import { JNI } from '#jvm/components/JNI';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import runInstruction from './utils/runInstruction';
 
 /**

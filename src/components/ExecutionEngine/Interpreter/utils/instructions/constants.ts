@@ -1,5 +1,5 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import {
   ConstantDoubleInfo,
   ConstantFloatInfo,

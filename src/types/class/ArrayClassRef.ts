@@ -33,7 +33,7 @@ export class ArrayClassRef extends ClassRef {
     this.packageName = 'java/lang';
   }
 
-  instantiate(): JvmObject {
+  instantiate(): JvmArray {
     return new JvmArray(this);
   }
 }

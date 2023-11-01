@@ -1,5 +1,5 @@
 import { JvmArray } from '#types/reference/Array';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 
 export function runIload(thread: Thread): void {
   thread.offsetPc(1);

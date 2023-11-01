@@ -1,7 +1,7 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
@@ -335,7 +335,7 @@ describe('runWide', () => {
 
 describe('runMultianewarray', () => {
   test('MULTIANEWARRAY: Creates multi dimensional array', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
@@ -397,7 +397,7 @@ describe('runMultianewarray', () => {
   });
 
   test('MULTIANEWARRAY: Negative dimensions throw exception', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',
@@ -449,7 +449,7 @@ describe('runMultianewarray', () => {
   });
 
   test('MULTIANEWARRAY: 0 sized array empty', () => {
-    thread.popStackFrame();
+    thread.returnSF();
     let constIdx = 0;
     const customClass = createClass({
       className: 'custom',

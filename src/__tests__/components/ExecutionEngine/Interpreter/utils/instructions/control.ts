@@ -1,7 +1,7 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
-import Thread from '#jvm/components/Threads/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
@@ -82,7 +82,7 @@ describe('runIreturn', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
-    thread.popStackFrame();
+    thread.returnSF();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
   // IllegalMonitorStateException
@@ -102,7 +102,7 @@ describe('runLreturn', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
-    thread.popStackFrame();
+    thread.returnSF();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
   // IllegalMonitorStateException
@@ -122,7 +122,7 @@ describe('runFreturn', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
-    thread.popStackFrame();
+    thread.returnSF();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
 
@@ -139,7 +139,7 @@ describe('runFreturn', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
-    thread.popStackFrame();
+    thread.returnSF();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
   // IllegalMonitorStateException
@@ -159,7 +159,7 @@ describe('runDreturn', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
-    thread.popStackFrame();
+    thread.returnSF();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
   // IllegalMonitorStateException
@@ -180,7 +180,7 @@ describe('runAreturn', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
-    thread.popStackFrame();
+    thread.returnSF();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
   // IllegalMonitorStateException
@@ -199,7 +199,7 @@ describe('runreturn', () => {
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
-    thread.popStackFrame();
+    thread.returnSF();
     expect(thread.peekStackFrame()).toBe(undefined);
   });
 

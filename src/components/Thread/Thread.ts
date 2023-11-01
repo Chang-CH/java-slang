@@ -2,15 +2,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { JvmObject } from '../../types/reference/Object';
-
-export interface StackFrame {
-  operandStack: any[];
-  maxStack: number;
-  class: ClassRef;
-  method: MethodRef;
-  pc: number;
-  locals: any[];
-}
+import { StackFrame } from './StackFrame';
 
 export default class Thread {
   private stack: StackFrame[];
@@ -42,16 +34,8 @@ export default class Thread {
     this.stack[this.stackPointer].pc = pc;
   }
 
-  getClassName(): string {
-    return this.stack[this.stackPointer].class.getClassname();
-  }
-
   getClass(): ClassRef {
     return this.stack[this.stackPointer].class;
-  }
-
-  getMethodName(): string {
-    return this.stack[this.stackPointer].method.getMethodName();
   }
 
   getMethod(): MethodRef {
@@ -109,17 +93,37 @@ export default class Thread {
     return value;
   }
 
-  popStackFrame(): StackFrame {
+  returnSF(ret?: any): StackFrame {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
-    if (this.stackPointer < -1 || sf === undefined) {
+    if (this.stackPointer < 0 || sf === undefined) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');
     }
+
+    sf.onReturn(this, ret);
     return sf;
   }
 
-  pushStackFrame(cls: ClassRef, method: MethodRef, pc: number, locals: any[]) {
+  returnSF64(ret?: any): StackFrame {
+    const sf = this.stack.pop();
+    this.stackPointer -= 1;
+    if (this.stackPointer < 0 || sf === undefined) {
+      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
+      throw new Error('Stack Underflow');
+    }
+
+    sf.onReturn64(this, ret);
+    return sf;
+  }
+
+  pushStackFrame(
+    cls: ClassRef,
+    method: MethodRef,
+    pc: number,
+    locals: any[],
+    callback?: (ret: any) => void
+  ) {
     const stackframe = {
       operandStack: [],
       maxStack: method.getMaxStack(),
@@ -190,14 +194,16 @@ export default class Thread {
 
       // Native methods cannot handle exceptions
       if (method.checkNative()) {
-        this.popStackFrame();
+        this.stack.pop();
+        this.stackPointer -= 1;
         continue;
       }
 
       const eTable = method.getExceptionHandlers();
 
       // TODO: check if exception is handled
-      this.popStackFrame();
+      this.stack.pop();
+      this.stackPointer -= 1;
     }
 
     const unhandledMethod = this.cls.getMethod(
