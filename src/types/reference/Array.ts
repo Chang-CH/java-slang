@@ -93,6 +93,10 @@ export class JvmArray extends JvmObject {
     }
   }
 
+  getJsArray() {
+    return this.array;
+  }
+
   len() {
     return this.length;
   }

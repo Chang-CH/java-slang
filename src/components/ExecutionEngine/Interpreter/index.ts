@@ -14,6 +14,10 @@ export default class Interpreter {
 
   runFor(thread: Thread, instructions: number, onFinish?: () => void) {
     for (let i = 0; i < instructions; i++) {
+      if (thread.isStackEmpty()) {
+        onFinish && onFinish();
+        break;
+      }
       runInstruction(thread, this.jni, onFinish);
     }
   }

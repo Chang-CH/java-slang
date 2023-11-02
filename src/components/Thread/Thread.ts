@@ -1,21 +1,56 @@
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
+import { stringifyCode } from '#utils/Prettify/classfile';
 import { JvmObject } from '../../types/reference/Object';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './StackFrame';
 
+export enum ThreadStatus {
+  NEW,
+  RUNNABLE,
+  BLOCKED,
+  WAITING,
+  TIMED_WAITING,
+  TERMINATED,
+}
+
 export default class Thread {
+  private status: ThreadStatus = ThreadStatus.NEW;
   private stack: StackFrame[];
   private stackPointer: number;
   private javaObject: JvmObject;
-  private cls: ClassRef;
+  private threadClass: ClassRef;
 
   constructor(threadClass: ClassRef) {
-    this.cls = threadClass;
+    this.threadClass = threadClass;
     this.stack = [];
     this.stackPointer = -1;
-    this.javaObject = new JvmObject(threadClass);
+    this.javaObject = threadClass.instantiate();
+    // call init?
     this.javaObject.$putNativeField('thread', this);
+  }
+
+  initialize(thread: Thread) {
+    const init = this.threadClass.getMethod('<init>()V') as MethodRef;
+    if (!init) {
+      throw new Error('Thread constructor not found');
+    }
+
+    thread.invokeSf(
+      this.threadClass,
+      init,
+      0,
+      [this.javaObject],
+      () => (this.status = ThreadStatus.RUNNABLE)
+    );
+  }
+
+  getJavaObject() {
+    return this.javaObject;
+  }
+
+  getFrames() {
+    return this.stack;
   }
 
   isStackEmpty() {
@@ -34,6 +69,10 @@ export default class Thread {
     this.stack[this.stackPointer].pc = pc;
   }
 
+  /**
+   * Gets class of current method
+   * @returns
+   */
   getClass(): ClassRef {
     return this.stack[this.stackPointer].class;
   }
@@ -93,12 +132,21 @@ export default class Thread {
     return value;
   }
 
-  returnSF(ret?: any, isWide: boolean = false): StackFrame {
+  returnSF(
+    ret?: any,
+    err?: JvmObject | null,
+    isWide: boolean = false
+  ): StackFrame {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
     if (this.stackPointer < -1 || sf === undefined) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');
+    }
+
+    if (err) {
+      sf.onError(this, err);
+      return sf;
     }
 
     isWide ? sf.onReturn64(this, ret) : sf.onReturn(this, ret);
@@ -206,7 +254,7 @@ export default class Thread {
       this.stackPointer -= 1;
     }
 
-    const unhandledMethod = this.cls.getMethod(
+    const unhandledMethod = this.threadClass.getMethod(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     if (unhandledMethod === null) {
@@ -215,6 +263,6 @@ export default class Thread {
       );
     }
 
-    this.invokeSf(this.cls, unhandledMethod, 0, [this, exception]);
+    this.invokeSf(this.threadClass, unhandledMethod, 0, [this, exception]);
   }
 }

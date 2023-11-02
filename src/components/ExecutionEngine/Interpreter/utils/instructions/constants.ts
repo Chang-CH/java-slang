@@ -142,7 +142,6 @@ export function loadConstant(
       }
       return;
     }
-    console.log('ldc: ', clsRef.getClassname());
     value = clsRef.getJavaObject();
   } else if (
     ConstantMethodHandle.check(constant) ||

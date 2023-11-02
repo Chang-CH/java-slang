@@ -30,7 +30,7 @@ export default class ExecutionEngine {
     // TODO: pushstack string args
     this.nativeThreadGroup.addThread(mainThread);
 
-    this.interpreter.runFor(mainThread, 1000, () => {
+    this.interpreter.runFor(mainThread, 5000, () => {
       console.debug('finished');
       process.exit();
     });
@@ -38,10 +38,20 @@ export default class ExecutionEngine {
 
   runMethod(threadCls: ClassRef, cls: ClassRef, method: string, args?: any[]) {
     const mainThread = new Thread(threadCls);
+    mainThread.initialize(mainThread);
+    this.interpreter.runFor(mainThread, 100000, () => {
+      console.log('thread initialized');
+    });
 
     mainThread.invokeSf(cls, cls.getMethod(method) as MethodRef, 0, args ?? []);
-    this.interpreter.runFor(mainThread, 10000, () => {
-      console.debug('runMethod Finish');
+    this.interpreter.runFor(mainThread, 100000, () => {
+      console.log('runMethod Finish');
+    });
+  }
+
+  runThread(thread: Thread) {
+    this.interpreter.runFor(thread, 100000, () => {
+      console.log('runThread Finish');
     });
   }
 }

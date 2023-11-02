@@ -1,8 +1,10 @@
+import Thread from '#jvm/components/Thread/Thread';
 import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { FieldRef } from '#types/FieldRef';
+import { DeferResult, Result, SuccessResult } from '#types/result';
 
 export class JvmObject {
-  public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
+  public initStatus = false;
 
   protected cls: ClassRef;
   protected fields: {
@@ -22,6 +24,21 @@ export class JvmObject {
     }
   }
 
+  initialize(thread: Thread): Result<JvmObject> {
+    if (this.initStatus) {
+      return new SuccessResult(this);
+    }
+
+    const initMethod = this.cls.getMethod('<init>()V');
+    if (!initMethod) {
+      this.initStatus = true;
+      return new SuccessResult(this);
+    }
+
+    thread.invokeSf(this.cls, initMethod, 0, [this]);
+    return new DeferResult();
+  }
+
   getClass() {
     return this.cls;
   }
@@ -32,7 +49,6 @@ export class JvmObject {
     const fieldClass = fieldRef.getClass().getClassname();
 
     const key = `${fieldClass}.${fieldName}${fieldDesc}`;
-    console.log('GETFIELD: ', key, this.fields[key].getValue());
 
     if (key in this.fields) {
       return this.fields[key].getValue();

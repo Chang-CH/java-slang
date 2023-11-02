@@ -36,4 +36,31 @@ export class ArrayClassRef extends ClassRef {
   instantiate(): JvmArray {
     return new JvmArray(this);
   }
+
+  static check(c: ClassRef): c is ArrayClassRef {
+    return c.getClassname().startsWith('[');
+  }
+
+  checkCast(castTo: ClassRef): boolean {
+    if (this === castTo) {
+      return true;
+    }
+
+    for (let i = 0; i < this.interfaces.length; i++) {
+      let inter = this.interfaces[i];
+      if (inter.checkCast(castTo)) {
+        return true;
+      }
+    }
+
+    const superClass = this.getSuperClass();
+
+    if (superClass === null) {
+      return false;
+    }
+
+    return superClass.checkCast(castTo);
+  }
+
+  // TODO: override checkcast
 }

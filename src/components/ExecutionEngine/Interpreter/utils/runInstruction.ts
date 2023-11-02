@@ -40,20 +40,6 @@ export default function runInstruction(
     }
 
     const result = nativeMethod(thread, thread.peekStackFrame().locals);
-
-    const { ret } = parseMethodDescriptor(method.getMethodDesc());
-
-    if (ret.type === 'V') {
-      thread.returnSF();
-      return;
-    }
-
-    if (ret.type === 'D' || ret.type === 'J') {
-      thread.returnSF(result, true);
-      return;
-    }
-
-    thread.returnSF(result);
     return;
   }
 
@@ -66,9 +52,12 @@ export default function runInstruction(
 
   let result;
   console.log(
-    `${method.getClass().getClassname()}.${
-      method.getName() + method.getMethodDesc()
-    }:${OPCODE[opcode]}, stack: ${thread.peekStackFrame().operandStack}}`
+    ''.padEnd(thread.getFrames().length, '#') +
+      `${method.getClass().getClassname()}.${
+        method.getName() + method.getMethodDesc()
+      }:${OPCODE[opcode]}#${thread.getPC()}, stack: ${
+        thread.peekStackFrame().operandStack
+      }}`
   );
   switch (opcode) {
     case OPCODE.NOP:

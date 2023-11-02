@@ -4,6 +4,7 @@ import { ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
 import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
+import { classFileToText } from '#utils/Prettify/classfile';
 import AbstractClassLoader from './AbstractClassLoader';
 
 /**
@@ -41,7 +42,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
         [],
         this
       );
-      return new SuccessResult(arrayClass);
+      return new SuccessResult(this.loadClass(arrayClass));
     }
 
     const path = this.classPath ? this.classPath + '/' + className : className;

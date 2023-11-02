@@ -1,5 +1,6 @@
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
+import { JvmObject } from '#types/reference/Object';
 import Thread from './Thread';
 
 export abstract class StackFrame {
@@ -35,6 +36,10 @@ export abstract class StackFrame {
   public onReturn64(thread: Thread, retn: any) {
     thread.pushStack64(retn);
   }
+
+  onError(thread: Thread, err: JvmObject) {
+    // Do nothing (exception handling?)
+  }
 }
 
 export class JavaStackFrame extends StackFrame {
@@ -54,7 +59,7 @@ export class JavaStackFrame extends StackFrame {
  * Used for internal methods, does not push return value to stack.
  */
 export class InternalStackFrame extends StackFrame {
-  private callback: (ret: any) => void;
+  private callback: (ret: any, err?: any) => void;
   constructor(
     operandStack: any[],
     maxStack: number,
@@ -62,7 +67,7 @@ export class InternalStackFrame extends StackFrame {
     method: MethodRef,
     pc: number,
     locals: any[],
-    callback: (ret: any) => void
+    callback: (ret: any, err?: any) => void
   ) {
     super(operandStack, maxStack, cls, method, pc, locals);
     this.callback = callback;
@@ -70,5 +75,9 @@ export class InternalStackFrame extends StackFrame {
 
   public onFinish(thread: Thread, retn: any) {
     this.callback(retn);
+  }
+
+  onError(thread: Thread, err: JvmObject): void {
+    this.callback(null, err);
   }
 }

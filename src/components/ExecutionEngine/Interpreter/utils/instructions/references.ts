@@ -137,6 +137,7 @@ export function runGetfield(thread: Thread): void {
       thread.throwNewException(err.className, err.msg);
       return;
     }
+    // TODO: rollback
     return;
   }
 
@@ -168,7 +169,6 @@ export function runGetfield(thread: Thread): void {
 
 export function runPutfield(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
-
   const constantField = thread
     .getClass()
     .getConstant(indexbyte) as ConstantFieldref;
@@ -559,6 +559,14 @@ export function runInvokedynamic(thread: Thread): void {
   const invoker = thread.getClass();
   const callsiteConstant = invoker.getConstant(index) as ConstantInvokeDynamic;
   const cssRes = callsiteConstant.resolve(thread);
+  if (!cssRes.checkSuccess()) {
+    if (cssRes.checkError()) {
+      const err = cssRes.getError();
+      thread.throwNewException(err.className, err.msg);
+      return;
+    }
+    return;
+  }
 
   throw new Error('Not implemented');
   // const bootstrapIdx = callsiteConstant.bootstrapMethodAttrIndex;
@@ -697,7 +705,7 @@ export function runNewarray(thread: Thread): void {
   }
 
   const arrayCls = classResolutionResult.getResult();
-  const arrayref = arrayCls.instantiate() as JvmArray;
+  const arrayref = arrayCls.instantiate() as unknown as JvmArray;
   arrayref.initialize(count);
   thread.pushStack(arrayref);
 }
@@ -706,6 +714,11 @@ export function runAnewarray(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const invoker = thread.getClass();
   const count = thread.popStack();
+  thread.offsetPc(3);
+  const onDefer = () => {
+    thread.pushStack(count);
+    thread.offsetPc(-3);
+  };
 
   if (count < 0) {
     thread.throwNewException('java/lang/NegativeArraySizeException', '');
@@ -713,16 +726,13 @@ export function runAnewarray(thread: Thread): void {
   }
 
   const res = (invoker.getConstant(indexbyte) as ConstantClass).resolve();
-  if (!res.checkSuccess()) {
-    if (res.checkError()) {
-      const err = res.getError();
-      thread.throwNewException(err.className, err.msg);
-      return;
-    }
+  if (res.checkError()) {
+    const err = res.getError();
+    thread.throwNewException(err.className, err.msg);
     return;
   }
   const objCls = res.getResult();
-  const initRes = objCls.initialize(thread);
+  const initRes = objCls.initialize(thread, onDefer);
   if (!initRes.checkSuccess()) {
     if (initRes.checkError()) {
       const err = initRes.getError();
@@ -739,7 +749,7 @@ export function runAnewarray(thread: Thread): void {
     throw new Error('Failed to load array class');
   }
   const arrayCls = arrayClassRes.getResult();
-  const aInitRes = arrayCls.initialize(thread);
+  const aInitRes = arrayCls.initialize(thread, onDefer);
   if (!aInitRes.checkSuccess()) {
     if (aInitRes.checkError()) {
       const err = aInitRes.getError();
@@ -749,8 +759,7 @@ export function runAnewarray(thread: Thread): void {
     return;
   }
 
-  thread.offsetPc(3);
-  const arrayref = arrayCls.instantiate() as JvmArray;
+  const arrayref = arrayCls.instantiate() as unknown as JvmArray;
   arrayref.initialize(count);
   thread.pushStack(arrayref);
 }
@@ -774,8 +783,9 @@ function $checkCast(
   isCC: boolean = true
 ): void {
   const objectref = thread.popStack() as JvmObject;
+
   if (objectref === null) {
-    isCC ? thread.pushStack(0) : thread.pushStack(null);
+    isCC ? thread.pushStack(null) : thread.pushStack(0);
     return;
   }
 
@@ -833,8 +843,7 @@ function $checkCast(
           value = 1;
         }
       }
-
-      if (isCC) {
+      if (!isCC) {
         thread.pushStack(value);
       } else {
         value === 1
@@ -851,7 +860,7 @@ function $checkCast(
   if (objClsS.checkCast(targetClsT)) {
     value = 1;
   }
-  if (isCC) {
+  if (!isCC) {
     thread.pushStack(value);
   } else {
     value === 1
@@ -874,11 +883,23 @@ export function runInstanceof(thread: Thread): void {
 }
 
 export function runMonitorenter(thread: Thread): void {
-  throw new Error('Not implemented');
+  const obj = thread.popStack() as JvmObject | null;
+  if (obj === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+
   thread.offsetPc(1);
+  console.error('Not implemented');
 }
 
 export function runMonitorexit(thread: Thread): void {
-  throw new Error('Not implemented');
+  const obj = thread.popStack() as JvmObject | null;
+  if (obj === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+
   thread.offsetPc(1);
+  console.error('Not implemented');
 }

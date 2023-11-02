@@ -8,10 +8,17 @@ import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import * as info from '#jvm/external/ClassFile/types/constants';
 import { FieldRef } from '#types/FieldRef';
 import { MethodRef } from '#types/MethodRef';
+import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { ClassRef } from '#types/class/ClassRef';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { DeferResult, ErrorResult, Result, SuccessResult } from '#types/result';
+import {
+  DeferResult,
+  ErrorResult,
+  ImmediateResult,
+  Result,
+  SuccessResult,
+} from '#types/result';
 import { newString } from '#utils/index';
 
 export abstract class Constant {
@@ -152,64 +159,6 @@ export class ConstantUtf8 extends Constant {
 
 // #endregion
 
-// #region utf8 dependency
-
-export class ConstantString extends Constant {
-  private str: ConstantUtf8;
-  private result?: Result<JvmObject>;
-
-  constructor(cls: ClassRef, str: ConstantUtf8) {
-    super(CONSTANT_TAG.String, cls);
-    this.str = str;
-    this.isResolved = false;
-  }
-
-  static check(c: Constant): c is ConstantString {
-    return c.getTag() === CONSTANT_TAG.String;
-  }
-
-  public resolve(): Result<JvmObject> {
-    if (this.result) {
-      return this.result;
-    }
-
-    const strVal = this.str.get();
-    this.result = newString(this.cls.getLoader(), strVal);
-    return this.result;
-  }
-
-  public get() {
-    if (!this.result) {
-      this.resolve();
-    }
-
-    if (!this.result?.checkSuccess()) {
-      throw new Error('Resolution incomplete or failed');
-    }
-
-    return this.result.getResult();
-  }
-}
-
-export class ConstantNameAndType extends Constant {
-  private name: ConstantUtf8;
-  private descriptor: ConstantUtf8;
-
-  constructor(cls: ClassRef, name: ConstantUtf8, descriptor: ConstantUtf8) {
-    super(CONSTANT_TAG.NameAndType, cls);
-    this.name = name;
-    this.descriptor = descriptor;
-  }
-
-  static check(c: Constant): c is ConstantNameAndType {
-    return c.getTag() === CONSTANT_TAG.NameAndType;
-  }
-
-  public get(): { name: string; descriptor: string } {
-    return { name: this.name.get(), descriptor: this.descriptor.get() };
-  }
-}
-
 function createMethodType(
   thread: Thread,
   loader: AbstractClassLoader,
@@ -292,6 +241,64 @@ function createMethodType(
   return new DeferResult<JvmObject>();
 }
 
+// #region utf8 dependency
+
+export class ConstantString extends Constant {
+  private str: ConstantUtf8;
+  private result?: Result<JvmObject>;
+
+  constructor(cls: ClassRef, str: ConstantUtf8) {
+    super(CONSTANT_TAG.String, cls);
+    this.str = str;
+    this.isResolved = false;
+  }
+
+  static check(c: Constant): c is ConstantString {
+    return c.getTag() === CONSTANT_TAG.String;
+  }
+
+  public resolve(): Result<JvmObject> {
+    if (this.result) {
+      return this.result;
+    }
+
+    const strVal = this.str.get();
+    this.result = newString(this.cls.getLoader(), strVal);
+    return this.result;
+  }
+
+  public get() {
+    if (!this.result) {
+      this.resolve();
+    }
+
+    if (!this.result?.checkSuccess()) {
+      throw new Error('Resolution incomplete or failed');
+    }
+
+    return this.result.getResult();
+  }
+}
+
+export class ConstantNameAndType extends Constant {
+  private name: ConstantUtf8;
+  private descriptor: ConstantUtf8;
+
+  constructor(cls: ClassRef, name: ConstantUtf8, descriptor: ConstantUtf8) {
+    super(CONSTANT_TAG.NameAndType, cls);
+    this.name = name;
+    this.descriptor = descriptor;
+  }
+
+  static check(c: Constant): c is ConstantNameAndType {
+    return c.getTag() === CONSTANT_TAG.NameAndType;
+  }
+
+  public get(): { name: string; descriptor: string } {
+    return { name: this.name.get(), descriptor: this.descriptor.get() };
+  }
+}
+
 export class ConstantMethodType extends Constant {
   private descriptor: ConstantUtf8;
   private result?: Result<JvmObject>;
@@ -328,7 +335,7 @@ export class ConstantMethodType extends Constant {
 
 export class ConstantClass extends Constant {
   private className: ConstantUtf8;
-  private result?: Result<ClassRef>;
+  private result?: ImmediateResult<ClassRef>;
 
   constructor(cls: ClassRef, className: ConstantUtf8) {
     super(CONSTANT_TAG.Class, cls);
@@ -339,7 +346,7 @@ export class ConstantClass extends Constant {
     return c.getTag() === CONSTANT_TAG.Class;
   }
 
-  public resolve(): Result<ClassRef> {
+  public resolve(): ImmediateResult<ClassRef> {
     // resolved before
     if (this.result) {
       return this.result;
@@ -370,6 +377,8 @@ export class ConstantClass extends Constant {
 export class ConstantInvokeDynamic extends Constant {
   private bootstrapMethodAttrIndex: number;
   private nameAndType: ConstantNameAndType;
+  private methodTypeObj?: JvmObject;
+  private result?: Result<JvmObject>;
 
   constructor(
     cls: ClassRef,
@@ -390,44 +399,63 @@ export class ConstantInvokeDynamic extends Constant {
     throw new Error('Method not implemented.');
   }
 
+  public constructCso(thread: Thread) {}
+
   public resolve(thread: Thread): Result<any> {
-    throw new Error('Method not implemented.');
-    // const loader = this.cls.getLoader();
-    // // boostrap method is instance of java.lang.invoke.MethodHandle
-    // // #region bootstrap method
-    // const bootstrapMethod = this.cls.getBootstrapMethod(
-    //   this.bootstrapMethodAttrIndex
-    // );
-    // const bootstrapMhnConst = this.cls.getConstant(
-    //   bootstrapMethod.bootstrapMethodRef
-    // ) as ConstantMethodHandle;
-    // // bootstrapMethodHandle.resolve();
-    // const bootstrapMhn = bootstrapMhnConst.get();
+    // Get MethodType from NameAndType
+    if (!this.methodTypeObj) {
+      // resolve nameAndType
+      const nameAndTypeRes = this.nameAndType.get();
+      createMethodType(
+        thread,
+        this.cls.getLoader(),
+        nameAndTypeRes.descriptor,
+        mt => {
+          this.methodTypeObj = mt;
+        }
+      );
 
-    // const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
-    //   const constant = this.cls.getConstant(index);
-    //   constant.resolve();
-    //   // FIXME: should take ldc logic -- classref resolve to class object
-    //   return constant;
-    // });
-    // // #endregion
+      return new DeferResult();
+    }
 
-    // // #region get arguments
-    // const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
-    // if (objArrRes.checkError()) {
-    //   return new ErrorResult('java/lang/ClassNotFoundException', '');
-    // }
-    // const arrCls = objArrRes.getResult() as ArrayClassRef;
-    // const argsArr = arrCls.instantiate();
-    // //
-    // argsArr.initialize(bootstrapArgs.length, bootstrapArgs);
-    // // console.log('args arr', argsArr);
+    const loader = this.cls.getLoader();
+    // boostrap method is instance of java.lang.invoke.MethodHandle
+    // #region bootstrap method
+    const bootstrapMethod = this.cls.getBootstrapMethod(
+      this.bootstrapMethodAttrIndex
+    );
+    const bootstrapMhConst = this.cls.getConstant(
+      bootstrapMethod.bootstrapMethodRef
+    ) as ConstantMethodHandle;
 
-    // const appendixArr = arrCls.instantiate();
-    // appendixArr.initialize(1);
-    // // #endregion
+    const mhRes = bootstrapMhConst.resolve(thread);
+    if (!mhRes.checkSuccess()) {
+      return mhRes;
+    }
+    const bootstrapMhn = bootstrapMhConst.get();
+    const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
+      const constant = this.cls.getConstant(index);
+      constant.resolve();
+      // FIXME: should take ldc logic -- classref resolve to class object
+      return constant;
+    });
+    // #endregion
 
-    // // #region run bootstrap method
+    // #region get arguments
+    const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
+    if (objArrRes.checkError()) {
+      return new ErrorResult('java/lang/ClassNotFoundException', '');
+    }
+    const arrCls = objArrRes.getResult() as ArrayClassRef;
+    const argsArr = arrCls.instantiate();
+    argsArr.initialize(bootstrapArgs.length, bootstrapArgs);
+
+    const appendixArr = arrCls.instantiate();
+    appendixArr.initialize(1);
+    // #endregion
+
+    throw new Error('not implemented');
+    // #region run bootstrap method
 
     // /**
     //  * doppio logic
@@ -511,7 +539,6 @@ export class ConstantInvokeDynamic extends Constant {
   }
 }
 
-// TODO:
 export class ConstantFieldref extends Constant {
   private classConstant: ConstantClass;
   private nameAndTypeConstant: ConstantNameAndType;
@@ -783,7 +810,12 @@ export class ConstantMethodHandle extends Constant {
     throw new Error('Method not implemented.');
   }
 
-  public resolve(thread: Thread): Result<any> {
+  public resolve(thread: Thread): Result<JvmObject> {
+    if (this.result) {
+      return this.result;
+    }
+    this.result = new DeferResult<JvmObject>();
+
     // #region Step 1: resolve field/method
     const refRes = this.reference.resolve();
     if (!refRes.checkSuccess()) {
