@@ -707,15 +707,15 @@ function readAttributeBootstrapMethods(
     offset += 2;
     const numBootstrapArguments = view.getUint16(offset);
     offset += 2;
-    const bsArgs = [];
+    const bootstrapArguments = [];
 
     for (let j = 0; j < numBootstrapArguments; j += 1) {
-      bsArgs.push(view.getUint16(offset));
+      bootstrapArguments.push(view.getUint16(offset));
       offset += 2;
     }
     bootstrapMethods.push({
       bootstrapMethodRef,
-      bsArgs,
+      bootstrapArguments,
     });
   }
 

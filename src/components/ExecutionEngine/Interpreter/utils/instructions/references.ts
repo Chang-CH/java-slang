@@ -215,7 +215,6 @@ function invokeVirtual(
   onFinish?: () => void
 ): void {
   const methodRes = constant.resolve();
-
   if (!methodRes.checkSuccess()) {
     if (methodRes.checkError()) {
       const err = methodRes.getError();
@@ -297,7 +296,7 @@ export function runInvokevirtual(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const constant = thread
     .getClass()
-    .getConstant(indexbyte) as ConstantMethodref;
+    .getConstant(indexbyte) as ConstantMethodref; // TODO: handle method handle etc.
   invokeVirtual(thread, constant, () => thread.offsetPc(3));
 }
 
@@ -558,17 +557,33 @@ export function runInvokedynamic(thread: Thread): void {
 
   const invoker = thread.getClass();
   const callsiteConstant = invoker.getConstant(index) as ConstantInvokeDynamic;
-  const cssRes = callsiteConstant.resolve(thread);
-  if (!cssRes.checkSuccess()) {
-    if (cssRes.checkError()) {
-      const err = cssRes.getError();
+
+  // #region Temporary lambda creation code
+  const tempRes = callsiteConstant.tempResolve(thread);
+  if (!tempRes.checkSuccess()) {
+    if (tempRes.checkError()) {
+      const err = tempRes.getError();
       thread.throwNewException(err.className, err.msg);
       return;
     }
     return;
   }
+  const lambdaObj = tempRes.getResult();
+  thread.pushStack(lambdaObj);
+  thread.offsetPc(5);
+  return;
+  // #endregion
 
-  throw new Error('Not implemented');
+  // const cssRes = callsiteConstant.resolve(thread);
+  // if (!cssRes.checkSuccess()) {
+  //   if (cssRes.checkError()) {
+  //     const err = cssRes.getError();
+  //     thread.throwNewException(err.className, err.msg);
+  //     return;
+  //   }
+  //   return;
+  // }
+
   // const bootstrapIdx = callsiteConstant.bootstrapMethodAttrIndex;
   // const bootstrapMethod = thread.getClass().getBootstrapMethod(bootstrapIdx);
 

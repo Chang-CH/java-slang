@@ -13,37 +13,6 @@ export default class JVM {
   private nativeSystem: NodeSystem;
   private jni: JNI;
 
-  // init system properties
-  // private systemProperties = {
-  //   'java.class.path': javaClassPath.join(':'),
-  //   'java.home': javaHomePath,
-  //   'java.ext.dirs': path.join(javaHomePath, 'lib', 'ext'),
-  //   'java.io.tmpdir': tmpDir,
-  //   'sun.boot.class.path': bootstrapClasspath.join(':'),
-  //   'file.encoding': 'UTF-8',
-  //   'java.vendor': 'Doppio',
-  //   'java.version': '1.8',
-  //   'java.vendor.url': 'https://github.com/plasma-umass/doppio',
-  //   'java.class.version': '52.0',
-  //   'java.specification.version': '1.8',
-  //   'line.separator': '\n',
-  //   'file.separator': path.sep,
-  //   'path.separator': ':',
-  //   'user.dir': path.resolve('.'),
-  //   'user.home': '.',
-  //   'user.name': 'DoppioUser',
-  //   'os.name': 'doppio',
-  //   'os.arch': 'js',
-  //   'os.version': '0',
-  //   'java.vm.name': 'DoppioJVM 32-bit VM',
-  //   'java.vm.version': pkg.version,
-  //   'java.vm.vendor': 'PLASMA@UMass',
-  //   'java.awt.headless': are_in_browser().toString(), // true if we're using the console frontend
-  //   'java.awt.graphicsenv': 'classes.awt.CanvasGraphicsEnvironment',
-  //   'jline.terminal': 'jline.UnsupportedTerminal', // we can't shell out to `stty`,
-  //   'sun.arch.data.model': '32', // Identify as 32-bit, because that's how we act.
-  //   'sun.jnu.encoding': 'UTF-8', // Determines how Java parses command line options.
-  // };
   constructor(nativeSystem: NodeSystem) {
     this.nativeSystem = nativeSystem;
     this.bootstrapClassLoader = new BootstrapClassLoader(
@@ -115,14 +84,14 @@ export default class JVM {
     // #endregion
 
     // initialize system class
-    // console.log('// #region initializing system class'.padEnd(150, '#'));
-    // const sInitMr = sysCls.getMethod('initializeSystemClass()V');
-    // if (!sInitMr) {
-    //   throw new Error('System initialization method not found');
-    // }
-    // mainThread.invokeSf(sysCls, sInitMr, 0, []);
-    // this.engine.runThread(mainThread);
-    // console.log('// #endregion system class initialized'.padEnd(150, '#'));
+    console.log('// #region initializing system class'.padEnd(150, '#'));
+    const sInitMr = sysCls.getMethod('initializeSystemClass()V');
+    if (!sInitMr) {
+      throw new Error('System initialization method not found');
+    }
+    mainThread.invokeSf(sysCls, sInitMr, 0, []);
+    this.engine.runThread(mainThread);
+    console.log('// #endregion system class initialized'.padEnd(150, '#'));
 
     // this.jni.registerNativeMethod(
     //   'source/Source',

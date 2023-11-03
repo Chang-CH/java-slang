@@ -47,7 +47,10 @@ export class JvmObject {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
+    return this.$getField(fieldName, fieldDesc, fieldClass);
+  }
 
+  $getField(fieldName: string, fieldDesc: string, fieldClass: string): any {
     const key = `${fieldClass}.${fieldName}${fieldDesc}`;
 
     if (key in this.fields) {
@@ -61,7 +64,15 @@ export class JvmObject {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
+    this.$putField(fieldName, fieldDesc, fieldClass, value);
+  }
 
+  $putField(
+    fieldName: string,
+    fieldDesc: string,
+    fieldClass: string,
+    value: any
+  ) {
     const key = `${fieldClass}.${fieldName}${fieldDesc}`;
 
     if (key in this.fields) {

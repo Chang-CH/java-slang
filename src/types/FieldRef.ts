@@ -1,9 +1,14 @@
+import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
+import Thread from '#jvm/components/Thread/Thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
+import { newString } from '#utils/index';
 import { ClassRef } from './class/ClassRef';
 import { ConstantUtf8 } from './constants';
 import { JavaType } from './dataTypes';
+import { JvmObject } from './reference/Object';
+import { ErrorResult, ImmediateResult, SuccessResult } from './result';
 
 export class FieldRef {
   private cls: ClassRef;
@@ -12,6 +17,9 @@ export class FieldRef {
   private value: any;
   private accessFlags: number;
   private attributes: AttributeInfo[];
+
+  private static reflectedClass: ClassRef | null = null;
+  private javaObject: JvmObject | null = null;
 
   constructor(
     cls: ClassRef,
@@ -62,6 +70,45 @@ export class FieldRef {
 
   static checkField(obj: any): obj is FieldRef {
     return obj.fieldName !== undefined;
+  }
+
+  getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
+    if (this.javaObject) {
+      return new SuccessResult(this.javaObject);
+    }
+
+    if (!FieldRef.reflectedClass) {
+      const fRes = thread
+        .getClass()
+        .getLoader()
+        .getClassRef('java/lang/reflect/Field');
+      if (fRes.checkError()) {
+        return new ErrorResult(fRes.getError().className, fRes.getError().msg);
+      }
+      FieldRef.reflectedClass = fRes.getResult();
+    }
+
+    this.javaObject = FieldRef.reflectedClass.instantiate();
+    this.javaObject.$putField(
+      'clazz',
+      'java/lang/Class',
+      'java/lang/reflect/Field',
+      this.cls.getJavaObject()
+    );
+    // this.javaObject.$putField(
+    //   'name',
+    //   'java/lang/String',
+    //   'java/lang/reflect/Field',
+    //   newString()
+    //   this.fieldName
+    // );
+    //   fieldObj['java/lang/reflect/Field/clazz'] = this.cls.getClassObject(thread);
+    //   fieldObj['java/lang/reflect/Field/name'] = jvm.internString(this.name);
+    //   fieldObj['java/lang/reflect/Field/type'] = typeObj;
+    //   fieldObj['java/lang/reflect/Field/modifiers'] = this.accessFlags.getRawByte();
+    //   fieldObj['java/lang/reflect/Field/slot'] = this.slot;
+    //   fieldObj['java/lang/reflect/Field/signature'] = signatureAttr !== null ? initString(bsCl, signatureAttr.sig) : null;
+    //   fieldObj['java/lang/reflect/Field/annotations'] = this.getAnnotationType(thread, 'RuntimeVisibleAnnotations');
   }
 
   getValue() {

@@ -2,12 +2,7 @@ import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader
 import { FieldRef } from '#types/FieldRef';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import {
-  ErrorResult,
-  ImmediateResult,
-  Result,
-  SuccessResult,
-} from '#types/result';
+import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 
 export function newCharArr(
   loader: AbstractClassLoader,

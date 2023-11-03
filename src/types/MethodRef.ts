@@ -19,18 +19,34 @@ export class MethodRef {
   private descriptor: string;
   private attributes: Array<AttributeInfo>;
 
-  constructor(cls: ClassRef, method: MethodInfo) {
+  constructor(
+    cls: ClassRef,
+    code: CodeAttribute | null,
+    accessFlags: number,
+    name: string,
+    descriptor: string,
+    attributes: Array<AttributeInfo>
+  ) {
+    this.cls = cls;
+    this.code = code;
+    this.accessFlags = accessFlags;
+    this.name = name;
+    this.descriptor = descriptor;
+    this.attributes = attributes;
+  }
+
+  static fromMethodInfo(cls: ClassRef, method: MethodInfo) {
     // get name and descriptor
-    this.name = (cls.getConstant(method.nameIndex) as ConstantUtf8).get();
-    this.descriptor = (
+    const name = (cls.getConstant(method.nameIndex) as ConstantUtf8).get();
+    const descriptor = (
       cls.getConstant(method.descriptorIndex) as ConstantUtf8
     ).get();
 
-    this.accessFlags = method.accessFlags;
-    this.attributes = method.attributes;
+    const accessFlags = method.accessFlags;
+    const attributes = method.attributes;
     // get code attribute
     let code = null;
-    this.attributes.forEach(attr => {
+    attributes.forEach(attr => {
       const attrname = (
         cls.getConstant(attr.attributeNameIndex) as ConstantUtf8
       ).get();
@@ -38,9 +54,7 @@ export class MethodRef {
         code = attr as CodeAttribute;
       }
     });
-
-    this.cls = cls;
-    this.code = code;
+    return new MethodRef(cls, code, accessFlags, name, descriptor, attributes);
   }
 
   static checkMethod(obj: any): obj is MethodRef {

@@ -73,7 +73,11 @@ export class InternalStackFrame extends StackFrame {
     this.callback = callback;
   }
 
-  public onFinish(thread: Thread, retn: any) {
+  public onReturn(thread: Thread, retn: any) {
+    this.callback(retn);
+  }
+
+  public onReturn64(thread: Thread, retn: any) {
     this.callback(retn);
   }
 

@@ -5,11 +5,23 @@ import {
 } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import Thread from '#jvm/components/Thread/Thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
+import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
+import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
+import {
+  AttributeInfo,
+  CodeAttribute,
+} from '#jvm/external/ClassFile/types/attributes';
 import * as info from '#jvm/external/ClassFile/types/constants';
+import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
+import {
+  METHOD_FLAGS,
+  MethodInfo,
+} from '#jvm/external/ClassFile/types/methods';
 import { FieldRef } from '#types/FieldRef';
 import { MethodRef } from '#types/MethodRef';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { ClassRef } from '#types/class/ClassRef';
+import { JavaType } from '#types/dataTypes';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import {
@@ -331,6 +343,10 @@ export class ConstantMethodType extends Constant {
       this.result = new SuccessResult<JvmObject>(mt);
     });
   }
+
+  getDescriptor() {
+    return this.descriptor.get();
+  }
 }
 
 export class ConstantClass extends Constant {
@@ -373,6 +389,99 @@ export class ConstantClass extends Constant {
 // #endregion
 
 // #region name and type dependency
+
+function createTempClass(
+  className: string,
+  loader: AbstractClassLoader,
+  superClass: ClassRef | null,
+  constants: info.ConstantInfo[],
+  interfaces: ClassRef[],
+  methods: {
+    accessFlags: number;
+    name: string;
+    className: string;
+    descriptor: string;
+    attributes: AttributeInfo[];
+    code: DataView;
+    maxStack: number;
+  }[],
+  fields: FieldInfo[],
+  flags: number
+): ClassRef {
+  let cpool: info.ConstantInfo[] = constants;
+
+  const methodInfoArr: MethodInfo[] = methods.map((method, index) => {
+    cpool.push({
+      tag: CONSTANT_TAG.Utf8,
+      length: method.descriptor.length,
+      value: method.descriptor,
+    });
+    cpool.push({
+      tag: CONSTANT_TAG.Utf8,
+      length: method.name.length,
+      value: method.name,
+    });
+    cpool.push({
+      tag: CONSTANT_TAG.Utf8,
+      length: method.className.length,
+      value: method.className,
+    });
+    cpool.push({
+      tag: CONSTANT_TAG.NameAndType,
+      nameIndex: cpool.length - 2,
+      descriptorIndex: cpool.length - 3,
+    });
+    cpool.push({
+      tag: CONSTANT_TAG.Class,
+      nameIndex: cpool.length - 2,
+    });
+    cpool.push({
+      tag: CONSTANT_TAG.Methodref,
+      classIndex: cpool.length - 1,
+      nameAndTypeIndex: cpool.length - 2,
+    });
+    cpool.push({
+      tag: CONSTANT_TAG.Utf8,
+      length: 4,
+      value: 'Code',
+    });
+
+    const res: MethodInfo = {
+      accessFlags: method.accessFlags,
+      nameIndex: cpool.length - 6,
+      name: method.name,
+      descriptor: method.descriptor,
+      descriptorIndex: cpool.length - 7,
+      attributes: method.attributes,
+      attributesCount: method.attributes?.length,
+    };
+    res.attributes.push({
+      attributeNameIndex: cpool.length - 1,
+      attributeLength: 0,
+      maxStack: method.maxStack,
+      maxLocals: 0,
+      codeLength: 0,
+      code: method.code,
+      exceptionTableLength: 0,
+      exceptionTable: [],
+      attributesCount: 0,
+      attributes: [],
+    } as CodeAttribute);
+    return res;
+  });
+
+  return new ClassRef(
+    cpool,
+    flags,
+    className,
+    superClass,
+    interfaces,
+    fields,
+    methodInfoArr,
+    [],
+    loader
+  );
+}
 
 export class ConstantInvokeDynamic extends Constant {
   private bootstrapMethodAttrIndex: number;
@@ -537,6 +646,203 @@ export class ConstantInvokeDynamic extends Constant {
     // // the reference to an instance of java.lang.invoke.MethodHandle,
     // // the reference to an instance of java.lang.invoke.MethodType,
     // // the references to instances of Class, java.lang.invoke.MethodHandle, java.lang.invoke.MethodType, and String.
+  }
+
+  public tempResolve(thread: Thread): Result<JvmObject> {
+    const nameAndTypeRes = this.nameAndType.get();
+
+    const bootstrapMethod = this.cls.getBootstrapMethod(
+      this.bootstrapMethodAttrIndex
+    );
+    const bootstrapMhConst = this.cls.getConstant(
+      bootstrapMethod.bootstrapMethodRef
+    ) as ConstantMethodHandle;
+
+    const constref = bootstrapMhConst.tempGetReference();
+    const refres = constref.resolve();
+    if (!refres.checkSuccess()) {
+      if (refres.checkError()) {
+        const err = refres.getError();
+        return new ErrorResult(err.className, err.msg);
+      }
+      return new DeferResult();
+    }
+    const res = refres.getResult();
+
+    const bsArgIdx = bootstrapMethod.bootstrapArguments;
+    const argConst = this.cls.getConstant(bsArgIdx[0]) as ConstantMethodType;
+    const mhConst = this.cls.getConstant(bsArgIdx[1]) as ConstantMethodHandle;
+    const invokeRes = mhConst.tempGetReference().resolve();
+    if (!invokeRes.checkSuccess()) {
+      if (invokeRes.checkError()) {
+        const err = invokeRes.getError();
+        return new ErrorResult(err.className, err.msg);
+      }
+      return new DeferResult();
+    }
+    const { ret } = parseMethodDescriptor(nameAndTypeRes.descriptor);
+
+    const clsName = ret.referenceCls;
+    if (!clsName) {
+      throw new Error('Only lambdas are supported at the moment');
+    }
+    const loader = this.cls.getLoader();
+    const clsRes = loader.getClassRef(clsName);
+    const objRes = loader.getClassRef('java/lang/Object');
+    if (clsRes.checkError() || objRes.checkError()) {
+      const err = clsRes.checkError()
+        ? clsRes.getError()
+        : (objRes as ErrorResult<ClassRef>).getError();
+      return new ErrorResult(err.className, err.msg);
+    }
+
+    const thisClsName = this.cls.getClassname();
+    const tempClsName = 'TEMP';
+    const intercls = clsRes.getResult();
+    const objCls = objRes.getResult();
+    const erasedDesc = argConst.getDescriptor();
+    const methodName = nameAndTypeRes.name;
+    const toInvoke = invokeRes.getResult() as MethodRef;
+
+    const invokerName = toInvoke.getName();
+    const invokerDesc = toInvoke.getMethodDesc();
+
+    const parsedDesc = parseMethodDescriptor(invokerDesc);
+    const methodArgs = parsedDesc.args;
+    const methodRet = parsedDesc.ret;
+    let maxStack = 0;
+
+    // load(1) * n -> invoke(3) -> return(1)
+    const code = new DataView(new ArrayBuffer(3 + methodArgs.length * 2 + 1));
+    code.setUint8(0, OPCODE.INVOKESTATIC);
+    code.setUint16(1, 6);
+    let ptr = 3;
+    methodArgs.forEach((arg, index) => {
+      switch (arg.type) {
+        case JavaType.char:
+        case JavaType.byte:
+        case JavaType.int:
+        case JavaType.boolean:
+        case JavaType.short:
+          code.setUint8(ptr, OPCODE.ILOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.double:
+          code.setUint8(ptr, OPCODE.DLOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.float:
+          code.setUint8(ptr, OPCODE.FLOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.long:
+          code.setUint8(ptr, OPCODE.LLOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.reference:
+          code.setUint8(ptr, OPCODE.ALOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.array:
+          code.setUint8(ptr, OPCODE.ALOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.void:
+          throw new Error('Void type in params');
+      }
+      ptr += 2;
+      maxStack += 1;
+      if (arg.type === JavaType.double || arg.type === JavaType.long) {
+        maxStack += 1;
+      }
+    });
+    switch (methodRet.type) {
+      case JavaType.char:
+      case JavaType.byte:
+      case JavaType.int:
+      case JavaType.boolean:
+      case JavaType.short:
+        code.setUint8(ptr, OPCODE.IRETURN);
+        break;
+      case JavaType.double:
+        code.setUint8(ptr, OPCODE.DRETURN);
+        break;
+      case JavaType.float:
+        code.setUint8(ptr, OPCODE.FRETURN);
+        break;
+      case JavaType.long:
+        code.setUint8(ptr, OPCODE.LRETURN);
+        break;
+      case JavaType.reference:
+        code.setUint8(ptr, OPCODE.ARETURN);
+        break;
+      case JavaType.array:
+        code.setUint8(ptr, OPCODE.ARETURN);
+        break;
+      case JavaType.void:
+        code.setUint8(ptr, OPCODE.RETURN);
+    }
+    code.setUint8(ptr, OPCODE.INVOKESTATIC);
+
+    const anonCls = createTempClass(
+      tempClsName,
+      loader,
+      objCls,
+      [
+        // pad index 0
+        {
+          tag: CONSTANT_TAG.Utf8,
+          value: '',
+          length: 0,
+        },
+        {
+          tag: CONSTANT_TAG.Utf8,
+          value: thisClsName,
+          length: thisClsName.length,
+        },
+        {
+          tag: CONSTANT_TAG.Class,
+          nameIndex: 1,
+        },
+        {
+          tag: CONSTANT_TAG.Utf8,
+          value: invokerDesc,
+          length: invokerDesc.length,
+        },
+        {
+          tag: CONSTANT_TAG.Utf8,
+          value: invokerName,
+          length: invokerName.length,
+        },
+        {
+          tag: CONSTANT_TAG.NameAndType,
+          nameIndex: 4,
+          descriptorIndex: 3,
+        },
+        {
+          tag: CONSTANT_TAG.Methodref,
+          classIndex: 2,
+          nameAndTypeIndex: 5,
+        },
+      ],
+      [intercls],
+      [
+        {
+          accessFlags: METHOD_FLAGS.ACC_PUBLIC,
+          name: methodName,
+          descriptor: erasedDesc,
+          attributes: [],
+          className: tempClsName,
+          maxStack,
+          code,
+        },
+      ],
+      [],
+      CLASS_FLAGS.ACC_PUBLIC
+    );
+    const lambdaObj = anonCls.instantiate();
+
+    return new SuccessResult(lambdaObj);
   }
 }
 
@@ -927,6 +1233,10 @@ export class ConstantMethodHandle extends Constant {
     // #endregion
 
     return this.result;
+  }
+
+  public tempGetReference() {
+    return this.reference;
   }
 }
 // #endregion

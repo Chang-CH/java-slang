@@ -114,7 +114,7 @@ export class ClassRef {
     });
     this.methods = {};
     methods.forEach(method => {
-      const methodRef = new MethodRef(this, method);
+      const methodRef = MethodRef.fromMethodInfo(this, method);
       this.methods[methodRef.getName() + methodRef.getMethodDesc()] = methodRef;
     });
     this.attributes = attributes;
@@ -171,6 +171,10 @@ export class ClassRef {
       throw new Error('Class Object has not been created');
     }
     return this.javaObj;
+  }
+
+  getFields(): { [fieldName: string]: FieldRef } {
+    return this.fields;
   }
 
   $resolveClass(toResolve: string): ImmediateResult<ClassRef> {
@@ -304,11 +308,6 @@ export class ClassRef {
   }
 
   getConstant(constantIndex: number): Constant {
-    const constItem = this.constantPool.get(constantIndex);
-    return constItem;
-  }
-
-  getConstant64(constantIndex: number): any {
     const constItem = this.constantPool.get(constantIndex);
     return constItem;
   }
