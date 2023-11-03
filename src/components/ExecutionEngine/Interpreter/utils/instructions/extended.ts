@@ -97,7 +97,7 @@ export function runMultianewarray(thread: Thread): void {
 
   const arrayCls = clsRes.getResult();
   const res = arrayCls.instantiate() as JvmArray;
-  res.initialize(dimArray[0]);
+  res.initArray(dimArray[0]);
 
   let pendingInit = [res];
   let nextInit = [];
@@ -121,7 +121,7 @@ export function runMultianewarray(thread: Thread): void {
     for (const arr of pendingInit) {
       for (let j = 0; j < dimArray[i]; j++) {
         const obj = arrayCls.instantiate() as JvmArray;
-        obj.initialize(dimArray[i]);
+        obj.initArray(dimArray[i]);
         arr.set(j, obj);
         nextInit.push(obj);
       }

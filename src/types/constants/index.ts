@@ -225,7 +225,7 @@ function createMethodType(
   }
   const paramClsArr = clArrRes.getResult().instantiate() as JvmArray;
   const retCls = classArray.pop();
-  paramClsArr.initialize(classArray.length, classArray);
+  paramClsArr.initialize(thread, classArray.length, classArray);
   // #endregion
 
   // #region create MethodType object
@@ -402,60 +402,61 @@ export class ConstantInvokeDynamic extends Constant {
   public constructCso(thread: Thread) {}
 
   public resolve(thread: Thread): Result<any> {
-    // Get MethodType from NameAndType
-    if (!this.methodTypeObj) {
-      // resolve nameAndType
-      const nameAndTypeRes = this.nameAndType.get();
-      createMethodType(
-        thread,
-        this.cls.getLoader(),
-        nameAndTypeRes.descriptor,
-        mt => {
-          this.methodTypeObj = mt;
-        }
-      );
+    throw new Error('Method not implemented.');
+    // // Get MethodType from NameAndType
+    // if (!this.methodTypeObj) {
+    //   // resolve nameAndType
+    //   const nameAndTypeRes = this.nameAndType.get();
+    //   createMethodType(
+    //     thread,
+    //     this.cls.getLoader(),
+    //     nameAndTypeRes.descriptor,
+    //     mt => {
+    //       this.methodTypeObj = mt;
+    //     }
+    //   );
 
-      return new DeferResult();
-    }
+    //   return new DeferResult();
+    // }
 
-    const loader = this.cls.getLoader();
-    // boostrap method is instance of java.lang.invoke.MethodHandle
-    // #region bootstrap method
-    const bootstrapMethod = this.cls.getBootstrapMethod(
-      this.bootstrapMethodAttrIndex
-    );
-    const bootstrapMhConst = this.cls.getConstant(
-      bootstrapMethod.bootstrapMethodRef
-    ) as ConstantMethodHandle;
+    // const loader = this.cls.getLoader();
+    // // boostrap method is instance of java.lang.invoke.MethodHandle
+    // // #region bootstrap method
+    // const bootstrapMethod = this.cls.getBootstrapMethod(
+    //   this.bootstrapMethodAttrIndex
+    // );
+    // const bootstrapMhConst = this.cls.getConstant(
+    //   bootstrapMethod.bootstrapMethodRef
+    // ) as ConstantMethodHandle;
 
-    const mhRes = bootstrapMhConst.resolve(thread);
-    if (!mhRes.checkSuccess()) {
-      return mhRes;
-    }
-    const bootstrapMhn = bootstrapMhConst.get();
-    const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
-      const constant = this.cls.getConstant(index);
-      constant.resolve();
-      // FIXME: should take ldc logic -- classref resolve to class object
-      return constant;
-    });
-    // #endregion
+    // const mhRes = bootstrapMhConst.resolve(thread);
+    // if (!mhRes.checkSuccess()) {
+    //   return mhRes;
+    // }
+    // const bootstrapMhn = bootstrapMhConst.get();
+    // const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
+    //   const constant = this.cls.getConstant(index);
+    //   constant.resolve();
+    //   // FIXME: should take ldc logic -- classref resolve to class object
+    //   return constant;
+    // });
+    // // #endregion
 
-    // #region get arguments
-    const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
-    if (objArrRes.checkError()) {
-      return new ErrorResult('java/lang/ClassNotFoundException', '');
-    }
-    const arrCls = objArrRes.getResult() as ArrayClassRef;
-    const argsArr = arrCls.instantiate();
-    argsArr.initialize(bootstrapArgs.length, bootstrapArgs);
+    // // #region get arguments
+    // const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
+    // if (objArrRes.checkError()) {
+    //   return new ErrorResult('java/lang/ClassNotFoundException', '');
+    // }
+    // const arrCls = objArrRes.getResult() as ArrayClassRef;
+    // const argsArr = arrCls.instantiate();
+    // argsArr.initialize(bootstrapArgs.length, bootstrapArgs);
 
-    const appendixArr = arrCls.instantiate();
-    appendixArr.initialize(1);
-    // #endregion
+    // const appendixArr = arrCls.instantiate();
+    // appendixArr.initialize(1);
+    // // #endregion
 
-    throw new Error('not implemented');
-    // #region run bootstrap method
+    // throw new Error('not implemented');
+    // // #region run bootstrap method
 
     // /**
     //  * doppio logic
@@ -824,7 +825,7 @@ export class ConstantMethodHandle extends Constant {
         this.result = new ErrorResult(err.className, err.msg);
         return this.result;
       }
-      return refRes;
+      return new DeferResult();
     }
     this.result = new DeferResult<JvmObject>();
     const ref = refRes.getResult();

@@ -716,7 +716,13 @@ describe('runInvokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, nativeMethodIdx);
     const method = testClass.getMethod('test0()I') as MethodRef;
-    jni.registerNativeMethod('Test', 'nativeFunc()I', () => 5);
+    jni.registerNativeMethod(
+      'Test',
+      'nativeFunc()I',
+      (thread: Thread, locals: any[]) => {
+        thread.returnSF(5);
+      }
+    );
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     runInstruction(thread, jni, () => {});
     runInstruction(thread, jni, () => {});
@@ -812,7 +818,13 @@ describe('runInvokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, nativeMethodIdx);
     const method = testClass.getMethod('test0()J') as MethodRef;
-    jni.registerNativeMethod('Test', 'nativeFunc()J', () => 5n);
+    jni.registerNativeMethod(
+      'Test',
+      'nativeFunc()J',
+      (thread: Thread, locals: any[]) => {
+        thread.returnSF(5n, null, true);
+      }
+    );
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     runInstruction(thread, jni, () => {});
     runInstruction(thread, jni, () => {});
@@ -4667,47 +4679,6 @@ describe('runAnewarray', () => {
     const arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
     expect(arrayObj.len()).toBe(0);
-  });
-
-  test('ANEWARRAY: initializes class', () => {
-    const ab = new ArrayBuffer(24);
-    const code = new DataView(ab);
-    let classIndex = 0;
-    const testClass = createClass({
-      className: 'Test',
-      constants: [
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          length: 4,
-          value: 'Test',
-        }),
-        cPool => {
-          classIndex = cPool.length;
-          return {
-            tag: CONSTANT_TAG.Class,
-            nameIndex: cPool.length - 1,
-          };
-        },
-      ],
-      methods: [
-        {
-          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-          name: 'test0',
-          descriptor: '()V',
-          attributes: [],
-          code: code,
-        },
-      ],
-      loader: testLoader,
-    });
-    code.setUint8(0, OPCODE.ANEWARRAY);
-    code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
-    thread.pushStack(0);
-    expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
-    runInstruction(thread, jni, () => {});
-    expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
   });
 
   test('ANEWARRAY: sets elements to default value', () => {

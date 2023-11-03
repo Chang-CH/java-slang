@@ -4,7 +4,6 @@ import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
 import { ConstantRef } from '#types/ConstantRef';
 import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
 import { ClassRef } from './ClassRef';
 
 export class ArrayClassRef extends ClassRef {

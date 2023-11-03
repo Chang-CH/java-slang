@@ -453,7 +453,7 @@ describe('runIALOAD', () => {
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.IALOAD);
@@ -486,7 +486,7 @@ describe('runIALOAD', () => {
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IALOAD);
@@ -509,7 +509,7 @@ describe('runIALOAD', () => {
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IALOAD);
@@ -534,7 +534,7 @@ describe('runLALOAD', () => {
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99n]);
+    arrayRef.initialize(thread, 1, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.LALOAD);
@@ -567,7 +567,7 @@ describe('runLALOAD', () => {
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99n]);
+    arrayRef.initialize(thread, 1, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LALOAD);
@@ -589,7 +589,7 @@ describe('runLALOAD', () => {
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99n]);
+    arrayRef.initialize(thread, 1, [99n]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.LALOAD);
@@ -613,7 +613,7 @@ describe('runFALOAD', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99.0]);
+    arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FALOAD);
@@ -646,7 +646,7 @@ describe('runFALOAD', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99.0]);
+    arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.FALOAD);
@@ -668,7 +668,7 @@ describe('runFALOAD', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99.0]);
+    arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.FALOAD);
@@ -692,7 +692,7 @@ describe('runDALOAD', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99.0]);
+    arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.DALOAD);
@@ -725,7 +725,7 @@ describe('runDALOAD', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99.0]);
+    arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.DALOAD);
@@ -747,7 +747,7 @@ describe('runDALOAD', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99.0]);
+    arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.DALOAD);
@@ -771,7 +771,7 @@ describe('runAALOAD', () => {
       bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [null]);
+    arrayRef.initialize(thread, 1, [null]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.AALOAD);
@@ -788,12 +788,12 @@ describe('runAALOAD', () => {
       bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const iarrayRef = iarrCls.instantiate() as JvmArray;
-    iarrayRef.initialize(1, [null]);
+    iarrayRef.initialize(thread, 1, [null]);
     const arrCls = (
       bscl.getClassRef('[[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [iarrayRef]);
+    arrayRef.initialize(thread, 1, [iarrayRef]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.AALOAD);
@@ -826,7 +826,7 @@ describe('runAALOAD', () => {
       bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.AALOAD);
@@ -849,7 +849,7 @@ describe('runAALOAD', () => {
       bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.AALOAD);
@@ -874,7 +874,7 @@ describe('runBALOAD', () => {
       bscl.getClassRef('[Z') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.BALOAD);
@@ -907,7 +907,7 @@ describe('runBALOAD', () => {
       bscl.getClassRef('[Z') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.BALOAD);
@@ -930,7 +930,7 @@ describe('runBALOAD', () => {
       bscl.getClassRef('[Z') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.BALOAD);
@@ -955,7 +955,7 @@ describe('runCALOAD', () => {
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.CALOAD);
@@ -988,7 +988,7 @@ describe('runCALOAD', () => {
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.CALOAD);
@@ -1011,7 +1011,7 @@ describe('runCALOAD', () => {
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.CALOAD);
@@ -1036,7 +1036,7 @@ describe('runSALOAD', () => {
       bscl.getClassRef('[S') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.SALOAD);
@@ -1069,7 +1069,7 @@ describe('runSALOAD', () => {
       bscl.getClassRef('[S') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.SALOAD);
@@ -1092,7 +1092,7 @@ describe('runSALOAD', () => {
       bscl.getClassRef('[S') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(1, [99]);
+    arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.SALOAD);

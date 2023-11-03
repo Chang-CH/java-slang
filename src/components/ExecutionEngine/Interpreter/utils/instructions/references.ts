@@ -706,7 +706,7 @@ export function runNewarray(thread: Thread): void {
 
   const arrayCls = classResolutionResult.getResult();
   const arrayref = arrayCls.instantiate() as unknown as JvmArray;
-  arrayref.initialize(count);
+  arrayref.initArray(count);
   thread.pushStack(arrayref);
 }
 
@@ -732,15 +732,15 @@ export function runAnewarray(thread: Thread): void {
     return;
   }
   const objCls = res.getResult();
-  const initRes = objCls.initialize(thread, onDefer);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
-      return;
-    }
-    return;
-  }
+  // const initRes = objCls.initialize(thread, onDefer);
+  // if (!initRes.checkSuccess()) {
+  //   if (initRes.checkError()) {
+  //     const err = initRes.getError();
+  //     thread.throwNewException(err.className, err.msg);
+  //     return;
+  //   }
+  //   return;
+  // }
 
   const arrayClassRes = invoker
     .getLoader()
@@ -749,18 +749,18 @@ export function runAnewarray(thread: Thread): void {
     throw new Error('Failed to load array class');
   }
   const arrayCls = arrayClassRes.getResult();
-  const aInitRes = arrayCls.initialize(thread, onDefer);
-  if (!aInitRes.checkSuccess()) {
-    if (aInitRes.checkError()) {
-      const err = aInitRes.getError();
-      thread.throwNewException(err.className, err.msg);
-      return;
-    }
-    return;
-  }
+  // const aInitRes = arrayCls.initialize(thread, onDefer);
+  // if (!aInitRes.checkSuccess()) {
+  //   if (aInitRes.checkError()) {
+  //     const err = aInitRes.getError();
+  //     thread.throwNewException(err.className, err.msg);
+  //     return;
+  //   }
+  //   return;
+  // }
 
   const arrayref = arrayCls.instantiate() as unknown as JvmArray;
-  arrayref.initialize(count);
+  arrayref.initArray(count);
   thread.pushStack(arrayref);
 }
 

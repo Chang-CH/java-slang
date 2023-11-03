@@ -152,7 +152,13 @@ export class ClassRef {
     if (this.methods['<clinit>()V']) {
       this.status = CLASS_STATUS.INITIALIZING;
       onDefer && onDefer();
-      thread.invokeSf(this, this.methods['<clinit>()V'], 0, []);
+      thread.invokeSf(
+        this,
+        this.methods['<clinit>()V'],
+        0,
+        [],
+        () => (this.status = CLASS_STATUS.INITIALIZED)
+      );
       return new DeferResult<ClassRef>();
     }
 

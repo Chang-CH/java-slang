@@ -36,13 +36,15 @@ export default class Thread {
       throw new Error('Thread constructor not found');
     }
 
-    thread.invokeSf(
-      this.threadClass,
-      init,
-      0,
-      [this.javaObject],
-      () => (this.status = ThreadStatus.RUNNABLE)
-    );
+    thread.invokeSf(this.threadClass, init, 0, [this.javaObject]);
+  }
+
+  getStatus() {
+    return this.status;
+  }
+
+  setStatus(status: ThreadStatus) {
+    this.status = status;
   }
 
   getJavaObject() {

@@ -25,7 +25,7 @@ export function newCharArr(
   for (let i = 0; i < str.length; i++) {
     jsArr.push(str.charCodeAt(i));
   }
-  cArr.initialize(str.length, jsArr);
+  cArr.initArray(str.length, jsArr);
   return new SuccessResult<JvmArray>(cArr);
 }
 

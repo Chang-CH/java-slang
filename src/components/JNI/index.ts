@@ -4,7 +4,7 @@ import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { StackFrame } from '../Thread/StackFrame';
-import Thread from '../Thread/Thread';
+import Thread, { ThreadStatus } from '../Thread/Thread';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -232,6 +232,7 @@ export function registerNatives(jni: JNI) {
         0,
         [action],
         (ret: JvmObject) => {
+          thread.returnSF();
           thread.returnSF(ret);
         }
       );
@@ -297,6 +298,14 @@ export function registerNatives(jni: JNI) {
       }
 
       thread.returnSF();
+    }
+  );
+
+  jni.registerNativeMethod(
+    'java/lang/Thread',
+    'sleep(J)V',
+    (thread: Thread, locals: any[]) => {
+      thread.setStatus(ThreadStatus.WAITING);
     }
   );
 

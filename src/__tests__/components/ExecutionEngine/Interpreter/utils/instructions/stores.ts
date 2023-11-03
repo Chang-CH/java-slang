@@ -486,7 +486,7 @@ describe('runIastore', () => {
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
 
     thread.pushStack(arrayref);
     thread.pushStack(0);
@@ -517,7 +517,7 @@ describe('runIastore', () => {
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -534,7 +534,7 @@ describe('runIastore', () => {
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -553,7 +553,7 @@ describe('runLastore', () => {
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(5n);
@@ -583,7 +583,7 @@ describe('runLastore', () => {
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(5n);
@@ -600,7 +600,7 @@ describe('runLastore', () => {
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(5n);
@@ -619,7 +619,7 @@ describe('runFastore', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0.5);
@@ -649,7 +649,7 @@ describe('runFastore', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(0.5);
@@ -666,7 +666,7 @@ describe('runFastore', () => {
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(0.5);
@@ -685,7 +685,7 @@ describe('runDastore', () => {
       bscl.getClassRef('[D') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack64(0.5);
@@ -715,7 +715,7 @@ describe('runDastore', () => {
       bscl.getClassRef('[D') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack64(0.5);
@@ -732,7 +732,7 @@ describe('runDastore', () => {
       bscl.getClassRef('[D') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack64(0.5);
@@ -751,7 +751,7 @@ describe('runAastore', () => {
       bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     const v1 = new JvmObject(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(0);
@@ -782,7 +782,7 @@ describe('runAastore', () => {
       bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     const v1 = new JvmObject(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(1);
@@ -800,7 +800,7 @@ describe('runAastore', () => {
       bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     const v1 = new JvmObject(threadClass);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
@@ -820,7 +820,7 @@ describe('runBastore', () => {
       bscl.getClassRef('[B') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -838,7 +838,7 @@ describe('runBastore', () => {
       bscl.getClassRef('[B') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(128);
@@ -868,7 +868,7 @@ describe('runBastore', () => {
       bscl.getClassRef('[B') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -885,7 +885,7 @@ describe('runBastore', () => {
       bscl.getClassRef('[B') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -904,7 +904,7 @@ describe('runCastore', () => {
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -922,7 +922,7 @@ describe('runCastore', () => {
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(0x11111);
@@ -952,7 +952,7 @@ describe('runCastore', () => {
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -969,7 +969,7 @@ describe('runCastore', () => {
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);
@@ -988,7 +988,7 @@ describe('runSastore', () => {
       bscl.getClassRef('[S') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(5);
@@ -1006,7 +1006,7 @@ describe('runSastore', () => {
       bscl.getClassRef('[S') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
     thread.pushStack(32768);
@@ -1036,7 +1036,7 @@ describe('runSastore', () => {
       bscl.getClassRef('[S') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
     thread.pushStack(5);
@@ -1053,7 +1053,7 @@ describe('runSastore', () => {
       bscl.getClassRef('[S') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
-    arrayref.initialize(1);
+    arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
     thread.pushStack(5);

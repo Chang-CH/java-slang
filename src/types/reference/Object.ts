@@ -24,7 +24,7 @@ export class JvmObject {
     }
   }
 
-  initialize(thread: Thread): Result<JvmObject> {
+  initialize(thread: Thread, ...rest: any[]): Result<JvmObject> {
     if (this.initStatus) {
       return new SuccessResult(this);
     }

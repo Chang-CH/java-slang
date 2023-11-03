@@ -1,5 +1,7 @@
+import Thread from '#jvm/components/Thread/Thread';
 import { ClassRef } from '#types/class/ClassRef';
 import { ArrayPrimitiveType, JavaType } from '#types/dataTypes';
+import { Result, SuccessResult } from '#types/result';
 import { JvmObject } from './Object';
 
 export class JvmArray extends JvmObject {
@@ -40,12 +42,16 @@ export class JvmArray extends JvmObject {
     this.array = [];
   }
 
-  initialize(length: number, arr?: any[]) {
+  initialize(thread: Thread, ...rest: any[]): Result<JvmArray> {
+    return this.initArray(rest[0], rest[1]);
+  }
+
+  initArray(length: number, arr?: any[]): Result<JvmArray> {
     this.length = length;
 
     if (arr) {
       this.array = arr;
-      return;
+      return new SuccessResult(this);
     }
 
     let def;
@@ -79,6 +85,7 @@ export class JvmArray extends JvmObject {
     }
 
     this.array = new Array(length).fill(def);
+    return new SuccessResult(this);
   }
 
   get(index: number) {
