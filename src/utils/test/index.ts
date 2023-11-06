@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { ClassFile } from '#jvm/external/ClassFile/types';
+import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import {
   AttributeInfo,
   CodeAttribute,
@@ -210,17 +210,26 @@ export class TestClassLoader extends AbstractClassLoader {
     return this.parentLoader.getPrimitiveClassRef(className);
   }
   load(className: string): ImmediateResult<ClassRef> {
+    // array class
     if (className.startsWith('[')) {
-      const objRes = (
-        this.getClassRef('java/lang/Object') as SuccessResult<ClassRef>
-      ).getResult() as ClassRef;
-      const arrayClass = createClass({
-        className: className,
-        loader: this,
-        superClass: objRes,
-        isArray: true,
-      });
-      return new SuccessResult(arrayClass);
+      const objRes = this.getClassRef('java/lang/Object');
+
+      if (objRes.checkError()) {
+        return objRes;
+      }
+
+      const arrayClass = new ArrayClassRef(
+        [],
+        CLASS_FLAGS.ACC_PUBLIC,
+        className,
+        objRes.getResult(),
+        [],
+        [],
+        [],
+        [],
+        this
+      );
+      return new SuccessResult(this.loadClass(arrayClass));
     }
 
     const stubRef = createClass({

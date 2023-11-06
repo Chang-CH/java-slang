@@ -1,5 +1,11 @@
+import { FieldRef } from '#types/FieldRef';
 import { ClassRef } from '#types/class/ClassRef';
+import { JvmArray } from '#types/reference/Array';
+import { JvmObject } from '#types/reference/Object';
+import { ImmediateResult, ErrorResult, SuccessResult } from '#types/result';
+import AbstractSystem from '#utils/AbstractSystem';
 import NodeSystem from '#utils/NodeSystem';
+import AbstractClassLoader from './components/ClassLoader/AbstractClassLoader';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ClassLoader from './components/ClassLoader/ClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
@@ -10,10 +16,13 @@ export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
   private applicationClassLoader?: ClassLoader;
   private engine: ExecutionEngine;
-  private nativeSystem: NodeSystem;
+  private nativeSystem: AbstractSystem;
   private jni: JNI;
 
-  constructor(nativeSystem: NodeSystem) {
+  cachedClasses: { [key: string]: ClassRef } = {};
+  private internedStrings: { [key: string]: JvmObject } = {};
+
+  constructor(nativeSystem: AbstractSystem) {
     this.nativeSystem = nativeSystem;
     this.bootstrapClassLoader = new BootstrapClassLoader(
       this.nativeSystem,
@@ -29,14 +38,22 @@ export default class JVM {
     // );
     this.jni = new JNI();
     this.engine = new ExecutionEngine(this.jni);
+  }
 
+  initialize() {
     // #region load classes
     const tRes = this.bootstrapClassLoader.getClassRef('java/lang/Thread');
     const sysRes = this.bootstrapClassLoader.getClassRef('java/lang/System');
+    const clsRes = this.bootstrapClassLoader.getClassRef('java/lang/Class');
     const tgRes = this.bootstrapClassLoader.getClassRef(
       'java/lang/ThreadGroup'
     );
-    if (sysRes.checkError() || tRes.checkError() || tgRes.checkError()) {
+    if (
+      sysRes.checkError() ||
+      tRes.checkError() ||
+      tgRes.checkError() ||
+      clsRes.checkError()
+    ) {
       throw new Error('Initialization classes not found');
     }
     const sysCls = sysRes.getResult();
@@ -46,10 +63,9 @@ export default class JVM {
 
     registerNatives(this.jni);
 
-    const mainThread = new Thread(threadCls);
+    const mainThread = new Thread(threadCls, this);
 
-    // #region initialize threadgroup object
-    console.log('// #region initializing threadgroup'.padEnd(150, '#'));
+    // #region 1: initialize threadgroup object
     const tgInitRes = threadGroupCls.initialize(mainThread);
     if (!tgInitRes.checkSuccess()) {
       throw new Error('ThreadGroup initialization failed');
@@ -61,7 +77,6 @@ export default class JVM {
     // #endregion
 
     // #region initialize Thread class
-    console.log('initializing Thread class'.padEnd(150, '#'));
     const tgfr = threadCls.getFieldRef('groupLjava/lang/ThreadGroup;');
     const pFr = threadCls.getFieldRef('priorityI');
     if (!tgfr || !pFr) {
@@ -73,17 +88,14 @@ export default class JVM {
 
     threadCls.initialize(mainThread);
     this.engine.runThread(mainThread);
-    console.log('Thread class loaded'.padEnd(150, '#'));
     // #endregion
 
     // #region initialize thread object
-    console.log('// #region initializing thread object'.padEnd(150, '#'));
     mainThread.initialize(mainThread);
     this.engine.runThread(mainThread);
-    console.log('// #endregion thread object initialized'.padEnd(150, '#'));
     // #endregion
 
-    // initialize system class
+    // #region initialize system class
     console.log('// #region initializing system class'.padEnd(150, '#'));
     const sInitMr = sysCls.getMethod('initializeSystemClass()V');
     if (!sInitMr) {
@@ -92,6 +104,7 @@ export default class JVM {
     mainThread.invokeSf(sysCls, sInitMr, 0, []);
     this.engine.runThread(mainThread);
     console.log('// #endregion system class initialized'.padEnd(150, '#'));
+    // #endregion
 
     // this.jni.registerNativeMethod(
     //   'source/Source',
@@ -120,11 +133,71 @@ export default class JVM {
     if (threadRes.checkError()) {
       throw new Error('Thread class not found');
     }
-
     if (mainRes.checkError()) {
       throw new Error('Main class not found');
     }
 
-    this.engine.runClass(threadRes.getResult(), mainRes.getResult());
+    const mainCls = mainRes.getResult();
+    const threadCls = threadRes.getResult();
+
+    const mainMethod = mainCls.getMethod('main([Ljava/lang/String;)V');
+    if (!mainMethod) {
+      throw new Error('Main method not found');
+    }
+    const mainThread = new Thread(threadCls, this);
+    mainThread.invokeSf(mainCls, mainMethod, 0, []);
+
+    this.engine.addThread(mainThread);
+    this.engine.run();
+  }
+
+  private newCharArr(str: string): ImmediateResult<JvmArray> {
+    const cArrRes = this.bootstrapClassLoader.getClassRef('[C');
+    if (cArrRes.checkError()) {
+      const err = cArrRes.getError();
+      return new ErrorResult<JvmArray>(err.className, err.msg);
+    }
+
+    const cArrCls = cArrRes.getResult();
+    const cArr = cArrCls.instantiate() as JvmArray;
+    const jsArr = [];
+    for (let i = 0; i < str.length; i++) {
+      jsArr.push(str.charCodeAt(i));
+    }
+    cArr.initArray(str.length, jsArr);
+    return new SuccessResult<JvmArray>(cArr);
+  }
+
+  private newString(str: string): ImmediateResult<JvmObject> {
+    const charArr = this.newCharArr(str);
+
+    if (!charArr.checkSuccess()) {
+      return charArr;
+    }
+
+    const strRes = this.bootstrapClassLoader.getClassRef('java/lang/String');
+
+    if (strRes.checkError()) {
+      const err = strRes.getError();
+      return new ErrorResult<JvmObject>(err.className, err.msg);
+    }
+    const strCls = strRes.getResult();
+    const strObj = strCls.instantiate();
+    const fieldRef = strCls.getFieldRef('value[C') as FieldRef;
+    strObj.putField(fieldRef as FieldRef, charArr.getResult());
+    return new SuccessResult<JvmObject>(strObj);
+  }
+
+  getInternedString(str: string) {
+    if (this.internedStrings[str]) {
+      return this.internedStrings[str];
+    }
+    const strRes = this.newString(str);
+    if (strRes.checkError()) {
+      throw new Error('String creation failed');
+    }
+
+    this.internedStrings[str] = strRes.getResult();
+    return this.internedStrings[str];
   }
 }

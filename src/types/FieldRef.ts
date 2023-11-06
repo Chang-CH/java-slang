@@ -1,9 +1,6 @@
-import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import Thread from '#jvm/components/Thread/Thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
-import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
-import { newString } from '#utils/index';
 import { ClassRef } from './class/ClassRef';
 import { ConstantUtf8 } from './constants';
 import { JavaType } from './dataTypes';
@@ -20,19 +17,22 @@ export class FieldRef {
 
   private static reflectedClass: ClassRef | null = null;
   private javaObject: JvmObject | null = null;
+  private slot: number;
 
   constructor(
     cls: ClassRef,
     fieldName: string,
     fieldDesc: string,
     accessFlags: number,
-    attributes: AttributeInfo[]
+    attributes: AttributeInfo[],
+    slot: number
   ) {
     this.cls = cls;
     this.fieldName = fieldName;
     this.fieldDesc = fieldDesc;
     this.accessFlags = accessFlags;
     this.attributes = attributes;
+    this.slot = slot;
 
     switch (fieldDesc) {
       case JavaType.byte:
@@ -53,7 +53,7 @@ export class FieldRef {
     }
   }
 
-  static fromFieldInfo(cls: ClassRef, field: FieldInfo) {
+  static fromFieldInfo(cls: ClassRef, field: FieldInfo, slot: number) {
     const fieldName = (cls.getConstant(field.nameIndex) as ConstantUtf8).get();
     const fieldDesc = (
       cls.getConstant(field.descriptorIndex) as ConstantUtf8
@@ -64,12 +64,17 @@ export class FieldRef {
       fieldName,
       fieldDesc,
       field.accessFlags,
-      field.attributes
+      field.attributes,
+      slot
     );
   }
 
   static checkField(obj: any): obj is FieldRef {
     return obj.fieldName !== undefined;
+  }
+
+  getSlot() {
+    return this.slot;
   }
 
   getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
@@ -89,26 +94,56 @@ export class FieldRef {
     }
 
     this.javaObject = FieldRef.reflectedClass.instantiate();
+    this.javaObject.initialize(thread);
+
     this.javaObject.$putField(
       'clazz',
-      'java/lang/Class',
+      'Ljava/lang/Class;',
+      'java/lang/reflect/Field',
+      FieldRef.reflectedClass.getJavaObject()
+    );
+    this.javaObject.$putField(
+      'name',
+      'Ljava/lang/String;',
+      'java/lang/reflect/Field',
+      thread.getJVM().getInternedString(this.fieldName)
+    );
+    this.javaObject.$putField(
+      'type',
+      'Ljava/lang/Class;',
       'java/lang/reflect/Field',
       this.cls.getJavaObject()
     );
-    // this.javaObject.$putField(
-    //   'name',
-    //   'java/lang/String',
-    //   'java/lang/reflect/Field',
-    //   newString()
-    //   this.fieldName
-    // );
-    //   fieldObj['java/lang/reflect/Field/clazz'] = this.cls.getClassObject(thread);
-    //   fieldObj['java/lang/reflect/Field/name'] = jvm.internString(this.name);
-    //   fieldObj['java/lang/reflect/Field/type'] = typeObj;
-    //   fieldObj['java/lang/reflect/Field/modifiers'] = this.accessFlags.getRawByte();
-    //   fieldObj['java/lang/reflect/Field/slot'] = this.slot;
-    //   fieldObj['java/lang/reflect/Field/signature'] = signatureAttr !== null ? initString(bsCl, signatureAttr.sig) : null;
-    //   fieldObj['java/lang/reflect/Field/annotations'] = this.getAnnotationType(thread, 'RuntimeVisibleAnnotations');
+    this.javaObject.$putField(
+      'modifiers',
+      'I',
+      'java/lang/reflect/Field',
+      this.accessFlags
+    );
+    this.javaObject.$putField(
+      'slot',
+      'I',
+      'java/lang/reflect/Field',
+      this.slot
+    );
+
+    console.warn('getReflectedObject: not using signature, annotations');
+    this.javaObject.$putField(
+      'signature',
+      'Ljava/lang/String;',
+      'java/lang/reflect/Field',
+      null
+    );
+    this.javaObject.$putField(
+      'annotations',
+      '[B',
+      'java/lang/reflect/Field',
+      null
+    );
+
+    this.javaObject.$putNativeField('fieldRef', this);
+
+    return new SuccessResult(this.javaObject);
   }
 
   getValue() {
@@ -137,7 +172,8 @@ export class FieldRef {
       this.fieldName,
       this.fieldDesc,
       this.accessFlags,
-      this.attributes
+      this.attributes,
+      this.slot
     );
     return field;
   }

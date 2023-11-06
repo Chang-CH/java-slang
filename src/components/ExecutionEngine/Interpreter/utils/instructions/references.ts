@@ -306,17 +306,17 @@ export function runInvokespecial(thread: Thread): void {
     | ConstantMethodref
     | ConstantInterfaceMethodref;
 
-  const res = constant.resolve();
-  if (!res.checkSuccess()) {
-    if (res.checkError()) {
-      const err = res.getError();
+  const methodRes = constant.resolve();
+  if (!methodRes.checkSuccess()) {
+    if (methodRes.checkError()) {
+      const err = methodRes.getError();
       thread.throwNewException(err.className, err.msg);
       return;
     }
     return;
   }
 
-  const methodRef = res.getResult();
+  const methodRef = methodRes.getResult();
 
   // If all of the following are true, let C be the direct superclass of the current class:
   //   The resolved method is not an instance initialization method (§2.9.1).
@@ -393,17 +393,17 @@ export function runInvokestatic(thread: Thread): void {
     | ConstantMethodref
     | ConstantInterfaceMethodref;
 
-  const res = constant.resolve();
-  if (!res.checkSuccess()) {
-    if (res.checkError()) {
-      const err = res.getError();
+  const methodRes = constant.resolve();
+  if (!methodRes.checkSuccess()) {
+    if (methodRes.checkError()) {
+      const err = methodRes.getError();
       thread.throwNewException(err.className, err.msg);
       return;
     }
     return;
   }
 
-  const methodRef = res.getResult();
+  const methodRef = methodRes.getResult();
 
   if (!methodRef.checkStatic()) {
     thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
@@ -786,7 +786,7 @@ export function runArraylength(thread: Thread): void {
 }
 
 export function runAthrow(thread: Thread): void {
-  throw new Error('Not implemented');
+  throw new Error('ATHROW: Not implemented');
   thread.offsetPc(1);
   const exception = thread.popStack();
   thread.throwException(exception);
@@ -905,7 +905,7 @@ export function runMonitorenter(thread: Thread): void {
   }
 
   thread.offsetPc(1);
-  console.error('Not implemented');
+  console.error('MONITORENTER: Not implemented');
 }
 
 export function runMonitorexit(thread: Thread): void {
@@ -916,5 +916,5 @@ export function runMonitorexit(thread: Thread): void {
   }
 
   thread.offsetPc(1);
-  console.error('Not implemented');
+  console.error('MONITOREXIT: Not implemented');
 }

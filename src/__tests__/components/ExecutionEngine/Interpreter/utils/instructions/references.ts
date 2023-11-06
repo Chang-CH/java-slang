@@ -12,6 +12,7 @@ import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayPrimitiveType } from '#types/dataTypes';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
+import JVM from '#jvm/index';
 
 let thread: Thread;
 let threadClass: ClassRef;
@@ -40,7 +41,7 @@ beforeEach(() => {
     loader: testLoader,
   });
 
-  thread = new Thread(threadClass);
+  thread = new Thread(threadClass, new JVM(testSystem));
 });
 
 // method resolution tested under classref

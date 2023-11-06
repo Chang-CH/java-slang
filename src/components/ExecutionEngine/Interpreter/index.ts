@@ -21,4 +21,11 @@ export default class Interpreter {
       runInstruction(thread, this.jni, onFinish);
     }
   }
+
+  run(thread: Thread, onFinish?: () => void) {
+    while (!thread.isStackEmpty()) {
+      runInstruction(thread, this.jni, onFinish);
+    }
+    onFinish && onFinish();
+  }
 }

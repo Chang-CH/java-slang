@@ -9,6 +9,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { SuccessResult } from '#types/result';
+import JVM from '#jvm/index';
 
 const MAX_LONG = 9223372036854775807n;
 const MIN_LONG = -9223372036854775808n;
@@ -30,7 +31,7 @@ beforeEach(() => {
     bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassRef>
   ).getResult();
 
-  thread = new Thread(threadClass);
+  thread = new Thread(threadClass, new JVM(nativeSystem));
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
   thread.invokeSf(threadClass, method, 0, []);

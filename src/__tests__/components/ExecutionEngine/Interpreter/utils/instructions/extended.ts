@@ -19,6 +19,7 @@ import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { ConstantClass } from '#types/constants';
 import AbstractSystem from '#utils/AbstractSystem';
+import JVM from '#jvm/index';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
@@ -61,7 +62,7 @@ beforeEach(() => {
       },
     ],
   });
-  thread = new Thread(threadClass);
+  thread = new Thread(threadClass, new JVM(testSystem));
 
   const ab = new ArrayBuffer(50);
   code = new DataView(ab);

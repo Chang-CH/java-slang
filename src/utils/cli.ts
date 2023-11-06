@@ -78,6 +78,7 @@ export default function main() {
 
   const nativeSystem = new NodeSystem(folders);
   const jvm = new JVM(nativeSystem);
+  jvm.initialize();
   // @ts-ignore
   jvm.runClass(options['-f'][0]);
 }

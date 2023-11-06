@@ -1,4 +1,5 @@
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import JVM from '#jvm/index';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { stringifyCode } from '#utils/Prettify/classfile';
@@ -20,14 +21,20 @@ export default class Thread {
   private stackPointer: number;
   private javaObject: JvmObject;
   private threadClass: ClassRef;
+  private jvm: JVM;
 
-  constructor(threadClass: ClassRef) {
+  constructor(threadClass: ClassRef, jvm: JVM) {
+    this.jvm = jvm;
     this.threadClass = threadClass;
     this.stack = [];
     this.stackPointer = -1;
     this.javaObject = threadClass.instantiate();
     // call init?
     this.javaObject.$putNativeField('thread', this);
+  }
+
+  getJVM() {
+    return this.jvm;
   }
 
   initialize(thread: Thread) {

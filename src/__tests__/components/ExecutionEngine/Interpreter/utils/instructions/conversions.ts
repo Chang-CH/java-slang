@@ -9,6 +9,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import { SuccessResult } from '#types/result';
+import JVM from '#jvm/index';
 
 let thread: Thread;
 let threadClass: ClassRef;
@@ -25,7 +26,7 @@ beforeEach(() => {
     bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassRef>
   ).getResult();
 
-  thread = new Thread(threadClass);
+  thread = new Thread(threadClass, new JVM(nativeSystem));
   const method = threadClass.getMethod('<init>()V') as MethodRef;
   code = (method._getCode() as CodeAttribute).code;
   thread.invokeSf(threadClass, method, 0, []);

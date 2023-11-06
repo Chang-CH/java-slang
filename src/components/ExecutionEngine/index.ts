@@ -1,7 +1,7 @@
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
 import { JvmObject } from '#types/reference/Object';
-import Thread from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
 import NativeThreadGroup from './NativeThreadGroup';
@@ -17,41 +17,25 @@ export default class ExecutionEngine {
     this.interpreter = new Interpreter(this.jni);
   }
 
-  runClass(threadCls: ClassRef, mainClass: ClassRef, args?: any[]) {
-    const mainThread = new Thread(threadCls);
-    const mainMethod = mainClass.getMethod('main([Ljava/lang/String;)V');
-
-    if (!mainMethod) {
-      throw new Error('Main method not found');
-    }
-
-    mainThread.invokeSf(mainClass, mainMethod, 0, []);
-
-    // TODO: pushstack string args
-    this.nativeThreadGroup.addThread(mainThread);
-
-    this.interpreter.runFor(mainThread, 5000, () => {
-      console.debug('finished');
-      process.exit();
-    });
+  addThread(thread: Thread) {
+    this.nativeThreadGroup.addThread(thread);
   }
 
-  runMethod(threadCls: ClassRef, cls: ClassRef, method: string, args?: any[]) {
-    const mainThread = new Thread(threadCls);
-    mainThread.initialize(mainThread);
-    this.interpreter.runFor(mainThread, 100000, () => {
-      console.log('thread initialized');
-    });
+  run() {
+    while (this.nativeThreadGroup.hasThreads()) {
+      const thread = this.nativeThreadGroup.getThread();
 
-    mainThread.invokeSf(cls, cls.getMethod(method) as MethodRef, 0, args ?? []);
-    this.interpreter.runFor(mainThread, 100000, () => {
-      console.log('runMethod Finish');
-    });
+      this.interpreter.runFor(thread, 100000, () => {
+        thread.setStatus(ThreadStatus.TERMINATED);
+
+        console.log('thread Finish');
+      });
+    }
   }
 
   runThread(thread: Thread) {
-    this.interpreter.runFor(thread, 100000, () => {
-      console.log('runThread Finish');
+    this.interpreter.run(thread, () => {
+      console.log('thread Finish');
     });
   }
 }

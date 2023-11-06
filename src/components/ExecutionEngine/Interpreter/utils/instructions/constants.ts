@@ -122,7 +122,7 @@ export function loadConstant(
 ): void {
   const invoker = thread.getClass();
   const constant = invoker.getConstant(index);
-  const resolutionRes = constant.resolve();
+  const resolutionRes = constant.resolve(thread);
   if (!resolutionRes.checkSuccess()) {
     if (resolutionRes.checkError()) {
       const err = resolutionRes.getError();

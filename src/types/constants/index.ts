@@ -31,7 +31,6 @@ import {
   Result,
   SuccessResult,
 } from '#types/result';
-import { newString } from '#utils/index';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;
@@ -269,22 +268,18 @@ export class ConstantString extends Constant {
     return c.getTag() === CONSTANT_TAG.String;
   }
 
-  public resolve(): Result<JvmObject> {
+  public resolve(thread: Thread): Result<JvmObject> {
     if (this.result) {
       return this.result;
     }
 
     const strVal = this.str.get();
-    this.result = newString(this.cls.getLoader(), strVal);
+    this.result = new SuccessResult(thread.getJVM().getInternedString(strVal));
     return this.result;
   }
 
   public get() {
-    if (!this.result) {
-      this.resolve();
-    }
-
-    if (!this.result?.checkSuccess()) {
+    if (!this.result || !this.result?.checkSuccess()) {
       throw new Error('Resolution incomplete or failed');
     }
 
@@ -505,13 +500,13 @@ export class ConstantInvokeDynamic extends Constant {
   }
 
   public get(): JvmObject {
-    throw new Error('Method not implemented.');
+    throw new Error('ConstantInvokeDynamic: get Method not implemented.');
   }
 
   public constructCso(thread: Thread) {}
 
   public resolve(thread: Thread): Result<any> {
-    throw new Error('Method not implemented.');
+    throw new Error('ConstantInvokeDynamic: resolve Method not implemented.');
     // // Get MethodType from NameAndType
     // if (!this.methodTypeObj) {
     //   // resolve nameAndType
@@ -862,7 +857,7 @@ export class ConstantFieldref extends Constant {
   }
 
   public get() {
-    throw new Error('Method not implemented.');
+    throw new Error('ConstantFieldref.get: Method not implemented.');
   }
 
   static check(c: Constant): c is ConstantFieldref {
@@ -976,7 +971,7 @@ export class ConstantMethodref extends Constant {
   }
 
   public get() {
-    throw new Error('Method not implemented.');
+    throw new Error('ConstantMethodref: get Method not implemented.');
   }
 
   static check(c: Constant): c is ConstantMethodref {
@@ -1040,7 +1035,7 @@ export class ConstantInterfaceMethodref extends Constant {
   }
 
   public get() {
-    throw new Error('Method not implemented.');
+    throw new Error('ConstantInterfaceMethodref: get Method not implemented.');
   }
 
   static check(c: Constant): c is ConstantInterfaceMethodref {
@@ -1156,11 +1151,7 @@ export class ConstantMethodHandle extends Constant {
         return this.result;
       }
       // Should intern string here, i.e. same string value same object
-      const nameStr = newString(this.cls.getLoader(), ref.getName());
-      if (!nameStr.checkSuccess()) {
-        this.result = nameStr;
-        return this.result;
-      }
+      const nameStr = thread.getJVM().getInternedString(ref.getName());
 
       thread.invokeSf(
         mhnCls,
@@ -1170,7 +1161,7 @@ export class ConstantMethodHandle extends Constant {
           this.cls.getJavaObject(),
           this.referenceKind,
           ref.getClass().getJavaObject(),
-          nameStr.getResult(),
+          nameStr,
           obj,
         ],
         (mh: JvmObject) => {

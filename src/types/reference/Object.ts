@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/Thread/Thread';
-import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
+import { ClassRef } from '#types/class/ClassRef';
 import { FieldRef } from '#types/FieldRef';
 import { DeferResult, Result, SuccessResult } from '#types/result';
 

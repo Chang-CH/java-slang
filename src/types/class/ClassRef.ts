@@ -80,6 +80,8 @@ export class ClassRef {
     [fieldName: string]: FieldRef;
   };
   protected instanceFields: { [key: string]: FieldRef } | null = null;
+  protected allFields: FieldRef[] = [];
+  protected staticFields: FieldRef[] = [];
 
   protected methods: {
     [methodName: string]: MethodRef;
@@ -108,8 +110,8 @@ export class ClassRef {
     this.superClass = superClass;
     this.interfaces = interfaces;
     this.fields = {};
-    fields.forEach(field => {
-      const fieldRef = FieldRef.fromFieldInfo(this, field);
+    fields.forEach((field, index) => {
+      const fieldRef = FieldRef.fromFieldInfo(this, field, index);
       this.fields[fieldRef.getName() + fieldRef.getFieldDesc()] = fieldRef;
     });
     this.methods = {};
@@ -145,8 +147,10 @@ export class ClassRef {
       onDefer && onDefer();
       return clsRes;
     }
-    this.javaObj = new JvmObject(clsRes.getResult());
-    this.javaObj.$putNativeField('classRef', this);
+
+    if (!this.javaObj) {
+      this.getJavaObject();
+    }
 
     // has static initializer
     if (this.methods['<clinit>()V']) {
@@ -168,13 +172,36 @@ export class ClassRef {
 
   getJavaObject(): JvmObject {
     if (!this.javaObj) {
-      throw new Error('Class Object has not been created');
+      // We assume that java/lang/Class has been loaded at JVM initialization (step 1)
+      const clsCls = (
+        this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassRef>
+      ).getResult();
+
+      this.javaObj = new JvmObject(clsCls);
+      this.javaObj.$putNativeField('classRef', this);
     }
+
     return this.javaObj;
   }
 
-  getFields(): { [fieldName: string]: FieldRef } {
-    return this.fields;
+  getFields(): FieldRef[] {
+    let result: FieldRef[] = [];
+
+    if (this.superClass) {
+      result = this.superClass.getFields();
+    }
+
+    if (this.interfaces.length === 0) {
+      for (const inter of this.interfaces) {
+        result = result.concat(inter.getFields());
+      }
+    }
+
+    for (const field of Object.values(this.fields)) {
+      result.push(field);
+    }
+
+    return result;
   }
 
   $resolveClass(toResolve: string): ImmediateResult<ClassRef> {

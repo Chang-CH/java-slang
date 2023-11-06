@@ -14,6 +14,7 @@ import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { MethodRef } from '#types/MethodRef';
 import { ConstantClass, ConstantString } from '#types/constants';
 import { SuccessResult } from '#types/result';
+import JVM from '#jvm/index';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
@@ -56,7 +57,9 @@ beforeEach(() => {
       },
     ],
   });
-  thread = new Thread(threadClass);
+  const jvm = new JVM(testSystem);
+  (jvm as any).bootstrapClassLoader = testLoader;
+  thread = new Thread(threadClass, jvm);
 
   const ab = new ArrayBuffer(50);
   code = new DataView(ab);
@@ -461,7 +464,7 @@ describe('runLdc', () => {
     });
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
-    const str = (cstr.resolve() as SuccessResult<JvmObject>).getResult();
+    const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).getResult();
 
     const method = customClass.getMethod('test0()V') as MethodRef;
     thread.invokeSf(customClass, method, 0, []);
@@ -686,7 +689,7 @@ describe('runLdcW', () => {
     });
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
-    const str = (cstr.resolve() as SuccessResult<JvmObject>).getResult();
+    const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).getResult();
     const method = customClass.getMethod('test0()V') as MethodRef;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
