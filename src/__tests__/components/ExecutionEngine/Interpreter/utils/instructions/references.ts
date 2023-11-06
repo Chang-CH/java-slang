@@ -5655,3 +5655,536 @@ describe('Checkcast', () => {
     );
   });
 });
+
+describe('Instanceof', () => {
+  test('INSTANCEOF: null returns 0', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(null);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(0);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: null does not link symbol', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(null);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(0);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: same class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const obj = sClass.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(1);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: sub class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'child',
+      superClass: sClass,
+      loader: testLoader,
+    });
+
+    const obj = childClass.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(1);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: interface class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'child',
+      interfaces: [sClass],
+      loader: testLoader,
+    });
+
+    const obj = childClass.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(1);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: Array obj Object class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 16,
+          value: 'java/lang/Object',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(1);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: Array obj interface class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 16,
+          value: 'java/lang/Cloneable',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(1);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: Array primitive ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: '[I',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(1);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: Array subtype ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: '[LSC;',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'Child',
+      superClass: sClass,
+      loader: testLoader,
+    });
+
+    const arrCls = (
+      testLoader.getClassRef('[LChild;') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(1);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('INSTANCEOF: Returns 0 on failure', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: '[LSC;',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'Child',
+      loader: testLoader,
+    });
+
+    const arrCls = (
+      testLoader.getClassRef('[LChild;') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.INSTANCEOF);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(0);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+});

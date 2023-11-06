@@ -838,14 +838,12 @@ function _checkCast(
   return;
 }
 
-// TODO:
 export function runCheckcast(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   thread.offsetPc(3);
   _checkCast(thread, indexbyte, true);
 }
 
-// TODO:
 export function runInstanceof(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   thread.offsetPc(3);
