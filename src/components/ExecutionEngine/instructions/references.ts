@@ -1,6 +1,6 @@
 import Thread from '#jvm/components/Thread/Thread';
 
-import { parseMethodDescriptor, asDouble, asFloat } from '..';
+import { parseMethodDescriptor, asDouble, asFloat } from '../Interpreter/utils';
 import {
   ConstantInvokeDynamicInfo,
   ConstantMethodHandleInfo,
@@ -780,11 +780,16 @@ export function runAnewarray(thread: Thread): void {
 }
 
 export function runArraylength(thread: Thread): void {
-  thread.offsetPc(1);
   const arrayref = thread.popStack() as JvmArray;
+  if (arrayref === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+  thread.offsetPc(1);
   thread.pushStack(arrayref.len());
 }
 
+// TODO:
 export function runAthrow(thread: Thread): void {
   throw new Error('ATHROW: Not implemented');
   thread.offsetPc(1);
@@ -792,7 +797,7 @@ export function runAthrow(thread: Thread): void {
   thread.throwException(exception);
 }
 
-function $checkCast(
+function _checkCast(
   thread: Thread,
   indexbyte: number,
   isCC: boolean = true
@@ -819,58 +824,6 @@ function $checkCast(
   const objClsS = objectref.getClass();
   const targetClsT = resolutionResult.getResult();
 
-  // If S is an array type
-  if (objClsS.getClassname()[0] === '[') {
-    let value = 0;
-    // JLS 4.10.3. Subtyping among Array Types
-    const targetClsName = targetClsT.getClassname();
-    if (
-      targetClsName === 'java/lang/Object' ||
-      targetClsName === 'java/lang/Cloneable' ||
-      targetClsName === 'java/io/Serializable'
-    ) {
-      value = 1;
-    }
-
-    // If T is an array type TC[]
-    if (targetClsName[0] === '[') {
-      if (targetClsName === objClsS.getClassname()) {
-        value = 1;
-      } else {
-        const loader = thread.getClass().getLoader();
-        const TCres = loader.getClassRef(targetClsName.slice(1));
-        if (TCres.checkError()) {
-          const err = TCres.getError();
-          thread.throwNewException(err.className, err.msg);
-          return;
-        }
-        const TC = TCres.getResult();
-
-        const SCres = loader.getClassRef(objClsS.getClassname().slice(1));
-        if (SCres.checkError()) {
-          const err = SCres.getError();
-          thread.throwNewException(err.className, err.msg);
-          return;
-        }
-        const SC = SCres.getResult();
-
-        if (SC.checkCast(TC)) {
-          value = 1;
-        }
-      }
-      if (!isCC) {
-        thread.pushStack(value);
-      } else {
-        value === 1
-          ? thread.pushStack(objectref)
-          : thread.throwNewException('java/lang/ClassCastException', '');
-      }
-      return;
-    }
-  }
-
-  // If S is an ordinary (nonarray) class
-  // If S is an interface type, same behaviour since interfaces extend object
   let value = 0;
   if (objClsS.checkCast(targetClsT)) {
     value = 1;
@@ -885,16 +838,18 @@ function $checkCast(
   return;
 }
 
+// TODO:
 export function runCheckcast(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   thread.offsetPc(3);
-  $checkCast(thread, indexbyte, true);
+  _checkCast(thread, indexbyte, true);
 }
 
+// TODO:
 export function runInstanceof(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   thread.offsetPc(3);
-  $checkCast(thread, indexbyte, false);
+  _checkCast(thread, indexbyte, false);
 }
 
 export function runMonitorenter(thread: Thread): void {

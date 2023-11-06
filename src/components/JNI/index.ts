@@ -136,7 +136,7 @@ export function registerNatives(jni: JNI) {
     (thread: Thread, locals: any[]) => {
       const strObj = locals[0] as JvmObject;
       const strCls = strObj.getClass();
-      const str = strObj.$getField(
+      const str = strObj._getField(
         'value',
         '[C',
         strCls.getClassname()
@@ -162,8 +162,8 @@ export function registerNatives(jni: JNI) {
       );
       const unsafe = locals[0] as JvmObject;
       const field = locals[1] as JvmObject;
-      // const fieldRef = field.getField()$getNativeField('fieldRef') as FieldRef;
-      const fieldRef = field.$getNativeField('fieldRef') as FieldRef;
+      // const fieldRef = field.getField()getNativeField('fieldRef') as FieldRef;
+      const fieldRef = field.getNativeField('fieldRef') as FieldRef;
       console.log(fieldRef);
       const fieldCls = fieldRef.getClass();
       const slot = fieldRef.getSlot();

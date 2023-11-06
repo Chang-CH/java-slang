@@ -37,7 +37,7 @@ beforeEach(() => {
   thread.invokeSf(threadClass, method, 0, []);
 });
 
-describe('runIadd', () => {
+describe('Iadd', () => {
   test('IADD: int addition', () => {
     thread.pushStack(1);
     thread.pushStack(2);
@@ -75,7 +75,7 @@ describe('runIadd', () => {
   });
 });
 
-describe('runLadd', () => {
+describe('Ladd', () => {
   test('LADD: long addition', () => {
     thread.pushStack64(1n);
     thread.pushStack64(2n);
@@ -113,7 +113,7 @@ describe('runLadd', () => {
   });
 });
 
-describe('runFadd', () => {
+describe('Fadd', () => {
   test('FADD: float addition', () => {
     thread.pushStack(1.5);
     thread.pushStack(2.5);
@@ -307,7 +307,7 @@ describe('runFadd', () => {
   });
 });
 
-describe('runDadd', () => {
+describe('Dadd', () => {
   test('DADD: double addition', () => {
     thread.pushStack64(1.5);
     thread.pushStack64(2.5);
@@ -501,7 +501,7 @@ describe('runDadd', () => {
   });
 });
 
-describe('runIsub', () => {
+describe('Isub', () => {
   test('ISUB: int subtraction', () => {
     thread.pushStack(2);
     thread.pushStack(1);
@@ -539,7 +539,7 @@ describe('runIsub', () => {
   });
 });
 
-describe('runLsub', () => {
+describe('Lsub', () => {
   test('LSUB: long subtraction', () => {
     thread.pushStack(2n);
     thread.pushStack(1n);
@@ -577,7 +577,7 @@ describe('runLsub', () => {
   });
 });
 
-describe('runFsub', () => {
+describe('Fsub', () => {
   test('FSUB: float subtraction', () => {
     thread.pushStack(2.5);
     thread.pushStack(1.5);
@@ -773,7 +773,7 @@ describe('runFsub', () => {
   });
 });
 
-describe('runDsub', () => {
+describe('Dsub', () => {
   test('DSUB: double subtraction', () => {
     thread.pushStack64(2.5);
     thread.pushStack64(1.5);
@@ -967,7 +967,7 @@ describe('runDsub', () => {
   });
 });
 
-describe('runImul', () => {
+describe('Imul', () => {
   test('IMUL: int multiplication', () => {
     thread.pushStack(2);
     thread.pushStack(1);
@@ -1017,7 +1017,7 @@ describe('runImul', () => {
   });
 });
 
-describe('runLmul', () => {
+describe('Lmul', () => {
   test('LMUL: long multiplication', () => {
     thread.pushStack64(2n);
     thread.pushStack64(1n);
@@ -1055,7 +1055,7 @@ describe('runLmul', () => {
   });
 });
 
-describe('runFmul', () => {
+describe('Fmul', () => {
   test('FMUL: float multiplication', () => {
     thread.pushStack(2);
     thread.pushStack(0.5);
@@ -1202,7 +1202,7 @@ describe('runFmul', () => {
   });
 });
 
-describe('runDmul', () => {
+describe('Dmul', () => {
   test('DMUL: double multiplication', () => {
     thread.pushStack64(2);
     thread.pushStack64(0.5);
@@ -1348,7 +1348,7 @@ describe('runDmul', () => {
   });
 });
 
-describe('runIdiv', () => {
+describe('Idiv', () => {
   test('IDIV: int division', () => {
     thread.pushStack(2);
     thread.pushStack(2);
@@ -1416,7 +1416,7 @@ describe('runIdiv', () => {
   });
 });
 
-describe('runLdiv', () => {
+describe('Ldiv', () => {
   test('LDIV: long division', () => {
     thread.pushStack64(2n);
     thread.pushStack64(2n);
@@ -1483,7 +1483,7 @@ describe('runLdiv', () => {
   });
 });
 
-describe('runFdiv', () => {
+describe('Fdiv', () => {
   test('FDIV: float division', () => {
     thread.pushStack(2);
     thread.pushStack(0.5);
@@ -1689,7 +1689,7 @@ describe('runFdiv', () => {
   });
 });
 
-describe('runDdiv', () => {
+describe('Ddiv', () => {
   test('DDIV: double division', () => {
     thread.pushStack64(2);
     thread.pushStack64(0.5);
@@ -1883,7 +1883,7 @@ describe('runDdiv', () => {
   });
 });
 
-describe('runIrem', () => {
+describe('Irem', () => {
   test('IREM: int remainder', () => {
     thread.pushStack(3);
     thread.pushStack(2);
@@ -1926,7 +1926,7 @@ describe('runIrem', () => {
   });
 });
 
-describe('runLrem', () => {
+describe('Lrem', () => {
   test('LREM: long remainder', () => {
     thread.pushStack64(3n);
     thread.pushStack64(2n);
@@ -1969,7 +1969,7 @@ describe('runLrem', () => {
   });
 });
 
-describe('runFrem', () => {
+describe('Frem', () => {
   test('FREM: float remainder', () => {
     thread.pushStack(1.3);
     thread.pushStack(0.5);
@@ -2081,7 +2081,7 @@ describe('runFrem', () => {
   });
 });
 
-describe('runDrem', () => {
+describe('Drem', () => {
   test('DREM: double remainder', () => {
     thread.pushStack64(1.3);
     thread.pushStack64(0.5);
@@ -2191,7 +2191,7 @@ describe('runDrem', () => {
   });
 });
 
-describe('runIneg', () => {
+describe('Ineg', () => {
   test('INEG: int negation', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.INEG);
@@ -2215,7 +2215,7 @@ describe('runIneg', () => {
   });
 });
 
-describe('runLneg', () => {
+describe('Lneg', () => {
   test('LNEG: long negation', () => {
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LNEG);
@@ -2239,7 +2239,7 @@ describe('runLneg', () => {
   });
 });
 
-describe('runFneg', () => {
+describe('Fneg', () => {
   test('FNEG: float negation', () => {
     thread.pushStack(1.0);
     code.setUint8(0, OPCODE.FNEG);
@@ -2285,7 +2285,7 @@ describe('runFneg', () => {
   });
 });
 
-describe('runDneg', () => {
+describe('Dneg', () => {
   test('DNEG: float negation', () => {
     thread.pushStack64(1.0);
     code.setUint8(0, OPCODE.DNEG);
@@ -2331,7 +2331,7 @@ describe('runDneg', () => {
   });
 });
 
-describe('runIshl', () => {
+describe('Ishl', () => {
   test('ISHL: shift left int', () => {
     thread.pushStack(2);
     thread.pushStack(1);
@@ -2369,7 +2369,7 @@ describe('runIshl', () => {
   });
 });
 
-describe('runLshl', () => {
+describe('Lshl', () => {
   test('LSHL: shift left long', () => {
     thread.pushStack64(2n);
     thread.pushStack(1);
@@ -2407,7 +2407,7 @@ describe('runLshl', () => {
   });
 });
 
-describe('runIshr', () => {
+describe('Ishr', () => {
   test('ISHR: shift right int', () => {
     thread.pushStack(2);
     thread.pushStack(1);
@@ -2445,7 +2445,7 @@ describe('runIshr', () => {
   });
 });
 
-describe('runLshr', () => {
+describe('Lshr', () => {
   test('LSHR: shift right long', () => {
     thread.pushStack64(2n);
     thread.pushStack(1);
@@ -2483,7 +2483,7 @@ describe('runLshr', () => {
   });
 });
 
-describe('runIushr', () => {
+describe('Iushr', () => {
   test('IUSHR: shift right int', () => {
     thread.pushStack(2);
     thread.pushStack(1);
@@ -2521,7 +2521,7 @@ describe('runIushr', () => {
   });
 });
 
-describe('runLushr', () => {
+describe('Lushr', () => {
   test('LUSHR: shift right long', () => {
     thread.pushStack64(2n);
     thread.pushStack(1);
@@ -2571,7 +2571,7 @@ describe('runLushr', () => {
   });
 });
 
-describe('runIand', () => {
+describe('Iand', () => {
   test('IAND: int and', () => {
     thread.pushStack(3);
     thread.pushStack(1);
@@ -2597,7 +2597,7 @@ describe('runIand', () => {
   });
 });
 
-describe('runLand', () => {
+describe('Land', () => {
   test('LAND: long and', () => {
     thread.pushStack64(3n);
     thread.pushStack64(1n);
@@ -2623,7 +2623,7 @@ describe('runLand', () => {
   });
 });
 
-describe('runIor', () => {
+describe('Ior', () => {
   test('IOR: int or', () => {
     thread.pushStack(2);
     thread.pushStack(1);
@@ -2649,7 +2649,7 @@ describe('runIor', () => {
   });
 });
 
-describe('runLor', () => {
+describe('Lor', () => {
   test('LOR: long or', () => {
     thread.pushStack64(2n);
     thread.pushStack64(1n);
@@ -2675,7 +2675,7 @@ describe('runLor', () => {
   });
 });
 
-describe('runIXor', () => {
+describe('IXor', () => {
   test('IXOR: int Xor', () => {
     thread.pushStack(3);
     thread.pushStack(1);
@@ -2701,7 +2701,7 @@ describe('runIXor', () => {
   });
 });
 
-describe('runLxor', () => {
+describe('Lxor', () => {
   test('LXOR: long xor', () => {
     thread.pushStack64(3n);
     thread.pushStack64(1n);
@@ -2727,7 +2727,7 @@ describe('runLxor', () => {
   });
 });
 
-describe('runIinc', () => {
+describe('Iinc', () => {
   test('IINC: int increments', () => {
     thread.peekStackFrame().locals = [20];
     code.setUint8(0, OPCODE.IINC);

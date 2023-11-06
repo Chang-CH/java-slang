@@ -96,31 +96,31 @@ export class FieldRef {
     this.javaObject = FieldRef.reflectedClass.instantiate();
     this.javaObject.initialize(thread);
 
-    this.javaObject.$putField(
+    this.javaObject._putField(
       'clazz',
       'Ljava/lang/Class;',
       'java/lang/reflect/Field',
       FieldRef.reflectedClass.getJavaObject()
     );
-    this.javaObject.$putField(
+    this.javaObject._putField(
       'name',
       'Ljava/lang/String;',
       'java/lang/reflect/Field',
       thread.getJVM().getInternedString(this.fieldName)
     );
-    this.javaObject.$putField(
+    this.javaObject._putField(
       'type',
       'Ljava/lang/Class;',
       'java/lang/reflect/Field',
       this.cls.getJavaObject()
     );
-    this.javaObject.$putField(
+    this.javaObject._putField(
       'modifiers',
       'I',
       'java/lang/reflect/Field',
       this.accessFlags
     );
-    this.javaObject.$putField(
+    this.javaObject._putField(
       'slot',
       'I',
       'java/lang/reflect/Field',
@@ -128,20 +128,20 @@ export class FieldRef {
     );
 
     console.warn('getReflectedObject: not using signature, annotations');
-    this.javaObject.$putField(
+    this.javaObject._putField(
       'signature',
       'Ljava/lang/String;',
       'java/lang/reflect/Field',
       null
     );
-    this.javaObject.$putField(
+    this.javaObject._putField(
       'annotations',
       '[B',
       'java/lang/reflect/Field',
       null
     );
 
-    this.javaObject.$putNativeField('fieldRef', this);
+    this.javaObject.putNativeField('fieldRef', this);
 
     return new SuccessResult(this.javaObject);
   }

@@ -34,7 +34,7 @@ beforeEach(() => {
   thread.invokeSf(threadClass, method, 0, []);
 });
 
-describe('runILOAD', () => {
+describe('ILOAD', () => {
   test('ILOAD: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     code.setUint8(0, OPCODE.ILOAD);
@@ -49,7 +49,7 @@ describe('runILOAD', () => {
   });
 });
 
-describe('runLLOAD', () => {
+describe('LLOAD', () => {
   test('LLOAD: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     code.setUint8(0, OPCODE.LLOAD);
@@ -64,7 +64,7 @@ describe('runLLOAD', () => {
   });
 });
 
-describe('runFLOAD', () => {
+describe('FLOAD', () => {
   test('FLOAD: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 1.3;
     code.setUint8(0, OPCODE.FLOAD);
@@ -79,7 +79,7 @@ describe('runFLOAD', () => {
   });
 });
 
-describe('runDLOAD', () => {
+describe('DLOAD', () => {
   test('DLOAD: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 1.3;
     code.setUint8(0, OPCODE.DLOAD);
@@ -94,7 +94,7 @@ describe('runDLOAD', () => {
   });
 });
 
-describe('runALOAD', () => {
+describe('ALOAD', () => {
   test('ALOAD: loads reference from local variable array', () => {
     const obj = new JvmObject(threadClass);
     thread.peekStackFrame().locals[0] = obj;
@@ -110,7 +110,7 @@ describe('runALOAD', () => {
   });
 });
 
-describe('runILOAD_0', () => {
+describe('ILOAD_0', () => {
   test('ILOAD_0: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
@@ -127,7 +127,7 @@ describe('runILOAD_0', () => {
   });
 });
 
-describe('runILOAD_1', () => {
+describe('ILOAD_1', () => {
   test('ILOAD_1: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
@@ -144,7 +144,7 @@ describe('runILOAD_1', () => {
   });
 });
 
-describe('runILOAD_2', () => {
+describe('ILOAD_2', () => {
   test('ILOAD_2: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
@@ -160,7 +160,7 @@ describe('runILOAD_2', () => {
   });
 });
 
-describe('runILOAD_3', () => {
+describe('ILOAD_3', () => {
   test('ILOAD_3: loads int from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10;
     thread.peekStackFrame().locals[1] = 11;
@@ -176,7 +176,7 @@ describe('runILOAD_3', () => {
   });
 });
 
-describe('runLLOAD_0', () => {
+describe('LLOAD_0', () => {
   test('LLOAD_0: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
@@ -192,7 +192,7 @@ describe('runLLOAD_0', () => {
   });
 });
 
-describe('runLLOAD_1', () => {
+describe('LLOAD_1', () => {
   test('LLOAD_1: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
@@ -208,7 +208,7 @@ describe('runLLOAD_1', () => {
   });
 });
 
-describe('runLLOAD_2', () => {
+describe('LLOAD_2', () => {
   test('LLOAD_2: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
@@ -224,7 +224,7 @@ describe('runLLOAD_2', () => {
   });
 });
 
-describe('runLLOAD_3', () => {
+describe('LLOAD_3', () => {
   test('LLOAD_3: loads long from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10n;
     thread.peekStackFrame().locals[1] = 11n;
@@ -240,7 +240,7 @@ describe('runLLOAD_3', () => {
   });
 });
 
-describe('runFLOAD_0', () => {
+describe('FLOAD_0', () => {
   test('FLOAD_0: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -256,7 +256,7 @@ describe('runFLOAD_0', () => {
   });
 });
 
-describe('runFLOAD_1', () => {
+describe('FLOAD_1', () => {
   test('FLOAD_1: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -272,7 +272,7 @@ describe('runFLOAD_1', () => {
   });
 });
 
-describe('runFLOAD_2', () => {
+describe('FLOAD_2', () => {
   test('FLOAD_2: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -288,7 +288,7 @@ describe('runFLOAD_2', () => {
   });
 });
 
-describe('runFLOAD_3', () => {
+describe('FLOAD_3', () => {
   test('FLOAD_3: loads float from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -304,7 +304,7 @@ describe('runFLOAD_3', () => {
   });
 });
 
-describe('runDLOAD_0', () => {
+describe('DLOAD_0', () => {
   test('DLOAD_0: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -320,7 +320,7 @@ describe('runDLOAD_0', () => {
   });
 });
 
-describe('runDLOAD_1', () => {
+describe('DLOAD_1', () => {
   test('DLOAD_1: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -336,7 +336,7 @@ describe('runDLOAD_1', () => {
   });
 });
 
-describe('runDLOAD_2', () => {
+describe('DLOAD_2', () => {
   test('DLOAD_2: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -352,7 +352,7 @@ describe('runDLOAD_2', () => {
   });
 });
 
-describe('runDLOAD_3', () => {
+describe('DLOAD_3', () => {
   test('DLOAD_3: loads double from local variable array', () => {
     thread.peekStackFrame().locals[0] = 10.0;
     thread.peekStackFrame().locals[1] = 11.0;
@@ -368,7 +368,7 @@ describe('runDLOAD_3', () => {
   });
 });
 
-describe('runALOAD_0', () => {
+describe('ALOAD_0', () => {
   test('ALOAD_0: loads reference from local variable array', () => {
     const l0 = new JvmObject(threadClass);
     const l1 = new JvmObject(threadClass);
@@ -388,7 +388,7 @@ describe('runALOAD_0', () => {
   });
 });
 
-describe('runALOAD_1', () => {
+describe('ALOAD_1', () => {
   test('ALOAD_1: loads reference from local variable array', () => {
     const l0 = new JvmObject(threadClass);
     const l1 = new JvmObject(threadClass);
@@ -408,7 +408,7 @@ describe('runALOAD_1', () => {
   });
 });
 
-describe('runALOAD_2', () => {
+describe('ALOAD_2', () => {
   test('ALOAD_2: loads reference from local variable array', () => {
     const l0 = new JvmObject(threadClass);
     const l1 = new JvmObject(threadClass);
@@ -428,7 +428,7 @@ describe('runALOAD_2', () => {
   });
 });
 
-describe('runALOAD_3', () => {
+describe('ALOAD_3', () => {
   test('ALOAD_3: loads reference from local variable array', () => {
     const l0 = new JvmObject(threadClass);
     const l1 = new JvmObject(threadClass);
@@ -448,7 +448,7 @@ describe('runALOAD_3', () => {
   });
 });
 
-describe('runIALOAD', () => {
+describe('IALOAD', () => {
   test('IALOAD: loads int from array', () => {
     const arrCls = (
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
@@ -529,7 +529,7 @@ describe('runIALOAD', () => {
   });
 });
 
-describe('runLALOAD', () => {
+describe('LALOAD', () => {
   test('LALOAD: loads long from array', () => {
     const arrCls = (
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
@@ -608,7 +608,7 @@ describe('runLALOAD', () => {
   });
 });
 
-describe('runFALOAD', () => {
+describe('FALOAD', () => {
   test('FALOAD: loads float from array', () => {
     const arrCls = (
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
@@ -687,7 +687,7 @@ describe('runFALOAD', () => {
   });
 });
 
-describe('runDALOAD', () => {
+describe('DALOAD', () => {
   test('DALOAD: loads float from array', () => {
     const arrCls = (
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
@@ -766,10 +766,10 @@ describe('runDALOAD', () => {
   });
 });
 
-describe('runAALOAD', () => {
+describe('AALOAD', () => {
   test('AALOAD: loads ref from array', () => {
     const arrCls = (
-      bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [null]);
@@ -786,12 +786,12 @@ describe('runAALOAD', () => {
 
   test('AALOAD: loads arrayref from array', () => {
     const iarrCls = (
-      bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const iarrayRef = iarrCls.instantiate() as JvmArray;
     iarrayRef.initialize(thread, 1, [null]);
     const arrCls = (
-      bscl.getClassRef('[[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [iarrayRef]);
@@ -824,7 +824,7 @@ describe('runAALOAD', () => {
 
   test('AALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
@@ -847,7 +847,7 @@ describe('runAALOAD', () => {
 
   test('AALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
@@ -869,7 +869,7 @@ describe('runAALOAD', () => {
   });
 });
 
-describe('runBALOAD', () => {
+describe('BALOAD', () => {
   test('BALOAD: loads boolean from array', () => {
     const arrCls = (
       bscl.getClassRef('[Z') as SuccessResult<ClassRef>
@@ -950,7 +950,7 @@ describe('runBALOAD', () => {
   });
 });
 
-describe('runCALOAD', () => {
+describe('CALOAD', () => {
   test('CALOAD: loads char from array', () => {
     const arrCls = (
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
@@ -1031,7 +1031,7 @@ describe('runCALOAD', () => {
   });
 });
 
-describe('runSALOAD', () => {
+describe('SALOAD', () => {
   test('SALOAD: loads short from array', () => {
     const arrCls = (
       bscl.getClassRef('[S') as SuccessResult<ClassRef>

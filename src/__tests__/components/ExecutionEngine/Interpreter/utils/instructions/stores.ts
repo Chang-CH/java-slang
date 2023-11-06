@@ -33,7 +33,7 @@ beforeEach(() => {
   thread.invokeSf(threadClass, method, 0, []);
 });
 
-describe('runIstore', () => {
+describe('Istore', () => {
   test('ISTORE: stores int into locals', () => {
     thread.pushStack(2);
     code.setUint8(0, OPCODE.ISTORE);
@@ -47,7 +47,7 @@ describe('runIstore', () => {
   });
 });
 
-describe('runIstore0', () => {
+describe('Istore0', () => {
   test('ISTORE_0: stores int into locals', () => {
     thread.pushStack(2);
     code.setUint8(0, OPCODE.ISTORE_0);
@@ -60,7 +60,7 @@ describe('runIstore0', () => {
   });
 });
 
-describe('runIstore1', () => {
+describe('Istore1', () => {
   test('ISTORE_1: stores int into locals', () => {
     thread.pushStack(2);
     code.setUint8(0, OPCODE.ISTORE_1);
@@ -73,7 +73,7 @@ describe('runIstore1', () => {
   });
 });
 
-describe('runIstore2', () => {
+describe('Istore2', () => {
   test('ISTORE_2: stores int into locals', () => {
     thread.pushStack(2);
     code.setUint8(0, OPCODE.ISTORE_2);
@@ -86,7 +86,7 @@ describe('runIstore2', () => {
   });
 });
 
-describe('runIstore3', () => {
+describe('Istore3', () => {
   test('ISTORE_3: stores int into locals', () => {
     thread.pushStack(3);
     code.setUint8(0, OPCODE.ISTORE_3);
@@ -99,7 +99,7 @@ describe('runIstore3', () => {
   });
 });
 
-describe('runLstore', () => {
+describe('Lstore', () => {
   test('LSTORE: stores long into locals', () => {
     thread.pushStack64(3n);
     code.setUint8(0, OPCODE.LSTORE);
@@ -113,7 +113,7 @@ describe('runLstore', () => {
   });
 });
 
-describe('runLstore0', () => {
+describe('Lstore0', () => {
   test('LSTORE_0: stores long into locals', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LSTORE_0);
@@ -126,7 +126,7 @@ describe('runLstore0', () => {
   });
 });
 
-describe('runLstore1', () => {
+describe('Lstore1', () => {
   test('LSTORE_1: stores long into locals', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LSTORE_1);
@@ -139,7 +139,7 @@ describe('runLstore1', () => {
   });
 });
 
-describe('runLstore2', () => {
+describe('Lstore2', () => {
   test('LSTORE_2: stores long into locals', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LSTORE_2);
@@ -152,7 +152,7 @@ describe('runLstore2', () => {
   });
 });
 
-describe('runLstore3', () => {
+describe('Lstore3', () => {
   test('LSTORE_3: stores long into locals', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LSTORE_3);
@@ -165,7 +165,7 @@ describe('runLstore3', () => {
   });
 });
 
-describe('runFstore', () => {
+describe('Fstore', () => {
   test('FSTORE: stores double into locals', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FSTORE);
@@ -191,7 +191,7 @@ describe('runFstore', () => {
   });
 });
 
-describe('runFstore0', () => {
+describe('Fstore0', () => {
   test('FSTORE_0: stores float into locals', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FSTORE_0);
@@ -215,7 +215,7 @@ describe('runFstore0', () => {
   });
 });
 
-describe('runFstore1', () => {
+describe('Fstore1', () => {
   test('FSTORE_1: stores float into locals', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FSTORE_1);
@@ -239,7 +239,7 @@ describe('runFstore1', () => {
   });
 });
 
-describe('runFstore2', () => {
+describe('Fstore2', () => {
   test('FSTORE_2: stores float into locals', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FSTORE_2);
@@ -263,7 +263,7 @@ describe('runFstore2', () => {
   });
 });
 
-describe('runFstore3', () => {
+describe('Fstore3', () => {
   test('FSTORE_3: stores float into locals', () => {
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FSTORE_3);
@@ -287,7 +287,7 @@ describe('runFstore3', () => {
   });
 });
 
-describe('runDstore', () => {
+describe('Dstore', () => {
   test('DSTORE: stores double into locals', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DSTORE);
@@ -313,7 +313,7 @@ describe('runDstore', () => {
   });
 });
 
-describe('runDstore0', () => {
+describe('Dstore0', () => {
   test('DSTORE_0: stores double into locals', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DSTORE_0);
@@ -337,7 +337,7 @@ describe('runDstore0', () => {
   });
 });
 
-describe('runDstore1', () => {
+describe('Dstore1', () => {
   test('DSTORE_1: stores double into locals', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DSTORE_1);
@@ -361,7 +361,7 @@ describe('runDstore1', () => {
   });
 });
 
-describe('runDstore2', () => {
+describe('Dstore2', () => {
   test('DSTORE_2: stores double into locals', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DSTORE_2);
@@ -385,7 +385,7 @@ describe('runDstore2', () => {
   });
 });
 
-describe('runDstore3', () => {
+describe('Dstore3', () => {
   test('DSTORE_3: stores double into locals', () => {
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DSTORE_3);
@@ -409,7 +409,7 @@ describe('runDstore3', () => {
   });
 });
 
-describe('runAstore', () => {
+describe('Astore', () => {
   test('ASTORE: stores int into locals', () => {
     const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
@@ -424,7 +424,7 @@ describe('runAstore', () => {
   });
 });
 
-describe('runAstore0', () => {
+describe('Astore0', () => {
   test('ASTORE_0: stores int into locals', () => {
     const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
@@ -438,7 +438,7 @@ describe('runAstore0', () => {
   });
 });
 
-describe('runAstore1', () => {
+describe('Astore1', () => {
   test('ASTORE_1: stores int into locals', () => {
     const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
@@ -452,7 +452,7 @@ describe('runAstore1', () => {
   });
 });
 
-describe('runAstore2', () => {
+describe('Astore2', () => {
   test('ASTORE_2: stores int into locals', () => {
     const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
@@ -466,7 +466,7 @@ describe('runAstore2', () => {
   });
 });
 
-describe('runAstore3', () => {
+describe('Astore3', () => {
   test('ASTORE_3: stores int into locals', () => {
     const v1 = new JvmObject(threadClass);
     thread.pushStack(v1);
@@ -480,7 +480,7 @@ describe('runAstore3', () => {
   });
 });
 
-describe('runIastore', () => {
+describe('Iastore', () => {
   test('IASTORE: stores int into array', () => {
     const arrCls = (
       bscl.getClassRef('[I') as SuccessResult<ClassRef>
@@ -547,7 +547,7 @@ describe('runIastore', () => {
   });
 });
 
-describe('runLastore', () => {
+describe('Lastore', () => {
   test('LASTORE: stores long into array', () => {
     const arrCls = (
       bscl.getClassRef('[J') as SuccessResult<ClassRef>
@@ -613,7 +613,7 @@ describe('runLastore', () => {
   });
 });
 
-describe('runFastore', () => {
+describe('Fastore', () => {
   test('FASTORE: stores float into array', () => {
     const arrCls = (
       bscl.getClassRef('[F') as SuccessResult<ClassRef>
@@ -679,7 +679,7 @@ describe('runFastore', () => {
   });
 });
 
-describe('runDastore', () => {
+describe('Dastore', () => {
   test('DASTORE: stores double into array', () => {
     const arrCls = (
       bscl.getClassRef('[D') as SuccessResult<ClassRef>
@@ -745,10 +745,10 @@ describe('runDastore', () => {
   });
 });
 
-describe('runAastore', () => {
+describe('Aastore', () => {
   test('AASTORE: stores reference into array', () => {
     const arrCls = (
-      bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
@@ -779,7 +779,7 @@ describe('runAastore', () => {
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
@@ -797,7 +797,7 @@ describe('runAastore', () => {
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      bscl.getClassRef('[Ljava/lang/Thread') as SuccessResult<ClassRef>
+      bscl.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassRef>
     ).getResult();
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
@@ -814,7 +814,7 @@ describe('runAastore', () => {
   });
 });
 
-describe('runBastore', () => {
+describe('Bastore', () => {
   test('BASTORE: stores byte into array', () => {
     const arrCls = (
       bscl.getClassRef('[B') as SuccessResult<ClassRef>
@@ -898,7 +898,7 @@ describe('runBastore', () => {
   });
 });
 
-describe('runCastore', () => {
+describe('Castore', () => {
   test('CASTORE: stores char into array', () => {
     const arrCls = (
       bscl.getClassRef('[C') as SuccessResult<ClassRef>
@@ -982,7 +982,7 @@ describe('runCastore', () => {
   });
 });
 
-describe('runSastore', () => {
+describe('Sastore', () => {
   test('SASTORE: stores short into array', () => {
     const arrCls = (
       bscl.getClassRef('[S') as SuccessResult<ClassRef>

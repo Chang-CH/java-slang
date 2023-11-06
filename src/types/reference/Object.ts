@@ -47,10 +47,10 @@ export class JvmObject {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
-    return this.$getField(fieldName, fieldDesc, fieldClass);
+    return this._getField(fieldName, fieldDesc, fieldClass);
   }
 
-  $getField(fieldName: string, fieldDesc: string, fieldClass: string): any {
+  _getField(fieldName: string, fieldDesc: string, fieldClass: string): any {
     const key = `${fieldClass}.${fieldName}${fieldDesc}`;
 
     if (key in this.fields) {
@@ -64,10 +64,10 @@ export class JvmObject {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
-    this.$putField(fieldName, fieldDesc, fieldClass, value);
+    this._putField(fieldName, fieldDesc, fieldClass, value);
   }
 
-  $putField(
+  _putField(
     fieldName: string,
     fieldDesc: string,
     fieldClass: string,
@@ -83,11 +83,11 @@ export class JvmObject {
     throw new Error(`Invalid field`);
   }
 
-  $getNativeField(name: string) {
+  getNativeField(name: string) {
     return this.nativeFields[name];
   }
 
-  $putNativeField(name: string, value: any) {
+  putNativeField(name: string, value: any) {
     this.nativeFields[name] = value;
   }
 }

@@ -32,7 +32,7 @@ beforeEach(() => {
   thread.invokeSf(threadClass, method, 0, []);
 });
 
-describe('runI2l', () => {
+describe('I2l', () => {
   test('I2L: int converts to bigInt', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.I2L);
@@ -46,7 +46,7 @@ describe('runI2l', () => {
   });
 });
 
-describe('runI2f', () => {
+describe('I2f', () => {
   test('I2F: int converts to float', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.I2F);
@@ -60,7 +60,7 @@ describe('runI2f', () => {
   });
 });
 
-describe('runI2f', () => {
+describe('I2f', () => {
   test('I2D: int converts to double', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.I2D);
@@ -74,7 +74,7 @@ describe('runI2f', () => {
   });
 });
 
-describe('runI2b', () => {
+describe('I2b', () => {
   test('I2B: int converts to byte', () => {
     thread.pushStack(127);
     code.setUint8(0, OPCODE.I2B);
@@ -100,7 +100,7 @@ describe('runI2b', () => {
   });
 });
 
-describe('runI2c', () => {
+describe('I2c', () => {
   test('I2C: int converts to char', () => {
     thread.pushStack(0xffff);
     code.setUint8(0, OPCODE.I2C);
@@ -126,7 +126,7 @@ describe('runI2c', () => {
   });
 });
 
-describe('runI2s', () => {
+describe('I2s', () => {
   test('I2S: max short int converts to short', () => {
     thread.pushStack(32767);
     code.setUint8(0, OPCODE.I2S);
@@ -164,7 +164,7 @@ describe('runI2s', () => {
   });
 });
 
-describe('runL2i', () => {
+describe('L2i', () => {
   test('L2I: max int long converts to int', () => {
     thread.pushStack64(2147483647n);
     code.setUint8(0, OPCODE.L2I);
@@ -202,7 +202,7 @@ describe('runL2i', () => {
   });
 });
 
-describe('runL2f', () => {
+describe('L2f', () => {
   test('L2F: long converts to float', () => {
     thread.pushStack64(10n);
     code.setUint8(0, OPCODE.L2F);
@@ -228,7 +228,7 @@ describe('runL2f', () => {
   });
 });
 
-describe('runL2d', () => {
+describe('L2d', () => {
   test('L2D: long converts to double', () => {
     thread.pushStack64(10n);
     code.setUint8(0, OPCODE.L2D);
@@ -254,7 +254,7 @@ describe('runL2d', () => {
   });
 });
 
-describe('runF2i', () => {
+describe('F2i', () => {
   test('F2I: float converts to int', () => {
     thread.pushStack(-20.5);
     code.setUint8(0, OPCODE.F2I);
@@ -328,7 +328,7 @@ describe('runF2i', () => {
   });
 });
 
-describe('runF2l', () => {
+describe('F2l', () => {
   test('F2L: float converts to long', () => {
     thread.pushStack(-20.5);
     code.setUint8(0, OPCODE.F2L);
@@ -402,7 +402,7 @@ describe('runF2l', () => {
   });
 });
 
-describe('runF2d', () => {
+describe('F2d', () => {
   test('F2D: float converts to double', () => {
     thread.pushStack(1.0);
     code.setUint8(0, OPCODE.F2D);
@@ -416,7 +416,7 @@ describe('runF2d', () => {
   });
 });
 
-describe('runD2i', () => {
+describe('D2i', () => {
   test('D2I: double converts to int', () => {
     thread.pushStack64(-20.5);
     code.setUint8(0, OPCODE.D2I);
@@ -490,7 +490,7 @@ describe('runD2i', () => {
   });
 });
 
-describe('runD2l', () => {
+describe('D2l', () => {
   test('D2L: double converts to long', () => {
     thread.pushStack64(-20.5);
     code.setUint8(0, OPCODE.D2L);
@@ -564,7 +564,7 @@ describe('runD2l', () => {
   });
 });
 
-describe('runD2f', () => {
+describe('D2f', () => {
   test('D2F: float max double converts to float', () => {
     thread.pushStack64(3.4028235e38);
     code.setUint8(0, OPCODE.D2F);

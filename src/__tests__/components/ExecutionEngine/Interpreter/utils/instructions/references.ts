@@ -13,6 +13,7 @@ import { ArrayPrimitiveType } from '#types/dataTypes';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import JVM from '#jvm/index';
+import { ArrayClassRef } from '#types/class/ArrayClassRef';
 
 let thread: Thread;
 let threadClass: ClassRef;
@@ -40,6 +41,20 @@ beforeEach(() => {
     ],
     loader: testLoader,
   });
+  createClass({
+    className: 'java/lang/Object',
+    loader: testLoader,
+  });
+  createClass({
+    className: 'java/lang/Cloneable',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
+  });
+  createClass({
+    className: 'java/io/Serializable',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
+  });
 
   thread = new Thread(threadClass, new JVM(testSystem));
 });
@@ -47,7 +62,7 @@ beforeEach(() => {
 // method resolution tested under classref
 // Test synchronized
 // Test signature polymorphic method declaration
-describe('runInvokestatic', () => {
+describe('Invokestatic', () => {
   test('INVOKESTATIC: Non static method throws IncompatibleClassChangeError', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -837,7 +852,7 @@ describe('runInvokestatic', () => {
 // Test synchronized
 // unsatisfiedlinkerror
 // Test signature polymorphic method declaration
-describe('runinvokevirtual', () => {
+describe('invokevirtual', () => {
   test('INVOKEVIRTUAL: static method invoked without error', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -1617,7 +1632,7 @@ describe('runinvokevirtual', () => {
 // Test synchronized
 // unsatisfiedlinkerror
 // Test signature polymorphic method declaration
-describe('runInvokeinterface', () => {
+describe('Invokeinterface', () => {
   test('INVOKEINTERFACE: static method invoked without error', () => {
     const ab = new ArrayBuffer(40);
     const code = new DataView(ab);
@@ -2322,7 +2337,7 @@ describe('runInvokeinterface', () => {
 // Test synchronized
 // unsatisfiedlinkerror
 // Test signature polymorphic method declaration
-describe('runinvokespecial', () => {
+describe('invokespecial', () => {
   test('INVOKESPECIAL: static method invoked without error', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -2899,7 +2914,7 @@ describe('runinvokespecial', () => {
   });
 });
 
-describe('runGetstatic', () => {
+describe('Getstatic', () => {
   test('GETSTATIC: Initializes class', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -3412,7 +3427,7 @@ describe('runGetstatic', () => {
   });
 });
 
-describe('runPutstatic', () => {
+describe('Putstatic', () => {
   test('PUTSTATIC: Initializes class', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -4299,7 +4314,7 @@ describe('runPutstatic', () => {
   });
 });
 
-describe('runNew', () => {
+describe('New', () => {
   test('NEW: creates new object', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -4478,7 +4493,7 @@ describe('runNew', () => {
   });
 });
 
-describe('runNewarray', () => {
+describe('Newarray', () => {
   test('NEWARRAY: creates new array', () => {
     const ab = new ArrayBuffer(16);
     const code = new DataView(ab);
@@ -4637,7 +4652,7 @@ describe('runNewarray', () => {
   });
 });
 
-describe('runAnewarray', () => {
+describe('Anewarray', () => {
   test('ANEWARRAY: creates new array', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
@@ -4768,6 +4783,875 @@ describe('runAnewarray', () => {
     const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
       'java/lang/NegativeArraySizeException'
+    );
+  });
+});
+
+describe('Anewarray', () => {
+  test('ANEWARRAY: creates new array', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ANEWARRAY);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(0);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(1);
+    const arrayObj = thread.popStack() as JvmArray;
+    expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
+    expect(arrayObj.len()).toBe(0);
+  });
+
+  test('ANEWARRAY: sets elements to default value', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ANEWARRAY);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(1);
+    runInstruction(thread, jni, () => {});
+    const arrayObj = thread.popStack() as JvmArray;
+    expect(arrayObj.get(0) === null).toBe(true);
+  });
+
+  test('ANEWARRAY: negative array size throws NegativeArraySizeException', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ANEWARRAY);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(-1);
+    runInstruction(thread, jni, () => {});
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+    );
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NegativeArraySizeException'
+    );
+  });
+});
+
+describe('Arraylength', () => {
+  test('ARRAYLENGTH: gets length of array', () => {
+    const ab = new ArrayBuffer(8);
+    const code = new DataView(ab);
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ARRAYLENGTH);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const arrayRef = arrCls.instantiate();
+    arrayRef.initialize(thread, 5);
+    thread.pushStack(arrayRef);
+
+    code.setUint8(0, OPCODE.ARRAYLENGTH);
+    runInstruction(thread, jni, () => {});
+    expect(thread.popStack()).toBe(5);
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(1);
+  });
+
+  test('ARRAYLENGTH: null array throws NullPointerException', () => {
+    const ab = new ArrayBuffer(8);
+    const code = new DataView(ab);
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ARRAYLENGTH);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+
+    thread.pushStack(null);
+
+    code.setUint8(0, OPCODE.ARRAYLENGTH);
+    runInstruction(thread, jni, () => {});
+
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+    );
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
+  });
+});
+
+describe('Arraylength', () => {
+  test('ARRAYLENGTH: gets length of array', () => {
+    const ab = new ArrayBuffer(8);
+    const code = new DataView(ab);
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ARRAYLENGTH);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const arrayRef = arrCls.instantiate();
+    arrayRef.initialize(thread, 5);
+    thread.pushStack(arrayRef);
+
+    runInstruction(thread, jni, () => {});
+    expect(thread.popStack()).toBe(5);
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(1);
+  });
+
+  test('ARRAYLENGTH: null array throws NullPointerException', () => {
+    const ab = new ArrayBuffer(8);
+    const code = new DataView(ab);
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 4,
+          value: 'Test',
+        }),
+        cPool => {
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    code.setUint8(0, OPCODE.ARRAYLENGTH);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(null);
+
+    runInstruction(thread, jni, () => {});
+
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+    );
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/NullPointerException'
+    );
+  });
+});
+
+describe('Checkcast', () => {
+  test('CHECKCAST: null ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(null);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(null);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: null does not link symbol', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(null);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack()).toBe(null);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: same class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const obj = sClass.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack() === obj).toBe(true);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: sub class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 1,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'child',
+      superClass: sClass,
+      loader: testLoader,
+    });
+
+    const obj = childClass.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack() === obj).toBe(true);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: interface class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: 'SC',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'child',
+      interfaces: [sClass],
+      loader: testLoader,
+    });
+
+    const obj = childClass.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack() === obj).toBe(true);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: Array obj Object class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 16,
+          value: 'java/lang/Object',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack() === obj).toBe(true);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: Array obj interface class ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 16,
+          value: 'java/lang/Cloneable',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack() === obj).toBe(true);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: Array primitive ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: '[I',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+    const arrCls = (
+      testLoader.getClassRef('[I') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack() === obj).toBe(true);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: Array subtype ok', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: '[LSC;',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'Child',
+      superClass: sClass,
+      loader: testLoader,
+    });
+
+    const arrCls = (
+      testLoader.getClassRef('[LChild;') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    expect(thread.popStack() === obj).toBe(true);
+    expect(thread.peekStackFrame().operandStack.length).toBe(0);
+    expect(thread.getPC()).toBe(3);
+  });
+
+  test('CHECKCAST: Throws ClassCastException on failure', () => {
+    const ab = new ArrayBuffer(24);
+    const code = new DataView(ab);
+    let classIndex = 0;
+    const testClass = createClass({
+      className: 'Test',
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          length: 2,
+          value: '[LSC;',
+        }),
+        cPool => {
+          classIndex = cPool.length;
+          return {
+            tag: CONSTANT_TAG.Class,
+            nameIndex: cPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
+          name: 'test0',
+          descriptor: '()V',
+          attributes: [],
+          code: code,
+        },
+      ],
+      loader: testLoader,
+    });
+
+    const sClass = createClass({
+      className: 'SC',
+      loader: testLoader,
+    });
+
+    const childClass = createClass({
+      className: 'Child',
+      loader: testLoader,
+    });
+
+    const arrCls = (
+      testLoader.getClassRef('[LChild;') as any
+    ).getResult() as ArrayClassRef;
+    const obj = arrCls.instantiate();
+
+    code.setUint8(0, OPCODE.CHECKCAST);
+    code.setUint16(1, classIndex);
+    const method = testClass.getMethod('test0()V') as MethodRef;
+    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.pushStack(obj);
+
+    runInstruction(thread, jni, () => {});
+
+    const lastFrame = thread.peekStackFrame();
+    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V'
+    );
+    expect(thread.getPC()).toBe(0);
+    const exceptionObj = lastFrame.locals[1] as JvmObject;
+    expect(exceptionObj.getClass().getClassname()).toBe(
+      'java/lang/ClassCastException'
     );
   });
 });

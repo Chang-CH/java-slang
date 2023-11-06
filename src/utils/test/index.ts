@@ -13,6 +13,7 @@ import {
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { ConstantRef } from '#types/ConstantRef';
+import { JavaType } from '#types/dataTypes';
 import { ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 
@@ -178,7 +179,7 @@ export const createClass = (options: {
         constantPool,
         options.flags ?? 33,
         options.className ?? '[LTest',
-        options.superClass ?? null,
+        options.superClass ?? (null as any),
         interfaces,
         fields,
         methods,
@@ -203,33 +204,94 @@ export const createClass = (options: {
 };
 
 export class TestClassLoader extends AbstractClassLoader {
+  private primitiveClasses: { [className: string]: ClassRef } = {};
   getPrimitiveClassRef(className: string): ClassRef {
-    if (!this.parentLoader) {
-      throw new Error('Method not implemented.');
+    if (this.primitiveClasses[className]) {
+      return this.primitiveClasses[className];
     }
-    return this.parentLoader.getPrimitiveClassRef(className);
+
+    let internalName = '';
+    switch (className) {
+      case JavaType.byte:
+        internalName = 'byte';
+        break;
+      case JavaType.char:
+        internalName = 'char';
+        break;
+      case JavaType.double:
+        internalName = 'double';
+        break;
+      case JavaType.float:
+        internalName = 'float';
+        break;
+      case JavaType.int:
+        internalName = 'int';
+        break;
+      case JavaType.long:
+        internalName = 'long';
+        break;
+      case JavaType.short:
+        internalName = 'short';
+        break;
+      case JavaType.boolean:
+        internalName = 'boolean';
+        break;
+      case JavaType.void:
+        internalName = 'void';
+        break;
+      default:
+        throw new Error(`Not a primitive: ${className}`);
+    }
+
+    const cls = new ClassRef(
+      [],
+      CLASS_FLAGS.ACC_PUBLIC,
+      internalName,
+      null,
+      [],
+      [],
+      [],
+      [],
+      this
+    );
+    this.primitiveClasses[className] = cls;
+    return cls;
   }
+
+  private loadArray(className: string): ImmediateResult<ClassRef> {
+    // #region load array superclasses/interfaces
+    const objRes = this.getClassRef('java/lang/Object');
+    if (objRes.checkError()) {
+      return objRes;
+    }
+    const cloneableRes = this.getClassRef('java/lang/Cloneable');
+    if (cloneableRes.checkError()) {
+      return cloneableRes;
+    }
+    const serialRes = this.getClassRef('java/io/Serializable');
+    if (serialRes.checkError()) {
+      return serialRes;
+    }
+    // #endregion
+
+    const arrayClass = new ArrayClassRef(
+      [],
+      CLASS_FLAGS.ACC_PUBLIC,
+      className,
+      objRes.getResult(),
+      [cloneableRes.getResult(), serialRes.getResult()],
+      [],
+      [],
+      [],
+      this
+    );
+    return new SuccessResult(arrayClass);
+  }
+
   load(className: string): ImmediateResult<ClassRef> {
     // array class
     if (className.startsWith('[')) {
-      const objRes = this.getClassRef('java/lang/Object');
-
-      if (objRes.checkError()) {
-        return objRes;
-      }
-
-      const arrayClass = new ArrayClassRef(
-        [],
-        CLASS_FLAGS.ACC_PUBLIC,
-        className,
-        objRes.getResult(),
-        [],
-        [],
-        [],
-        [],
-        this
-      );
-      return new SuccessResult(this.loadClass(arrayClass));
+      return this.loadArray(className);
     }
 
     const stubRef = createClass({

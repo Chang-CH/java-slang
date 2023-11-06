@@ -3,6 +3,7 @@ import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
+import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { ClassRef } from '#types/class/ClassRef';
 import {
   ErrorResult,
@@ -37,7 +38,7 @@ export default abstract class AbstractClassLoader {
    * @param cls class data to check
    * @returns Error, if any
    */
-  prepareClass(cls: ClassFile): void | Error {
+  protected prepareClass(cls: ClassFile): void | Error {
     return;
   }
 
@@ -46,7 +47,7 @@ export default abstract class AbstractClassLoader {
    * @param cls class data to resolve
    * @returns class data with resolved references
    */
-  linkClass(cls: ClassFile): ClassRef {
+  protected linkClass(cls: ClassFile): ClassRef {
     const constantPool = cls.constantPool;
     const accessFlags = cls.accessFlags;
 
@@ -67,6 +68,7 @@ export default abstract class AbstractClassLoader {
       const res = this.getClassRef(superClassName.value);
 
       if (res.checkError()) {
+        // FIXME: save linker error, throw when attempting to get superclass
         throw new Error(res.getError().className);
       }
 
@@ -76,11 +78,10 @@ export default abstract class AbstractClassLoader {
     if ((accessFlags & CLASS_FLAGS.ACC_INTERFACE) !== 0 && !superClass) {
       // Some compilers set superclass to object by default.
       // We force it to be java/lang/Object if it's not set.
-      const res = this.getClassRef('java/lang/Object');
-      if (res.checkError()) {
-        throw new Error(res.getError().className);
-      }
-      superClass = res.getResult();
+      // assume object is loaded at initialization.
+      superClass = (
+        this.getClassRef('java/lang/Object') as any
+      ).getResult() as ClassRef;
     }
 
     // resolve interfaces
@@ -119,28 +120,66 @@ export default abstract class AbstractClassLoader {
    * Adds the resolved class data to the memory area.
    * @param cls resolved class data
    */
-  loadClass(cls: ClassRef): ClassRef {
-    this.loadedClasses[this.getClassName(cls)] = cls;
+  protected loadClass(cls: ClassRef): ClassRef {
+    this.loadedClasses[cls.getClassname()] = cls;
     return cls;
   }
 
-  getClassName(cls: ClassRef): string {
-    return cls.getClassname();
-  }
-
-  getClassRef(className: string): ImmediateResult<ClassRef> {
+  protected _getClassRef(
+    className: string,
+    initiator: AbstractClassLoader
+  ): ImmediateResult<ClassRef> {
     if (this.loadedClasses[className]) {
       return new SuccessResult(this.loadedClasses[className]);
     }
 
-    if (this.parentLoader) {
-      const res = this.parentLoader.getClassRef(className);
+    let arrayObjCls;
+    if (className.startsWith('[')) {
+      const itemClsName = className.slice(1);
 
+      // FIXME: linker errors should be thrown at runtime instead.
+      if (itemClsName.startsWith('L')) {
+        const itemRes = this._getClassRef(itemClsName.slice(1, -1), initiator);
+        if (itemRes.checkError()) {
+          return itemRes;
+        }
+        arrayObjCls = itemRes.getResult();
+      } else if (itemClsName.startsWith('[')) {
+        const itemRes = this._getClassRef(itemClsName, initiator);
+        if (itemRes.checkError()) {
+          return itemRes;
+        }
+        arrayObjCls = itemRes.getResult();
+      } else {
+        arrayObjCls = this.getPrimitiveClassRef(itemClsName);
+      }
+    }
+
+    if (this.parentLoader) {
+      const res = this.parentLoader._getClassRef(className, initiator);
       if (res.checkSuccess()) {
+        if (arrayObjCls) {
+          (res.getResult() as ArrayClassRef).setItemClass(arrayObjCls);
+        }
         return res;
       }
     }
-    return this.load(className);
+
+    const res = this.load(className);
+    if (res.checkSuccess() && arrayObjCls) {
+      (res.getResult() as ArrayClassRef).setItemClass(arrayObjCls);
+    }
+    return res;
+  }
+
+  /**
+   * Gets the class data given the classname, loads the class if not loaded.
+   *
+   * @param className
+   * @returns
+   */
+  getClassRef(className: string): ImmediateResult<ClassRef> {
+    return this._getClassRef(className, this);
   }
 
   /**
@@ -151,5 +190,5 @@ export default abstract class AbstractClassLoader {
   abstract getPrimitiveClassRef(className: string): ClassRef;
 
   // TODO: follow classloading spec 5.3.5
-  abstract load(className: string): ImmediateResult<ClassRef>;
+  protected abstract load(className: string): ImmediateResult<ClassRef>;
 }

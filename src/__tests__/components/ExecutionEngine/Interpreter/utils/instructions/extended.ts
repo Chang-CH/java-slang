@@ -118,7 +118,7 @@ beforeEach(() => {
   thread.invokeSf(testClass, method, 0, []);
 });
 
-describe('runIfnull', () => {
+describe('Ifnull', () => {
   test('IFNULL: null branches', () => {
     code.setUint8(0, OPCODE.IFNULL);
     code.setInt16(1, 10);
@@ -142,7 +142,7 @@ describe('runIfnull', () => {
   });
 });
 
-describe('runIfnonnull', () => {
+describe('Ifnonnull', () => {
   test('IFNONNULL: null does not branch', () => {
     code.setUint8(0, OPCODE.IFNONNULL);
     code.setInt16(1, 10);
@@ -166,7 +166,7 @@ describe('runIfnonnull', () => {
   });
 });
 
-describe('runGotoW', () => {
+describe('GotoW', () => {
   test('GOTO_W: goes to correct offset', () => {
     code.setUint8(0, OPCODE.GOTO_W);
     code.setInt32(1, 65535);
@@ -178,7 +178,7 @@ describe('runGotoW', () => {
   });
 });
 
-describe('runJsrW', () => {
+describe('JsrW', () => {
   test('JSR_W: pushes next pc and jumps to offset', () => {
     code.setUint8(0, OPCODE.JSR_W);
     code.setInt32(1, 65535);
@@ -192,7 +192,7 @@ describe('runJsrW', () => {
   });
 });
 
-describe('runWide', () => {
+describe('Wide', () => {
   test('ILOAD: reads wide index', () => {
     code.setUint8(0, OPCODE.WIDE);
     code.setUint8(1, OPCODE.ILOAD);
@@ -334,7 +334,7 @@ describe('runWide', () => {
   });
 });
 
-describe('runMultianewarray', () => {
+describe('Multianewarray', () => {
   test('MULTIANEWARRAY: Creates multi dimensional array', () => {
     thread.returnSF();
     let constIdx = 0;

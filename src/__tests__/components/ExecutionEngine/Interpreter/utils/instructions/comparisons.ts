@@ -29,7 +29,7 @@ beforeEach(() => {
   thread.invokeSf(threadClass, method, 0, []);
 });
 
-describe('runLcmp', () => {
+describe('Lcmp', () => {
   test('lcmp: value1 > value2 pushes 1I onto stack', () => {
     thread.pushStack64(100n);
     thread.pushStack64(99n);
@@ -70,7 +70,7 @@ describe('runLcmp', () => {
   });
 });
 
-describe('runFcmpl', () => {
+describe('Fcmpl', () => {
   test('FCMPL: value1 > value2 pushes 1I onto stack', () => {
     thread.pushStack(1.5);
     thread.pushStack(1.2);
@@ -163,7 +163,7 @@ describe('runFcmpl', () => {
   });
 });
 
-describe('runFcmpg', () => {
+describe('Fcmpg', () => {
   test('FCMPG: value1 > value2 pushes 1I onto stack', () => {
     thread.pushStack(1.5);
     thread.pushStack(1.2);
@@ -256,7 +256,7 @@ describe('runFcmpg', () => {
   });
 });
 
-describe('runDcmpl', () => {
+describe('Dcmpl', () => {
   test('DCMPL: value1 > value2 pushes 1I onto stack', () => {
     thread.pushStack64(1.5);
     thread.pushStack64(1.2);
@@ -349,7 +349,7 @@ describe('runDcmpl', () => {
   });
 });
 
-describe('runDcmpg', () => {
+describe('Dcmpg', () => {
   test('DCMPG: value1 > value2 pushes 1I onto stack', () => {
     thread.pushStack64(1.5);
     thread.pushStack64(1.2);
@@ -442,7 +442,7 @@ describe('runDcmpg', () => {
   });
 });
 
-describe('runIfeq', () => {
+describe('Ifeq', () => {
   test('IFEQ: non zero no branch', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IFEQ);
@@ -477,7 +477,7 @@ describe('runIfeq', () => {
   });
 });
 
-describe('runIfne', () => {
+describe('Ifne', () => {
   test('IFNE: non zero branches', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IFNE);
@@ -512,7 +512,7 @@ describe('runIfne', () => {
   });
 });
 
-describe('runIflt', () => {
+describe('Iflt', () => {
   test('IFLT: less than zero branches', () => {
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IFLT);
@@ -547,7 +547,7 @@ describe('runIflt', () => {
   });
 });
 
-describe('runIfge', () => {
+describe('Ifge', () => {
   test('IFGE: greater than zero branches', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IFGE);
@@ -593,7 +593,7 @@ describe('runIfge', () => {
   });
 });
 
-describe('runIfgt', () => {
+describe('Ifgt', () => {
   test('IFGT: greater than zero branches', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IFGT);
@@ -639,7 +639,7 @@ describe('runIfgt', () => {
   });
 });
 
-describe('runIfle', () => {
+describe('Ifle', () => {
   test('IFLE: greater than zero no branch', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IFLE);

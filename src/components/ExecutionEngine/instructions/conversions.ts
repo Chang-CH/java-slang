@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/Thread/Thread';
-import { asDouble, asFloat } from '..';
+import { asDouble, asFloat } from '../Interpreter/utils';
 
 const MAX_INT = 2147483647;
 const MIN_INT = -2147483648;

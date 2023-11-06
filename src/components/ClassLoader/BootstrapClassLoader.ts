@@ -1,4 +1,4 @@
-import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
+import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
@@ -17,32 +17,45 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     super(nativeSystem, classPath, null);
   }
 
+  private loadArray(className: string): ImmediateResult<ClassRef> {
+    // #region load array superclasses/interfaces
+    const objRes = this.getClassRef('java/lang/Object');
+    if (objRes.checkError()) {
+      return objRes;
+    }
+    const cloneableRes = this.getClassRef('java/lang/Cloneable');
+    if (cloneableRes.checkError()) {
+      return cloneableRes;
+    }
+    const serialRes = this.getClassRef('java/io/Serializable');
+    if (serialRes.checkError()) {
+      return serialRes;
+    }
+    // #endregion
+
+    const arrayClass = new ArrayClassRef(
+      [],
+      CLASS_FLAGS.ACC_PUBLIC,
+      className,
+      objRes.getResult(),
+      [cloneableRes.getResult(), serialRes.getResult()],
+      [],
+      [],
+      [],
+      this
+    );
+    return new SuccessResult(arrayClass);
+  }
+
   /**
    * Attempts to load a class file. Class should not already be loaded.
    * @param className name of class to load
    */
-  load(className: string): ImmediateResult<ClassRef> {
+  protected load(className: string): ImmediateResult<ClassRef> {
     console.debug(`BsCL: loading ${className}`);
     // array class
     if (className.startsWith('[')) {
-      const objRes = this.getClassRef('java/lang/Object');
-
-      if (objRes.checkError()) {
-        return objRes;
-      }
-
-      const arrayClass = new ArrayClassRef(
-        [],
-        CLASS_FLAGS.ACC_PUBLIC,
-        className,
-        objRes.getResult(),
-        [],
-        [],
-        [],
-        [],
-        this
-      );
-      return new SuccessResult(this.loadClass(arrayClass));
+      return this.loadArray(className);
     }
 
     const path = this.classPath ? this.classPath + '/' + className : className;

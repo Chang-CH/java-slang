@@ -17,7 +17,7 @@ export default class ClassLoader extends AbstractClassLoader {
    * Attempts to load a class file
    * @param className name of class to load
    */
-  load(className: string): ImmediateResult<ClassRef> {
+  protected load(className: string): ImmediateResult<ClassRef> {
     console.debug(`ClassLoader: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
 

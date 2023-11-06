@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/Thread/Thread';
-import { asDouble, asFloat } from '..';
+import { asDouble, asFloat } from '../Interpreter/utils';
 
 export function runGoto(thread: Thread): void {
   thread.offsetPc(1);

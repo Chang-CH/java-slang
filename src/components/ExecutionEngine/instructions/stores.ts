@@ -1,6 +1,6 @@
 import Thread from '#jvm/components/Thread/Thread';
 import { JvmArray } from '#types/reference/Array';
-import { asDouble, asFloat } from '..';
+import { asDouble, asFloat } from '../Interpreter/utils';
 
 export function runIstore(thread: Thread): void {
   thread.offsetPc(1);

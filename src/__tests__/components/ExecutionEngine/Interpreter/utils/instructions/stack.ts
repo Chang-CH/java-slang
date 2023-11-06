@@ -32,7 +32,7 @@ beforeEach(() => {
   thread.invokeSf(threadClass, method, 0, []);
 });
 
-describe('runPop', () => {
+describe('Pop', () => {
   test('POP: pop stack', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.POP);
@@ -44,7 +44,7 @@ describe('runPop', () => {
   });
 });
 
-describe('runPop2', () => {
+describe('Pop2', () => {
   test('POP2: pop stack 2 ints', () => {
     thread.pushStack(1);
     thread.pushStack(1);
@@ -67,7 +67,7 @@ describe('runPop2', () => {
   });
 });
 
-describe('runDup', () => {
+describe('Dup', () => {
   test('DUP: duplicates reference', () => {
     thread.pushStack(javaThread);
     code.setUint8(0, OPCODE.DUP);
@@ -81,7 +81,7 @@ describe('runDup', () => {
   });
 });
 
-describe('runDupX1', () => {
+describe('DupX1', () => {
   test('DUPX1: duplicates reference', () => {
     const v1 = new JvmObject(threadClass);
     const v2 = new JvmObject(threadClass);
@@ -99,7 +99,7 @@ describe('runDupX1', () => {
   });
 });
 
-describe('runDupX2', () => {
+describe('DupX2', () => {
   test('DUPX2: duplicates reference', () => {
     const v1 = new JvmObject(threadClass);
     const v2 = new JvmObject(threadClass);
@@ -134,7 +134,7 @@ describe('runDupX2', () => {
   });
 });
 
-describe('runDup2', () => {
+describe('Dup2', () => {
   test('DUP2: duplicates 2 category 1', () => {
     const v1 = new JvmObject(threadClass);
     const v2 = new JvmObject(threadClass);
@@ -164,7 +164,7 @@ describe('runDup2', () => {
   });
 });
 
-describe('runDup2X1', () => {
+describe('Dup2X1', () => {
   test('DUP2X1: duplicates 3 category 1', () => {
     const v1 = new JvmObject(threadClass);
     const v2 = new JvmObject(threadClass);
@@ -200,7 +200,7 @@ describe('runDup2X1', () => {
   });
 });
 
-describe('runDup2X2', () => {
+describe('Dup2X2', () => {
   test('DUP2X2: duplicates 4 category 1', () => {
     const v1 = new JvmObject(threadClass);
     const v2 = new JvmObject(threadClass);
@@ -275,7 +275,7 @@ describe('runDup2X2', () => {
   });
 });
 
-describe('runSwap', () => {
+describe('Swap', () => {
   test('SWAP: swap stack operands', () => {
     const v1 = new JvmObject(threadClass);
     const v2 = new JvmObject(threadClass);

@@ -115,7 +115,7 @@ beforeEach(() => {
   thread.invokeSf(testClass, method, 0, []);
 });
 
-describe('runNop', () => {
+describe('Nop', () => {
   test('does not modify stack', () => {
     code.setUint8(0, OPCODE.NOP);
     runInstruction(thread, jni, () => {});
@@ -127,7 +127,7 @@ describe('runNop', () => {
   });
 });
 
-describe('runAconstNull', () => {
+describe('AconstNull', () => {
   test('pushes null to stack', () => {
     code.setUint8(0, OPCODE.ACONST_NULL);
     runInstruction(thread, jni, () => {});
@@ -140,7 +140,7 @@ describe('runAconstNull', () => {
   });
 });
 
-describe('runIconstM1', () => {
+describe('IconstM1', () => {
   test('pushes -1 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_M1);
     runInstruction(thread, jni, () => {});
@@ -153,7 +153,7 @@ describe('runIconstM1', () => {
   });
 });
 
-describe('runIconst0', () => {
+describe('Iconst0', () => {
   test('pushes 0 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_0);
     runInstruction(thread, jni, () => {});
@@ -166,7 +166,7 @@ describe('runIconst0', () => {
   });
 });
 
-describe('runIconst1', () => {
+describe('Iconst1', () => {
   test('pushes 1 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_1);
     runInstruction(thread, jni, () => {});
@@ -179,7 +179,7 @@ describe('runIconst1', () => {
   });
 });
 
-describe('runIconst2', () => {
+describe('Iconst2', () => {
   test('pushes 2 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_2);
     runInstruction(thread, jni, () => {});
@@ -192,7 +192,7 @@ describe('runIconst2', () => {
   });
 });
 
-describe('runIconst3', () => {
+describe('Iconst3', () => {
   test('pushes 3 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_3);
     runInstruction(thread, jni, () => {});
@@ -205,7 +205,7 @@ describe('runIconst3', () => {
   });
 });
 
-describe('runIconst4', () => {
+describe('Iconst4', () => {
   test('pushes 4 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_4);
     runInstruction(thread, jni, () => {});
@@ -218,7 +218,7 @@ describe('runIconst4', () => {
   });
 });
 
-describe('runIconst5', () => {
+describe('Iconst5', () => {
   test('pushes 5 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_5);
     runInstruction(thread, jni, () => {});
@@ -231,7 +231,7 @@ describe('runIconst5', () => {
   });
 });
 
-describe('runLconst0', () => {
+describe('Lconst0', () => {
   test('pushes long 0 to stack', () => {
     code.setUint8(0, OPCODE.LCONST_0);
     runInstruction(thread, jni, () => {});
@@ -244,7 +244,7 @@ describe('runLconst0', () => {
   });
 });
 
-describe('runLconst1', () => {
+describe('Lconst1', () => {
   test('pushes long 1 to stack', () => {
     code.setUint8(0, OPCODE.LCONST_1);
     runInstruction(thread, jni, () => {});
@@ -257,7 +257,7 @@ describe('runLconst1', () => {
   });
 });
 
-describe('runFconst0', () => {
+describe('Fconst0', () => {
   test('pushes float 0 to stack', () => {
     code.setUint8(0, OPCODE.FCONST_0);
     runInstruction(thread, jni, () => {});
@@ -270,7 +270,7 @@ describe('runFconst0', () => {
   });
 });
 
-describe('runFconst1', () => {
+describe('Fconst1', () => {
   test('pushes float 1 to stack', () => {
     code.setUint8(0, OPCODE.FCONST_1);
     runInstruction(thread, jni, () => {});
@@ -283,7 +283,7 @@ describe('runFconst1', () => {
   });
 });
 
-describe('runFconst2', () => {
+describe('Fconst2', () => {
   test('pushes float 2 to stack', () => {
     code.setUint8(0, OPCODE.FCONST_2);
     runInstruction(thread, jni, () => {});
@@ -296,7 +296,7 @@ describe('runFconst2', () => {
   });
 });
 
-describe('runDconst0', () => {
+describe('Dconst0', () => {
   test('pushes double 0 to stack', () => {
     code.setUint8(0, OPCODE.DCONST_0);
     runInstruction(thread, jni, () => {});
@@ -309,7 +309,7 @@ describe('runDconst0', () => {
   });
 });
 
-describe('runDconst1', () => {
+describe('Dconst1', () => {
   test('pushes double 1 to stack', () => {
     code.setUint8(0, OPCODE.DCONST_1);
     runInstruction(thread, jni, () => {});
@@ -322,7 +322,7 @@ describe('runDconst1', () => {
   });
 });
 
-describe('runBipush', () => {
+describe('Bipush', () => {
   test('pushes byte to stack', () => {
     code.setUint8(0, OPCODE.BIPUSH);
     code.setInt8(1, 128);
@@ -335,7 +335,7 @@ describe('runBipush', () => {
   });
 });
 
-describe('runSipush', () => {
+describe('Sipush', () => {
   test('pushes short to stack', () => {
     code.setUint8(0, OPCODE.SIPUSH);
     code.setInt16(1, 32768);
@@ -352,7 +352,7 @@ describe('runSipush', () => {
 // FIXME: classref should push class object not classref onto stack
 // Test MethodHandle
 // Test MethodType
-describe('runLdc', () => {
+describe('Ldc', () => {
   test('reads int from constant pool and pushes to stack', () => {
     // use custom class
     thread.returnSF();
@@ -571,13 +571,13 @@ describe('runLdc', () => {
     const clsObj = lastFrame.operandStack[0] as JvmObject;
     expect(clsConstant.get() === testClass).toBe(true);
     expect(clsObj.getClass().getClassname()).toBe('java/lang/Class');
-    expect(clsObj.$getNativeField('classRef') === testClass).toBe(true);
+    expect(clsObj.getNativeField('classRef') === testClass).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(2);
   });
 });
 
-describe('runLdcW', () => {
+describe('LdcW', () => {
   test('reads int from constant pool and pushes to stack', () => {
     // use custom class
     thread.returnSF();
@@ -794,14 +794,14 @@ describe('runLdcW', () => {
       'java/lang/Class'
     );
     expect(
-      lastFrame.operandStack[0].$getNativeField('classRef') === testClass
+      lastFrame.operandStack[0].getNativeField('classRef') === testClass
     ).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
 });
 
-describe('runLdc2W', () => {
+describe('Ldc2W', () => {
   test('reads long from constant pool and pushes to stack', () => {
     // use custom class
     thread.returnSF();

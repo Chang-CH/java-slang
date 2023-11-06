@@ -42,6 +42,7 @@ export default class JVM {
 
   initialize() {
     // #region load classes
+    const objRes = this.bootstrapClassLoader.getClassRef('java/lang/Object');
     const tRes = this.bootstrapClassLoader.getClassRef('java/lang/Thread');
     const sysRes = this.bootstrapClassLoader.getClassRef('java/lang/System');
     const clsRes = this.bootstrapClassLoader.getClassRef('java/lang/Class');
@@ -49,6 +50,7 @@ export default class JVM {
       'java/lang/ThreadGroup'
     );
     if (
+      objRes.checkError() ||
       sysRes.checkError() ||
       tRes.checkError() ||
       tgRes.checkError() ||
@@ -61,6 +63,7 @@ export default class JVM {
     const threadGroupCls = tgRes.getResult();
     // #endregion
 
+    // register natives
     registerNatives(this.jni);
 
     const mainThread = new Thread(threadCls, this);
@@ -106,7 +109,6 @@ export default class JVM {
     console.log('// #endregion system class initialized'.padEnd(150, '#'));
     // #endregion
 
-    // this.jni.registerNativeMethod(
     //   'source/Source',
     //   'println(I)V',
     //   (thread: NativeThread, locals: any[]) => console.log(locals[0])

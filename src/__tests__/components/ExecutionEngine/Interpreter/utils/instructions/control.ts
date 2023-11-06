@@ -32,7 +32,7 @@ beforeEach(() => {
   thread.invokeSf(threadClass, method, 0, []);
 });
 
-describe('runGoto', () => {
+describe('Goto', () => {
   test('GOTO: goes to correct offset', () => {
     code.setUint8(0, OPCODE.GOTO);
     code.setInt16(1, 10);
@@ -44,7 +44,7 @@ describe('runGoto', () => {
   });
 });
 
-describe('runJsr', () => {
+describe('Jsr', () => {
   test('JSR: pushes next pc and jumps to offset', () => {
     code.setUint8(0, OPCODE.JSR);
     code.setInt16(1, 10);
@@ -58,7 +58,7 @@ describe('runJsr', () => {
   });
 });
 
-describe('runRet', () => {
+describe('Ret', () => {
   test('RET: pushes next pc and jumps to offset', () => {
     code.setUint8(0, OPCODE.RET);
     code.setUint8(1, 0);
@@ -72,7 +72,7 @@ describe('runRet', () => {
   });
 });
 
-describe('runIreturn', () => {
+describe('Ireturn', () => {
   test('IRETURN: returns int to previous stackframe', () => {
     thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(5);
@@ -92,7 +92,7 @@ describe('runIreturn', () => {
   // IllegalMonitorStateException
 });
 
-describe('runLreturn', () => {
+describe('Lreturn', () => {
   test('LRETURN: returns long to previous stackframe', () => {
     thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack64(5n);
@@ -112,7 +112,7 @@ describe('runLreturn', () => {
   // IllegalMonitorStateException
 });
 
-describe('runFreturn', () => {
+describe('Freturn', () => {
   test('FRETURN: returns float to previous stackframe', () => {
     thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack(0);
@@ -149,7 +149,7 @@ describe('runFreturn', () => {
   // IllegalMonitorStateException
 });
 
-describe('runDreturn', () => {
+describe('Dreturn', () => {
   test('DRETURN: returns double to previous stackframe', () => {
     thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     thread.pushStack64(5.5);
@@ -169,7 +169,7 @@ describe('runDreturn', () => {
   // IllegalMonitorStateException
 });
 
-describe('runAreturn', () => {
+describe('Areturn', () => {
   test('ARETURN: returns reference to previous stackframe', () => {
     const obj = new JvmObject(threadClass);
     thread.invokeSf(threadClass, thread.getMethod(), 0, []);
@@ -190,7 +190,7 @@ describe('runAreturn', () => {
   // IllegalMonitorStateException
 });
 
-describe('runreturn', () => {
+describe('return', () => {
   test('RETURN: returns to previous stackframe', () => {
     const obj = new JvmObject(threadClass);
     thread.invokeSf(threadClass, thread.getMethod(), 0, []);

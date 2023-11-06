@@ -363,7 +363,7 @@ export class ConstantClass extends Constant {
       return this.result;
     }
 
-    this.result = this.cls.$resolveClass(this.className.get());
+    this.result = this.cls.resolveClass(this.className.get());
 
     return this.result;
   }
@@ -1014,7 +1014,7 @@ export class ConstantMethodref extends Constant {
 
     const nt = this.nameAndTypeConstant.get();
     // TODO: not implemented: signature poly
-    this.result = symbolClass.$resolveMethod(nt.name + nt.descriptor, this.cls);
+    this.result = symbolClass.resolveMethod(nt.name + nt.descriptor, this.cls);
     return this.result;
   }
 }
@@ -1077,7 +1077,7 @@ export class ConstantInterfaceMethodref extends Constant {
     }
 
     const nt = this.nameAndTypeConstant.get();
-    this.result = symbolClass.$resolveMethod(nt.name + nt.descriptor, this.cls);
+    this.result = symbolClass.resolveMethod(nt.name + nt.descriptor, this.cls);
     return this.result;
   }
 }

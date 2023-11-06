@@ -1,20 +1,19 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import Thread from '#jvm/components/Thread/Thread';
 
-import * as comparisons from './instructions/comparisons';
-import * as constants from './instructions/constants';
-import * as control from './instructions/control';
-import * as conversions from './instructions/conversions';
-import * as extended from './instructions/extended';
-import * as loads from './instructions/loads';
-import * as math from './instructions/math';
-import * as reserved from './instructions/reserved';
-import * as references from './instructions/references';
-import * as stack from './instructions/stack';
-import * as stores from './instructions/stores';
+import * as comparisons from '../../instructions/comparisons';
+import * as constants from '../../instructions/constants';
+import * as control from '../../instructions/control';
+import * as conversions from '../../instructions/conversions';
+import * as extended from '../../instructions/extended';
+import * as loads from '../../instructions/loads';
+import * as math from '../../instructions/math';
+import * as reserved from '../../instructions/reserved';
+import * as references from '../../instructions/references';
+import * as stack from '../../instructions/stack';
+import * as stores from '../../instructions/stores';
 
 import { JNI } from '#jvm/components/JNI';
-import { parseMethodDescriptor } from '.';
 
 export default function runInstruction(
   thread: Thread,

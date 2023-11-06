@@ -30,7 +30,7 @@ export default class Thread {
     this.stackPointer = -1;
     this.javaObject = threadClass.instantiate();
     // call init?
-    this.javaObject.$putNativeField('thread', this);
+    this.javaObject.putNativeField('thread', this);
   }
 
   getJVM() {

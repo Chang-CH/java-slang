@@ -178,7 +178,7 @@ export class ClassRef {
       ).getResult();
 
       this.javaObj = new JvmObject(clsCls);
-      this.javaObj.$putNativeField('classRef', this);
+      this.javaObj.putNativeField('classRef', this);
     }
 
     return this.javaObj;
@@ -204,7 +204,7 @@ export class ClassRef {
     return result;
   }
 
-  $resolveClass(toResolve: string): ImmediateResult<ClassRef> {
+  resolveClass(toResolve: string): ImmediateResult<ClassRef> {
     const res = this.loader.getClassRef(toResolve);
     if (res.checkError()) {
       return res;
@@ -300,7 +300,7 @@ export class ClassRef {
    * @param accessingClass class that is accessing the method
    * @returns
    */
-  $resolveMethod(
+  resolveMethod(
     methodKey: string,
     accessingClass: ClassRef
   ): ImmediateResult<MethodRef> {
