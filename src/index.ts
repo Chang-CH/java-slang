@@ -73,7 +73,7 @@ export default class JVM {
 
     const mainThread = new Thread(threadCls, this);
 
-    // #region 1: initialize threadgroup object
+    // #region initialize threadgroup object
     const tgInitRes = threadGroupCls.initialize(mainThread);
     if (!tgInitRes.checkSuccess()) {
       throw new Error('ThreadGroup initialization failed');

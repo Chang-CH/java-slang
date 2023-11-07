@@ -7,11 +7,12 @@ import { JvmObject } from '#types/reference/Object';
 import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { StackFrame } from '../Thread/StackFrame';
 import Thread, { ThreadStatus } from '../Thread/Thread';
-import { registerJavaLangClass } from './natives/java/lang/Class';
-import { registerJavaLangSystem } from './natives/java/lang/System';
-import { registerJavaLangThread } from './natives/java/lang/Thread';
-import { registerJavaSecurityAccessController } from './natives/java/security/AccessController';
-import { registerUnsafe } from './natives/sun/misc/Unsafe';
+import { registerJavaLangClass } from './implementation/java/lang/Class';
+import { registerJavaLangObject } from './implementation/java/lang/Object';
+import { registerJavaLangSystem } from './implementation/java/lang/System';
+import { registerJavaLangThread } from './implementation/java/lang/Thread';
+import { registerJavaSecurityAccessController } from './implementation/java/security/AccessController';
+import { registerUnsafe } from './implementation/sun/misc/Unsafe';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -153,6 +154,7 @@ export function registerNatives(jni: JNI) {
   registerJavaLangSystem(jni);
   registerJavaSecurityAccessController(jni);
   registerUnsafe(jni);
+  registerJavaLangObject(jni);
 
   jni.registerNativeMethod(
     'java/lang/Runtime',
@@ -194,35 +196,24 @@ export function registerNatives(jni: JNI) {
 
   /**
    * system init
-   * java/lang/Object.registerNatives()V
-   * java/lang/Thread.registerNatives()V
-   * java/lang/System.registerNatives()V
-   * java/lang/Class.registerNatives()V
-   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-   * java/lang/Float.floatToRawIntBits(F)I
-   * java/lang/Double.doubleToRawLongBits(D)J
-   * java/lang/Double.longBitsToDouble(J)D
-   * java/lang/Thread.setPriority0(I)V
-   * sun/misc/VM.initialize()V
-   * java/io/FileInputStream.initIDs()V
-   * java/io/FileDescriptor.initIDs()V
-   * sun/misc/Unsafe.registerNatives()V
-   * java/lang/Object.hashCode()I
-   * sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.addressSize()I
-   * java/io/FileOutputStream.initIDs()V
-   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
-   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
-   * java/lang/Thread.setPriority0(I)V
-   * java/lang/Thread.isAlive()Z
-   * java/lang/Thread.start0()V
-   * java/lang/Object.hashCode()I
-   * java/lang/System.setIn0(Ljava/io/InputStream;)V
-   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-   * java/lang/Object.hashCode()I
-   * sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I
-   * sun/misc/Unsafe.compareAndSwapInt(Ljava/lang/Object;JII)Z
+java/lang/Float.floatToRawIntBits(F)I
+java/lang/Double.doubleToRawLongBits(D)J 
+java/lang/Double.longBitsToDouble(J)D 
+java/lang/Double.longBitsToDouble(J)D 
+java/lang/Thread.setPriority0(I)V 
+sun/misc/VM.initialize()V 
+java/io/FileInputStream.initIDs()V 
+java/io/FileDescriptor.initIDs()V 
+java/lang/Object.hashCode()I 
+sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I 
+sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I 
+sun/misc/Unsafe.addressSize()I 
+java/io/FileOutputStream.initIDs()V 
+java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class; 
+java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class; 
+java/lang/Thread.setPriority0(I)V 
+java/lang/Thread.setPriority0(I)V 
+java/lang/Thread.start0()V 
+java/lang/System.setIn0(Ljava/io/InputStream;)V 
    */
 }
