@@ -8,6 +8,8 @@ import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { StackFrame } from '../Thread/StackFrame';
 import Thread, { ThreadStatus } from '../Thread/Thread';
 import { registerJavaLangClass } from './implementation/java/lang/Class';
+import { registerJavaLangDouble } from './implementation/java/lang/Double';
+import { registerJavaLangFloat } from './implementation/java/lang/Float';
 import { registerJavaLangObject } from './implementation/java/lang/Object';
 import { registerJavaLangSystem } from './implementation/java/lang/System';
 import { registerJavaLangThread } from './implementation/java/lang/Thread';
@@ -155,6 +157,8 @@ export function registerNatives(jni: JNI) {
   registerJavaSecurityAccessController(jni);
   registerUnsafe(jni);
   registerJavaLangObject(jni);
+  registerJavaLangFloat(jni);
+  registerJavaLangDouble(jni);
 
   jni.registerNativeMethod(
     'java/lang/Runtime',
@@ -164,56 +168,24 @@ export function registerNatives(jni: JNI) {
     }
   );
 
-  /**
-   * MethodType Creation
-   * java/lang/Object.registerNatives()V
-   * java/lang/Thread.registerNatives()V
-   * java/lang/System.registerNatives()V
-   * java/lang/Class.registerNatives()V
-   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-   * java/lang/Float.floatToRawIntBits(F)I
-   * java/lang/Double.doubleToRawLongBits(D)J
-   * java/lang/Double.longBitsToDouble(J)D
-   * java/lang/Thread.setPriority0(I)V
-   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-   * sun/misc/Unsafe.registerNatives()V
-   * java/lang/Object.hashCode()I
-   * sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.addressSize()I
-   * sun/misc/VM.initialize()V
-   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
-   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
-   * java/lang/Thread.setPriority0(I)V
-   * java/lang/Thread.setPriority0(I)V
-   * java/lang/Thread.isAlive()Z
-   * java/lang/Thread.start0()V
-   * java/lang/Object.hashCode()I
-   * sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
-   */
+  jni.registerNativeMethod(
+    'sun/misc/VM',
+    'initialize()V',
+    (thread: Thread, locals: any[]) => {
+      thread.returnSF();
+    }
+  );
 
   /**
    * system init
-java/lang/Float.floatToRawIntBits(F)I
-java/lang/Double.doubleToRawLongBits(D)J 
-java/lang/Double.longBitsToDouble(J)D 
-java/lang/Double.longBitsToDouble(J)D 
-java/lang/Thread.setPriority0(I)V 
-sun/misc/VM.initialize()V 
-java/io/FileInputStream.initIDs()V 
-java/io/FileDescriptor.initIDs()V 
-java/lang/Object.hashCode()I 
-sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I 
-sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I 
-sun/misc/Unsafe.addressSize()I 
-java/io/FileOutputStream.initIDs()V 
-java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class; 
-java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class; 
-java/lang/Thread.setPriority0(I)V 
-java/lang/Thread.setPriority0(I)V 
-java/lang/Thread.start0()V 
-java/lang/System.setIn0(Ljava/io/InputStream;)V 
+   * java/io/FileInputStream.initIDs()V
+   * java/io/FileDescriptor.initIDs()V
+   * java/lang/Object.hashCode()I
+   * sun/misc/Unsafe.addressSize()I
+   * java/io/FileOutputStream.initIDs()V
+   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
+   * java/lang/Thread.isAlive()Z
+   * java/lang/Thread.start0()V
+   * java/lang/System.setIn0(Ljava/io/InputStream;)V
    */
 }
