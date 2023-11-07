@@ -163,7 +163,7 @@ export function registerNatives(jni: JNI) {
   );
 
   /**
-   * system init
+   * MethodType Creation
    * java/lang/Object.registerNatives()V
    * java/lang/Thread.registerNatives()V
    * java/lang/System.registerNatives()V
@@ -172,6 +172,35 @@ export function registerNatives(jni: JNI) {
    * java/lang/Float.floatToRawIntBits(F)I
    * java/lang/Double.doubleToRawLongBits(D)J
    * java/lang/Double.longBitsToDouble(J)D
+   * java/lang/Thread.setPriority0(I)V
+   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
+   * sun/misc/Unsafe.registerNatives()V
+   * java/lang/Object.hashCode()I
+   * sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I
+   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
+   * sun/misc/Unsafe.addressSize()I
+   * sun/misc/VM.initialize()V
+   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
+   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
+   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
+   * java/lang/Thread.setPriority0(I)V
+   * java/lang/Thread.setPriority0(I)V
+   * java/lang/Thread.isAlive()Z
+   * java/lang/Thread.start0()V
+   * java/lang/Object.hashCode()I
+   * sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I
+   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
+   */
+
+  /**
+   * system init
+   * java/lang/Object.registerNatives()V
+   * java/lang/Thread.registerNatives()V
+   * java/lang/System.registerNatives()V
+   * java/lang/Class.registerNatives()V
+   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
+   * java/lang/Float.floatToRawIntBits(F)I
+   * java/lang/Double.doubleToRawLongBits(D)J
    * java/lang/Double.longBitsToDouble(J)D
    * java/lang/Thread.setPriority0(I)V
    * sun/misc/VM.initialize()V
@@ -183,15 +212,17 @@ export function registerNatives(jni: JNI) {
    * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
    * sun/misc/Unsafe.addressSize()I
    * java/io/FileOutputStream.initIDs()V
-   * java/lang/Class.getName0()Ljava/lang/String;
    * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
    * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-   * java/lang/Class.getName0()Ljava/lang/String;
    * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
-   * java/lang/Thread.setPriority0(I)V
    * java/lang/Thread.setPriority0(I)V
    * java/lang/Thread.isAlive()Z
    * java/lang/Thread.start0()V
-   * sun/misc/Unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J
+   * java/lang/Object.hashCode()I
+   * java/lang/System.setIn0(Ljava/io/InputStream;)V
+   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
+   * java/lang/Object.hashCode()I
+   * sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I
+   * sun/misc/Unsafe.compareAndSwapInt(Ljava/lang/Object;JII)Z
    */
 }

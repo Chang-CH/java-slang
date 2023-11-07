@@ -104,17 +104,15 @@ export default class JVM {
     this._initialThread = mainThread;
     // #endregion
 
-    console.log('THREAD LOADED');
-
     // #region initialize system class
-    // console.log('// #region initializing system class'.padEnd(150, '#'));
-    // const sInitMr = sysCls.getMethod('initializeSystemClass()V');
-    // if (!sInitMr) {
-    //   throw new Error('System initialization method not found');
-    // }
-    // mainThread.invokeSf(sysCls, sInitMr, 0, []);
-    // this.engine.runThread(mainThread);
-    // console.log('// #endregion system class initialized'.padEnd(150, '#'));
+    console.log('// #region initializing system class'.padEnd(150, '#'));
+    const sInitMr = sysCls.getMethod('initializeSystemClass()V');
+    if (!sInitMr) {
+      throw new Error('System initialization method not found');
+    }
+    mainThread.invokeSf(sysCls, sInitMr, 0, []);
+    this.engine.runThread(mainThread);
+    console.log('// #endregion system class initialized'.padEnd(150, '#'));
     // #endregion
 
     //   'source/Source',
