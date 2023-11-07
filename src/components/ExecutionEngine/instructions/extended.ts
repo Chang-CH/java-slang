@@ -22,13 +22,13 @@ export function runWide(thread: Thread): void {
       thread.pushStack(thread.loadLocal(indexbyte));
       return;
     case OPCODE.LLOAD:
-      thread.pushStack64(thread.loadLocal64(indexbyte));
+      thread.pushStack64(thread.loadLocal(indexbyte));
       return;
     case OPCODE.FLOAD:
       thread.pushStack(thread.loadLocal(indexbyte));
       return;
     case OPCODE.DLOAD:
-      thread.pushStack64(thread.loadLocal64(indexbyte));
+      thread.pushStack64(thread.loadLocal(indexbyte));
       return;
     case OPCODE.ALOAD:
       thread.pushStack(thread.loadLocal(indexbyte));
@@ -37,13 +37,13 @@ export function runWide(thread: Thread): void {
       thread.storeLocal(indexbyte, thread.popStack());
       return;
     case OPCODE.LSTORE:
-      thread.storeLocal64(indexbyte, thread.popStack64());
+      thread.storeLocal(indexbyte, thread.popStack64());
       return;
     case OPCODE.FSTORE:
       thread.storeLocal(indexbyte, asFloat(thread.popStack()));
       return;
     case OPCODE.DSTORE:
-      thread.storeLocal64(indexbyte, asDouble(thread.popStack64()));
+      thread.storeLocal(indexbyte, asDouble(thread.popStack64()));
       return;
     case OPCODE.ASTORE:
       thread.storeLocal(indexbyte, thread.popStack());

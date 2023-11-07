@@ -24,7 +24,6 @@ function readConstantClass(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantClassInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const nameIndex = view.getUint16(offset);
   offset += 2;
 
@@ -42,11 +41,9 @@ function readConstantFieldref(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantFieldrefInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const classIndex = view.getUint16(offset);
   offset += 2;
 
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const nameAndTypeIndex = view.getUint16(offset);
   offset += 2;
 
@@ -65,11 +62,9 @@ function readConstantMethodref(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantMethodrefInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const classIndex = view.getUint16(offset);
   offset += 2;
 
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const nameAndTypeIndex = view.getUint16(offset);
   offset += 2;
 
@@ -88,11 +83,9 @@ function readConstantInterfaceMethodref(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantInterfaceMethodrefInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const classIndex = view.getUint16(offset);
   offset += 2;
 
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const nameAndTypeIndex = view.getUint16(offset);
   offset += 2;
 
@@ -111,7 +104,6 @@ function readConstantString(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantStringInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const stringIndex = view.getUint16(offset);
   offset += 2;
 
@@ -197,10 +189,9 @@ function readConstantNameAndType(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantNameAndTypeInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const nameIndex = view.getUint16(offset);
   offset += 2;
-  console.warn('FIXME: not checking constant pool if index exists/is name');
+
   const descriptorIndex = view.getUint16(offset);
   offset += 2;
 
@@ -248,7 +239,6 @@ function readConstantMethodHandle(
   const referenceKind = view.getUint8(offset);
   offset += 1;
 
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const referenceIndex = view.getUint16(offset);
   offset += 2;
 
@@ -267,7 +257,6 @@ function readConstantMethodType(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantMethodTypeInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const descriptorIndex = view.getUint16(offset);
   offset += 2;
 
@@ -285,11 +274,9 @@ function readConstantInvokeDynamic(
   offset: number,
   tag: CONSTANT_TAG
 ): { result: ConstantInvokeDynamicInfo; offset: number } {
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const bootstrapMethodAttrIndex = view.getUint16(offset);
   offset += 2;
 
-  console.warn('FIXME: not checking constant pool if index exists/is name');
   const nameAndTypeIndex = view.getUint16(offset);
   offset += 2;
 

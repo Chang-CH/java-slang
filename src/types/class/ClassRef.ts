@@ -62,7 +62,14 @@ export enum CLASS_STATUS {
   ERROR,
 }
 
+export enum CLASS_TYPE {
+  NORMAL,
+  ARRAY,
+  PRIMITIVE,
+}
+
 export class ClassRef {
+  protected type: CLASS_TYPE = CLASS_TYPE.NORMAL;
   public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
 
   protected loader: AbstractClassLoader;
@@ -101,7 +108,8 @@ export class ClassRef {
     fields: Array<FieldInfo>,
     methods: Array<MethodInfo>,
     attributes: Array<AttributeInfo>,
-    loader: AbstractClassLoader
+    loader: AbstractClassLoader,
+    type?: CLASS_TYPE
   ) {
     this.constantPool = new ConstantPool(this, constantPool);
     this.accessFlags = accessFlags;
@@ -122,6 +130,10 @@ export class ClassRef {
     this.attributes = attributes;
     this.loader = loader;
 
+    if (type) {
+      this.type = type;
+    }
+
     for (const attribute of attributes) {
       const attrName = (
         this.constantPool.get(attribute.attributeNameIndex) as ConstantUtf8
@@ -130,6 +142,10 @@ export class ClassRef {
         this.bootstrapMethods = attribute as BootstrapMethodsAttribute;
       }
     }
+  }
+
+  checkPrimitive() {
+    return this.type === CLASS_TYPE.PRIMITIVE;
   }
 
   // TODO: init javaobj and static fields in init function

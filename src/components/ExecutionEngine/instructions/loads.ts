@@ -12,7 +12,7 @@ export function runLload(thread: Thread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(index));
+  thread.pushStack64(thread.loadLocal(index));
 }
 
 export function runFload(thread: Thread): void {
@@ -26,7 +26,7 @@ export function runDload(thread: Thread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(index));
+  thread.pushStack64(thread.loadLocal(index));
 }
 
 export function runAload(thread: Thread): void {
@@ -58,22 +58,22 @@ export function runIload3(thread: Thread): void {
 
 export function runLload0(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(0));
+  thread.pushStack64(thread.loadLocal(0));
 }
 
 export function runLload1(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(1));
+  thread.pushStack64(thread.loadLocal(1));
 }
 
 export function runLload2(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(2));
+  thread.pushStack64(thread.loadLocal(2));
 }
 
 export function runLload3(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(3));
+  thread.pushStack64(thread.loadLocal(3));
 }
 
 export function runFload0(thread: Thread): void {
@@ -98,22 +98,22 @@ export function runFload3(thread: Thread): void {
 
 export function runDload0(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(0));
+  thread.pushStack64(thread.loadLocal(0));
 }
 
 export function runDload1(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(1));
+  thread.pushStack64(thread.loadLocal(1));
 }
 
 export function runDload2(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(2));
+  thread.pushStack64(thread.loadLocal(2));
 }
 
 export function runDload3(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(thread.loadLocal64(3));
+  thread.pushStack64(thread.loadLocal(3));
 }
 
 export function runAload0(thread: Thread): void {

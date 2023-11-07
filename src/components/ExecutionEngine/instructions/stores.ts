@@ -13,7 +13,7 @@ export function runLstore(thread: Thread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
-  thread.storeLocal64(index, thread.popStack64());
+  thread.storeLocal(index, thread.popStack64());
 }
 
 export function runFstore(thread: Thread): void {
@@ -27,7 +27,7 @@ export function runDstore(thread: Thread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
-  thread.storeLocal64(index, asDouble(thread.popStack64()));
+  thread.storeLocal(index, asDouble(thread.popStack64()));
 }
 
 export function runAstore(thread: Thread): void {
@@ -64,25 +64,25 @@ export function runIstore3(thread: Thread): void {
 export function runLstore0(thread: Thread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
-  thread.storeLocal64(0, value);
+  thread.storeLocal(0, value);
 }
 
 export function runLstore1(thread: Thread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
-  thread.storeLocal64(1, value);
+  thread.storeLocal(1, value);
 }
 
 export function runLstore2(thread: Thread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
-  thread.storeLocal64(2, value);
+  thread.storeLocal(2, value);
 }
 
 export function runLstore3(thread: Thread): void {
   thread.offsetPc(1);
   const value = thread.popStack64();
-  thread.storeLocal64(3, value);
+  thread.storeLocal(3, value);
 }
 
 export function runFstore0(thread: Thread): void {
@@ -112,25 +112,25 @@ export function runFstore3(thread: Thread): void {
 export function runDstore0(thread: Thread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
-  thread.storeLocal64(0, value);
+  thread.storeLocal(0, value);
 }
 
 export function runDstore1(thread: Thread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
-  thread.storeLocal64(1, value);
+  thread.storeLocal(1, value);
 }
 
 export function runDstore2(thread: Thread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
-  thread.storeLocal64(2, value);
+  thread.storeLocal(2, value);
 }
 
 export function runDstore3(thread: Thread): void {
   thread.offsetPc(1);
   const value = asDouble(thread.popStack64());
-  thread.storeLocal64(3, value);
+  thread.storeLocal(3, value);
 }
 
 export function runAstore0(thread: Thread): void {

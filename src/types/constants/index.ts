@@ -339,6 +339,96 @@ export class ConstantMethodType extends Constant {
     });
   }
 
+  public tempResolve(thread: Thread): Result<JvmObject> {
+    if (this.result) {
+      return this.result;
+    }
+    this.result = new DeferResult<JvmObject>();
+    const descriptor = this.descriptor.get();
+    const loader = this.cls.getLoader();
+
+    const mtRef = loader.getClassRef('java/lang/invoke/MethodType');
+    if (mtRef.checkError()) {
+      const err = mtRef.getError();
+      return new ErrorResult(err.className, err.msg);
+    }
+    const mtCls = mtRef.getResult();
+    const initRes = mtCls.initialize(thread);
+    if (!initRes.checkSuccess()) {
+      if (initRes.checkError()) {
+        const err = initRes.getError();
+        return new ErrorResult(err.className, err.msg);
+      }
+      return new DeferResult();
+    }
+
+    // #region create Class object array
+    const classes = parseMethodDescriptor(descriptor);
+    const classArray: JvmObject[] = [];
+    let error: ErrorResult<JvmObject> | null = null;
+    const resolver = ({
+      type,
+      referenceCls,
+    }: {
+      type: string;
+      referenceCls: string | undefined;
+    }) => {
+      // primitive
+      if (!referenceCls) {
+        const pClsRes = loader.getPrimitiveClassRef(type);
+        classArray.push(pClsRes.getJavaObject());
+        return;
+      }
+      const clsRes = loader.getClassRef(referenceCls);
+      if (!clsRes.checkSuccess()) {
+        if (!error) {
+          const err = clsRes.getError();
+          error = new ErrorResult(err.className, err.msg);
+        }
+        return;
+      }
+      classArray.push(clsRes.getResult().getJavaObject());
+    };
+    classes.args.forEach(resolver);
+    resolver(classes.ret);
+    if (error) {
+      return error;
+    }
+
+    const clArrRes = loader.getClassRef('[Ljava/lang/Class;');
+    if (clArrRes.checkError()) {
+      if (!error) {
+        const err = clArrRes.getError();
+        return new ErrorResult(err.className, err.msg);
+      }
+      return error;
+    }
+    const paramClsArr = clArrRes.getResult().instantiate() as JvmArray;
+    const retCls = classArray.pop();
+    paramClsArr.initialize(thread, classArray.length, classArray);
+    // #endregion
+
+    // #region create MethodType object
+    const toInvoke = mtCls.getMethod(
+      'makeImpl(Ljava/lang/Class;[Ljava/lang/Class;Z)Ljava/lang/invoke/MethodType;'
+    );
+    if (!toInvoke) {
+      return new ErrorResult('java/lang/NoSuchMethodError', '');
+    }
+
+    thread.invokeSf(
+      mtCls,
+      toInvoke,
+      0,
+      [retCls, paramClsArr, 1],
+      (mt: JvmObject) => {
+        console.log(mt);
+        this.result = new SuccessResult<JvmObject>(mt);
+      }
+    );
+    return new DeferResult();
+  }
+
   getDescriptor() {
     return this.descriptor.get();
   }

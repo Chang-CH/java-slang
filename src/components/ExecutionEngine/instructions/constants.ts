@@ -122,6 +122,25 @@ export function loadConstant(
 ): void {
   const invoker = thread.getClass();
   const constant = invoker.getConstant(index);
+
+  if (
+    ConstantMethodHandle.check(constant) ||
+    ConstantMethodType.check(constant)
+  ) {
+    const res = (constant as any).tempResolve(thread);
+    if (!res.checkSuccess()) {
+      if (res.checkError()) {
+        const err = res.getError();
+        thread.throwNewException(err.className, err.msg);
+      }
+      return;
+    }
+
+    thread.pushStack(res.getResult());
+    onFinish && onFinish();
+    return;
+  }
+
   const resolutionRes = constant.resolve(thread);
   if (!resolutionRes.checkSuccess()) {
     if (resolutionRes.checkError()) {
@@ -143,13 +162,7 @@ export function loadConstant(
       return;
     }
     value = clsRef.getJavaObject();
-  } else if (
-    ConstantMethodHandle.check(constant) ||
-    ConstantMethodType.check(constant)
-  ) {
-    throw new Error('not implemented');
   }
-
   onFinish && onFinish();
   thread.pushStack(value);
 }

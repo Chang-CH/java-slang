@@ -22,6 +22,9 @@ export default class JVM {
   cachedClasses: { [key: string]: ClassRef } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
 
+  // Reuse the thread we use in initialization for running main method
+  private _initialThread?: Thread;
+
   constructor(nativeSystem: AbstractSystem) {
     this.nativeSystem = nativeSystem;
     this.bootstrapClassLoader = new BootstrapClassLoader(
@@ -49,12 +52,14 @@ export default class JVM {
     const tgRes = this.bootstrapClassLoader.getClassRef(
       'java/lang/ThreadGroup'
     );
+    const unsafeRes = this.bootstrapClassLoader.getClassRef('sun/misc/Unsafe');
     if (
       objRes.checkError() ||
       sysRes.checkError() ||
       tRes.checkError() ||
       tgRes.checkError() ||
-      clsRes.checkError()
+      clsRes.checkError() ||
+      unsafeRes.checkError()
     ) {
       throw new Error('Initialization classes not found');
     }
@@ -96,17 +101,20 @@ export default class JVM {
     // #region initialize thread object
     mainThread.initialize(mainThread);
     this.engine.runThread(mainThread);
+    this._initialThread = mainThread;
     // #endregion
 
+    console.log('THREAD LOADED');
+
     // #region initialize system class
-    console.log('// #region initializing system class'.padEnd(150, '#'));
-    const sInitMr = sysCls.getMethod('initializeSystemClass()V');
-    if (!sInitMr) {
-      throw new Error('System initialization method not found');
-    }
-    mainThread.invokeSf(sysCls, sInitMr, 0, []);
-    this.engine.runThread(mainThread);
-    console.log('// #endregion system class initialized'.padEnd(150, '#'));
+    // console.log('// #region initializing system class'.padEnd(150, '#'));
+    // const sInitMr = sysCls.getMethod('initializeSystemClass()V');
+    // if (!sInitMr) {
+    //   throw new Error('System initialization method not found');
+    // }
+    // mainThread.invokeSf(sysCls, sInitMr, 0, []);
+    // this.engine.runThread(mainThread);
+    // console.log('// #endregion system class initialized'.padEnd(150, '#'));
     // #endregion
 
     //   'source/Source',
@@ -146,7 +154,7 @@ export default class JVM {
     if (!mainMethod) {
       throw new Error('Main method not found');
     }
-    const mainThread = new Thread(threadCls, this);
+    const mainThread = this._initialThread as Thread;
     mainThread.invokeSf(mainCls, mainMethod, 0, []);
 
     this.engine.addThread(mainThread);

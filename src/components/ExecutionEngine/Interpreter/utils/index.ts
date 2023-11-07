@@ -43,18 +43,18 @@ export function parseFieldDescriptor(
     case JavaType.long:
     case JavaType.short:
     case JavaType.boolean:
-      // skip semicolon
       return { type: descriptor[index], index: index + 1 };
     case JavaType.array:
       const res = parseFieldDescriptor(descriptor, index + 1);
-      const clsName = '[' + (res.referenceCls ?? res.type);
+      const clsName =
+        '[' + (res.referenceCls ? 'L' + res.referenceCls + ';' : res.type);
       return { type: JavaType.array, referenceCls: clsName, index: res.index };
     case JavaType.reference:
       const sub = descriptor.substring(index);
       const end = sub.indexOf(';');
       return {
         type: JavaType.reference,
-        referenceCls: descriptor.substring(1, end),
+        referenceCls: sub.substring(1, end),
         index: index + end + 1,
       };
     case JavaType.void:
@@ -96,4 +96,54 @@ export function asDouble(value: number): number {
 
 export function asFloat(value: number): number {
   return Math.fround(value);
+}
+
+export function primitiveTypeToName(type: JavaType) {
+  switch (type) {
+    case JavaType.byte:
+      return 'byte';
+    case JavaType.char:
+      return 'char';
+    case JavaType.double:
+      return 'double';
+    case JavaType.float:
+      return 'float';
+    case JavaType.int:
+      return 'int';
+    case JavaType.long:
+      return 'long';
+    case JavaType.short:
+      return 'short';
+    case JavaType.boolean:
+      return 'boolean';
+    case JavaType.void:
+      return 'void';
+    default:
+      return null;
+  }
+}
+
+export function primitiveNameToType(pName: string) {
+  switch (pName) {
+    case 'byte':
+      return JavaType.byte;
+    case 'char':
+      return JavaType.char;
+    case 'double':
+      return JavaType.double;
+    case 'float':
+      return JavaType.float;
+    case 'int':
+      return JavaType.int;
+    case 'long':
+      return JavaType.long;
+    case 'short':
+      return JavaType.short;
+    case 'boolean':
+      return JavaType.boolean;
+    case 'void':
+      return JavaType.void;
+    default:
+      return null;
+  }
 }

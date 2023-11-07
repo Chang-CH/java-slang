@@ -125,6 +125,17 @@ export default abstract class AbstractClassLoader {
     return cls;
   }
 
+  protected _loadArrayClass(
+    className: string,
+    componentCls: ClassRef
+  ): ImmediateResult<ClassRef> {
+    if (!this.parentLoader) {
+      throw new Error('ClassLoader has no parent loader');
+    }
+
+    return this.parentLoader._loadArrayClass(className, componentCls);
+  }
+
   protected _getClassRef(
     className: string,
     initiator: AbstractClassLoader
@@ -133,10 +144,11 @@ export default abstract class AbstractClassLoader {
       return new SuccessResult(this.loadedClasses[className]);
     }
 
-    let arrayObjCls;
+    // We might need the current loader to load its component class
     if (className.startsWith('[')) {
       const itemClsName = className.slice(1);
-
+      let arrayObjCls;
+      // link array component class
       // FIXME: linker errors should be thrown at runtime instead.
       if (itemClsName.startsWith('L')) {
         const itemRes = this._getClassRef(itemClsName.slice(1, -1), initiator);
@@ -153,22 +165,19 @@ export default abstract class AbstractClassLoader {
       } else {
         arrayObjCls = this.getPrimitiveClassRef(itemClsName);
       }
+
+      const res = this._loadArrayClass(className, arrayObjCls);
+      return res;
     }
 
     if (this.parentLoader) {
       const res = this.parentLoader._getClassRef(className, initiator);
       if (res.checkSuccess()) {
-        if (arrayObjCls) {
-          (res.getResult() as ArrayClassRef).setItemClass(arrayObjCls);
-        }
         return res;
       }
     }
 
     const res = this.load(className);
-    if (res.checkSuccess() && arrayObjCls) {
-      (res.getResult() as ArrayClassRef).setItemClass(arrayObjCls);
-    }
     return res;
   }
 

@@ -13,15 +13,19 @@ export class JvmObject {
   protected nativeFields: {
     [key: string]: any;
   } = {};
+  private fieldArr: { name: string; ref: FieldRef }[];
 
   constructor(cls: ClassRef) {
     this.cls = cls;
     this.fields = {};
-    for (const [fieldName, fieldRef] of Object.entries(
-      cls.getInstanceFields()
-    )) {
-      this.fields[fieldName] = fieldRef.cloneField();
-    }
+    this.fieldArr = [];
+
+    Object.entries(cls.getInstanceFields()).forEach(
+      ([fieldName, fieldRef], index) => {
+        this.fields[fieldName] = fieldRef.cloneField();
+        this.fieldArr[index] = { name: fieldName, ref: this.fields[fieldName] };
+      }
+    );
   }
 
   initialize(thread: Thread, ...rest: any[]): Result<JvmObject> {
@@ -89,5 +93,28 @@ export class JvmObject {
 
   putNativeField(name: string, value: any) {
     this.nativeFields[name] = value;
+  }
+
+  getFieldFromVMIndex(index: number): FieldRef {
+    // TODO: check if VM index includes static fields
+    // console.log(
+    //   'getFieldFromVMIndex ',
+    //   this.fieldArr.map(f => [f.name, f.ref.getSlot()])
+    // );
+    const res = this.fieldArr.filter(f => {
+      const slot = f.ref.getSlot();
+      return slot === index;
+    });
+
+    if (res.length > 1) {
+      // will this happen?
+      throw new Error('Multiple matching slots. Need to check classname');
+    }
+
+    if (res.length === 0) {
+      throw new Error('Invalid slot');
+    }
+
+    return res[0].ref;
   }
 }

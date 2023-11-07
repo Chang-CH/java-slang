@@ -5,6 +5,7 @@ import {
   AttributeInfo,
   CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
+import { ConstantInfo } from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import {
   METHOD_FLAGS,
@@ -12,7 +13,6 @@ import {
 } from '#jvm/external/ClassFile/types/methods';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
-import { ConstantRef } from '#types/ConstantRef';
 import { JavaType } from '#types/dataTypes';
 import { ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -21,7 +21,7 @@ export const createClass = (options: {
   className?: string;
   loader?: TestClassLoader;
   superClass?: ClassRef;
-  constants?: ((c: ConstantRef[]) => ConstantRef)[];
+  constants?: ((c: ConstantInfo[]) => ConstantInfo)[];
   interfaces?: ClassRef[];
   methods?: {
     accessFlags?: METHOD_FLAGS[];
@@ -41,7 +41,7 @@ export const createClass = (options: {
   status?: CLASS_STATUS;
   isArray?: boolean;
 }): ClassRef => {
-  let constantPool: ConstantRef[] = [
+  let constantPool: ConstantInfo[] = [
     { tag: 7, nameIndex: 0 }, // dummy
     { tag: 7, nameIndex: 2 }, // superclass
     {

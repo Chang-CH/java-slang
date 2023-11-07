@@ -209,7 +209,7 @@ describe('Wide', () => {
     code.setUint8(0, OPCODE.WIDE);
     code.setUint8(1, OPCODE.LLOAD);
     code.setUint16(2, 0);
-    thread.storeLocal64(0, 3n);
+    thread.storeLocal(0, 3n);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -233,7 +233,7 @@ describe('Wide', () => {
     code.setUint8(0, OPCODE.WIDE);
     code.setUint8(1, OPCODE.DLOAD);
     code.setUint16(2, 0);
-    thread.storeLocal64(0, 3);
+    thread.storeLocal(0, 3);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -275,7 +275,7 @@ describe('Wide', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0) == 5n).toBe(true);
+    expect(thread.loadLocal(0) == 5n).toBe(true);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });
@@ -301,7 +301,7 @@ describe('Wide', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0)).toBe(5);
+    expect(thread.loadLocal(0)).toBe(5);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });

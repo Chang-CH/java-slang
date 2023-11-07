@@ -108,7 +108,7 @@ describe('Lstore', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0) === 3n).toBe(true);
+    expect(thread.loadLocal(0) === 3n).toBe(true);
     expect(thread.getPC()).toBe(2);
   });
 });
@@ -121,7 +121,7 @@ describe('Lstore0', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0) === 5n).toBe(true);
+    expect(thread.loadLocal(0) === 5n).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -134,7 +134,7 @@ describe('Lstore1', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(1) === 5n).toBe(true);
+    expect(thread.loadLocal(1) === 5n).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -147,7 +147,7 @@ describe('Lstore2', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(2) === 5n).toBe(true);
+    expect(thread.loadLocal(2) === 5n).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -160,7 +160,7 @@ describe('Lstore3', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(3) === 5n).toBe(true);
+    expect(thread.loadLocal(3) === 5n).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -296,7 +296,7 @@ describe('Dstore', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0)).toBe(0.5);
+    expect(thread.loadLocal(0)).toBe(0.5);
     expect(thread.getPC()).toBe(2);
   });
 
@@ -308,7 +308,7 @@ describe('Dstore', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
+    expect(thread.loadLocal(0)).toBe(0.29999995231628424);
     expect(thread.getPC()).toBe(2);
   });
 });
@@ -321,7 +321,7 @@ describe('Dstore0', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0)).toBe(0.5);
+    expect(thread.loadLocal(0)).toBe(0.5);
     expect(thread.getPC()).toBe(1);
   });
 
@@ -332,7 +332,7 @@ describe('Dstore0', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(0)).toBe(0.29999995231628424);
+    expect(thread.loadLocal(0)).toBe(0.29999995231628424);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -345,7 +345,7 @@ describe('Dstore1', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(1)).toBe(0.5);
+    expect(thread.loadLocal(1)).toBe(0.5);
     expect(thread.getPC()).toBe(1);
   });
 
@@ -356,7 +356,7 @@ describe('Dstore1', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(1)).toBe(0.29999995231628424);
+    expect(thread.loadLocal(1)).toBe(0.29999995231628424);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -369,7 +369,7 @@ describe('Dstore2', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(2)).toBe(0.5);
+    expect(thread.loadLocal(2)).toBe(0.5);
     expect(thread.getPC()).toBe(1);
   });
 
@@ -380,7 +380,7 @@ describe('Dstore2', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(2)).toBe(0.29999995231628424);
+    expect(thread.loadLocal(2)).toBe(0.29999995231628424);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -393,7 +393,7 @@ describe('Dstore3', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(3)).toBe(0.5);
+    expect(thread.loadLocal(3)).toBe(0.5);
     expect(thread.getPC()).toBe(1);
   });
 
@@ -404,7 +404,7 @@ describe('Dstore3', () => {
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal64(3)).toBe(0.29999995231628424);
+    expect(thread.loadLocal(3)).toBe(0.29999995231628424);
     expect(thread.getPC()).toBe(1);
   });
 });

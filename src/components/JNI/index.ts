@@ -11,6 +11,7 @@ import { registerJavaLangClass } from './natives/java/lang/Class';
 import { registerJavaLangSystem } from './natives/java/lang/System';
 import { registerJavaLangThread } from './natives/java/lang/Thread';
 import { registerJavaSecurityAccessController } from './natives/java/security/AccessController';
+import { registerUnsafe } from './natives/sun/misc/Unsafe';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -142,7 +143,6 @@ export function registerNatives(jni: JNI) {
         strCls.getClassname()
       ) as JvmArray;
       const strVal = String.fromCharCode(...str.getJsArray());
-      console.log('INTERNING', strVal);
       const internedStr = thread.getJVM().getInternedString(strVal);
       thread.returnSF(internedStr);
     }
@@ -152,145 +152,46 @@ export function registerNatives(jni: JNI) {
   registerJavaLangThread(jni);
   registerJavaLangSystem(jni);
   registerJavaSecurityAccessController(jni);
+  registerUnsafe(jni);
 
   jni.registerNativeMethod(
-    'sun/misc/Unsafe',
-    'objectFieldOffset(Ljava/lang/reflect/Field;)J',
+    'java/lang/Runtime',
+    'availableProcessors()I',
     (thread: Thread, locals: any[]) => {
-      console.error(
-        'Native method sun/misc/Unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J not implemented'
-      );
-      const unsafe = locals[0] as JvmObject;
-      const field = locals[1] as JvmObject;
-      // const fieldRef = field.getField()getNativeField('fieldRef') as FieldRef;
-      const fieldRef = field.getNativeField('fieldRef') as FieldRef;
-      console.log(fieldRef);
-      const fieldCls = fieldRef.getClass();
-      const slot = fieldRef.getSlot();
-      thread.returnSF(slot);
-      // TODO: check if slot is used to access fields not declared in this class
-
-      throw new Error(
-        'Native method sun/misc/Unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J not implemented'
-      );
+      thread.returnSF(1);
     }
   );
 
-  // function getFieldInfo(
-  //   thread: JVMThread,
-  //   unsafe: JVMTypes.sun_misc_Unsafe,
-  //   obj: JVMTypes.java_lang_Object,
-  //   offset: Long
-  // ): [any, string] {
-  //   var fieldName: string,
-  //     objBase: any,
-  //     objCls = obj.getClass(),
-  //     cls: ReferenceClassData<JVMTypes.java_lang_Object>,
-  //     compName: string,
-  //     unsafeCons: typeof JVMTypes.sun_misc_Unsafe = <any>(
-  //       (<ReferenceClassData<JVMTypes.sun_misc_Unsafe>>(
-  //         unsafe.getClass()
-  //       )).getConstructor(thread)
-  //     ),
-  //     stride = 1;
-  //   if (objCls.getInternalName() === 'Ljava/lang/Object;') {
-  //     // Static field. The staticFieldBase is always a pure Object that has a
-  //     // class reference on it.
-  //     // There's no reason to get the field on an Object, as they have no fields.
-  //     cls = <ReferenceClassData<JVMTypes.java_lang_Object>>(
-  //       (<any>obj).$staticFieldBase
-  //     );
-  //     objBase = <any>cls.getConstructor(thread);
-  //     fieldName = cls.getStaticFieldFromVMIndex(offset.toInt()).fullName;
-  //   } else if (objCls instanceof ArrayClassData) {
-  //     compName = util.internal2external[objCls.getInternalName()[1]];
-  //     if (!compName) {
-  //       compName = 'OBJECT';
-  //     }
-  //     compName = compName.toUpperCase();
-  //     stride = (<any>unsafeCons)[
-  //       `sun/misc/Unsafe/ARRAY_${compName}_INDEX_SCALE`
-  //     ];
-  //     if (!stride) {
-  //       stride = 1;
-  //     }
-
-  //     objBase = (<JVMTypes.JVMArray<any>>obj).array;
-  //     assert(
-  //       offset.toInt() % stride === 0,
-  //       `Invalid offset for stride ${stride}: ${offset.toInt()}`
-  //     );
-  //     fieldName = '' + offset.toInt() / stride;
-  //   } else {
-  //     cls = <ReferenceClassData<JVMTypes.java_lang_Object>>obj.getClass();
-  //     objBase = obj;
-  //     fieldName = cls.getObjectFieldFromVMIndex(offset.toInt()).fullName;
-  //   }
-  //   return [objBase, fieldName];
-  // }
-
-  // function unsafeCompareAndSwap<T>(
-  //   thread: JVMThread,
-  //   unsafe: JVMTypes.sun_misc_Unsafe,
-  //   obj: JVMTypes.java_lang_Object,
-  //   offset: Long,
-  //   expected: T,
-  //   x: T
-  // ): boolean {
-  //   var fi = getFieldInfo(thread, unsafe, obj, offset),
-  //     actual = fi[0][fi[1]];
-  //   if (actual === expected) {
-  //     fi[0][fi[1]] = x;
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-
-  jni.registerNativeMethod(
-    'sun/misc/Unsafe',
-    'compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z',
-    (thread: Thread, locals: any[]) => {
-      const unsafe = locals[0] as JvmObject;
-      const obj1 = locals[1] as JvmObject;
-      const offset = locals[2] as BigInt;
-
-      const expected = locals[3] as JvmObject;
-      const x = locals[4] as JvmObject;
-
-      throw new Error(
-        'Native method sun/misc/Unsafe.compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z not implemented'
-      );
-    }
-  );
-
-  // java/lang/Object.registerNatives()V
-  // java/lang/Thread.registerNatives()V
-  // java/lang/System.registerNatives()V
-  // java/lang/Class.registerNatives()V
-  // java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-  // java/lang/Float.floatToRawIntBits(F)I
-  // java/lang/Double.doubleToRawLongBits(D)J
-  // java/lang/Double.longBitsToDouble(J)D
-  // java/lang/Double.longBitsToDouble(J)D
-  // java/lang/Thread.setPriority0(I)V
-  // sun/misc/VM.initialize()V
-  // java/io/FileInputStream.initIDs()V
-  // java/io/FileDescriptor.initIDs()V
-  // sun/misc/Unsafe.registerNatives()V
-  // java/lang/Object.hashCode()I
-  // sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I
-  // sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
-  // sun/misc/Unsafe.addressSize()I
-  // java/io/FileOutputStream.initIDs()V
-  // java/lang/Class.getName0()Ljava/lang/String;
-  // java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
-  // java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
-  // java/lang/Class.getName0()Ljava/lang/String;
-  // java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
-  // java/lang/Thread.setPriority0(I)V
-  // java/lang/Thread.setPriority0(I)V
-  // java/lang/Thread.isAlive()Z
-  // java/lang/Thread.start0()V
-  // sun/misc/Unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J
+  /**
+   * system init
+   * java/lang/Object.registerNatives()V
+   * java/lang/Thread.registerNatives()V
+   * java/lang/System.registerNatives()V
+   * java/lang/Class.registerNatives()V
+   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
+   * java/lang/Float.floatToRawIntBits(F)I
+   * java/lang/Double.doubleToRawLongBits(D)J
+   * java/lang/Double.longBitsToDouble(J)D
+   * java/lang/Double.longBitsToDouble(J)D
+   * java/lang/Thread.setPriority0(I)V
+   * sun/misc/VM.initialize()V
+   * java/io/FileInputStream.initIDs()V
+   * java/io/FileDescriptor.initIDs()V
+   * sun/misc/Unsafe.registerNatives()V
+   * java/lang/Object.hashCode()I
+   * sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I
+   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
+   * sun/misc/Unsafe.addressSize()I
+   * java/io/FileOutputStream.initIDs()V
+   * java/lang/Class.getName0()Ljava/lang/String;
+   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
+   * java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
+   * java/lang/Class.getName0()Ljava/lang/String;
+   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
+   * java/lang/Thread.setPriority0(I)V
+   * java/lang/Thread.setPriority0(I)V
+   * java/lang/Thread.isAlive()Z
+   * java/lang/Thread.start0()V
+   * sun/misc/Unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J
+   */
 }

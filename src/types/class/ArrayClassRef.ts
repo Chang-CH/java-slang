@@ -7,7 +7,7 @@ import { JvmArray } from '#types/reference/Array';
 import { ClassRef } from './ClassRef';
 
 export class ArrayClassRef extends ClassRef {
-  private itemClass?: ClassRef;
+  private componentClass?: ClassRef;
 
   constructor(
     constantPool: Array<ConstantRef>,
@@ -34,15 +34,15 @@ export class ArrayClassRef extends ClassRef {
     this.packageName = 'java/lang';
   }
 
-  setItemClass(itemClass: ClassRef) {
-    this.itemClass = itemClass;
+  setComponentClass(itemClass: ClassRef) {
+    this.componentClass = itemClass;
   }
 
-  getItemClass(): ClassRef {
-    if (this.itemClass === undefined) {
+  getComponentClass(): ClassRef {
+    if (this.componentClass === undefined) {
       throw new Error('Array item class not set');
     }
-    return this.itemClass;
+    return this.componentClass;
   }
 
   instantiate(): JvmArray {
@@ -80,6 +80,6 @@ export class ArrayClassRef extends ClassRef {
 
     // TC and SC are reference types, and type SC can be cast to TC by recursive application of these rules.
     // Primitive classes are loaded as well anyways, we can use the same logic.
-    return this.getItemClass().checkCast(castTo.getItemClass());
+    return this.getComponentClass().checkCast(castTo.getComponentClass());
   }
 }
