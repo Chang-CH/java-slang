@@ -475,99 +475,6 @@ export class ConstantClass extends Constant {
 
 // #region name and type dependency
 
-function createTempClass(
-  className: string,
-  loader: AbstractClassLoader,
-  superClass: ClassRef | null,
-  constants: info.ConstantInfo[],
-  interfaces: ClassRef[],
-  methods: {
-    accessFlags: number;
-    name: string;
-    className: string;
-    descriptor: string;
-    attributes: AttributeInfo[];
-    code: DataView;
-    maxStack: number;
-  }[],
-  fields: FieldInfo[],
-  flags: number
-): ClassRef {
-  let cpool: info.ConstantInfo[] = constants;
-
-  const methodInfoArr: MethodInfo[] = methods.map((method, index) => {
-    cpool.push({
-      tag: CONSTANT_TAG.Utf8,
-      length: method.descriptor.length,
-      value: method.descriptor,
-    });
-    cpool.push({
-      tag: CONSTANT_TAG.Utf8,
-      length: method.name.length,
-      value: method.name,
-    });
-    cpool.push({
-      tag: CONSTANT_TAG.Utf8,
-      length: method.className.length,
-      value: method.className,
-    });
-    cpool.push({
-      tag: CONSTANT_TAG.NameAndType,
-      nameIndex: cpool.length - 2,
-      descriptorIndex: cpool.length - 3,
-    });
-    cpool.push({
-      tag: CONSTANT_TAG.Class,
-      nameIndex: cpool.length - 2,
-    });
-    cpool.push({
-      tag: CONSTANT_TAG.Methodref,
-      classIndex: cpool.length - 1,
-      nameAndTypeIndex: cpool.length - 2,
-    });
-    cpool.push({
-      tag: CONSTANT_TAG.Utf8,
-      length: 4,
-      value: 'Code',
-    });
-
-    const res: MethodInfo = {
-      accessFlags: method.accessFlags,
-      nameIndex: cpool.length - 6,
-      name: method.name,
-      descriptor: method.descriptor,
-      descriptorIndex: cpool.length - 7,
-      attributes: method.attributes,
-      attributesCount: method.attributes?.length,
-    };
-    res.attributes.push({
-      attributeNameIndex: cpool.length - 1,
-      attributeLength: 0,
-      maxStack: method.maxStack,
-      maxLocals: 0,
-      codeLength: 0,
-      code: method.code,
-      exceptionTableLength: 0,
-      exceptionTable: [],
-      attributesCount: 0,
-      attributes: [],
-    } as CodeAttribute);
-    return res;
-  });
-
-  return new ClassRef(
-    cpool,
-    flags,
-    className,
-    superClass,
-    interfaces,
-    fields,
-    methodInfoArr,
-    [],
-    loader
-  );
-}
-
 export class ConstantInvokeDynamic extends Constant {
   private bootstrapMethodAttrIndex: number;
   private nameAndType: ConstantNameAndType;
@@ -782,16 +689,13 @@ export class ConstantInvokeDynamic extends Constant {
     }
 
     const thisClsName = this.cls.getClassname();
-    const tempClsName = 'TEMP';
     const intercls = clsRes.getResult();
     const objCls = objRes.getResult();
     const erasedDesc = argConst.getDescriptor();
     const methodName = nameAndTypeRes.name;
     const toInvoke = invokeRes.getResult() as MethodRef;
-
     const invokerName = toInvoke.getName();
     const invokerDesc = toInvoke.getMethodDesc();
-
     const parsedDesc = parseMethodDescriptor(invokerDesc);
     const methodArgs = parsedDesc.args;
     const methodRet = parsedDesc.ret;
@@ -869,64 +773,59 @@ export class ConstantInvokeDynamic extends Constant {
     }
     code.setUint8(ptr, OPCODE.INVOKESTATIC);
 
-    const anonCls = createTempClass(
-      tempClsName,
-      loader,
-      objCls,
-      [
-        // pad index 0
-        {
-          tag: CONSTANT_TAG.Utf8,
-          value: '',
-          length: 0,
-        },
-        {
+    const anonCls = loader.createAnonymousClass({
+      innerClassOf: this.cls,
+      superClass: objCls,
+      interfaces: [intercls],
+      constants: [
+        () => ({
           tag: CONSTANT_TAG.Utf8,
           value: thisClsName,
           length: thisClsName.length,
-        },
-        {
+        }),
+        () => ({
           tag: CONSTANT_TAG.Class,
           nameIndex: 1,
-        },
-        {
+        }),
+        () => ({
           tag: CONSTANT_TAG.Utf8,
           value: invokerDesc,
           length: invokerDesc.length,
-        },
-        {
+        }),
+        () => ({
           tag: CONSTANT_TAG.Utf8,
           value: invokerName,
           length: invokerName.length,
-        },
-        {
+        }),
+        constantPool => ({
           tag: CONSTANT_TAG.NameAndType,
-          nameIndex: 4,
+          nameIndex: constantPool.length - 1,
           descriptorIndex: 3,
-        },
-        {
+        }),
+        constantPool => ({
           tag: CONSTANT_TAG.Methodref,
-          classIndex: 2,
-          nameAndTypeIndex: 5,
-        },
+          classIndex: constantPool.length - 4,
+          nameAndTypeIndex: constantPool.length - 1,
+        }),
       ],
-      [intercls],
-      [
+      methods: [
         {
           accessFlags: METHOD_FLAGS.ACC_PUBLIC,
           name: methodName,
           descriptor: erasedDesc,
           attributes: [],
-          className: tempClsName,
           maxStack,
+          maxLocals: methodArgs.length + 1,
           code,
+          exceptionTable: [],
         },
       ],
-      [],
-      CLASS_FLAGS.ACC_PUBLIC
-    );
+      fields: [],
+      flags: CLASS_FLAGS.ACC_PUBLIC,
+    });
     const lambdaObj = anonCls.instantiate();
 
+    console.log(anonCls);
     return new SuccessResult(lambdaObj);
   }
 }

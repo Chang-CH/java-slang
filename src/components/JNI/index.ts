@@ -14,6 +14,7 @@ import { registerJavaLangObject } from './implementation/java/lang/Object';
 import { registerJavaLangSystem } from './implementation/java/lang/System';
 import { registerJavaLangThread } from './implementation/java/lang/Thread';
 import { registerJavaSecurityAccessController } from './implementation/java/security/AccessController';
+import { registerSource } from './implementation/source';
 import { registerUnsafe } from './implementation/sun/misc/Unsafe';
 export class JNI {
   private classes: {
@@ -160,6 +161,8 @@ export function registerNatives(jni: JNI) {
   registerJavaLangFloat(jni);
   registerJavaLangDouble(jni);
 
+  registerSource(jni);
+
   jni.registerNativeMethod(
     'java/lang/Runtime',
     'availableProcessors()I',
@@ -180,12 +183,15 @@ export function registerNatives(jni: JNI) {
    * system init
    * java/io/FileInputStream.initIDs()V
    * java/io/FileDescriptor.initIDs()V
-   * java/lang/Object.hashCode()I
+   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
    * sun/misc/Unsafe.addressSize()I
    * java/io/FileOutputStream.initIDs()V
    * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
    * java/lang/Thread.isAlive()Z
    * java/lang/Thread.start0()V
+   * java/lang/Object.hashCode()I
    * java/lang/System.setIn0(Ljava/io/InputStream;)V
+   * sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I // TODO:
+   * sun/misc/Unsafe.compareAndSwapInt(Ljava/lang/Object;JII)Z // TODO:
    */
 }

@@ -236,23 +236,36 @@ export default class Thread {
     this.throwException(exceptionCls.instantiate());
   }
 
-  throwException(exception: any) {
+  throwException(exception: JvmObject) {
+    const exceptionCls = exception.getClass();
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
       const method = this.getMethod();
 
       // Native methods cannot handle exceptions
       if (method.checkNative()) {
-        this.stack.pop();
+        this.returnSF(null, exception);
         this.stackPointer -= 1;
         continue;
       }
 
       const eTable = method.getExceptionHandlers();
+      const pc = this.getPC();
 
-      // TODO: check if exception is handled
-      this.stack.pop();
-      this.stackPointer -= 1;
+      for (const handler of eTable) {
+        // compiler should ensure catch type is an instance of Throwable
+        if (
+          pc >= handler.startPc &&
+          pc <= handler.endPc &&
+          (handler.catchType === null ||
+            exceptionCls.checkCast(handler.catchType))
+        ) {
+          this.setPc(handler.handlerPc);
+          this.pushStack(exception);
+          return;
+        }
+      }
+      this.returnSF(null, exception);
     }
 
     const unhandledMethod = this.threadClass.getMethod(
@@ -264,6 +277,14 @@ export default class Thread {
       );
     }
 
-    this.invokeSf(this.threadClass, unhandledMethod, 0, [this, exception]);
+    this.invokeSf(this.threadClass, unhandledMethod, 0, [
+      this.getJavaObject(),
+      exception,
+    ]);
+
+    throw new Error(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V: System not initialized. uncaught error: ' +
+        exception.getClass().getClassname()
+    );
   }
 }

@@ -4,6 +4,7 @@ import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import {
   BootstrapMethodsAttribute,
   AttributeInfo,
+  CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
 import {
   ConstantUtf8Info,
@@ -26,7 +27,7 @@ import {
 import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
 import { FieldRef } from '../FieldRef';
-import { MethodRef } from '../MethodRef';
+import { MethodHandler, MethodRef } from '../MethodRef';
 import { JvmObject } from '../reference/Object';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import {
@@ -106,7 +107,11 @@ export class ClassRef {
     superClass: ClassRef | null,
     interfaces: Array<ClassRef>,
     fields: Array<FieldInfo>,
-    methods: Array<MethodInfo>,
+    methods: {
+      method: MethodInfo;
+      exceptionHandlers: MethodHandler[];
+      code: CodeAttribute | null;
+    }[],
     attributes: Array<AttributeInfo>,
     loader: AbstractClassLoader,
     type?: CLASS_TYPE
@@ -124,7 +129,12 @@ export class ClassRef {
     });
     this.methods = {};
     methods.forEach(method => {
-      const methodRef = MethodRef.fromMethodInfo(this, method);
+      const methodRef = MethodRef.fromLinkedInfo(
+        this,
+        method.method,
+        method.exceptionHandlers,
+        method.code
+      );
       this.methods[methodRef.getName() + methodRef.getMethodDesc()] = methodRef;
     });
     this.attributes = attributes;
@@ -604,5 +614,14 @@ export class ClassRef {
 
   checkModule() {
     return (this.accessFlags & CLASS_FLAGS.ACC_MODULE) !== 0;
+  }
+
+  getAnonymousInnerId(): number {
+    console.error('Not implemented');
+    return 0;
+  }
+
+  putInnerClass(cls: ClassRef) {
+    console.error('Not implemented');
   }
 }

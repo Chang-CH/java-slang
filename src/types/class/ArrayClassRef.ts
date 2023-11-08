@@ -1,8 +1,12 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
+import {
+  AttributeInfo,
+  CodeAttribute,
+} from '#jvm/external/ClassFile/types/attributes';
 import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
 import { ConstantRef } from '#types/ConstantRef';
+import { MethodHandler } from '#types/MethodRef';
 import { JvmArray } from '#types/reference/Array';
 import { ClassRef } from './ClassRef';
 
@@ -16,7 +20,11 @@ export class ArrayClassRef extends ClassRef {
     superClass: ClassRef,
     interfaces: Array<ClassRef>,
     fields: Array<FieldInfo>,
-    methods: Array<MethodInfo>,
+    methods: {
+      method: MethodInfo;
+      exceptionHandlers: MethodHandler[];
+      code: CodeAttribute | null;
+    }[],
     attributes: Array<AttributeInfo>,
     loader: AbstractClassLoader
   ) {

@@ -7,14 +7,14 @@ import AbstractSystem from '#utils/AbstractSystem';
 import NodeSystem from '#utils/NodeSystem';
 import AbstractClassLoader from './components/ClassLoader/AbstractClassLoader';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
-import ClassLoader from './components/ClassLoader/ClassLoader';
+import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
 import { JNI, registerNatives } from './components/JNI';
 import Thread from './components/Thread/Thread';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
-  private applicationClassLoader?: ClassLoader;
+  private applicationClassLoader?: ApplicationClassLoader;
   private engine: ExecutionEngine;
   private nativeSystem: AbstractSystem;
   private jni: JNI;
@@ -105,14 +105,14 @@ export default class JVM {
     // #endregion
 
     // #region initialize system class
-    console.log('// #region initializing system class'.padEnd(150, '#'));
-    const sInitMr = sysCls.getMethod('initializeSystemClass()V');
-    if (!sInitMr) {
-      throw new Error('System initialization method not found');
-    }
-    mainThread.invokeSf(sysCls, sInitMr, 0, []);
-    this.engine.runThread(mainThread);
-    console.log('// #endregion system class initialized'.padEnd(150, '#'));
+    // console.log('// #region initializing system class'.padEnd(150, '#'));
+    // const sInitMr = sysCls.getMethod('initializeSystemClass()V');
+    // if (!sInitMr) {
+    //   throw new Error('System initialization method not found');
+    // }
+    // mainThread.invokeSf(sysCls, sInitMr, 0, []);
+    // this.engine.runThread(mainThread);
+    // console.log('// #endregion system class initialized'.padEnd(150, '#'));
     // #endregion
 
     //   'source/Source',
@@ -126,7 +126,7 @@ export default class JVM {
     const className = classDir.pop();
     classDir = classDir.join('/');
 
-    this.applicationClassLoader = new ClassLoader(
+    this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,
       classDir,
       this.bootstrapClassLoader
@@ -154,6 +154,7 @@ export default class JVM {
     }
     const mainThread = this._initialThread as Thread;
     mainThread.invokeSf(mainCls, mainMethod, 0, []);
+    mainCls.initialize(mainThread);
 
     this.engine.addThread(mainThread);
     this.engine.run();

@@ -1,3 +1,4 @@
+import Thread from '#jvm/components/Thread/Thread';
 import {
   AttributeInfo,
   CodeAttribute,
@@ -7,9 +8,15 @@ import {
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
 import { ClassRef } from './class/ClassRef';
-import { ConstantUtf8 } from './constants';
+import { ConstantClass, ConstantUtf8 } from './constants';
+import { ErrorResult, ImmediateResult, SuccessResult } from './result';
 
-export interface MethodRef {}
+export interface MethodHandler {
+  startPc: number;
+  endPc: number;
+  handlerPc: number;
+  catchType: null | ClassRef;
+}
 
 export class MethodRef {
   private cls: ClassRef;
@@ -18,6 +25,7 @@ export class MethodRef {
   private name: string;
   private descriptor: string;
   private attributes: Array<AttributeInfo>;
+  private exceptionHandlers: MethodHandler[];
 
   constructor(
     cls: ClassRef,
@@ -25,7 +33,13 @@ export class MethodRef {
     accessFlags: number,
     name: string,
     descriptor: string,
-    attributes: Array<AttributeInfo>
+    attributes: Array<AttributeInfo>,
+    exceptionHandlers: {
+      startPc: number;
+      endPc: number;
+      handlerPc: number;
+      catchType: null | ClassRef;
+    }[]
   ) {
     this.cls = cls;
     this.code = code;
@@ -33,9 +47,15 @@ export class MethodRef {
     this.name = name;
     this.descriptor = descriptor;
     this.attributes = attributes;
+    this.exceptionHandlers = exceptionHandlers;
   }
 
-  static fromMethodInfo(cls: ClassRef, method: MethodInfo) {
+  static fromLinkedInfo(
+    cls: ClassRef,
+    method: MethodInfo,
+    exceptionHandlers: MethodHandler[],
+    code: CodeAttribute | null
+  ) {
     // get name and descriptor
     const name = (cls.getConstant(method.nameIndex) as ConstantUtf8).get();
     const descriptor = (
@@ -44,17 +64,16 @@ export class MethodRef {
 
     const accessFlags = method.accessFlags;
     const attributes = method.attributes;
-    // get code attribute
-    let code = null;
-    attributes.forEach(attr => {
-      const attrname = (
-        cls.getConstant(attr.attributeNameIndex) as ConstantUtf8
-      ).get();
-      if (attrname === 'Code') {
-        code = attr as CodeAttribute;
-      }
-    });
-    return new MethodRef(cls, code, accessFlags, name, descriptor, attributes);
+
+    return new MethodRef(
+      cls,
+      code,
+      accessFlags,
+      name,
+      descriptor,
+      attributes,
+      exceptionHandlers
+    );
   }
 
   static checkMethod(obj: any): obj is MethodRef {
@@ -78,7 +97,11 @@ export class MethodRef {
   }
 
   getExceptionHandlers() {
-    return this.code ? this.code.exceptionTable : [];
+    if (this.exceptionHandlers === undefined) {
+      console.log(this.cls.getClassname(), this.name, this.descriptor);
+      throw new Error('Class not initialized');
+    }
+    return this.exceptionHandlers;
   }
 
   /**

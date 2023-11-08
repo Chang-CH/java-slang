@@ -791,9 +791,17 @@ export function runArraylength(thread: Thread): void {
 
 // TODO:
 export function runAthrow(thread: Thread): void {
-  throw new Error('ATHROW: Not implemented');
-  thread.offsetPc(1);
   const exception = thread.popStack();
+
+  if (exception === null) {
+    thread.pushStack(exception);
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+
+  console.warn('ATHROW: structured locking w/ synchronized not implemented');
+
+  thread.offsetPc(1);
   thread.throwException(exception);
 }
 

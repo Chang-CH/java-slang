@@ -3,7 +3,7 @@ import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 
-export default class ClassLoader extends AbstractClassLoader {
+export default class ApplicationClassLoader extends AbstractClassLoader {
   // TODO: store thisref here, Java ClassLoader Reference
   constructor(
     nativeSystem: AbstractSystem,
@@ -18,13 +18,14 @@ export default class ClassLoader extends AbstractClassLoader {
    * @param className name of class to load
    */
   protected load(className: string): ImmediateResult<ClassRef> {
-    console.debug(`ClassLoader: loading ${className}`);
+    console.debug(`UserClassLoader: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
 
     let classFile;
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
+      console.log('CANNOT FIND PATH: ', path);
       return new ErrorResult('java/lang/ClassNotFoundException', '');
     }
 

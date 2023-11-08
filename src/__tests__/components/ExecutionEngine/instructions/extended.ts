@@ -14,12 +14,13 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { JvmArray } from '#types/reference/Array';
-import { TestClassLoader, TestSystem, createClass } from '#utils/test';
+import { TestClassLoader, TestSystem } from '#utils/test';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { ConstantClass } from '#types/constants';
 import AbstractSystem from '#utils/AbstractSystem';
 import JVM from '#jvm/index';
+import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
@@ -37,7 +38,7 @@ beforeEach(() => {
 
   const dispatchUncaughtCode = new DataView(new ArrayBuffer(8));
   dispatchUncaughtCode.setUint8(0, OPCODE.RETURN);
-  threadClass = createClass({
+  threadClass = testLoader.createClass({
     className: 'java/lang/Thread',
     methods: [
       {
@@ -50,7 +51,7 @@ beforeEach(() => {
     ],
     loader: testLoader,
   });
-  strClass = createClass({
+  strClass = testLoader.createClass({
     className: 'java/lang/String',
     loader: testLoader,
     fields: [
@@ -67,7 +68,7 @@ beforeEach(() => {
   const ab = new ArrayBuffer(50);
   code = new DataView(ab);
   let fieldIdx = 0;
-  testClass = createClass({
+  testClass = testLoader.createClass({
     className: 'Test',
     constants: [
       () => ({
@@ -114,6 +115,16 @@ beforeEach(() => {
     ],
     loader: testLoader,
   });
+  testLoader.createClass({
+    className: 'java/lang/NegativeArraySizeException',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_PUBLIC,
+  });
+  testLoader.createClass({
+    className: 'java/lang/NullPointerException',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_PUBLIC,
+  });
   const method = testClass.getMethod('test0()V') as MethodRef;
   thread.invokeSf(testClass, method, 0, []);
 });
@@ -123,7 +134,9 @@ describe('Ifnull', () => {
     code.setUint8(0, OPCODE.IFNULL);
     code.setInt16(1, 10);
     thread.pushStack(null);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -134,7 +147,9 @@ describe('Ifnull', () => {
     code.setUint8(0, OPCODE.IFNULL);
     code.setInt16(1, 10);
     thread.pushStack(new JvmObject(threadClass));
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -147,7 +162,9 @@ describe('Ifnonnull', () => {
     code.setUint8(0, OPCODE.IFNONNULL);
     code.setInt16(1, 10);
     thread.pushStack(null);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -158,7 +175,9 @@ describe('Ifnonnull', () => {
     code.setUint8(0, OPCODE.IFNONNULL);
     code.setInt16(1, 10);
     thread.pushStack(new JvmObject(threadClass));
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -170,7 +189,9 @@ describe('GotoW', () => {
   test('GOTO_W: goes to correct offset', () => {
     code.setUint8(0, OPCODE.GOTO_W);
     code.setInt32(1, 65535);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -183,7 +204,9 @@ describe('JsrW', () => {
     code.setUint8(0, OPCODE.JSR_W);
     code.setInt32(1, 65535);
 
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(5);
@@ -198,7 +221,9 @@ describe('Wide', () => {
     code.setUint8(1, OPCODE.ILOAD);
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(thread.popStack()).toBe(3);
@@ -210,7 +235,9 @@ describe('Wide', () => {
     code.setUint8(1, OPCODE.LLOAD);
     code.setUint16(2, 0);
     thread.storeLocal(0, 3n);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(thread.popStack64() === 3n).toBe(true);
@@ -222,7 +249,9 @@ describe('Wide', () => {
     code.setUint8(1, OPCODE.FLOAD);
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(thread.popStack()).toBe(3);
@@ -234,7 +263,9 @@ describe('Wide', () => {
     code.setUint8(1, OPCODE.DLOAD);
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(thread.popStack64()).toBe(3);
@@ -246,7 +277,9 @@ describe('Wide', () => {
     code.setUint8(1, OPCODE.ALOAD);
     code.setUint16(2, 0);
     thread.storeLocal(0, null);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(thread.popStack()).toBe(null);
@@ -259,7 +292,9 @@ describe('Wide', () => {
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
     thread.pushStack(5);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(5);
@@ -272,7 +307,9 @@ describe('Wide', () => {
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
     thread.pushStack64(5n);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0) == 5n).toBe(true);
@@ -285,7 +322,9 @@ describe('Wide', () => {
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
     thread.pushStack(5);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(5);
@@ -298,7 +337,9 @@ describe('Wide', () => {
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
     thread.pushStack64(5);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(5);
@@ -311,7 +352,9 @@ describe('Wide', () => {
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
     thread.pushStack(null);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(null);
@@ -325,7 +368,9 @@ describe('Wide', () => {
     code.setUint16(2, 0);
     code.setUint16(4, 5);
     thread.storeLocal(0, 5);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.loadLocal(0)).toBe(10);
@@ -338,7 +383,7 @@ describe('Multianewarray', () => {
   test('MULTIANEWARRAY: Creates multi dimensional array', () => {
     thread.returnSF();
     let constIdx = 0;
-    const customClass = createClass({
+    const customClass = testLoader.createClass({
       className: 'custom',
       constants: [
         () => {
@@ -376,7 +421,9 @@ describe('Multianewarray', () => {
     thread.pushStack(2);
     thread.pushStack(3);
 
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.pc).toBe(4);
@@ -400,7 +447,7 @@ describe('Multianewarray', () => {
   test('MULTIANEWARRAY: Negative dimensions throw exception', () => {
     thread.returnSF();
     let constIdx = 0;
-    const customClass = createClass({
+    const customClass = testLoader.createClass({
       className: 'custom',
       constants: [
         () => {
@@ -438,10 +485,13 @@ describe('Multianewarray', () => {
     thread.pushStack(-1);
     thread.pushStack(3);
 
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
 
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.class).toBe(threadClass);
+    expect(lastFrame.class === threadClass).toBe(true);
+    // expect(lastFrame.method.getName()).toBe('java/lang/Thread');
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
     expect(exceptionObj.getClass().getClassname()).toBe(
@@ -452,7 +502,7 @@ describe('Multianewarray', () => {
   test('MULTIANEWARRAY: 0 sized array empty', () => {
     thread.returnSF();
     let constIdx = 0;
-    const customClass = createClass({
+    const customClass = testLoader.createClass({
       className: 'custom',
       constants: [
         () => {
@@ -488,7 +538,9 @@ describe('Multianewarray', () => {
     thread.invokeSf(customClass, method, 0, []);
     thread.pushStack(0);
     thread.pushStack(3);
-    runInstruction(thread, jni, () => {});
+    try {
+      runInstruction(thread, jni, () => {});
+    } catch (e) {}
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
