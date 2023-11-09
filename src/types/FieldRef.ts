@@ -5,7 +5,7 @@ import { ClassRef } from './class/ClassRef';
 import { ConstantUtf8 } from './constants';
 import { JavaType } from './dataTypes';
 import { JvmObject } from './reference/Object';
-import { ErrorResult, ImmediateResult, SuccessResult } from './result';
+import { ErrorResult, ImmediateResult, Result, SuccessResult } from './result';
 
 export class FieldRef {
   private cls: ClassRef;
@@ -218,5 +218,56 @@ export class FieldRef {
 
   checkEnum() {
     return (this.accessFlags & FIELD_FLAGS.ACC_ENUM) !== 0;
+  }
+
+  /**
+   * Checks if the current method has access to the field
+   * @param thread thread accessing the field
+   * @param isStaticAccess true for getstatic/putstatic
+   * @param isPut true for putstatic/putfield
+   * @returns
+   */
+  checkAccess(
+    thread: Thread,
+    isStaticAccess: boolean = false,
+    isPut: boolean = false
+  ): Result<FieldRef> {
+    // logical xor
+    if (isStaticAccess !== this.checkStatic()) {
+      return new ErrorResult<FieldRef>(
+        'java/lang/IncompatibleClassChangeError',
+        ''
+      );
+    }
+
+    const invokerClass = thread.getClass();
+    const fieldClass = this.getClass();
+    if (
+      this.checkPrivate() &&
+      invokerClass !== fieldClass &&
+      fieldClass.getNestedHost() !== invokerClass.getNestedHost()
+    ) {
+      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+    }
+
+    if (
+      this.checkProtected() &&
+      !invokerClass.checkCast(fieldClass) &&
+      invokerClass.getPackageName() !== this.getClass().getPackageName()
+    ) {
+      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+    }
+
+    const invokerMethod = thread.getMethod();
+    if (
+      isPut &&
+      this.checkFinal() &&
+      (fieldClass !== invokerClass ||
+        invokerMethod.getName() !== (isStaticAccess ? '<clinit>' : '<init>'))
+    ) {
+      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+    }
+
+    return new SuccessResult<FieldRef>(this);
   }
 }

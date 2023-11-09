@@ -100,6 +100,10 @@ export class ClassRef {
 
   protected javaObj?: JvmObject;
 
+  private nestedHost: ClassRef = this;
+  private nestedMembers: ClassRef[] = [];
+  private anonymousInnerId: number = 0;
+
   constructor(
     constantPool: Array<ConstantInfo>,
     accessFlags: number,
@@ -294,31 +298,6 @@ export class ClassRef {
     return null;
   }
 
-  private _checkMethodAccess(method: MethodRef, accessingClass: ClassRef) {
-    // R is public
-    if (method.checkPublic()) {
-      return true;
-    }
-
-    // R is protected and is declared in a class C, and D is either a subclass of C or C itself
-    if (method.checkProtected()) {
-      if (!this.checkCast(method.getClass())) {
-        return false;
-      }
-      // if R is not static, then the symbolic reference to R must contain a symbolic reference to a class T,
-      // such that T is either a subclass of D, a superclass of D, or D itself.
-      // or is declared by a class in the same run-time package as D
-      return (
-        method.checkStatic() ||
-        accessingClass.checkCast(this) ||
-        this.getPackageName() === method.getClass().getPackageName()
-      );
-    }
-
-    // R is private
-    return accessingClass === method.getClass();
-  }
-
   /**
    * Resolves method reference from the current class.
    * Returns exception if any.
@@ -334,7 +313,8 @@ export class ClassRef {
     let result = this._resolveMethodSuper(methodKey);
     if (result !== null) {
       const res = new SuccessResult(result);
-      if (!this._checkMethodAccess(result, accessingClass)) {
+      const method = res.getResult();
+      if (!method.checkAccess(accessingClass, this)) {
         return new ErrorResult('java/lang/IllegalAccessError', '');
       }
       return res;
@@ -343,11 +323,10 @@ export class ClassRef {
     // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
     result = this._resolveMethodInterface(methodKey);
     if (result !== null) {
-      const res = new SuccessResult(result);
-      if (!this._checkMethodAccess(result, accessingClass)) {
+      if (!result.checkAccess(accessingClass, this)) {
         return new ErrorResult('java/lang/IllegalAccessError', '');
       }
-      return res;
+      return new SuccessResult(result);
     }
     // If method lookup fails, method resolution throws a NoSuchMethodError
     return new ErrorResult('java/lang/NoSuchMethodError', '');
@@ -617,11 +596,22 @@ export class ClassRef {
   }
 
   getAnonymousInnerId(): number {
-    console.error('Not implemented');
-    return 0;
+    return this.anonymousInnerId++;
   }
 
-  putInnerClass(cls: ClassRef) {
-    console.error('Not implemented');
+  nestMember(cls: ClassRef) {
+    this.nestedMembers.push(cls);
+  }
+
+  nestHost(cls: ClassRef) {
+    this.nestedHost = cls;
+  }
+
+  getNestedMembers(): ClassRef[] {
+    return this.nestedMembers;
+  }
+
+  getNestedHost(): ClassRef | undefined {
+    return this.nestedHost;
   }
 }

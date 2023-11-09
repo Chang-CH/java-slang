@@ -701,10 +701,65 @@ export class ConstantInvokeDynamic extends Constant {
     const methodRet = parsedDesc.ret;
     let maxStack = 0;
 
-    // load(1) * n -> invoke(3) -> return(1)
     const code = new DataView(new ArrayBuffer(3 + methodArgs.length * 2 + 1));
+    let methodRefIndex = -1;
+    const anonCls = loader.createAnonymousClass({
+      innerClassOf: this.cls,
+      superClass: objCls,
+      interfaces: [intercls],
+      constants: [
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          value: thisClsName,
+          length: thisClsName.length,
+        }),
+        constantPool => ({
+          tag: CONSTANT_TAG.Class,
+          nameIndex: constantPool.length - 1,
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          value: invokerDesc,
+          length: invokerDesc.length,
+        }),
+        () => ({
+          tag: CONSTANT_TAG.Utf8,
+          value: invokerName,
+          length: invokerName.length,
+        }),
+        constantPool => ({
+          tag: CONSTANT_TAG.NameAndType,
+          nameIndex: constantPool.length - 1,
+          descriptorIndex: constantPool.length - 2,
+        }),
+        constantPool => {
+          methodRefIndex = constantPool.length;
+          return {
+            tag: CONSTANT_TAG.Methodref,
+            classIndex: constantPool.length - 4,
+            nameAndTypeIndex: constantPool.length - 1,
+          };
+        },
+      ],
+      methods: [
+        {
+          accessFlags: METHOD_FLAGS.ACC_PUBLIC,
+          name: methodName,
+          descriptor: erasedDesc,
+          attributes: [],
+          maxStack,
+          maxLocals: methodArgs.length + 1,
+          code,
+          exceptionTable: [],
+        },
+      ],
+      fields: [],
+      flags: CLASS_FLAGS.ACC_PUBLIC,
+    });
+
+    // load(1) * n -> invoke(3) -> return(1)
     code.setUint8(0, OPCODE.INVOKESTATIC);
-    code.setUint16(1, 6);
+    code.setUint16(1, methodRefIndex);
     let ptr = 3;
     methodArgs.forEach((arg, index) => {
       switch (arg.type) {
@@ -773,59 +828,8 @@ export class ConstantInvokeDynamic extends Constant {
     }
     code.setUint8(ptr, OPCODE.INVOKESTATIC);
 
-    const anonCls = loader.createAnonymousClass({
-      innerClassOf: this.cls,
-      superClass: objCls,
-      interfaces: [intercls],
-      constants: [
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          value: thisClsName,
-          length: thisClsName.length,
-        }),
-        () => ({
-          tag: CONSTANT_TAG.Class,
-          nameIndex: 1,
-        }),
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          value: invokerDesc,
-          length: invokerDesc.length,
-        }),
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          value: invokerName,
-          length: invokerName.length,
-        }),
-        constantPool => ({
-          tag: CONSTANT_TAG.NameAndType,
-          nameIndex: constantPool.length - 1,
-          descriptorIndex: 3,
-        }),
-        constantPool => ({
-          tag: CONSTANT_TAG.Methodref,
-          classIndex: constantPool.length - 4,
-          nameAndTypeIndex: constantPool.length - 1,
-        }),
-      ],
-      methods: [
-        {
-          accessFlags: METHOD_FLAGS.ACC_PUBLIC,
-          name: methodName,
-          descriptor: erasedDesc,
-          attributes: [],
-          maxStack,
-          maxLocals: methodArgs.length + 1,
-          code,
-          exceptionTable: [],
-        },
-      ],
-      fields: [],
-      flags: CLASS_FLAGS.ACC_PUBLIC,
-    });
     const lambdaObj = anonCls.instantiate();
 
-    console.log(anonCls);
     return new SuccessResult(lambdaObj);
   }
 }
@@ -851,67 +855,6 @@ export class ConstantFieldref extends Constant {
 
   static check(c: Constant): c is ConstantFieldref {
     return c.getTag() === CONSTANT_TAG.Fieldref;
-  }
-
-  /**
-   * Checks if the current method has access to the field
-   * @param thread thread accessing the field
-   * @param isStaticAccess true for getstatic/putstatic
-   * @param isPut true for putstatic/putfield
-   * @returns
-   */
-  public checkAccess(
-    thread: Thread,
-    isStaticAccess: boolean = false,
-    isPut: boolean = false
-  ): Result<FieldRef> {
-    if (!this.result) {
-      this.resolve();
-      this.result!;
-    }
-
-    if (!this.result) {
-      throw new Error('Resolution incomplete or failed');
-    }
-
-    if (!this.result.checkSuccess()) {
-      return this.result;
-    }
-
-    const fieldRef = this.result.getResult();
-    // logical xor
-    if (isStaticAccess !== fieldRef.checkStatic()) {
-      return new ErrorResult<FieldRef>(
-        'java/lang/IncompatibleClassChangeError',
-        ''
-      );
-    }
-
-    const invokerClass = thread.getClass();
-    const fieldClass = fieldRef.getClass();
-    if (fieldRef.checkPrivate() && invokerClass !== fieldClass) {
-      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
-    }
-
-    if (
-      fieldRef.checkProtected() &&
-      !invokerClass.checkCast(fieldClass) &&
-      invokerClass.getPackageName() !== fieldRef.getClass().getPackageName()
-    ) {
-      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
-    }
-
-    const invokerMethod = thread.getMethod();
-    if (
-      isPut &&
-      fieldRef.checkFinal() &&
-      (fieldClass !== invokerClass ||
-        invokerMethod.getName() !== (isStaticAccess ? '<clinit>' : '<init>'))
-    ) {
-      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
-    }
-
-    return this.result;
   }
 
   public resolve(): Result<FieldRef> {

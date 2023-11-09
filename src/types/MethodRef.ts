@@ -116,9 +116,12 @@ export class MethodRef {
   }
 
   checkProtected() {
+    return (this.accessFlags & METHOD_FLAGS.ACC_PROTECTED) !== 0;
+  }
+
+  checkDefault() {
     return (
-      (this.accessFlags & METHOD_FLAGS.ACC_PROTECTED) !== 0 ||
-      (!this.checkPublic() && !this.checkPrivate())
+      !this.checkPublic() && !this.checkPrivate() && !this.checkProtected()
     );
   }
 
@@ -156,6 +159,44 @@ export class MethodRef {
 
   checkSynthetic() {
     return (this.accessFlags & METHOD_FLAGS.ACC_SYNTHETIC) !== 0;
+  }
+
+  checkAccess(accessingClass: ClassRef, symbolicClass: ClassRef) {
+    const declaringCls = this.getClass();
+
+    // this is public
+    if (this.checkPublic()) {
+      return true;
+    }
+
+    const isSamePackage =
+      declaringCls.getPackageName() === accessingClass.getPackageName();
+
+    if (this.checkDefault()) {
+      return isSamePackage;
+    }
+
+    if (this.checkProtected()) {
+      if (isSamePackage) {
+        return true;
+      }
+
+      // this is protected and is declared in a class C, and D is either a subclass of C or C itself
+      if (!accessingClass.checkCast(declaringCls)) {
+        return false;
+      }
+
+      // if this is not static, then the symbolic reference to this must contain a symbolic reference to a class T,
+      // such that T is either a subclass of D, a superclass of D, or D itself.
+      return (
+        this.checkStatic() ||
+        declaringCls.checkCast(symbolicClass) ||
+        symbolicClass.checkCast(declaringCls)
+      );
+    }
+
+    // R is private
+    return accessingClass === this.getClass();
   }
 
   _getCode() {

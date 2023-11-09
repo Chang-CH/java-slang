@@ -37,15 +37,15 @@ export function runGetstatic(thread: Thread): void {
     }
     return;
   }
+  const field = fieldRes.getResult();
 
-  const accessCheck = constantField.checkAccess(thread, true, false);
+  const accessCheck = field.checkAccess(thread, true, false);
   if (accessCheck.checkError()) {
     const err = accessCheck.getError();
     thread.throwNewException(err.className, err.msg);
     return;
   }
 
-  const field = fieldRes.getResult();
   const fieldClass = field.getClass();
   const initRes = fieldClass.initialize(thread);
   if (!initRes.checkSuccess()) {
@@ -81,15 +81,15 @@ export function runPutstatic(thread: Thread): void {
     }
     return;
   }
+  const field = fieldRes.getResult();
 
-  const accessCheck = constantField.checkAccess(thread, true, true);
+  const accessCheck = field.checkAccess(thread, true, true);
   if (accessCheck.checkError()) {
     const err = accessCheck.getError();
     thread.throwNewException(err.className, err.msg);
     return;
   }
 
-  const field = fieldRes.getResult();
   const fieldClass = field.getClass();
   const initRes = fieldClass.initialize(thread);
   if (!initRes.checkSuccess()) {
@@ -140,15 +140,14 @@ export function runGetfield(thread: Thread): void {
     // TODO: rollback
     return;
   }
+  const field = fieldRes.getResult();
 
-  const accessCheck = constantField.checkAccess(thread, false, false);
+  const accessCheck = field.checkAccess(thread, false, false);
   if (accessCheck.checkError()) {
     const err = accessCheck.getError();
     thread.throwNewException(err.className, err.msg);
     return;
   }
-
-  const field = fieldRes.getResult();
 
   const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
@@ -182,15 +181,14 @@ export function runPutfield(thread: Thread): void {
     }
     return;
   }
+  const field = fieldRes.getResult();
 
-  const accessCheck = constantField.checkAccess(thread, false, false);
+  const accessCheck = field.checkAccess(thread, false, false);
   if (accessCheck.checkError()) {
     const err = accessCheck.getError();
     thread.throwNewException(err.className, err.msg);
     return;
   }
-
-  const field = fieldRes.getResult();
 
   let value;
   // FIXME: in theory it is legal to have 2 same field name, different type
@@ -789,7 +787,6 @@ export function runArraylength(thread: Thread): void {
   thread.pushStack(arrayref.len());
 }
 
-// TODO:
 export function runAthrow(thread: Thread): void {
   const exception = thread.popStack();
 
