@@ -24,12 +24,28 @@ export default class JVM {
 
   // Reuse the thread we use in initialization for running main method
   private _initialThread?: Thread;
+  private jvmOptions: {
+    javaClassPath: string;
+    userDir: string;
+  };
 
-  constructor(nativeSystem: AbstractSystem) {
+  constructor(
+    nativeSystem: AbstractSystem,
+    options?: {
+      javaClassPath?: string;
+      userDir?: string;
+    }
+  ) {
+    this.jvmOptions = {
+      javaClassPath: 'natives',
+      userDir: 'example',
+      ...options,
+    };
+
     this.nativeSystem = nativeSystem;
     this.bootstrapClassLoader = new BootstrapClassLoader(
       this.nativeSystem,
-      'natives'
+      this.jvmOptions.javaClassPath
     );
     // native classes loaded with bscl loaded as null classloader
     //   private java.lang.Class(java.lang.ClassLoader, java.lang.Class<?> array class, null otherwise);
@@ -121,14 +137,10 @@ export default class JVM {
     // );
   }
 
-  runClass(classPath: string) {
-    let classDir: any = classPath.split('/');
-    const className = classDir.pop();
-    classDir = classDir.join('/');
-
+  runClass(className: string) {
     this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,
-      classDir,
+      this.jvmOptions.userDir,
       this.bootstrapClassLoader
     );
 

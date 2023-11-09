@@ -13,7 +13,7 @@ import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
 import { MethodHandler, MethodRef } from '#types/MethodRef';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
+import { CLASS_STATUS, CLASS_TYPE, ClassRef } from '#types/class/ClassRef';
 import { ConstantUtf8, ConstantClass } from '#types/constants';
 import {
   ErrorResult,
@@ -265,7 +265,7 @@ export default abstract class AbstractClassLoader {
   }
 
   createAnonymousClass(options: {
-    innerClassOf: ClassRef;
+    nestedHost: ClassRef;
     superClass: ClassRef;
     interfaces: ClassRef[];
     constants: ((c: ConstantInfo[]) => ConstantInfo)[];
@@ -311,7 +311,7 @@ export default abstract class AbstractClassLoader {
       value: superClsName,
       length: superClsName.length,
     });
-    const nestHost = options.innerClassOf;
+    const nestHost = options.nestedHost;
     const clsName =
       nestHost.getClassname() + '$' + nestHost.getAnonymousInnerId();
     let thisClassIndex = constantPool.length;
@@ -430,7 +430,9 @@ export default abstract class AbstractClassLoader {
       fields,
       methods,
       [],
-      this
+      this,
+      CLASS_TYPE.NORMAL,
+      options.nestedHost
     );
 
     return clsRef;

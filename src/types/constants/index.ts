@@ -167,7 +167,6 @@ export class ConstantUtf8 extends Constant {
     return new ConstantUtf8(cls, constant.value);
   }
 }
-
 // #endregion
 
 function createMethodType(
@@ -699,12 +698,95 @@ export class ConstantInvokeDynamic extends Constant {
     const parsedDesc = parseMethodDescriptor(invokerDesc);
     const methodArgs = parsedDesc.args;
     const methodRet = parsedDesc.ret;
-    let maxStack = 0;
 
-    const code = new DataView(new ArrayBuffer(3 + methodArgs.length * 2 + 1));
+    // #region Create code
+    // load(1) * n -> invoke(3) -> return(1)
+    const codeSize = 3 + methodArgs.length * 2 + 1;
+    const code = new DataView(new ArrayBuffer(codeSize));
+    let maxStack = methodArgs.length;
+    let invokeIndex = -1;
+    let ptr = 0;
+    // load params
+    methodArgs.forEach((arg, index) => {
+      switch (arg.type) {
+        case JavaType.char:
+        case JavaType.byte:
+        case JavaType.int:
+        case JavaType.boolean:
+        case JavaType.short:
+          code.setUint8(ptr, OPCODE.ILOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.double:
+          maxStack += 1;
+          code.setUint8(ptr, OPCODE.DLOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.float:
+          code.setUint8(ptr, OPCODE.FLOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.long:
+          maxStack += 1;
+          code.setUint8(ptr, OPCODE.LLOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.reference:
+          code.setUint8(ptr, OPCODE.ALOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.array:
+          code.setUint8(ptr, OPCODE.ALOAD);
+          code.setUint8(ptr + 1, index + 1);
+          break;
+        case JavaType.void:
+          throw new Error('Void type in params');
+      }
+      ptr += 2;
+    });
+    // invoke lambda
+    code.setUint8(ptr, OPCODE.INVOKESTATIC);
+    invokeIndex = ptr + 1;
+    code.setUint16(ptr + 1, -1); // We fix this index later
+    ptr += 3;
+    // return value
+    let retStack = 1;
+    switch (methodRet.type) {
+      case JavaType.char:
+      case JavaType.byte:
+      case JavaType.int:
+      case JavaType.boolean:
+      case JavaType.short:
+        code.setUint8(ptr, OPCODE.IRETURN);
+        break;
+      case JavaType.double:
+        retStack += 1;
+        code.setUint8(ptr, OPCODE.DRETURN);
+        break;
+      case JavaType.float:
+        code.setUint8(ptr, OPCODE.FRETURN);
+        break;
+      case JavaType.long:
+        retStack += 1;
+        code.setUint8(ptr, OPCODE.LRETURN);
+        break;
+      case JavaType.reference:
+        code.setUint8(ptr, OPCODE.ARETURN);
+        break;
+      case JavaType.array:
+        code.setUint8(ptr, OPCODE.ARETURN);
+        break;
+      case JavaType.void:
+        retStack = 0;
+        code.setUint8(ptr, OPCODE.RETURN);
+    }
+    // empty args still requries stack for return
+    maxStack = Math.max(maxStack, retStack);
+    // #endregion
+
     let methodRefIndex = -1;
     const anonCls = loader.createAnonymousClass({
-      innerClassOf: this.cls,
+      nestedHost: this.cls,
       superClass: objCls,
       interfaces: [intercls],
       constants: [
@@ -757,76 +839,8 @@ export class ConstantInvokeDynamic extends Constant {
       flags: CLASS_FLAGS.ACC_PUBLIC,
     });
 
-    // load(1) * n -> invoke(3) -> return(1)
-    code.setUint8(0, OPCODE.INVOKESTATIC);
-    code.setUint16(1, methodRefIndex);
-    let ptr = 3;
-    methodArgs.forEach((arg, index) => {
-      switch (arg.type) {
-        case JavaType.char:
-        case JavaType.byte:
-        case JavaType.int:
-        case JavaType.boolean:
-        case JavaType.short:
-          code.setUint8(ptr, OPCODE.ILOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.double:
-          code.setUint8(ptr, OPCODE.DLOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.float:
-          code.setUint8(ptr, OPCODE.FLOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.long:
-          code.setUint8(ptr, OPCODE.LLOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.reference:
-          code.setUint8(ptr, OPCODE.ALOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.array:
-          code.setUint8(ptr, OPCODE.ALOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.void:
-          throw new Error('Void type in params');
-      }
-      ptr += 2;
-      maxStack += 1;
-      if (arg.type === JavaType.double || arg.type === JavaType.long) {
-        maxStack += 1;
-      }
-    });
-    switch (methodRet.type) {
-      case JavaType.char:
-      case JavaType.byte:
-      case JavaType.int:
-      case JavaType.boolean:
-      case JavaType.short:
-        code.setUint8(ptr, OPCODE.IRETURN);
-        break;
-      case JavaType.double:
-        code.setUint8(ptr, OPCODE.DRETURN);
-        break;
-      case JavaType.float:
-        code.setUint8(ptr, OPCODE.FRETURN);
-        break;
-      case JavaType.long:
-        code.setUint8(ptr, OPCODE.LRETURN);
-        break;
-      case JavaType.reference:
-        code.setUint8(ptr, OPCODE.ARETURN);
-        break;
-      case JavaType.array:
-        code.setUint8(ptr, OPCODE.ARETURN);
-        break;
-      case JavaType.void:
-        code.setUint8(ptr, OPCODE.RETURN);
-    }
-    code.setUint8(ptr, OPCODE.INVOKESTATIC);
+    // Fix constant index for invoke
+    code.setUint16(invokeIndex, methodRefIndex);
 
     const lambdaObj = anonCls.instantiate();
 

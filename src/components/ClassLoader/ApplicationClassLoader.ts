@@ -25,7 +25,6 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
-      console.log('CANNOT FIND PATH: ', path);
       return new ErrorResult('java/lang/ClassNotFoundException', '');
     }
 

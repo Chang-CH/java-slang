@@ -59,7 +59,7 @@ export default function main() {
     }
 
     // converts nodejs buffer to ArrayBuffer
-    const buffer = fs.readFileSync(filePath + '.class', null);
+    const buffer = fs.readFileSync('example/' + filePath + '.class', null);
     const arraybuffer = a2ab(buffer);
     const view = new DataView(arraybuffer);
 
@@ -77,7 +77,10 @@ export default function main() {
   }
 
   const nativeSystem = new NodeSystem(folders);
-  const jvm = new JVM(nativeSystem);
+  const jvm = new JVM(nativeSystem, {
+    javaClassPath: 'natives',
+    userDir: 'example',
+  });
   jvm.initialize();
   // @ts-ignore
   jvm.runClass(options['-f'][0]);

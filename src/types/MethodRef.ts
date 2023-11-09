@@ -196,7 +196,11 @@ export class MethodRef {
     }
 
     // R is private
-    return accessingClass === this.getClass();
+    // nestmate test se17 5.4.4.
+    return (
+      accessingClass === declaringCls ||
+      declaringCls.getNestedHost() === accessingClass.getNestedHost()
+    );
   }
 
   _getCode() {

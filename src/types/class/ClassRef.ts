@@ -6,47 +6,13 @@ import {
   AttributeInfo,
   CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
-import {
-  ConstantUtf8Info,
-  ConstantNameAndTypeInfo,
-  ConstantMethodHandleInfo,
-  REFERENCE_KIND,
-  ConstantFieldrefInfo,
-  ConstantInfo,
-  ConstantClassInfo,
-  ConstantDoubleInfo,
-  ConstantFloatInfo,
-  ConstantIntegerInfo,
-  ConstantInterfaceMethodrefInfo,
-  ConstantInvokeDynamicInfo,
-  ConstantLongInfo,
-  ConstantMethodTypeInfo,
-  ConstantMethodrefInfo,
-  ConstantStringInfo,
-} from '#jvm/external/ClassFile/types/constants';
+import { ConstantInfo } from '#jvm/external/ClassFile/types/constants';
 import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
 import { FieldRef } from '../FieldRef';
 import { MethodHandler, MethodRef } from '../MethodRef';
 import { JvmObject } from '../reference/Object';
-import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import {
-  Constant,
-  ConstantClass,
-  ConstantDouble,
-  ConstantFieldref,
-  ConstantFloat,
-  ConstantInteger,
-  ConstantInterfaceMethodref,
-  ConstantInvokeDynamic,
-  ConstantLong,
-  ConstantMethodHandle,
-  ConstantMethodType,
-  ConstantMethodref,
-  ConstantNameAndType,
-  ConstantString,
-  ConstantUtf8,
-} from '#types/constants';
+import { Constant, ConstantUtf8 } from '#types/constants';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import {
   DeferResult,
@@ -100,7 +66,7 @@ export class ClassRef {
 
   protected javaObj?: JvmObject;
 
-  private nestedHost: ClassRef = this;
+  private nestedHost: ClassRef;
   private nestedMembers: ClassRef[] = [];
   private anonymousInnerId: number = 0;
 
@@ -118,8 +84,10 @@ export class ClassRef {
     }[],
     attributes: Array<AttributeInfo>,
     loader: AbstractClassLoader,
-    type?: CLASS_TYPE
+    type?: CLASS_TYPE,
+    nestedHost?: ClassRef
   ) {
+    this.nestedHost = nestedHost ?? this;
     this.constantPool = new ConstantPool(this, constantPool);
     this.accessFlags = accessFlags;
     this.thisClass = thisClass;
@@ -611,7 +579,7 @@ export class ClassRef {
     return this.nestedMembers;
   }
 
-  getNestedHost(): ClassRef | undefined {
+  getNestedHost(): ClassRef {
     return this.nestedHost;
   }
 }
