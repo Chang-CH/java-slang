@@ -49,7 +49,7 @@ export function runTableswitch(thread: Thread): void {
 export function runLookupswitch(thread: Thread): void {
   thread.offsetPc(1);
   if (thread.getPC() % 4 !== 0) {
-    thread.offsetPc(thread.getPC() % 4); // padding
+    thread.offsetPc(4 - (thread.getPC() % 4)); // padding
   }
 
   const def = thread.getCode().getInt32(thread.getPC());
@@ -59,6 +59,7 @@ export function runLookupswitch(thread: Thread): void {
 
   const npairs = []; // 0 indexed
   for (let i = 0; i < npairCount; i++) {
+    // TODO: what go on?
     npairs.push(thread.getCode().getInt32(thread.getPC()));
     thread.offsetPc(4);
   }

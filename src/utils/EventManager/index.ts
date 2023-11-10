@@ -1,9 +1,17 @@
+export enum EventType {
+  LOAD_CLASS = 'load class',
+  EXCEPTION = 'exception',
+  INSTRUCTION = 'instruction',
+  INVOKE = 'invoke',
+  RETURN = 'return',
+}
+
 class EventManager {
   private listeners: {
     [event: string]: Array<(...args: any[]) => void>;
   } = {};
 
-  emit(event: string, ...args: any[]) {
+  emit(event: EventType, ...args: any[]) {
     if (!this.listeners[event]) {
       return;
     }

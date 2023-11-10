@@ -425,7 +425,7 @@ describe('Invokestatic', () => {
       runInstruction(thread, jni, () => {});
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
@@ -967,7 +967,7 @@ describe('invokevirtual', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
-    expect(lastFrame.method.getMethodDesc()).toBe('()V');
+    expect(lastFrame.method.getDescriptor()).toBe('()V');
     expect(thread.getPC()).toBe(0);
   });
   test('INVOKEVIRTUAL: Pops args off stack per descriptor', () => {
@@ -1792,7 +1792,7 @@ describe('Invokeinterface', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
-    expect(lastFrame.method.getMethodDesc()).toBe('()V');
+    expect(lastFrame.method.getDescriptor()).toBe('()V');
     expect(thread.getPC()).toBe(0);
   });
   test('INVOKEINTERFACE: Pops args off stack per descriptor', () => {
@@ -1885,7 +1885,7 @@ describe('Invokeinterface', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
-    expect(lastFrame.method.getMethodDesc()).toBe('(FD)V');
+    expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
     expect(lastFrame.locals[0] === objRef).toBe(true);
     expect(lastFrame.locals[1]).toBe(0.5);
     expect(lastFrame.locals[2]).toBe(0.5);
@@ -1981,7 +1981,7 @@ describe('Invokeinterface', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
-    expect(lastFrame.method.getMethodDesc()).toBe('(FD)V');
+    expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
     expect(lastFrame.locals[0] === objRef).toBe(true);
     expect(lastFrame.locals[1]).toBe(Math.fround(1.3));
     expect(lastFrame.locals[2]).toBe(1.3);
@@ -2515,7 +2515,7 @@ describe('invokespecial', () => {
     const lastFrame = thread.peekStackFrame();
     expect(thread.getPC()).toBe(0);
     expect(lastFrame.method.getName()).toBe('<init>');
-    expect(lastFrame.method.getMethodDesc()).toBe('()V');
+    expect(lastFrame.method.getDescriptor()).toBe('()V');
     expect(thread.getPC()).toBe(0);
   });
   test('INVOKESPECIAL: Pops args off stack per descriptor', () => {
@@ -2611,7 +2611,7 @@ describe('invokespecial', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('<init>');
-    expect(lastFrame.method.getMethodDesc()).toBe('(FD)V');
+    expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
     expect(lastFrame.locals[0] === objRef).toBe(true);
     expect(lastFrame.locals[1]).toBe(0.5);
     expect(lastFrame.locals[2]).toBe(0.5);
@@ -2710,7 +2710,7 @@ describe('invokespecial', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('<init>');
-    expect(lastFrame.method.getMethodDesc()).toBe('(FD)V');
+    expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
     expect(lastFrame.locals[0] === objRef).toBe(true);
     expect(lastFrame.locals[1]).toBe(Math.fround(1.3));
     expect(lastFrame.locals[2]).toBe(1.3);
@@ -2800,7 +2800,7 @@ describe('invokespecial', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('<init>');
-    expect(lastFrame.method.getMethodDesc()).toBe('()V');
+    expect(lastFrame.method.getDescriptor()).toBe('()V');
     expect(lastFrame.locals[0] === objRef).toBe(true);
     expect(thread.getPC()).toBe(0);
   });
@@ -3460,7 +3460,7 @@ describe('Getstatic', () => {
       runInstruction(thread, jni, () => {});
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
@@ -4304,7 +4304,7 @@ describe('Putstatic', () => {
       runInstruction(thread, jni, () => {});
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
@@ -4821,7 +4821,7 @@ describe('Newarray', () => {
       runInstruction(thread, jni, () => {});
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
@@ -4965,7 +4965,7 @@ describe('Anewarray', () => {
       runInstruction(thread, jni, () => {});
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
@@ -5109,7 +5109,7 @@ describe('Anewarray', () => {
       runInstruction(thread, jni, () => {});
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
@@ -5211,7 +5211,7 @@ describe('Arraylength', () => {
     } catch (e) {}
 
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
@@ -5780,7 +5780,7 @@ describe('Checkcast', () => {
     } catch (e) {}
 
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method.getName() + lastFrame.method.getMethodDesc()).toBe(
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);

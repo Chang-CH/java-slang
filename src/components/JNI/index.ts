@@ -45,7 +45,7 @@ export class JNI {
   getNativeMethod(className: string, methodName: string) {
     if (!this.classes?.[className]?.methods?.[methodName]) {
       // FIXME: Returns an empty function for now, but should throw an error
-      console.error(`Native method ${className}.${methodName} `);
+      console.error(`Native method missing: ${className}.${methodName} `);
       const retType = parseFieldDescriptor(methodName.split(')')[1], 0).type;
 
       switch (retType) {
@@ -179,19 +179,66 @@ export function registerNatives(jni: JNI) {
     }
   );
 
+  jni.registerNativeMethod(
+    'sun/reflect/NativeConstructorAccessorImpl',
+    'newInstance0(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;)Ljava/lang/Object;',
+    (thread: Thread, locals: any[]) => {
+      const constructor = locals[0] as JvmObject;
+      const paramArr = locals[1] as JvmArray;
+      const clsObj = constructor._getField(
+        'clazz',
+        'Ljava/lang/Class;',
+        'java/lang/reflect/Constructor'
+      ) as JvmObject;
+      const methodSlot = constructor._getField(
+        'slot',
+        'I',
+        'java/lang/reflect/Constructor'
+      ) as number;
+      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const methodRef = clsRef.getMethodFromSlot(methodSlot);
+      if (!methodRef) {
+        throw new Error('Invalid slot?');
+      }
+
+      const initRes = clsRef.initialize(thread);
+      if (!initRes.checkSuccess()) {
+        if (initRes.checkError()) {
+          const err = initRes.getError();
+          thread.throwNewException(err.className, err.msg);
+        }
+        return;
+      }
+
+      const retObj = clsRef.instantiate();
+      // FIXME: unbox args if required
+      if (paramArr) {
+        console.error('newInstance0: Auto unboxing not implemented');
+      }
+      const params = [retObj, ...(paramArr ? paramArr.getJsArray() : [])];
+      thread.invokeSf(clsRef, methodRef, 0, params, () => {
+        thread.returnSF();
+        thread.returnSF(retObj);
+      });
+    }
+  );
+
   /**
    * system init
    * java/io/FileInputStream.initIDs()V
    * java/io/FileDescriptor.initIDs()V
+   * java/lang/Object.hashCode()I
    * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
    * sun/misc/Unsafe.addressSize()I
    * java/io/FileOutputStream.initIDs()V
-   * java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;
    * java/lang/Thread.isAlive()Z
    * java/lang/Thread.start0()V
-   * java/lang/Object.hashCode()I
-   * java/lang/System.setIn0(Ljava/io/InputStream;)V
-   * sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I // TODO:
-   * sun/misc/Unsafe.compareAndSwapInt(Ljava/lang/Object;JII)Z // TODO:
+   * java/lang/Object.clone()Ljava/lang/Object;
+   * sun/reflect/Reflection.getClassAccessFlags(Ljava/lang/Class;)I
+   * java/lang/Class.getModifiers()I
+   * java/lang/Class.getSuperclass()Ljava/lang/Class;
+   * sun/misc/Unsafe.allocateMemory(J)J
+   * sun/misc/Unsafe.putLong(JJ)V
+   * sun/misc/Unsafe.getByte(J)B
    */
 }

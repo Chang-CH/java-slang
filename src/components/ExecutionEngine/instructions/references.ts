@@ -235,7 +235,7 @@ function invokeVirtual(
   }
 
   // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
+  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     switch (methodDesc.args[i].type) {
@@ -271,7 +271,7 @@ function invokeVirtual(
 
   // method lookup
   const lookupResult = runtimeClassRef.lookupMethod(
-    methodRef.getName() + methodRef.getMethodDesc(),
+    methodRef.getName() + methodRef.getDescriptor(),
     methodRef,
     true
   );
@@ -285,6 +285,28 @@ function invokeVirtual(
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
   }
+
+  if (
+    toInvoke.getName() === 'equals' &&
+    toInvoke.getClass().getClassname() === 'java/lang/String'
+  ) {
+    console.log(
+      'String equality: ',
+      String.fromCharCode(
+        ...(
+          objRef._getField('value', '[C', 'java/lang/String') as JvmArray
+        ).getJsArray()
+      ),
+      args[0] !== null
+        ? String.fromCharCode(
+            ...(
+              args[0]._getField('value', '[C', 'java/lang/String') as JvmArray
+            ).getJsArray()
+          )
+        : 'null'
+    );
+  }
+
   onFinish && onFinish();
   thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
   return;
@@ -333,7 +355,7 @@ export function runInvokespecial(thread: Thread): void {
   }
 
   // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
+  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     switch (methodDesc.args[i].type) {
@@ -370,7 +392,7 @@ export function runInvokespecial(thread: Thread): void {
   // method lookup
   const lookupResult = methodRef
     .getClass()
-    .lookupMethod(methodRef.getName() + methodRef.getMethodDesc(), methodRef);
+    .lookupMethod(methodRef.getName() + methodRef.getDescriptor(), methodRef);
   if (lookupResult.checkError()) {
     const err = lookupResult.getError();
     thread.throwNewException(err.className, err.msg);
@@ -421,7 +443,7 @@ export function runInvokestatic(thread: Thread): void {
   }
 
   // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
+  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     switch (methodDesc.args[i].type) {
@@ -486,7 +508,7 @@ export function runInvokeinterface(thread: Thread): void {
   }
 
   // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getMethodDesc());
+  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
     switch (methodDesc.args[i].type) {
@@ -527,7 +549,7 @@ export function runInvokeinterface(thread: Thread): void {
 
   // method lookup
   const lookupResult = runtimeClassRef.lookupMethod(
-    methodRef.getName() + methodRef.getMethodDesc(),
+    methodRef.getName() + methodRef.getDescriptor(),
     methodRef,
     false,
     true
@@ -543,11 +565,27 @@ export function runInvokeinterface(thread: Thread): void {
     return;
   }
 
+  if (
+    toInvoke.getName() === 'put' &&
+    toInvoke.getClass().getClassname() === 'sun/util/PreHashedMap'
+  ) {
+    console.log(
+      'hashed map put: key = ',
+      args[0] !== null
+        ? String.fromCharCode(
+            ...(
+              args[0]._getField('value', '[C', 'java/lang/String') as JvmArray
+            ).getJsArray()
+          )
+        : 'null',
+      args[1]
+    );
+  }
+
   thread.offsetPc(5);
   thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
 }
 
-// TODO:
 export function runInvokedynamic(thread: Thread): void {
   const index = thread.getCode().getUint16(thread.getPC() + 1);
   const zero1 = thread.getCode().getUint8(thread.getPC() + 3);

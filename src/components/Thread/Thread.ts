@@ -235,7 +235,7 @@ export default class Thread {
       return;
     }
 
-    console.log('throwing exception ', exceptionCls.getClassname());
+    console.error('throwing exception ', exceptionCls.getClassname());
     this.throwException(exceptionCls.instantiate());
   }
 

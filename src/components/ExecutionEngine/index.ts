@@ -28,14 +28,14 @@ export default class ExecutionEngine {
       this.interpreter.runFor(thread, 100000, () => {
         thread.setStatus(ThreadStatus.TERMINATED);
 
-        console.log('thread Finish');
+        console.log('Thread Terminated');
       });
     }
   }
 
   runThread(thread: Thread) {
     this.interpreter.run(thread, () => {
-      console.log('thread Finish');
+      console.log('Run Finish');
     });
   }
 }

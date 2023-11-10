@@ -694,7 +694,7 @@ export class ConstantInvokeDynamic extends Constant {
     const methodName = nameAndTypeRes.name;
     const toInvoke = invokeRes.getResult() as MethodRef;
     const invokerName = toInvoke.getName();
-    const invokerDesc = toInvoke.getMethodDesc();
+    const invokerDesc = toInvoke.getDescriptor();
     const parsedDesc = parseMethodDescriptor(invokerDesc);
     const methodArgs = parsedDesc.args;
     const methodRet = parsedDesc.ret;
@@ -1162,7 +1162,7 @@ export class ConstantMethodHandle extends Constant {
         cb(fieldClsRes.getResult().getJavaObject());
       }
     } else {
-      const descriptor = ref.getMethodDesc();
+      const descriptor = ref.getDescriptor();
       const loader = this.cls.getLoader();
 
       return createMethodType(thread, loader, descriptor, cb);

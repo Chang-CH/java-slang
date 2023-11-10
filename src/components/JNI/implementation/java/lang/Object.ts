@@ -9,4 +9,13 @@ export const registerJavaLangObject = (jni: JNI) => {
       thread.returnSF();
     }
   );
+
+  jni.registerNativeMethod(
+    'java/lang/Object',
+    'getClass()Ljava/lang/Class;',
+    (thread: Thread, locals: any[]) => {
+      const obj = locals[0];
+      thread.returnSF(obj.getClass().getJavaObject());
+    }
+  );
 };

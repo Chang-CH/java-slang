@@ -1,3 +1,4 @@
+import { parseMethodDescriptor } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import Thread from '#jvm/components/Thread/Thread';
 import {
   AttributeInfo,
@@ -7,9 +8,17 @@ import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
+import { ArrayClassRef } from './class/ArrayClassRef';
 import { ClassRef } from './class/ClassRef';
 import { ConstantClass, ConstantUtf8 } from './constants';
-import { ErrorResult, ImmediateResult, SuccessResult } from './result';
+import { JvmObject } from './reference/Object';
+import {
+  DeferResult,
+  ErrorResult,
+  ImmediateResult,
+  Result,
+  SuccessResult,
+} from './result';
 
 export interface MethodHandler {
   startPc: number;
@@ -27,6 +36,11 @@ export class MethodRef {
   private attributes: Array<AttributeInfo>;
   private exceptionHandlers: MethodHandler[];
 
+  private static reflectMethodClass: ClassRef | null = null;
+  private static reflectConstructorClass: ClassRef | null = null;
+  private javaObject?: JvmObject;
+  private slot: number;
+
   constructor(
     cls: ClassRef,
     code: CodeAttribute | null,
@@ -39,7 +53,8 @@ export class MethodRef {
       endPc: number;
       handlerPc: number;
       catchType: null | ClassRef;
-    }[]
+    }[],
+    slot: number
   ) {
     this.cls = cls;
     this.code = code;
@@ -48,13 +63,15 @@ export class MethodRef {
     this.descriptor = descriptor;
     this.attributes = attributes;
     this.exceptionHandlers = exceptionHandlers;
+    this.slot = slot;
   }
 
   static fromLinkedInfo(
     cls: ClassRef,
     method: MethodInfo,
     exceptionHandlers: MethodHandler[],
-    code: CodeAttribute | null
+    code: CodeAttribute | null,
+    slot: number
   ) {
     // get name and descriptor
     const name = (cls.getConstant(method.nameIndex) as ConstantUtf8).get();
@@ -72,7 +89,8 @@ export class MethodRef {
       name,
       descriptor,
       attributes,
-      exceptionHandlers
+      exceptionHandlers,
+      slot
     );
   }
 
@@ -80,12 +98,236 @@ export class MethodRef {
     return obj.code !== undefined;
   }
 
+  getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
+    if (this.javaObject) {
+      return new SuccessResult(this.javaObject);
+    }
+
+    const loader = this.cls.getLoader();
+    const caRes = loader.getClassRef('[Ljava/lang/Class;');
+    if (caRes.checkError()) {
+      return new ErrorResult(caRes.getError().className, caRes.getError().msg);
+    }
+    const caCls = caRes.getResult() as ArrayClassRef;
+
+    // #region create parameter class array
+    const { args, ret } = parseMethodDescriptor(this.descriptor);
+    const parameterTypes = caCls.instantiate();
+    let error: ErrorResult<JvmObject> | null = null;
+    parameterTypes.initArray(
+      args.length,
+      args.map(arg => {
+        if (arg.referenceCls) {
+          const res = loader.getClassRef(arg.referenceCls);
+          if (res.checkError()) {
+            error = res as unknown as ErrorResult<JvmObject>;
+            return null;
+          }
+          return res.getResult().getJavaObject();
+        }
+
+        return loader.getPrimitiveClassRef(arg.type).getJavaObject();
+      })
+    );
+    if (error !== null) {
+      return error;
+    }
+    // #endregion
+
+    // #region create return class
+    let returnType: JvmObject;
+    if (ret.referenceCls) {
+      const res = loader.getClassRef(ret.referenceCls);
+      if (res.checkError()) {
+        return res as unknown as ErrorResult<JvmObject>;
+      }
+      returnType = res.getResult().getJavaObject();
+    } else {
+      returnType = loader.getPrimitiveClassRef(ret.type).getJavaObject();
+    }
+    // #endregion
+
+    // create exception class array
+    const exceptionTypes = caCls.instantiate();
+    exceptionTypes.initArray(0, []);
+    console.error('reflected method exception array not initialized');
+
+    // modifiers
+    const modifiers = this.accessFlags;
+
+    // signature
+    const signature = null;
+    console.error('reflected method signature not initialized');
+
+    // annotations
+    const annotations = null;
+    console.error('reflected method annotations not initialized');
+
+    // parameter annotations
+    const parameterAnnotations = null;
+    console.error('reflected method parameter annotations not initialized');
+
+    let javaObject: JvmObject;
+
+    // #region create method object
+    // constructor
+    const isConstructor = this.name === '<init>';
+    if (isConstructor) {
+      // load constructor class
+      if (!MethodRef.reflectConstructorClass) {
+        const fRes = loader.getClassRef('java/lang/reflect/Constructor');
+        if (fRes.checkError()) {
+          return new ErrorResult(
+            fRes.getError().className,
+            fRes.getError().msg
+          );
+        }
+        MethodRef.reflectConstructorClass = fRes.getResult();
+      }
+
+      javaObject = MethodRef.reflectConstructorClass.instantiate();
+      const initRes = javaObject.initialize(thread);
+      if (!initRes.checkSuccess()) {
+        if (initRes.checkError()) {
+          return new ErrorResult(
+            initRes.getError().className,
+            initRes.getError().msg
+          );
+        }
+        throw new Error('Reflected method should not have static initializer');
+      }
+    } else {
+      if (!MethodRef.reflectMethodClass) {
+        const fRes = thread
+          .getClass()
+          .getLoader()
+          .getClassRef('java/lang/reflect/Method');
+        if (fRes.checkError()) {
+          return new ErrorResult(
+            fRes.getError().className,
+            fRes.getError().msg
+          );
+        }
+        MethodRef.reflectMethodClass = fRes.getResult();
+      }
+
+      javaObject = MethodRef.reflectMethodClass.instantiate();
+      const initRes = javaObject.initialize(thread);
+      if (!initRes.checkSuccess()) {
+        if (initRes.checkError()) {
+          return new ErrorResult(
+            initRes.getError().className,
+            initRes.getError().msg
+          );
+        }
+        throw new Error('Reflected method should not have static initializer');
+      }
+
+      javaObject._putField(
+        'name',
+        'Ljava/lang/String;',
+        'java/lang/reflect/Method',
+        thread.getJVM().getInternedString(this.name)
+      );
+
+      javaObject._putField(
+        'returnType',
+        'Ljava/lang/Class;',
+        'java/lang/reflect/Method',
+        returnType
+      );
+
+      console.error('reflected method annotationDefault not initialized');
+      javaObject._putField(
+        'annotationDefault',
+        'Ljava/lang/annotation/Annotation;',
+        'java/lang/reflect/Method',
+        null
+      );
+    }
+    // #endregion
+
+    // #region put common fields
+    javaObject._putField(
+      'clazz',
+      'Ljava/lang/Class;',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      this.cls.getJavaObject()
+    );
+    javaObject._putField(
+      'parameterTypes',
+      '[Ljava/lang/Class;',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      parameterTypes
+    );
+    javaObject._putField(
+      'exceptionTypes',
+      '[Ljava/lang/Class;',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      exceptionTypes
+    );
+    javaObject._putField(
+      'modifiers',
+      'I',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      modifiers
+    );
+    javaObject._putField(
+      'slot',
+      'I',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      this.slot
+    );
+    javaObject._putField(
+      'signature',
+      'Ljava/lang/String;',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      signature
+    );
+    javaObject._putField(
+      'annotations',
+      '[B',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      annotations
+    );
+    javaObject._putField(
+      'parameterAnnotations',
+      '[B',
+      isConstructor
+        ? 'java/lang/reflect/Constructor'
+        : 'java/lang/reflect/Method',
+      parameterAnnotations
+    );
+    // #endregion
+
+    this.javaObject = javaObject;
+    return new SuccessResult(javaObject);
+  }
+
   getName() {
     return this.name;
   }
 
-  getMethodDesc() {
+  getDescriptor() {
     return this.descriptor;
+  }
+
+  getSlot() {
+    return this.slot;
   }
 
   getClass() {

@@ -28,11 +28,20 @@ export class JvmObject {
     );
   }
 
+  setInitialized() {
+    this.initStatus = true;
+  }
+
+  getInitialized() {
+    return this.initStatus;
+  }
+
   initialize(thread: Thread, ...rest: any[]): Result<JvmObject> {
     if (this.initStatus) {
       return new SuccessResult(this);
     }
 
+    // TODO: check for other inits.
     const initMethod = this.cls.getMethod('<init>()V');
     if (!initMethod) {
       this.initStatus = true;
@@ -83,6 +92,7 @@ export class JvmObject {
       this.fields[key].putValue(value);
       return;
     }
+    console.error("putField: can't find field", key);
 
     throw new Error(`Invalid field`);
   }

@@ -1,7 +1,9 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/Thread/Thread';
+import { ClassRef } from '#types/class/ClassRef';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
+import { SuccessResult } from '#types/result';
 
 export const registerJavaLangSystem = (jni: JNI) => {
   jni.registerNativeMethod(
@@ -11,6 +13,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
       thread.returnSF();
     }
   );
+
   jni.registerNativeMethod(
     'java/lang/System',
     'arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V',
@@ -139,6 +142,26 @@ export const registerJavaLangSystem = (jni: JNI) => {
           () => {}
         );
       });
+    }
+  );
+
+  jni.registerNativeMethod(
+    'java/lang/System',
+    'setIn0(Ljava/io/InputStream;)V',
+    (thread: Thread, locals: any[]) => {
+      const stream = locals[0] as JvmObject;
+      const sysCls = (
+        thread
+          .getJVM()
+          .getBootstrapClassLoader()
+          .getClassRef('java/lang/System') as SuccessResult<ClassRef>
+      ).getResult();
+
+      const fr = sysCls.getFieldRef('inLjava/io/InputStream;');
+      if (fr) {
+        fr.putValue(stream);
+      }
+      thread.returnSF();
     }
   );
 };

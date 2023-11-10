@@ -73,7 +73,7 @@ export const registerUnsafe = (jni: JNI) => {
       );
       const cArr = fstr._getField('value', '[C', 'java/lang/String');
       const chars = cArr.getJsArray();
-      console.log(
+      console.debug(
         'unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J: ',
         slot,
         String.fromCharCode(...chars)
@@ -120,7 +120,7 @@ export const registerUnsafe = (jni: JNI) => {
         (compCls.getClassname() === 'long' ||
           compCls.getClassname() === 'double')
       ) {
-        console.log('long/double array, is index doubled?');
+        console.error('long/double array, is index doubled?');
         stride = 2;
       }
       const objBase = (obj as JvmArray).getJsArray();
@@ -200,7 +200,7 @@ export const registerUnsafe = (jni: JNI) => {
       // expected: SoftReference object
       // newValue: SoftReference object
 
-      console.log(
+      console.debug(
         'compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z: ',
         obj1.getClass().getClassname(),
         offset
@@ -212,9 +212,44 @@ export const registerUnsafe = (jni: JNI) => {
     }
   );
 
-  //   jni.registerNativeMethod(
-  //     'source/Source',
-  //     'println(I)V',
-  //     (thread: Thread, locals: any[]) => console.log(locals[0])
-  //   );
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'compareAndSwapInt(Ljava/lang/Object;JII)Z',
+    (thread: Thread, locals: any[]) => {
+      const unsafe = locals[0] as JvmObject;
+      const obj1 = locals[1] as JvmObject;
+      const offset = locals[2] as bigint;
+      const expected = locals[3] as JvmObject;
+      const newValue = locals[4] as JvmObject;
+      // obj1: Class object w/ field reflectionData
+      // offset: field slot of field reflectionData
+      // expected: SoftReference object
+      // newValue: SoftReference object
+
+      thread.returnSF(
+        unsafeCompareAndSwap(thread, unsafe, obj1, offset, expected, newValue)
+      );
+    }
+  );
+
+  // sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'getIntVolatile(Ljava/lang/Object;J)I',
+    (thread: Thread, locals: any[]) => {
+      const unsafe = locals[0] as JvmObject;
+      const obj = locals[1] as JvmObject;
+      const offset = locals[2] as bigint;
+
+      const fi = getFieldInfo(thread, unsafe, obj, offset);
+      const objBase = fi[0];
+      const ref = fi[1];
+      if (typeof ref === 'number') {
+        // array type
+        thread.returnSF(objBase[ref]);
+        return;
+      }
+      thread.returnSF((ref as FieldRef).getValue());
+    }
+  );
 };

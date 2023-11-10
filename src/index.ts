@@ -97,7 +97,6 @@ export default class JVM {
     const initialTg = threadGroupCls.instantiate();
     initialTg.initialize(mainThread);
     this.engine.runThread(mainThread);
-    console.log('// #endregion threadGroup loaded'.padEnd(150, '#'));
     // #endregion
 
     // #region initialize Thread class
@@ -121,14 +120,14 @@ export default class JVM {
     // #endregion
 
     // #region initialize system class
-    // console.log('// #region initializing system class'.padEnd(150, '#'));
-    // const sInitMr = sysCls.getMethod('initializeSystemClass()V');
-    // if (!sInitMr) {
-    //   throw new Error('System initialization method not found');
-    // }
-    // mainThread.invokeSf(sysCls, sInitMr, 0, []);
-    // this.engine.runThread(mainThread);
-    // console.log('// #endregion system class initialized'.padEnd(150, '#'));
+    console.log('// #region initializing system class'.padEnd(150, '#'));
+    const sInitMr = sysCls.getMethod('initializeSystemClass()V');
+    if (!sInitMr) {
+      throw new Error('System initialization method not found');
+    }
+    mainThread.invokeSf(sysCls, sInitMr, 0, []);
+    this.engine.runThread(mainThread);
+    console.log('// #endregion system class initialized'.padEnd(150, '#'));
     // #endregion
 
     //   'source/Source',
@@ -220,5 +219,9 @@ export default class JVM {
 
     this.internedStrings[str] = strRes.getResult();
     return this.internedStrings[str];
+  }
+
+  getBootstrapClassLoader() {
+    return this.bootstrapClassLoader;
   }
 }

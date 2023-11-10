@@ -31,7 +31,7 @@ export default function runInstruction(
   if (method.checkNative()) {
     const nativeMethod = jni.getNativeMethod(
       thread.getClass().getClassname(),
-      method.getName() + method.getMethodDesc()
+      method.getName() + method.getDescriptor()
     );
 
     if (!nativeMethod) {
@@ -50,10 +50,10 @@ export default function runInstruction(
   const opcode = thread.getCode().getUint8(thread.getPC());
 
   let result;
-  console.log(
+  console.debug(
     ''.padEnd(thread.getFrames().length, '#') +
       `${method.getClass().getClassname()}.${
-        method.getName() + method.getMethodDesc()
+        method.getName() + method.getDescriptor()
       }:${OPCODE[opcode]}#${thread.getPC()}, stack: ${
         thread.peekStackFrame().operandStack
       }}`

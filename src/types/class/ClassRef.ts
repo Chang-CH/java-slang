@@ -100,14 +100,15 @@ export class ClassRef {
       this.fields[fieldRef.getName() + fieldRef.getFieldDesc()] = fieldRef;
     });
     this.methods = {};
-    methods.forEach(method => {
+    methods.forEach((method, index) => {
       const methodRef = MethodRef.fromLinkedInfo(
         this,
         method.method,
         method.exceptionHandlers,
-        method.code
+        method.code,
+        index
       );
-      this.methods[methodRef.getName() + methodRef.getMethodDesc()] = methodRef;
+      this.methods[methodRef.getName() + methodRef.getDescriptor()] = methodRef;
     });
     this.attributes = attributes;
     this.loader = loader;
@@ -174,6 +175,7 @@ export class ClassRef {
       const clsCls = (
         this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassRef>
       ).getResult();
+      console.error('Class object: Classloader field not loaded');
 
       this.javaObj = new JvmObject(clsCls);
       this.javaObj.putNativeField('classRef', this);
@@ -365,7 +367,7 @@ export class ClassRef {
     return (
       overrideMethod.getClass().checkCast(parentMethod.getClass()) &&
       overrideMethod.getName() === parentMethod.getName() &&
-      overrideMethod.getMethodDesc() === parentMethod.getMethodDesc() &&
+      overrideMethod.getDescriptor() === parentMethod.getDescriptor() &&
       !overrideMethod.checkPrivate() &&
       (parentMethod.checkPublic() ||
         parentMethod.checkProtected() ||
@@ -460,6 +462,20 @@ export class ClassRef {
 
   getMethod(methodName: string): MethodRef | null {
     return this.methods[methodName] ?? null;
+  }
+
+  getMethods() {
+    return this.methods;
+  }
+
+  getMethodFromSlot(slot: number): MethodRef | null {
+    for (const method of Object.values(this.methods)) {
+      if (method.getSlot() === slot) {
+        return method;
+      }
+    }
+
+    return null;
   }
 
   getFieldRef(fieldName: string): FieldRef | null {

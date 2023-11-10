@@ -26,7 +26,7 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
         0,
         [action],
         (ret: JvmObject) => {
-          console.log(
+          console.debug(
             'RUN doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;',
             { ...ret, cls: null }
           );
