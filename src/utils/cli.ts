@@ -16,10 +16,22 @@ export default function main() {
    */
   const options = yargs(hideBin(process.argv))
     .usage('$0 <cmd> [args]')
-    .option('-f', {
-      alias: 'files',
-      describe: 'files to include',
-      type: 'array',
+    .option('-d', {
+      alias: 'user directory',
+      describe: 'directory to search for user defined class files',
+      type: 'string',
+      demandOption: true,
+    })
+    .option('-m', {
+      alias: 'main class',
+      describe: 'class containing the Main method to run',
+      type: 'string',
+      demandOption: true,
+    })
+    .option('-j', {
+      alias: 'native class path',
+      describe: 'directory to search for native java class files',
+      type: 'string',
       demandOption: true,
     })
     .option('-p', {
@@ -53,37 +65,32 @@ export default function main() {
 
   const folders: Folder = {};
 
-  for (const filePath of options['-f']) {
-    if (typeof options === 'number') {
-      continue;
-    }
+  const filePath = options['-d'];
+  const mainClass = options['-m'];
+  // converts nodejs buffer to ArrayBuffer
+  const buffer = fs.readFileSync(filePath + '/' + mainClass + '.class', null);
+  const arraybuffer = a2ab(buffer);
+  const view = new DataView(arraybuffer);
 
-    // converts nodejs buffer to ArrayBuffer
-    const buffer = fs.readFileSync('example/' + filePath + '.class', null);
-    const arraybuffer = a2ab(buffer);
-    const view = new DataView(arraybuffer);
+  if (options['-p']) {
+    // Stubs, not used.
+    const nativeSystem = new NodeSystem({
+      Sample: view,
+    });
 
-    if (options['-p']) {
-      // Stubs, not used.
-      const nativeSystem = new NodeSystem({
-        Sample: view,
-      });
-
-      const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-      const cls = parseBin(view);
-      console.debug(classFileToText(cls));
-    }
-    folders[filePath] = view;
+    const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
+    const cls = parseBin(view);
+    console.debug(classFileToText(cls));
   }
 
-  const nativeSystem = new NodeSystem(folders);
+  const nativeSystem = new NodeSystem({});
   const jvm = new JVM(nativeSystem, {
-    javaClassPath: 'natives',
-    userDir: 'example',
+    javaClassPath: options['-j'],
+    userDir: options['-d'],
   });
   jvm.initialize();
   // @ts-ignore
-  jvm.runClass(options['-f'][0]);
+  jvm.runClass(options['-m']);
 }
 
 main();

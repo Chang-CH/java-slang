@@ -62,6 +62,9 @@ export default class Thread {
     return this.stack;
   }
 
+  /**
+   * Returns true if there are no stackframes left.
+   */
   isStackEmpty() {
     return this.stack.length === 0;
   }
@@ -238,6 +241,7 @@ export default class Thread {
 
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
+
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
       const method = this.getMethod();
@@ -260,8 +264,9 @@ export default class Thread {
           (handler.catchType === null ||
             exceptionCls.checkCast(handler.catchType))
         ) {
+          // clear the operand stack and push exception
+          this.stack[this.stackPointer].operandStack = [exception];
           this.setPc(handler.handlerPc);
-          this.pushStack(exception);
           return;
         }
       }

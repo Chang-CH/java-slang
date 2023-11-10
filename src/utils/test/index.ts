@@ -148,21 +148,8 @@ export class TestClassLoader extends AbstractClassLoader {
     const handlderTable: MethodHandler[] = [];
     if (code) {
       for (const handler of code.exceptionTable) {
-        const ctIndex = handler.catchType;
-        if (ctIndex === 0) {
-          handlderTable.push({
-            startPc: handler.startPc,
-            endPc: handler.endPc,
-            handlerPc: handler.handlerPc,
-            catchType: null,
-          });
-          continue;
-        }
-
-        const catchType = constantPool[
-          (constantPool[ctIndex] as ConstantClassInfo).nameIndex
-        ] as ConstantUtf8Info;
-        const ctRes = this.getClassRef(catchType.value);
+        const catchType = handler.catchType;
+        const ctRes = this.getClassRef(catchType as unknown as string);
         if (ctRes.checkError()) {
           return new ErrorResult('java/lang/NoClassDefFoundError', '');
         }
@@ -293,8 +280,8 @@ export class TestClassLoader extends AbstractClassLoader {
             maxLocals: 0,
             codeLength: 0,
             code: method.code,
-            exceptionTableLength: 0,
-            exceptionTable: [],
+            exceptionTableLength: method.exceptionTable?.length ?? 0,
+            exceptionTable: (method.exceptionTable as any) ?? [],
             attributesCount: 0,
             attributes: [],
           } as CodeAttribute);

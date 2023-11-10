@@ -13,7 +13,7 @@ export const registerSource = (jni: JNI) => {
     }
   );
   jni.registerNativeMethod(
-    'dynamic/Source',
+    'Source',
     'display(Ljava/lang/String;)V',
     (thread: Thread, locals: any[]) => {
       const strObj = locals[0] as JvmObject;
