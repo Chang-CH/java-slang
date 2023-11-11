@@ -20,10 +20,14 @@ import { MethodHandler } from '#types/MethodRef';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
+import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 
 export class TestClassLoader extends AbstractClassLoader {
+  getJavaObject(): JvmObject | null {
+    return null;
+  }
   private primitiveClasses: { [className: string]: ClassRef } = {};
   getPrimitiveClassRef(className: string): ClassRef {
     if (this.primitiveClasses[className]) {

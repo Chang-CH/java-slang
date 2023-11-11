@@ -73,11 +73,6 @@ export const registerUnsafe = (jni: JNI) => {
       );
       const cArr = fstr._getField('value', '[C', 'java/lang/String');
       const chars = cArr.getJsArray();
-      console.debug(
-        'unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J: ',
-        slot,
-        String.fromCharCode(...chars)
-      );
       // #endregion
 
       thread.returnSF(BigInt(slot), null, true);
@@ -232,7 +227,6 @@ export const registerUnsafe = (jni: JNI) => {
     }
   );
 
-  // sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I
   jni.registerNativeMethod(
     'sun/misc/Unsafe',
     'getIntVolatile(Ljava/lang/Object;J)I',
@@ -250,6 +244,53 @@ export const registerUnsafe = (jni: JNI) => {
         return;
       }
       thread.returnSF((ref as FieldRef).getValue());
+    }
+  );
+
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'allocateMemory(J)J',
+    (thread: Thread, locals: any[]) => {
+      const size = locals[1] as bigint;
+      const heap = thread.getJVM().getUnsafeHeap();
+      const addr = heap.allocate(size);
+      console.log('ALLOCATE ADDR: ', addr);
+      thread.returnSF(addr, null, true);
+    }
+  );
+
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'putLong(JJ)V',
+    (thread: Thread, locals: any[]) => {
+      const address = locals[1] as bigint;
+      const value = locals[2] as bigint;
+      const heap = thread.getJVM().getUnsafeHeap();
+      const view = heap.get(address);
+      console.log('PUTLONG: ', address, value, view ? 'OK' : 'NULL');
+      view.setBigInt64(0, value);
+      thread.returnSF();
+    }
+  );
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'getByte(J)B',
+    (thread: Thread, locals: any[]) => {
+      const address = locals[1] as bigint;
+      const heap = thread.getJVM().getUnsafeHeap();
+      const view = heap.get(address);
+      console.log('GETBYTE: ', view.getInt8(0));
+      thread.returnSF(view.getInt8(0));
+    }
+  );
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'freeMemory(J)V',
+    (thread: Thread, locals: any[]) => {
+      const address = locals[1] as bigint;
+      const heap = thread.getJVM().getUnsafeHeap();
+      heap.free(address);
+      thread.returnSF();
     }
   );
 };

@@ -4,13 +4,12 @@ import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ImmediateResult, ErrorResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
-import NodeSystem from '#utils/NodeSystem';
-import AbstractClassLoader from './components/ClassLoader/AbstractClassLoader';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
 import ExecutionEngine from './components/ExecutionEngine';
 import { JNI, registerNatives } from './components/JNI';
 import Thread from './components/Thread/Thread';
+import { UnsafeHeap } from './components/UnsafeHeap';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
@@ -21,6 +20,7 @@ export default class JVM {
 
   cachedClasses: { [key: string]: ClassRef } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
+  private unsafeHeap: UnsafeHeap = new UnsafeHeap();
 
   // Reuse the thread we use in initialization for running main method
   private _initialThread?: Thread;
@@ -223,5 +223,9 @@ export default class JVM {
 
   getBootstrapClassLoader() {
     return this.bootstrapClassLoader;
+  }
+
+  getUnsafeHeap() {
+    return this.unsafeHeap;
   }
 }

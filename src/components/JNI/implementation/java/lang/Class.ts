@@ -8,6 +8,7 @@ import { ClassRef } from '#types/class/ClassRef';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult } from '#types/result';
+import { j2jsString } from '#utils/index';
 
 export const registerJavaLangClass = (jni: JNI) => {
   const clsName = 'java/lang/Class';
@@ -74,17 +75,7 @@ export const registerJavaLangClass = (jni: JNI) => {
     'getPrimitiveClass(Ljava/lang/String;)Ljava/lang/Class;',
     (thread: Thread, locals: any[]) => {
       const javaStr = locals[0] as JvmObject;
-      const loader = thread.getClass().getLoader();
-      const strRes = loader.getClassRef('java/lang/String');
-      if (strRes.checkError()) {
-        const err = strRes.getError();
-        thread.throwNewException(err.className, err.msg);
-        return;
-      }
-      const strCls = strRes.getResult();
-      const fieldRef = strCls.getFieldRef('value[C') as FieldRef;
-      const cArr = javaStr.getField(fieldRef as FieldRef) as JvmArray;
-      const primitiveName = String.fromCharCode(...cArr.getJsArray());
+      const primitiveName = j2jsString(javaStr);
       const primitiveClsName =
         primitiveNameToType(primitiveName) ?? primitiveName;
 
@@ -161,9 +152,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const loaderObj = locals[2] as JvmObject;
       const callerClassObj = locals[3] as JvmObject;
 
-      const name = String.fromCharCode(
-        ...nameJStr._getField('value', '[C', 'java/lang/String').getJsArray()
-      ).replaceAll('.', '/');
+      const name = j2jsString(nameJStr).replaceAll('.', '/');
 
       console.log(
         'forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;: ',

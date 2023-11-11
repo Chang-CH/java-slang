@@ -175,10 +175,15 @@ export class ClassRef {
       const clsCls = (
         this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassRef>
       ).getResult();
-      console.error('Class object: Classloader field not loaded');
 
       this.javaObj = new JvmObject(clsCls);
       this.javaObj.putNativeField('classRef', this);
+      this.javaObj._putField(
+        'classLoader',
+        'Ljava/lang/ClassLoader;',
+        'java/lang/Class',
+        this.loader.getJavaObject()
+      );
     }
 
     return this.javaObj;

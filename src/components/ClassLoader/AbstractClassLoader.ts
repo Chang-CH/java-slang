@@ -15,6 +15,7 @@ import { MethodHandler, MethodRef } from '#types/MethodRef';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { CLASS_STATUS, CLASS_TYPE, ClassRef } from '#types/class/ClassRef';
 import { ConstantUtf8, ConstantClass } from '#types/constants';
+import { JvmObject } from '#types/reference/Object';
 import {
   ErrorResult,
   ImmediateResult,
@@ -457,4 +458,6 @@ export default abstract class AbstractClassLoader {
 
   // TODO: follow classloading spec 5.3.5
   protected abstract load(className: string): ImmediateResult<ClassRef>;
+
+  abstract getJavaObject(): JvmObject | null;
 }

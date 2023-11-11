@@ -1,4 +1,5 @@
 import { ClassRef } from '#types/class/ClassRef';
+import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
@@ -38,5 +39,10 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
       throw new Error('Primitive class not found');
     }
     return this.parentLoader.getPrimitiveClassRef(className);
+  }
+
+  getJavaObject(): JvmObject | null {
+    console.error('ApplicationClassloader: Java object not created');
+    return null;
   }
 }

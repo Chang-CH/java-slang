@@ -14,6 +14,33 @@ import * as stack from '../../instructions/stack';
 import * as stores from '../../instructions/stores';
 
 import { JNI } from '#jvm/components/JNI';
+import { j2jsString } from '#utils/index';
+
+const overrides: {
+  [cls: string]: {
+    [methodSig: string]: (thread: Thread, locals: any[]) => boolean;
+  };
+} = {
+  'java/lang/System': {
+    'loadLibrary(Ljava/lang/String;)V': (thread: Thread, locals: any[]) => {
+      const lib = j2jsString(locals[0]);
+
+      // We have already loaded these libraries.
+      switch (lib) {
+        case 'zip':
+        case 'net':
+        case 'nio':
+        case 'awt':
+        case 'fontmanager':
+        case 'management':
+          thread.returnSF();
+          return true;
+        default:
+          return false;
+      }
+    },
+  },
+};
 
 export default function runInstruction(
   thread: Thread,
@@ -24,8 +51,17 @@ export default function runInstruction(
     onFinish && onFinish();
     return;
   }
-
   const method = thread.getMethod();
+  const override =
+    overrides[method.getClass().getClassname()]?.[
+      method.getName() + method.getDescriptor()
+    ];
+  if (override) {
+    const wasOverriden = override(thread, thread.peekStackFrame().locals);
+    if (wasOverriden) {
+      return;
+    }
+  }
 
   // is native
   if (method.checkNative()) {

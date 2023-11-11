@@ -286,27 +286,6 @@ function invokeVirtual(
     return;
   }
 
-  if (
-    toInvoke.getName() === 'equals' &&
-    toInvoke.getClass().getClassname() === 'java/lang/String'
-  ) {
-    console.log(
-      'String equality: ',
-      String.fromCharCode(
-        ...(
-          objRef._getField('value', '[C', 'java/lang/String') as JvmArray
-        ).getJsArray()
-      ),
-      args[0] !== null
-        ? String.fromCharCode(
-            ...(
-              args[0]._getField('value', '[C', 'java/lang/String') as JvmArray
-            ).getJsArray()
-          )
-        : 'null'
-    );
-  }
-
   onFinish && onFinish();
   thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
   return;
@@ -563,23 +542,6 @@ export function runInvokeinterface(thread: Thread): void {
   if (toInvoke.checkAbstract()) {
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
-  }
-
-  if (
-    toInvoke.getName() === 'put' &&
-    toInvoke.getClass().getClassname() === 'sun/util/PreHashedMap'
-  ) {
-    console.log(
-      'hashed map put: key = ',
-      args[0] !== null
-        ? String.fromCharCode(
-            ...(
-              args[0]._getField('value', '[C', 'java/lang/String') as JvmArray
-            ).getJsArray()
-          )
-        : 'null',
-      args[1]
-    );
   }
 
   thread.offsetPc(5);

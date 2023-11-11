@@ -2,6 +2,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import JVM from '#jvm/index';
 import { ClassRef } from '#types/class/ClassRef';
 import { MethodRef } from '#types/MethodRef';
+import { JvmArray } from '#types/reference/Array';
 import { stringifyCode } from '#utils/Prettify/classfile';
 import { JvmObject } from '../../types/reference/Object';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './StackFrame';

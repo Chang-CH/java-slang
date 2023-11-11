@@ -4,6 +4,7 @@ import { ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
+import { j2jsString } from '#utils/index';
 import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { StackFrame } from '../Thread/StackFrame';
 import Thread, { ThreadStatus } from '../Thread/Thread';
@@ -140,13 +141,7 @@ export function registerNatives(jni: JNI) {
     'intern()Ljava/lang/String;',
     (thread: Thread, locals: any[]) => {
       const strObj = locals[0] as JvmObject;
-      const strCls = strObj.getClass();
-      const str = strObj._getField(
-        'value',
-        '[C',
-        strCls.getClassname()
-      ) as JvmArray;
-      const strVal = String.fromCharCode(...str.getJsArray());
+      const strVal = j2jsString(strObj);
       const internedStr = thread.getJVM().getInternedString(strVal);
       thread.returnSF(internedStr);
     }
@@ -225,20 +220,23 @@ export function registerNatives(jni: JNI) {
 
   /**
    * system init
-   * java/io/FileInputStream.initIDs()V
-   * java/io/FileDescriptor.initIDs()V
-   * java/lang/Object.hashCode()I
-   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.addressSize()I
-   * java/io/FileOutputStream.initIDs()V
-   * java/lang/Thread.isAlive()Z
-   * java/lang/Thread.start0()V
-   * java/lang/Object.clone()Ljava/lang/Object;
-   * sun/reflect/Reflection.getClassAccessFlags(Ljava/lang/Class;)I
-   * java/lang/Class.getModifiers()I
-   * java/lang/Class.getSuperclass()Ljava/lang/Class;
-   * sun/misc/Unsafe.allocateMemory(J)J
-   * sun/misc/Unsafe.putLong(JJ)V
-   * sun/misc/Unsafe.getByte(J)B
+java/io/FileInputStream.initIDs()V 
+java/io/FileDescriptor.initIDs()V 
+java/lang/Object.hashCode()I 
+sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I 
+sun/misc/Unsafe.addressSize()I 
+java/io/FileOutputStream.initIDs()V 
+java/lang/Thread.isAlive()Z 
+java/lang/Thread.start0()V 
+java/lang/Object.clone()Ljava/lang/Object; 
+sun/reflect/Reflection.getClassAccessFlags(Ljava/lang/Class;)I 
+java/lang/Class.getModifiers()I 
+java/lang/Class.getSuperclass()Ljava/lang/Class; 
+java/util/concurrent/atomic/AtomicLong.VMSupportsCS8()Z 
+java/lang/System.setOut0(Ljava/io/PrintStream;)V 
+java/io/UnixFileSystem.initIDs()V 
+java/lang/ClassLoader.registerNatives()V 
+java/lang/System.mapLibraryName(Ljava/lang/String;)Ljava/lang/String; 
+java/lang/Throwable.fillInStackTrace(I)Ljava/lang/Throwable; 
    */
 }
