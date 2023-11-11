@@ -287,10 +287,5 @@ export default class Thread {
       this.getJavaObject(),
       exception,
     ]);
-
-    throw new Error(
-      'dispatchUncaughtException(Ljava/lang/Throwable;)V: System not initialized. uncaught error: ' +
-        exception.getClass().getClassname()
-    );
   }
 }

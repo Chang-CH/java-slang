@@ -164,4 +164,44 @@ export const registerJavaLangSystem = (jni: JNI) => {
       thread.returnSF();
     }
   );
+
+  jni.registerNativeMethod(
+    'java/lang/System',
+    'setOut0(Ljava/io/PrintStream;)V',
+    (thread: Thread, locals: any[]) => {
+      const stream = locals[0] as JvmObject;
+      const sysCls = (
+        thread
+          .getJVM()
+          .getBootstrapClassLoader()
+          .getClassRef('java/lang/System') as SuccessResult<ClassRef>
+      ).getResult();
+
+      const fr = sysCls.getFieldRef('outLjava/io/PrintStream;');
+      if (fr) {
+        fr.putValue(stream);
+      }
+      thread.returnSF();
+    }
+  );
+
+  jni.registerNativeMethod(
+    'java/lang/System',
+    'setErr0(Ljava/io/PrintStream;)V',
+    (thread: Thread, locals: any[]) => {
+      const stream = locals[0] as JvmObject;
+      const sysCls = (
+        thread
+          .getJVM()
+          .getBootstrapClassLoader()
+          .getClassRef('java/lang/System') as SuccessResult<ClassRef>
+      ).getResult();
+
+      const fr = sysCls.getFieldRef('errLjava/io/PrintStream;');
+      if (fr) {
+        fr.putValue(stream);
+      }
+      thread.returnSF();
+    }
+  );
 };
