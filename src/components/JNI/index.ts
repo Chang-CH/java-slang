@@ -232,12 +232,23 @@ export function registerNatives(jni: JNI) {
    * java/lang/Class.getModifiers()I
    * java/lang/Class.getSuperclass()Ljava/lang/Class;
    * java/util/concurrent/atomic/AtomicLong.VMSupportsCS8()Z
-   * java/lang/Object.hashCode()I
    * sun/misc/Signal.findSignal(Ljava/lang/String;)I
    * sun/misc/Signal.handle0(IJ)J
    * sun/io/Win32ErrorMode.setErrorMode(J)J
    * java/lang/Object.notifyAll()V
    * java/io/FileOutputStream.writeBytes([BIIZ)V: used to display println
    * java/lang/Throwable.fillInStackTrace(I)Ljava/lang/Throwable;: for throwing exceptions
+   */
+
+  /**
+   * MethodType Resolution
+   * java/io/FileInputStream.initIDs()V
+   * java/io/FileDescriptor.initIDs()V
+   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
+   * sun/misc/Unsafe.addressSize()I
+   * java/io/FileOutputStream.initIDs()V
+   * java/lang/Thread.isAlive()Z
+   * sun/misc/Unsafe.compareAndSwapLong(Ljava/lang/Object;JJJ)Z
+   * java/lang/Thread.start0()V
    */
 }

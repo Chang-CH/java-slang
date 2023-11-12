@@ -15,10 +15,14 @@ export class JvmObject {
   } = {};
   private fieldArr: { name: string; ref: FieldRef }[];
 
+  private static maxId = 0;
+  private id;
+
   constructor(cls: ClassRef) {
     this.cls = cls;
     this.fields = {};
     this.fieldArr = [];
+    this.id = JvmObject.maxId++;
 
     Object.entries(cls.getInstanceFields()).forEach(
       ([fieldName, fieldRef], index) => {
@@ -48,7 +52,11 @@ export class JvmObject {
       return new SuccessResult(this);
     }
 
-    thread.invokeSf(this.cls, initMethod, 0, [this]);
+    thread.invokeSf(this.cls, initMethod, 0, [this], (ret, err) => {
+      if (!err) {
+        this.initStatus = true;
+      }
+    });
     return new DeferResult();
   }
 
@@ -126,5 +134,25 @@ export class JvmObject {
     }
 
     return res[0].ref;
+  }
+
+  clone(): JvmObject {
+    const clone = new JvmObject(this.cls);
+
+    for (const [key, field] of Object.entries(this.fields)) {
+      clone.fields[key].putValue(field.getValue());
+    }
+
+    for (const [key, value] of Object.entries(this.nativeFields)) {
+      clone.nativeFields[key] = value;
+    }
+
+    clone.initStatus = this.initStatus;
+
+    return clone;
+  }
+
+  hashCode(): number {
+    return this.id;
   }
 }

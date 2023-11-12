@@ -127,7 +127,7 @@ export function loadConstant(
     ConstantMethodHandle.check(constant) ||
     ConstantMethodType.check(constant)
   ) {
-    const res = (constant as any).tempResolve(thread);
+    const res = (constant as any).resolve(thread);
     if (!res.checkSuccess()) {
       if (res.checkError()) {
         const err = res.getError();

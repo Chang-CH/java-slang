@@ -18,4 +18,23 @@ export const registerJavaLangObject = (jni: JNI) => {
       thread.returnSF(obj.getClass().getJavaObject());
     }
   );
+
+  jni.registerNativeMethod(
+    'java/lang/Object',
+    'clone()Ljava/lang/Object;',
+    (thread: Thread, locals: any[]) => {
+      const obj = locals[0];
+      const clone = obj.clone();
+      thread.returnSF(clone);
+    }
+  );
+
+  jni.registerNativeMethod(
+    'java/lang/Object',
+    'hashCode()I',
+    (thread: Thread, locals: any[]) => {
+      const obj = locals[0];
+      thread.returnSF(obj.hashCode());
+    }
+  );
 };

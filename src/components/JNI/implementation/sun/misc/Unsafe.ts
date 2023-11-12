@@ -6,6 +6,7 @@ import { ClassRef } from '#types/class/ClassRef';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { DeferResult, ErrorResult } from '#types/result';
+import { typeIndexScale } from '#utils/index';
 import assert from 'assert';
 
 export const registerUnsafe = (jni: JNI) => {
@@ -109,22 +110,14 @@ export const registerUnsafe = (jni: JNI) => {
     } else if (ArrayClassRef.check(objCls)) {
       // obj is an array. offset represents index * unit space
       const compCls = objCls.getComponentClass();
-      let stride = 1;
-      if (
-        compCls.checkPrimitive() &&
-        (compCls.getClassname() === 'long' ||
-          compCls.getClassname() === 'double')
-      ) {
-        console.error('long/double array, is index doubled?');
-        stride = 2;
-      }
+      const stride = typeIndexScale(compCls);
       const objBase = (obj as JvmArray).getJsArray();
 
       assert(
         Number(offset % BigInt(stride)) === 0,
-        `\x1b[31munsafeCompareAndSwap: Invalid offset for stride ${stride}: ${offset}\x1b[0m`
+        `unsafeCompareAndSwap: Invalid offset for stride ${stride}: ${offset}`
       );
-      return [objBase, Number(offset) / stride];
+      return [objBase, Math.floor(Number(offset) / stride)];
     } else {
       // normal class
       const objBase = obj;
@@ -150,8 +143,8 @@ export const registerUnsafe = (jni: JNI) => {
     unsafe: JvmObject,
     obj: JvmObject,
     offset: bigint,
-    expected: JvmObject,
-    newValue: JvmObject
+    expected: any,
+    newValue: any
   ): number {
     // obj: Class object w/ field reflectionData
     // offset: field slot of field reflectionData
@@ -180,6 +173,39 @@ export const registerUnsafe = (jni: JNI) => {
       return 0;
     }
   }
+
+  // Used for bitwise operations
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'arrayIndexScale(Ljava/lang/Class;)I',
+    (thread: Thread, locals: any[]) => {
+      const clsObj = locals[1] as JvmObject;
+      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+
+      // Should be array. return -1 for invalid class
+      if (!ArrayClassRef.check(clsRef)) {
+        thread.returnSF(-1);
+        return;
+      }
+
+      const scale = typeIndexScale(clsRef.getComponentClass());
+      console.log(
+        'ArrayIndexScale: ',
+        scale,
+        ' cls: ',
+        clsRef.getComponentClass().getClassname()
+      );
+      thread.returnSF(scale);
+    }
+  );
+
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'addressSize()I',
+    (thread: Thread, locals: any[]) => {
+      thread.returnSF(4);
+    }
+  );
 
   jni.registerNativeMethod(
     'sun/misc/Unsafe',
@@ -214,12 +240,24 @@ export const registerUnsafe = (jni: JNI) => {
       const unsafe = locals[0] as JvmObject;
       const obj1 = locals[1] as JvmObject;
       const offset = locals[2] as bigint;
-      const expected = locals[3] as JvmObject;
-      const newValue = locals[4] as JvmObject;
-      // obj1: Class object w/ field reflectionData
-      // offset: field slot of field reflectionData
-      // expected: SoftReference object
-      // newValue: SoftReference object
+      const expected = locals[3] as number;
+      const newValue = locals[4] as number;
+
+      thread.returnSF(
+        unsafeCompareAndSwap(thread, unsafe, obj1, offset, expected, newValue)
+      );
+    }
+  );
+
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'compareAndSwapLong(Ljava/lang/Object;JJJ)Z',
+    (thread: Thread, locals: any[]) => {
+      const unsafe = locals[0] as JvmObject;
+      const obj1 = locals[1] as JvmObject;
+      const offset = locals[2] as bigint;
+      const expected = locals[3] as bigint;
+      const newValue = locals[4] as bigint;
 
       thread.returnSF(
         unsafeCompareAndSwap(thread, unsafe, obj1, offset, expected, newValue)

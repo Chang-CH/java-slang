@@ -51,7 +51,7 @@ export function runTableswitch(thread: Thread): void {
 export function runLookupswitch(thread: Thread): void {
   let offset = thread.getPC() + 1;
   if (offset % 4 !== 0) {
-    offset += 4 - (thread.getPC() % 4); // padding
+    offset += 4 - (offset % 4); // padding
   }
 
   const def = thread.getCode().getInt32(offset);
@@ -67,7 +67,6 @@ export function runLookupswitch(thread: Thread): void {
     if (key === value) {
       const nextPcOffset = thread.getCode().getInt32(offset + 4);
       thread.offsetPc(nextPcOffset);
-      console.log('LOOKUP', offset);
       return;
     }
     offset += 8;

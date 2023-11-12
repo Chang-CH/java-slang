@@ -68,7 +68,6 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
-      console.log('COULD NOT FIND ', path);
       return new ErrorResult('java/lang/ClassNotFoundException', '');
     }
 

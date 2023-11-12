@@ -107,4 +107,11 @@ export class JvmArray extends JvmObject {
   len() {
     return this.length;
   }
+
+  clone(): JvmArray {
+    const clone = new JvmArray(this.getClass());
+    clone.length = this.length;
+    clone.array = [...this.array]; // shallow copy
+    return clone;
+  }
 }

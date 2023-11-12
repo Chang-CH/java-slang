@@ -171,7 +171,7 @@ export default class Thread {
     method: MethodRef,
     pc: number,
     locals: any[],
-    callback?: (ret: any) => void
+    callback?: (ret: any, err?: any) => void
   ) {
     if (callback) {
       this.stack.push(

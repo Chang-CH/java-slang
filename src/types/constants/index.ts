@@ -225,7 +225,7 @@ function createMethodType(
     return error;
   }
 
-  const clArrRes = loader.getClassRef('[Ljava/lang/Class');
+  const clArrRes = loader.getClassRef('[Ljava/lang/Class;');
   if (clArrRes.checkError()) {
     if (!error) {
       const err = clArrRes.getError();
@@ -330,7 +330,6 @@ export class ConstantMethodType extends Constant {
     if (this.result) {
       return this.result;
     }
-    this.result = new DeferResult<JvmObject>();
     const descriptor = this.descriptor.get();
     const loader = this.cls.getLoader();
     return createMethodType(thread, loader, descriptor, mt => {
