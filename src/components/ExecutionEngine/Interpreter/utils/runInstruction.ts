@@ -25,7 +25,7 @@ const overrides: {
     'loadLibrary(Ljava/lang/String;)V': (thread: Thread, locals: any[]) => {
       const lib = j2jsString(locals[0]);
 
-      // We have already loaded these libraries.
+      // We have already loaded these libraries (DLLs).
       switch (lib) {
         case 'zip':
         case 'net':
@@ -36,7 +36,7 @@ const overrides: {
           thread.returnSF();
           return true;
         default:
-          return false;
+          throw new Error('loadLibrary not supported');
       }
     },
   },
