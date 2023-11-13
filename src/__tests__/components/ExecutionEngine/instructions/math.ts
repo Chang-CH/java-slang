@@ -13,6 +13,7 @@ import JVM from '#jvm/index';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { TestClassLoader, TestSystem } from '#utils/test';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
+import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 
 const MAX_LONG = 9223372036854775807n;
 const MIN_LONG = -9223372036854775808n;
@@ -43,6 +44,18 @@ beforeEach(() => {
       },
     ],
     loader: testLoader,
+  });
+  const clsClass = testLoader.createClass({
+    className: 'java/lang/Class',
+    loader: testLoader,
+    fields: [
+      {
+        accessFlags: [FIELD_FLAGS.ACC_PUBLIC],
+        name: 'classLoader',
+        descriptor: 'Ljava/lang/ClassLoader;',
+        attributes: [],
+      },
+    ],
   });
   testLoader.createClass({
     className: 'java/lang/Object',
@@ -85,9 +98,7 @@ describe('Iadd', () => {
     thread.pushStack(1);
     thread.pushStack(2);
     code.setUint8(0, OPCODE.IADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
@@ -99,9 +110,7 @@ describe('Iadd', () => {
     thread.pushStack(MAX_INT);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -113,9 +122,7 @@ describe('Iadd', () => {
     thread.pushStack(MIN_INT);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MAX_INT);
@@ -129,9 +136,7 @@ describe('Ladd', () => {
     thread.pushStack64(1n);
     thread.pushStack64(2n);
     code.setUint8(0, OPCODE.LADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(3n);
@@ -143,9 +148,7 @@ describe('Ladd', () => {
     thread.pushStack64(MAX_LONG);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -157,9 +160,7 @@ describe('Ladd', () => {
     thread.pushStack64(MIN_LONG);
     thread.pushStack64(-1n);
     code.setUint8(0, OPCODE.LADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MAX_LONG);
@@ -173,9 +174,7 @@ describe('Fadd', () => {
     thread.pushStack(1.5);
     thread.pushStack(2.5);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(4.0));
@@ -187,9 +186,7 @@ describe('Fadd', () => {
     thread.pushStack(3.4e38);
     thread.pushStack(3.4e38);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -201,9 +198,7 @@ describe('Fadd', () => {
     thread.pushStack(-3.4e38);
     thread.pushStack(-3.4e38);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -215,9 +210,7 @@ describe('Fadd', () => {
     thread.pushStack(NaN);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -229,9 +222,7 @@ describe('Fadd', () => {
     thread.pushStack(Infinity);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -243,9 +234,7 @@ describe('Fadd', () => {
     thread.pushStack(NaN);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -257,9 +246,7 @@ describe('Fadd', () => {
     thread.pushStack(Infinity);
     thread.pushStack(-Infinity);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -271,9 +258,7 @@ describe('Fadd', () => {
     thread.pushStack(Infinity);
     thread.pushStack(5.0);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -285,9 +270,7 @@ describe('Fadd', () => {
     thread.pushStack(-Infinity);
     thread.pushStack(5.0);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -299,9 +282,7 @@ describe('Fadd', () => {
     thread.pushStack(Infinity);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -313,9 +294,7 @@ describe('Fadd', () => {
     thread.pushStack(-Infinity);
     thread.pushStack(-Infinity);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -327,9 +306,7 @@ describe('Fadd', () => {
     thread.pushStack(-0);
     thread.pushStack(+0);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -341,9 +318,7 @@ describe('Fadd', () => {
     thread.pushStack(+0);
     thread.pushStack(+0);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -355,9 +330,7 @@ describe('Fadd', () => {
     thread.pushStack(-0);
     thread.pushStack(-0);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -369,9 +342,7 @@ describe('Fadd', () => {
     thread.pushStack(1.33);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(1.33));
@@ -383,9 +354,7 @@ describe('Fadd', () => {
     thread.pushStack(1.33);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.FADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(2.33));
@@ -399,9 +368,7 @@ describe('Dadd', () => {
     thread.pushStack64(1.5);
     thread.pushStack64(2.5);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4.0);
@@ -413,9 +380,7 @@ describe('Dadd', () => {
     thread.pushStack64(1.7e308);
     thread.pushStack64(1.7e308);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -427,9 +392,7 @@ describe('Dadd', () => {
     thread.pushStack64(-1.7e308);
     thread.pushStack64(-1.7e308);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -441,9 +404,7 @@ describe('Dadd', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -455,9 +416,7 @@ describe('Dadd', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -469,9 +428,7 @@ describe('Dadd', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -483,9 +440,7 @@ describe('Dadd', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(-Infinity);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -497,9 +452,7 @@ describe('Dadd', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -511,9 +464,7 @@ describe('Dadd', () => {
     thread.pushStack64(-Infinity);
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -525,9 +476,7 @@ describe('Dadd', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -539,9 +488,7 @@ describe('Dadd', () => {
     thread.pushStack64(-Infinity);
     thread.pushStack64(-Infinity);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -553,9 +500,7 @@ describe('Dadd', () => {
     thread.pushStack64(-0);
     thread.pushStack64(+0);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -567,9 +512,7 @@ describe('Dadd', () => {
     thread.pushStack64(+0);
     thread.pushStack64(+0);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -581,9 +524,7 @@ describe('Dadd', () => {
     thread.pushStack64(-0);
     thread.pushStack64(-0);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -595,9 +536,7 @@ describe('Dadd', () => {
     thread.pushStack64(1.33);
     thread.pushStack64(0);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.33);
@@ -609,9 +548,7 @@ describe('Dadd', () => {
     thread.pushStack64(1.33);
     thread.pushStack64(1);
     code.setUint8(0, OPCODE.DADD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2.33);
@@ -625,9 +562,7 @@ describe('Isub', () => {
     thread.pushStack(2);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.ISUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -639,9 +574,7 @@ describe('Isub', () => {
     thread.pushStack(MAX_INT);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.ISUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -653,9 +586,7 @@ describe('Isub', () => {
     thread.pushStack(MIN_INT);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.ISUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MAX_INT);
@@ -669,9 +600,7 @@ describe('Lsub', () => {
     thread.pushStack(2n);
     thread.pushStack(1n);
     code.setUint8(0, OPCODE.LSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -683,9 +612,7 @@ describe('Lsub', () => {
     thread.pushStack(MAX_LONG);
     thread.pushStack(-1n);
     code.setUint8(0, OPCODE.LSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -697,9 +624,7 @@ describe('Lsub', () => {
     thread.pushStack(MIN_LONG);
     thread.pushStack(1n);
     code.setUint8(0, OPCODE.LSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MAX_LONG);
@@ -713,9 +638,7 @@ describe('Fsub', () => {
     thread.pushStack(2.5);
     thread.pushStack(1.5);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -727,9 +650,7 @@ describe('Fsub', () => {
     thread.pushStack(3.4e38);
     thread.pushStack(-3.4e38);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -741,9 +662,7 @@ describe('Fsub', () => {
     thread.pushStack(-3.4e38);
     thread.pushStack(3.4e38);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -755,9 +674,7 @@ describe('Fsub', () => {
     thread.pushStack(NaN);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -769,9 +686,7 @@ describe('Fsub', () => {
     thread.pushStack(Infinity);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -783,9 +698,7 @@ describe('Fsub', () => {
     thread.pushStack(NaN);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -797,9 +710,7 @@ describe('Fsub', () => {
     thread.pushStack(Infinity);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -811,9 +722,7 @@ describe('Fsub', () => {
     thread.pushStack(Infinity);
     thread.pushStack(5.0);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -825,9 +734,7 @@ describe('Fsub', () => {
     thread.pushStack(-Infinity);
     thread.pushStack(5.0);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -839,9 +746,7 @@ describe('Fsub', () => {
     thread.pushStack(Infinity);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -853,9 +758,7 @@ describe('Fsub', () => {
     thread.pushStack(-Infinity);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -867,9 +770,7 @@ describe('Fsub', () => {
     thread.pushStack(0);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -881,9 +782,7 @@ describe('Fsub', () => {
     thread.pushStack(+0);
     thread.pushStack(-0);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -895,9 +794,7 @@ describe('Fsub', () => {
     thread.pushStack(-0);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -909,9 +806,7 @@ describe('Fsub', () => {
     thread.pushStack(1.33);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(1.33));
@@ -923,9 +818,7 @@ describe('Fsub', () => {
     thread.pushStack(1.33);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.FSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(
@@ -941,9 +834,7 @@ describe('Dsub', () => {
     thread.pushStack64(2.5);
     thread.pushStack64(1.5);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -955,9 +846,7 @@ describe('Dsub', () => {
     thread.pushStack64(1.8e308);
     thread.pushStack64(-1.8e308);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -969,9 +858,7 @@ describe('Dsub', () => {
     thread.pushStack64(-1.8e308);
     thread.pushStack64(1.8e308);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -983,9 +870,7 @@ describe('Dsub', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -997,9 +882,7 @@ describe('Dsub', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1011,9 +894,7 @@ describe('Dsub', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1025,9 +906,7 @@ describe('Dsub', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1039,9 +918,7 @@ describe('Dsub', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1053,9 +930,7 @@ describe('Dsub', () => {
     thread.pushStack64(-Infinity);
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1067,9 +942,7 @@ describe('Dsub', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1081,9 +954,7 @@ describe('Dsub', () => {
     thread.pushStack64(-Infinity);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1095,9 +966,7 @@ describe('Dsub', () => {
     thread.pushStack64(0);
     thread.pushStack64(0);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1109,9 +978,7 @@ describe('Dsub', () => {
     thread.pushStack64(+0);
     thread.pushStack64(-0);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1123,9 +990,7 @@ describe('Dsub', () => {
     thread.pushStack64(-0);
     thread.pushStack64(0);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -1137,9 +1002,7 @@ describe('Dsub', () => {
     thread.pushStack64(1.33);
     thread.pushStack64(0);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.33);
@@ -1151,9 +1014,7 @@ describe('Dsub', () => {
     thread.pushStack64(1.33);
     thread.pushStack64(1);
     code.setUint8(0, OPCODE.DSUB);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.33000000000000007);
@@ -1167,9 +1028,7 @@ describe('Imul', () => {
     thread.pushStack(2);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
@@ -1181,9 +1040,7 @@ describe('Imul', () => {
     thread.pushStack(MAX_INT);
     thread.pushStack(2);
     code.setUint8(0, OPCODE.IMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2);
@@ -1195,9 +1052,7 @@ describe('Imul', () => {
     thread.pushStack(MAX_INT);
     thread.pushStack(-2);
     code.setUint8(0, OPCODE.IMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
@@ -1209,9 +1064,7 @@ describe('Imul', () => {
     thread.pushStack(1000000007);
     thread.pushStack(1000000007);
     code.setUint8(0, OPCODE.IMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-371520463);
@@ -1225,9 +1078,7 @@ describe('Lmul', () => {
     thread.pushStack64(2n);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
@@ -1239,9 +1090,7 @@ describe('Lmul', () => {
     thread.pushStack64(MAX_LONG);
     thread.pushStack64(2n);
     code.setUint8(0, OPCODE.LMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-2n);
@@ -1253,9 +1102,7 @@ describe('Lmul', () => {
     thread.pushStack64(MAX_LONG);
     thread.pushStack64(-2n);
     code.setUint8(0, OPCODE.LMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
@@ -1269,9 +1116,7 @@ describe('Fmul', () => {
     thread.pushStack(2);
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -1283,9 +1128,7 @@ describe('Fmul', () => {
     thread.pushStack(3.4e38);
     thread.pushStack(2.0);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1297,9 +1140,7 @@ describe('Fmul', () => {
     thread.pushStack(-3.4e38);
     thread.pushStack(2);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1311,9 +1152,7 @@ describe('Fmul', () => {
     thread.pushStack(NaN);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1325,9 +1164,7 @@ describe('Fmul', () => {
     thread.pushStack(Infinity);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1339,9 +1176,7 @@ describe('Fmul', () => {
     thread.pushStack(NaN);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1353,9 +1188,7 @@ describe('Fmul', () => {
     thread.pushStack(Infinity);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1367,9 +1200,7 @@ describe('Fmul', () => {
     thread.pushStack(Infinity);
     thread.pushStack(5.0);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1381,9 +1212,7 @@ describe('Fmul', () => {
     thread.pushStack(Infinity);
     thread.pushStack(-5.0);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1395,9 +1224,7 @@ describe('Fmul', () => {
     thread.pushStack(0.11);
     thread.pushStack(3);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(
@@ -1411,9 +1238,7 @@ describe('Fmul', () => {
     thread.pushStack(-4e-32);
     thread.pushStack(-4e-32);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1424,9 +1249,7 @@ describe('Fmul', () => {
     thread.pushStack(4e-32);
     thread.pushStack(-4e-32);
     code.setUint8(0, OPCODE.FMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -1440,9 +1263,7 @@ describe('Dmul', () => {
     thread.pushStack64(2);
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -1454,9 +1275,7 @@ describe('Dmul', () => {
     thread.pushStack64(1.7e308);
     thread.pushStack64(2.0);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1468,9 +1287,7 @@ describe('Dmul', () => {
     thread.pushStack64(-1.7e308);
     thread.pushStack64(2);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1482,9 +1299,7 @@ describe('Dmul', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1496,9 +1311,7 @@ describe('Dmul', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1510,9 +1323,7 @@ describe('Dmul', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1524,9 +1335,7 @@ describe('Dmul', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(0);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1538,9 +1347,7 @@ describe('Dmul', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1552,9 +1359,7 @@ describe('Dmul', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(-5.0);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1566,9 +1371,7 @@ describe('Dmul', () => {
     thread.pushStack64(1.1);
     thread.pushStack64(0.3);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.33);
@@ -1580,9 +1383,7 @@ describe('Dmul', () => {
     thread.pushStack64(-2e-307);
     thread.pushStack64(-2e-307);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1594,9 +1395,7 @@ describe('Dmul', () => {
     thread.pushStack64(2e-307);
     thread.pushStack64(-2e-307);
     code.setUint8(0, OPCODE.DMUL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -1610,9 +1409,7 @@ describe('Idiv', () => {
     thread.pushStack(2);
     thread.pushStack(2);
     code.setUint8(0, OPCODE.IDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -1624,9 +1421,7 @@ describe('Idiv', () => {
     thread.pushStack(MIN_INT);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -1638,9 +1433,7 @@ describe('Idiv', () => {
     thread.pushStack(9);
     thread.pushStack(10);
     code.setUint8(0, OPCODE.IDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -1652,9 +1445,7 @@ describe('Idiv', () => {
     thread.pushStack(9);
     thread.pushStack(-10);
     code.setUint8(0, OPCODE.IDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -1666,9 +1457,7 @@ describe('Idiv', () => {
     thread.pushStack(9);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.IDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
@@ -1688,9 +1477,7 @@ describe('Ldiv', () => {
     thread.pushStack64(2n);
     thread.pushStack64(2n);
     code.setUint8(0, OPCODE.LDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -1702,9 +1489,7 @@ describe('Ldiv', () => {
     thread.pushStack64(9n);
     thread.pushStack64(10n);
     code.setUint8(0, OPCODE.LDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -1716,9 +1501,7 @@ describe('Ldiv', () => {
     thread.pushStack64(9n);
     thread.pushStack64(-10n);
     code.setUint8(0, OPCODE.LDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -1730,9 +1513,7 @@ describe('Ldiv', () => {
     thread.pushStack64(MIN_LONG);
     thread.pushStack64(-1n);
     code.setUint8(0, OPCODE.LDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -1744,9 +1525,7 @@ describe('Ldiv', () => {
     thread.pushStack64(9n);
     thread.pushStack64(0n);
     code.setUint8(0, OPCODE.LDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
@@ -1765,9 +1544,7 @@ describe('Fdiv', () => {
     thread.pushStack(2);
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4.0);
@@ -1779,9 +1556,7 @@ describe('Fdiv', () => {
     thread.pushStack(3.4e38);
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1793,9 +1568,7 @@ describe('Fdiv', () => {
     thread.pushStack(-3.4e38);
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1807,9 +1580,7 @@ describe('Fdiv', () => {
     thread.pushStack(NaN);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1821,9 +1592,7 @@ describe('Fdiv', () => {
     thread.pushStack(Infinity);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1835,9 +1604,7 @@ describe('Fdiv', () => {
     thread.pushStack(NaN);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1849,9 +1616,7 @@ describe('Fdiv', () => {
     thread.pushStack(0);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1863,9 +1628,7 @@ describe('Fdiv', () => {
     thread.pushStack(5.0);
     thread.pushStack(0.0);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1877,9 +1640,7 @@ describe('Fdiv', () => {
     thread.pushStack(-5.0);
     thread.pushStack(0.0);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1891,9 +1652,7 @@ describe('Fdiv', () => {
     thread.pushStack(Infinity);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -1905,9 +1664,7 @@ describe('Fdiv', () => {
     thread.pushStack(Infinity);
     thread.pushStack(5.0);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -1919,9 +1676,7 @@ describe('Fdiv', () => {
     thread.pushStack(Infinity);
     thread.pushStack(-5.0);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -1933,9 +1688,7 @@ describe('Fdiv', () => {
     thread.pushStack(5.0);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1947,9 +1700,7 @@ describe('Fdiv', () => {
     thread.pushStack(5.0);
     thread.pushStack(-Infinity);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -1961,9 +1712,7 @@ describe('Fdiv', () => {
     thread.pushStack(0.99);
     thread.pushStack(3.0);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.33));
@@ -1975,9 +1724,7 @@ describe('Fdiv', () => {
     thread.pushStack(-4e-32);
     thread.pushStack(-4e32);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -1989,9 +1736,7 @@ describe('Fdiv', () => {
     thread.pushStack(4e-32);
     thread.pushStack(-4e32);
     code.setUint8(0, OPCODE.FDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2005,9 +1750,7 @@ describe('Ddiv', () => {
     thread.pushStack64(2);
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4.0);
@@ -2019,9 +1762,7 @@ describe('Ddiv', () => {
     thread.pushStack64(1.7e308);
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -2033,9 +1774,7 @@ describe('Ddiv', () => {
     thread.pushStack64(-1.7e308);
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2047,9 +1786,7 @@ describe('Ddiv', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2061,9 +1798,7 @@ describe('Ddiv', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2075,9 +1810,7 @@ describe('Ddiv', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2089,9 +1822,7 @@ describe('Ddiv', () => {
     thread.pushStack64(0);
     thread.pushStack64(0);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2103,9 +1834,7 @@ describe('Ddiv', () => {
     thread.pushStack64(5.0);
     thread.pushStack64(0.0);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -2117,9 +1846,7 @@ describe('Ddiv', () => {
     thread.pushStack64(-5.0);
     thread.pushStack64(0.0);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2131,9 +1858,7 @@ describe('Ddiv', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2145,9 +1870,7 @@ describe('Ddiv', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -2159,9 +1882,7 @@ describe('Ddiv', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(-5.0);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2173,9 +1894,7 @@ describe('Ddiv', () => {
     thread.pushStack64(5.0);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -2187,9 +1906,7 @@ describe('Ddiv', () => {
     thread.pushStack64(5.0);
     thread.pushStack64(-Infinity);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2201,9 +1918,7 @@ describe('Ddiv', () => {
     thread.pushStack64(-4e-302);
     thread.pushStack64(-4e302);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], +0)).toBe(true);
@@ -2215,9 +1930,7 @@ describe('Ddiv', () => {
     thread.pushStack64(4e-302);
     thread.pushStack64(-4e302);
     code.setUint8(0, OPCODE.DDIV);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2231,9 +1944,7 @@ describe('Irem', () => {
     thread.pushStack(3);
     thread.pushStack(2);
     code.setUint8(0, OPCODE.IREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -2245,9 +1956,7 @@ describe('Irem', () => {
     thread.pushStack(MIN_INT);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -2259,9 +1968,7 @@ describe('Irem', () => {
     thread.pushStack(9);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.IREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
@@ -2280,9 +1987,7 @@ describe('Lrem', () => {
     thread.pushStack64(3n);
     thread.pushStack64(2n);
     code.setUint8(0, OPCODE.LREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -2294,9 +1999,7 @@ describe('Lrem', () => {
     thread.pushStack64(MIN_LONG);
     thread.pushStack64(-1n);
     code.setUint8(0, OPCODE.LREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -2308,9 +2011,7 @@ describe('Lrem', () => {
     thread.pushStack64(9n);
     thread.pushStack64(0n);
     code.setUint8(0, OPCODE.LREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class).toBe(threadClass);
     expect(lastFrame.method).toBe(
@@ -2329,9 +2030,7 @@ describe('Frem', () => {
     thread.pushStack(1.3);
     thread.pushStack(0.5);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(0.29999995));
@@ -2343,9 +2042,7 @@ describe('Frem', () => {
     thread.pushStack(NaN);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2357,9 +2054,7 @@ describe('Frem', () => {
     thread.pushStack(Infinity);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2371,9 +2066,7 @@ describe('Frem', () => {
     thread.pushStack(NaN);
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2385,9 +2078,7 @@ describe('Frem', () => {
     thread.pushStack(0);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2399,9 +2090,7 @@ describe('Frem', () => {
     thread.pushStack(Infinity);
     thread.pushStack(2);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2413,9 +2102,7 @@ describe('Frem', () => {
     thread.pushStack(-0);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2427,9 +2114,7 @@ describe('Frem', () => {
     thread.pushStack(Infinity);
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2441,9 +2126,7 @@ describe('Frem', () => {
     thread.pushStack(0.99);
     thread.pushStack(0.66);
     code.setUint8(0, OPCODE.FREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(
@@ -2459,9 +2142,7 @@ describe('Drem', () => {
     thread.pushStack64(1.3);
     thread.pushStack64(0.5);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.3 - 1);
@@ -2473,9 +2154,7 @@ describe('Drem', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2487,9 +2166,7 @@ describe('Drem', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2501,9 +2178,7 @@ describe('Drem', () => {
     thread.pushStack64(NaN);
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2515,9 +2190,7 @@ describe('Drem', () => {
     thread.pushStack64(0);
     thread.pushStack64(0);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2529,9 +2202,7 @@ describe('Drem', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(2);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2543,9 +2214,7 @@ describe('Drem', () => {
     thread.pushStack64(-0);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2557,9 +2226,7 @@ describe('Drem', () => {
     thread.pushStack64(Infinity);
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2571,9 +2238,7 @@ describe('Drem', () => {
     thread.pushStack64(0.99);
     thread.pushStack64(0.66);
     code.setUint8(0, OPCODE.DREM);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0.99 - 0.66);
@@ -2586,9 +2251,7 @@ describe('Ineg', () => {
   test('INEG: int negation', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.INEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -2599,9 +2262,7 @@ describe('Ineg', () => {
   test('INEG: int negation overflows', () => {
     thread.pushStack(MIN_INT);
     code.setUint8(0, OPCODE.INEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -2614,9 +2275,7 @@ describe('Lneg', () => {
   test('LNEG: long negation', () => {
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -2627,9 +2286,7 @@ describe('Lneg', () => {
   test('LNEG: long negation overflows', () => {
     thread.pushStack64(MIN_LONG);
     code.setUint8(0, OPCODE.LNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -2642,9 +2299,7 @@ describe('Fneg', () => {
   test('FNEG: float negation', () => {
     thread.pushStack(1.0);
     code.setUint8(0, OPCODE.FNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1.0);
@@ -2655,9 +2310,7 @@ describe('Fneg', () => {
   test('FNEG: negates zero', () => {
     thread.pushStack(0.0);
     code.setUint8(0, OPCODE.FNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2668,9 +2321,7 @@ describe('Fneg', () => {
   test('FNEG: NaN negated is NaN', () => {
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.FNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2681,9 +2332,7 @@ describe('Fneg', () => {
   test('FNEG: float Infinity negated is -Infinity', () => {
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.FNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2696,9 +2345,7 @@ describe('Dneg', () => {
   test('DNEG: float negation', () => {
     thread.pushStack64(1.0);
     code.setUint8(0, OPCODE.DNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1.0);
@@ -2709,9 +2356,7 @@ describe('Dneg', () => {
   test('DNEG: negates zero', () => {
     thread.pushStack64(0.0);
     code.setUint8(0, OPCODE.DNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(Object.is(lastFrame.operandStack[0], -0)).toBe(true);
@@ -2722,9 +2367,7 @@ describe('Dneg', () => {
   test('DNEG: NaN negated is NaN', () => {
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.DNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -2735,9 +2378,7 @@ describe('Dneg', () => {
   test('DNEG: float Infinity negated is -Infinity', () => {
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.DNEG);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -2751,9 +2392,7 @@ describe('Ishl', () => {
     thread.pushStack(2);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.ISHL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(4);
@@ -2765,9 +2404,7 @@ describe('Ishl', () => {
     thread.pushStack(1);
     thread.pushStack(0x1f);
     code.setUint8(0, OPCODE.ISHL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -2779,9 +2416,7 @@ describe('Ishl', () => {
     thread.pushStack(1);
     thread.pushStack(0x3f);
     code.setUint8(0, OPCODE.ISHL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(MIN_INT);
@@ -2795,9 +2430,7 @@ describe('Lshl', () => {
     thread.pushStack64(2n);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LSHL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(4n);
@@ -2809,9 +2442,7 @@ describe('Lshl', () => {
     thread.pushStack64(1n);
     thread.pushStack(0x3f);
     code.setUint8(0, OPCODE.LSHL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -2823,9 +2454,7 @@ describe('Lshl', () => {
     thread.pushStack64(1n);
     thread.pushStack(0x7f);
     code.setUint8(0, OPCODE.LSHL);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(MIN_LONG);
@@ -2839,9 +2468,7 @@ describe('Ishr', () => {
     thread.pushStack(2);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.ISHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -2853,9 +2480,7 @@ describe('Ishr', () => {
     thread.pushStack(1);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.ISHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -2867,9 +2492,7 @@ describe('Ishr', () => {
     thread.pushStack(MIN_INT);
     thread.pushStack(0x3f);
     code.setUint8(0, OPCODE.ISHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -2883,9 +2506,7 @@ describe('Lshr', () => {
     thread.pushStack64(2n);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -2897,9 +2518,7 @@ describe('Lshr', () => {
     thread.pushStack64(MIN_LONG);
     thread.pushStack(0x3f);
     code.setUint8(0, OPCODE.LSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -2911,9 +2530,7 @@ describe('Lshr', () => {
     thread.pushStack64(MIN_LONG);
     thread.pushStack(0x7f);
     code.setUint8(0, OPCODE.LSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -2927,9 +2544,7 @@ describe('Iushr', () => {
     thread.pushStack(2);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IUSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -2941,9 +2556,7 @@ describe('Iushr', () => {
     thread.pushStack(1);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IUSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -2955,9 +2568,7 @@ describe('Iushr', () => {
     thread.pushStack(MIN_INT);
     thread.pushStack(0x3f);
     code.setUint8(0, OPCODE.IUSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -2971,9 +2582,7 @@ describe('Lushr', () => {
     thread.pushStack64(2n);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LUSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -2985,9 +2594,7 @@ describe('Lushr', () => {
     thread.pushStack64(-2n);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LUSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('9223372036854775807');
@@ -2999,9 +2606,7 @@ describe('Lushr', () => {
     thread.pushStack64(MIN_LONG);
     thread.pushStack(0x3f);
     code.setUint8(0, OPCODE.LUSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('1');
@@ -3013,9 +2618,7 @@ describe('Lushr', () => {
     thread.pushStack64(MIN_LONG);
     thread.pushStack(0x7f);
     code.setUint8(0, OPCODE.LUSHR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0].toString()).toBe('1');
@@ -3029,9 +2632,7 @@ describe('Iand', () => {
     thread.pushStack(3);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IAND);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -3043,9 +2644,7 @@ describe('Iand', () => {
     thread.pushStack(-1);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IAND);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1);
@@ -3059,9 +2658,7 @@ describe('Land', () => {
     thread.pushStack64(3n);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LAND);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -3073,9 +2670,7 @@ describe('Land', () => {
     thread.pushStack64(-1n);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LAND);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -3089,9 +2684,7 @@ describe('Ior', () => {
     thread.pushStack(2);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
@@ -3103,9 +2696,7 @@ describe('Ior', () => {
     thread.pushStack(-1);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -3119,9 +2710,7 @@ describe('Lor', () => {
     thread.pushStack64(2n);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(3n);
@@ -3133,9 +2722,7 @@ describe('Lor', () => {
     thread.pushStack64(-1n);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-1n);
@@ -3149,9 +2736,7 @@ describe('IXor', () => {
     thread.pushStack(3);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IXOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2);
@@ -3163,9 +2748,7 @@ describe('IXor', () => {
     thread.pushStack(-1);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IXOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2);
@@ -3179,9 +2762,7 @@ describe('Lxor', () => {
     thread.pushStack64(3n);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LXOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(2n);
@@ -3193,9 +2774,7 @@ describe('Lxor', () => {
     thread.pushStack64(-1n);
     thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LXOR);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-2n);
@@ -3211,9 +2790,7 @@ describe('Iinc', () => {
     code.setUint8(1, 0);
     code.setInt8(2, 10);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(1);

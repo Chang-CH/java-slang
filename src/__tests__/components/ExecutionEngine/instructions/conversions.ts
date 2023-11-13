@@ -37,9 +37,7 @@ describe('I2l', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.I2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1n);
@@ -53,9 +51,7 @@ describe('I2f', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.I2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -69,9 +65,7 @@ describe('I2f', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.I2D);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -85,9 +79,7 @@ describe('I2b', () => {
     thread.pushStack(127);
     code.setUint8(0, OPCODE.I2B);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(127);
@@ -99,9 +91,7 @@ describe('I2b', () => {
     thread.pushStack(255);
     code.setUint8(0, OPCODE.I2B);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-1);
@@ -115,9 +105,7 @@ describe('I2c', () => {
     thread.pushStack(0xffff);
     code.setUint8(0, OPCODE.I2C);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0xffff);
@@ -129,9 +117,7 @@ describe('I2c', () => {
     thread.pushStack(0x10000);
     code.setUint8(0, OPCODE.I2C);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -145,9 +131,7 @@ describe('I2s', () => {
     thread.pushStack(32767);
     code.setUint8(0, OPCODE.I2S);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(32767);
@@ -159,9 +143,7 @@ describe('I2s', () => {
     thread.pushStack(-32768);
     code.setUint8(0, OPCODE.I2S);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-32768);
@@ -173,9 +155,7 @@ describe('I2s', () => {
     thread.pushStack(0x12345678);
     code.setUint8(0, OPCODE.I2S);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0x5678);
@@ -189,9 +169,7 @@ describe('L2i', () => {
     thread.pushStack64(2147483647n);
     code.setUint8(0, OPCODE.L2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -203,9 +181,7 @@ describe('L2i', () => {
     thread.pushStack64(-2147483648n);
     code.setUint8(0, OPCODE.L2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -217,9 +193,7 @@ describe('L2i', () => {
     thread.pushStack64(2147483648n);
     code.setUint8(0, OPCODE.L2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -233,9 +207,7 @@ describe('L2f', () => {
     thread.pushStack64(10n);
     code.setUint8(0, OPCODE.L2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(10);
@@ -247,9 +219,7 @@ describe('L2f', () => {
     thread.pushStack64(9223372036854775807n);
     code.setUint8(0, OPCODE.L2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775806);
@@ -263,9 +233,7 @@ describe('L2d', () => {
     thread.pushStack64(10n);
     code.setUint8(0, OPCODE.L2D);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10);
@@ -277,9 +245,7 @@ describe('L2d', () => {
     thread.pushStack64(9223372036854775807n);
     code.setUint8(0, OPCODE.L2D);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775806);
@@ -293,9 +259,7 @@ describe('F2i', () => {
     thread.pushStack(-20.5);
     code.setUint8(0, OPCODE.F2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-20);
@@ -307,9 +271,7 @@ describe('F2i', () => {
     thread.pushStack(9223372036854775806);
     code.setUint8(0, OPCODE.F2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -321,9 +283,7 @@ describe('F2i', () => {
     thread.pushStack(-9223372036854775806);
     code.setUint8(0, OPCODE.F2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -335,9 +295,7 @@ describe('F2i', () => {
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.F2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -349,9 +307,7 @@ describe('F2i', () => {
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.F2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -363,9 +319,7 @@ describe('F2i', () => {
     thread.pushStack(-Infinity);
     code.setUint8(0, OPCODE.F2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -379,9 +333,7 @@ describe('F2l', () => {
     thread.pushStack(-20.5);
     code.setUint8(0, OPCODE.F2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-20n);
@@ -393,9 +345,7 @@ describe('F2l', () => {
     thread.pushStack(9223372036854776000);
     code.setUint8(0, OPCODE.F2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -407,9 +357,7 @@ describe('F2l', () => {
     thread.pushStack(-9223372036854776000);
     code.setUint8(0, OPCODE.F2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -421,9 +369,7 @@ describe('F2l', () => {
     thread.pushStack(NaN);
     code.setUint8(0, OPCODE.F2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -435,9 +381,7 @@ describe('F2l', () => {
     thread.pushStack(Infinity);
     code.setUint8(0, OPCODE.F2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -449,9 +393,7 @@ describe('F2l', () => {
     thread.pushStack(-Infinity);
     code.setUint8(0, OPCODE.F2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -465,9 +407,7 @@ describe('F2d', () => {
     thread.pushStack(1.0);
     code.setUint8(0, OPCODE.F2D);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(1.0);
@@ -481,9 +421,7 @@ describe('D2i', () => {
     thread.pushStack64(-20.5);
     code.setUint8(0, OPCODE.D2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-20);
@@ -495,9 +433,7 @@ describe('D2i', () => {
     thread.pushStack64(9223372036854775806);
     code.setUint8(0, OPCODE.D2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -509,9 +445,7 @@ describe('D2i', () => {
     thread.pushStack64(-9223372036854775806);
     code.setUint8(0, OPCODE.D2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -523,9 +457,7 @@ describe('D2i', () => {
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.D2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(0);
@@ -537,9 +469,7 @@ describe('D2i', () => {
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.D2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(2147483647);
@@ -551,9 +481,7 @@ describe('D2i', () => {
     thread.pushStack64(-Infinity);
     code.setUint8(0, OPCODE.D2I);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-2147483648);
@@ -567,9 +495,7 @@ describe('D2l', () => {
     thread.pushStack64(-20.5);
     code.setUint8(0, OPCODE.D2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-20n);
@@ -581,9 +507,7 @@ describe('D2l', () => {
     thread.pushStack64(9223372036854776000);
     code.setUint8(0, OPCODE.D2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -595,9 +519,7 @@ describe('D2l', () => {
     thread.pushStack64(-9223372036854776000);
     code.setUint8(0, OPCODE.D2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -609,9 +531,7 @@ describe('D2l', () => {
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.D2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(0n);
@@ -623,9 +543,7 @@ describe('D2l', () => {
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.D2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
@@ -637,9 +555,7 @@ describe('D2l', () => {
     thread.pushStack64(-Infinity);
     code.setUint8(0, OPCODE.D2L);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
@@ -653,9 +569,7 @@ describe('D2f', () => {
     thread.pushStack64(3.4028235e38);
     code.setUint8(0, OPCODE.D2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Math.fround(3.4028235e38));
@@ -667,9 +581,7 @@ describe('D2f', () => {
     thread.pushStack64(3.5e38);
     code.setUint8(0, OPCODE.D2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -681,9 +593,7 @@ describe('D2f', () => {
     thread.pushStack64(-3.5e38);
     code.setUint8(0, OPCODE.D2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);
@@ -695,9 +605,7 @@ describe('D2f', () => {
     thread.pushStack64(NaN);
     code.setUint8(0, OPCODE.D2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(NaN);
@@ -709,9 +617,7 @@ describe('D2f', () => {
     thread.pushStack64(Infinity);
     code.setUint8(0, OPCODE.D2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(Infinity);
@@ -723,9 +629,7 @@ describe('D2f', () => {
     thread.pushStack64(-Infinity);
     code.setUint8(0, OPCODE.D2F);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-Infinity);

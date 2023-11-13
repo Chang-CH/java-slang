@@ -36,9 +36,7 @@ describe('Goto', () => {
   test('GOTO: goes to correct offset', () => {
     code.setUint8(0, OPCODE.GOTO);
     code.setInt16(1, 10);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -51,9 +49,7 @@ describe('Jsr', () => {
     code.setUint8(0, OPCODE.JSR);
     code.setInt16(1, 10);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(3);
@@ -68,9 +64,7 @@ describe('Ret', () => {
     code.setUint8(1, 0);
     thread.storeLocal(0, 3);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(1);
@@ -84,9 +78,7 @@ describe('Ireturn', () => {
     thread.pushStack(5);
     code.setUint8(0, OPCODE.IRETURN);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -106,9 +98,7 @@ describe('Lreturn', () => {
     thread.pushStack64(5n);
     code.setUint8(0, OPCODE.LRETURN);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -128,9 +118,7 @@ describe('Freturn', () => {
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FRETURN);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -147,9 +135,7 @@ describe('Freturn', () => {
     thread.pushStack(3.33);
     code.setUint8(0, OPCODE.FRETURN);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -169,9 +155,7 @@ describe('Dreturn', () => {
     thread.pushStack64(5.5);
     code.setUint8(0, OPCODE.DRETURN);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -192,9 +176,7 @@ describe('Areturn', () => {
     thread.pushStack(obj);
     code.setUint8(0, OPCODE.ARETURN);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -214,9 +196,7 @@ describe('return', () => {
     thread.invokeSf(threadClass, thread.getMethod(), 0, []);
     code.setUint8(0, OPCODE.RETURN);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);

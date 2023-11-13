@@ -131,7 +131,11 @@ export class ClassRef {
     return this.type === CLASS_TYPE.PRIMITIVE;
   }
 
-  // TODO: init javaobj and static fields in init function
+  /**
+   * Initializes the class. If the class has a static initializer, it is invoked.
+   * @param thread used to invoke the static initializer
+   * @param onDefer callback to be called before invoking the static initializer.
+   */
   initialize(thread: Thread, onDefer?: () => void): Result<ClassRef> {
     if (
       this.status === CLASS_STATUS.INITIALIZED ||
@@ -169,6 +173,8 @@ export class ClassRef {
     return new SuccessResult<ClassRef>(this);
   }
 
+  // FIXME: seems like getJavaObject() is being called before initialization.
+  // Ideally javaobject initialization should be in the initialize method.
   getJavaObject(): JvmObject {
     if (!this.javaObj) {
       // We assume that java/lang/Class has been loaded at JVM initialization (step 1)

@@ -39,9 +39,7 @@ describe('ILOAD', () => {
     thread.peekStackFrame().locals[0] = 10;
     code.setUint8(0, OPCODE.ILOAD);
     code.setUint8(1, 0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -56,9 +54,7 @@ describe('LLOAD', () => {
     thread.peekStackFrame().locals[0] = 10n;
     code.setUint8(0, OPCODE.LLOAD);
     code.setUint8(1, 0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -73,9 +69,7 @@ describe('FLOAD', () => {
     thread.peekStackFrame().locals[0] = 1.3;
     code.setUint8(0, OPCODE.FLOAD);
     code.setUint8(1, 0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -90,9 +84,7 @@ describe('DLOAD', () => {
     thread.peekStackFrame().locals[0] = 1.3;
     code.setUint8(0, OPCODE.DLOAD);
     code.setUint8(1, 0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -108,9 +100,7 @@ describe('ALOAD', () => {
     thread.peekStackFrame().locals[0] = obj;
     code.setUint8(0, OPCODE.ALOAD);
     code.setUint8(1, 0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -127,9 +117,7 @@ describe('ILOAD_0', () => {
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
     code.setUint8(0, OPCODE.ILOAD_0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -146,9 +134,7 @@ describe('ILOAD_1', () => {
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
     code.setUint8(0, OPCODE.ILOAD_1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -165,9 +151,7 @@ describe('ILOAD_2', () => {
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
     code.setUint8(0, OPCODE.ILOAD_2);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(12);
@@ -183,9 +167,7 @@ describe('ILOAD_3', () => {
     thread.peekStackFrame().locals[2] = 12;
     thread.peekStackFrame().locals[3] = 13;
     code.setUint8(0, OPCODE.ILOAD_3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(13);
@@ -201,9 +183,7 @@ describe('LLOAD_0', () => {
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
     code.setUint8(0, OPCODE.LLOAD_0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10n);
@@ -219,9 +199,7 @@ describe('LLOAD_1', () => {
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
     code.setUint8(0, OPCODE.LLOAD_1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(11n);
@@ -237,9 +215,7 @@ describe('LLOAD_2', () => {
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
     code.setUint8(0, OPCODE.LLOAD_2);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(12n);
@@ -255,9 +231,7 @@ describe('LLOAD_3', () => {
     thread.peekStackFrame().locals[2] = 12n;
     thread.peekStackFrame().locals[3] = 13n;
     code.setUint8(0, OPCODE.LLOAD_3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(13n);
@@ -273,9 +247,7 @@ describe('FLOAD_0', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.FLOAD_0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(10.0);
@@ -291,9 +263,7 @@ describe('FLOAD_1', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.FLOAD_1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(11.0);
@@ -309,9 +279,7 @@ describe('FLOAD_2', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.FLOAD_2);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(12.0);
@@ -327,9 +295,7 @@ describe('FLOAD_3', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.FLOAD_3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(13.0);
@@ -345,9 +311,7 @@ describe('DLOAD_0', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.DLOAD_0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(10.0);
@@ -363,9 +327,7 @@ describe('DLOAD_1', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.DLOAD_1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(11.0);
@@ -381,9 +343,7 @@ describe('DLOAD_2', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.DLOAD_2);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(12.0);
@@ -399,9 +359,7 @@ describe('DLOAD_3', () => {
     thread.peekStackFrame().locals[2] = 12.0;
     thread.peekStackFrame().locals[3] = 13.0;
     code.setUint8(0, OPCODE.DLOAD_3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(13.0);
@@ -421,9 +379,7 @@ describe('ALOAD_0', () => {
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
     code.setUint8(0, OPCODE.ALOAD_0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l0);
@@ -443,9 +399,7 @@ describe('ALOAD_1', () => {
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
     code.setUint8(0, OPCODE.ALOAD_1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l1);
@@ -465,9 +419,7 @@ describe('ALOAD_2', () => {
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
     code.setUint8(0, OPCODE.ALOAD_2);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l2);
@@ -487,9 +439,7 @@ describe('ALOAD_3', () => {
     thread.peekStackFrame().locals[2] = l2;
     thread.peekStackFrame().locals[3] = l3;
     code.setUint8(0, OPCODE.ALOAD_3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(l3);
@@ -508,9 +458,7 @@ describe('IALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.IALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -523,9 +471,7 @@ describe('IALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.IALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -545,9 +491,7 @@ describe('IALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.IALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -570,9 +514,7 @@ describe('IALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.IALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -597,9 +539,7 @@ describe('LALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.LALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(99n);
@@ -612,9 +552,7 @@ describe('LALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.LALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -634,9 +572,7 @@ describe('LALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -658,9 +594,7 @@ describe('LALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.LALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -684,9 +618,7 @@ describe('FALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99.0);
@@ -699,9 +631,7 @@ describe('FALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.FALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -721,9 +651,7 @@ describe('FALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.FALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -745,9 +673,7 @@ describe('FALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.FALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -771,9 +697,7 @@ describe('DALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.DALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0]).toBe(99.0);
@@ -786,9 +710,7 @@ describe('DALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.DALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -808,9 +730,7 @@ describe('DALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.DALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -832,9 +752,7 @@ describe('DALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.DALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -858,9 +776,7 @@ describe('AALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.AALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(null);
@@ -882,9 +798,7 @@ describe('AALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.AALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0] === iarrayRef).toBe(true);
@@ -897,9 +811,7 @@ describe('AALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.AALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -919,9 +831,7 @@ describe('AALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.AALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -944,9 +854,7 @@ describe('AALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.AALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -971,9 +879,7 @@ describe('BALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.BALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -986,9 +892,7 @@ describe('BALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.BALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -1008,9 +912,7 @@ describe('BALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.BALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -1033,9 +935,7 @@ describe('BALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.BALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -1060,9 +960,7 @@ describe('CALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.CALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -1075,9 +973,7 @@ describe('CALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.CALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -1097,9 +993,7 @@ describe('CALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.CALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -1122,9 +1016,7 @@ describe('CALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.CALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -1149,9 +1041,7 @@ describe('SALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.SALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(99);
@@ -1164,9 +1054,7 @@ describe('SALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.SALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
@@ -1186,9 +1074,7 @@ describe('SALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.SALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(
@@ -1211,9 +1097,7 @@ describe('SALOAD', () => {
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.SALOAD);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.class === threadClass).toBe(true);
     expect(lastFrame.method).toBe(

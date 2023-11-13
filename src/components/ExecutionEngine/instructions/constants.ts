@@ -123,11 +123,8 @@ export function loadConstant(
   const invoker = thread.getClass();
   const constant = invoker.getConstant(index);
 
-  if (
-    ConstantMethodHandle.check(constant) ||
-    ConstantMethodType.check(constant)
-  ) {
-    const res = (constant as any).resolve(thread);
+  if (ConstantMethodHandle.check(constant)) {
+    const res = (constant as any).tempResolve(thread);
     if (!res.checkSuccess()) {
       if (res.checkError()) {
         const err = res.getError();
@@ -152,7 +149,7 @@ export function loadConstant(
 
   let value = resolutionRes.getResult();
   if (ConstantClass.check(constant)) {
-    const clsRef = resolutionRes.getResult() as ClassRef;
+    const clsRef = value as ClassRef;
     const initRes = clsRef.initialize(thread);
     if (!initRes.checkSuccess()) {
       if (initRes.checkError()) {

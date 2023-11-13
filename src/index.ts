@@ -47,14 +47,6 @@ export default class JVM {
       this.nativeSystem,
       this.jvmOptions.javaClassPath
     );
-    // native classes loaded with bscl loaded as null classloader
-    //   private java.lang.Class(java.lang.ClassLoader, java.lang.Class<?> array class, null otherwise);
-
-    // this.applicationClassLoader = new ClassLoader(
-    //   this.nativeSystem,
-    //   'example',
-    //   this.bootstrapClassLoader
-    // );
     this.jni = new JNI();
     this.engine = new ExecutionEngine(this.jni);
   }

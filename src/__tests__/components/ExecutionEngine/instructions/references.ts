@@ -44,6 +44,18 @@ beforeEach(() => {
     ],
     loader: testLoader,
   });
+  const clsClass = testLoader.createClass({
+    className: 'java/lang/Class',
+    loader: testLoader,
+    fields: [
+      {
+        accessFlags: [FIELD_FLAGS.ACC_PUBLIC],
+        name: 'classLoader',
+        descriptor: 'Ljava/lang/ClassLoader;',
+        attributes: [],
+      },
+    ],
+  });
   testLoader.createClass({
     className: 'java/lang/Object',
     loader: testLoader,
@@ -146,9 +158,7 @@ describe('Invokestatic', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
     thread.invokeSf(testClass, method as MethodRef, 0, []);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -216,9 +226,7 @@ describe('Invokestatic', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
   });
   test('INVOKESTATIC: Pops args off stack per descriptor', () => {
@@ -279,9 +287,7 @@ describe('Invokestatic', () => {
     thread.pushStack(1);
     thread.pushStack64(2.5);
     thread.pushStack64(3n);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().locals[0]).toBe(1);
     expect(thread.peekStackFrame().locals[1]).toBe(2.5);
     expect(thread.peekStackFrame().locals[2] === 3n).toBe(true);
@@ -343,9 +349,7 @@ describe('Invokestatic', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().locals[0]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
   });
@@ -421,9 +425,7 @@ describe('Invokestatic', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
@@ -500,9 +502,7 @@ describe('Invokestatic', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.getClass().getClassname()).toBe('mainClass');
     expect(thread.peekStackFrame().locals[0]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
@@ -593,9 +593,7 @@ describe('Invokestatic', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.getClass().getClassname()).toBe('superClass');
     expect(thread.peekStackFrame().locals[0]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
@@ -672,9 +670,7 @@ describe('Invokestatic', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -782,12 +778,8 @@ describe('Invokestatic', () => {
       }
     );
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
+    runInstruction(thread, jni, () => {});
     expect(thread.popStack()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -888,12 +880,8 @@ describe('Invokestatic', () => {
       }
     );
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
+    runInstruction(thread, jni, () => {});
     expect(thread.popStack64() === 5n).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -962,9 +950,7 @@ describe('invokevirtual', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(testClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
     expect(lastFrame.method.getDescriptor()).toBe('()V');
@@ -1030,9 +1016,7 @@ describe('invokevirtual', () => {
     thread.pushStack(1);
     thread.pushStack64(2.5);
     thread.pushStack64(3n);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
     expect(thread.peekStackFrame().locals[1]).toBe(1);
     expect(thread.peekStackFrame().locals[2]).toBe(2.5);
@@ -1097,9 +1081,7 @@ describe('invokevirtual', () => {
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().locals[1]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[2]).toBe(1.3);
   });
@@ -1176,9 +1158,7 @@ describe('invokevirtual', () => {
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -1254,9 +1234,7 @@ describe('invokevirtual', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
   });
   test('INVOKEVIRTUAL: method lookup checks superclass', () => {
@@ -1330,9 +1308,7 @@ describe('invokevirtual', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(superClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.getClass().getClassname()).toBe('superClass');
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
   });
@@ -1413,9 +1389,7 @@ describe('invokevirtual', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.getClass().getClassname()).toBe('mainClass');
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
   });
@@ -1482,9 +1456,7 @@ describe('invokevirtual', () => {
     const method = mainClass.getMethod('main()V');
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(null);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -1560,9 +1532,7 @@ describe('invokevirtual', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -1685,9 +1655,7 @@ describe('invokevirtual', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(failLookupClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -1787,9 +1755,7 @@ describe('Invokeinterface', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
     expect(lastFrame.method.getDescriptor()).toBe('()V');
@@ -1880,9 +1846,7 @@ describe('Invokeinterface', () => {
     thread.pushStack(objRef);
     thread.pushStack(0.5);
     thread.pushStack64(0.5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
     expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
@@ -1976,9 +1940,7 @@ describe('Invokeinterface', () => {
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('test0');
     expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
@@ -2079,9 +2041,7 @@ describe('Invokeinterface', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -2184,9 +2144,7 @@ describe('Invokeinterface', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -2308,9 +2266,7 @@ describe('Invokeinterface', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -2404,9 +2360,7 @@ describe('Invokeinterface', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -2509,9 +2463,7 @@ describe('invokespecial', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(thread.getPC()).toBe(0);
     expect(lastFrame.method.getName()).toBe('<init>');
@@ -2606,9 +2558,7 @@ describe('invokespecial', () => {
     thread.pushStack(objRef);
     thread.pushStack(0.5);
     thread.pushStack64(0.5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('<init>');
     expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
@@ -2705,9 +2655,7 @@ describe('invokespecial', () => {
     thread.pushStack(objRef);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('<init>');
     expect(lastFrame.method.getDescriptor()).toBe('(FD)V');
@@ -2795,9 +2743,7 @@ describe('invokespecial', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(interfaceClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName()).toBe('<init>');
     expect(lastFrame.method.getDescriptor()).toBe('()V');
@@ -2890,9 +2836,7 @@ describe('invokespecial', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -2996,9 +2940,7 @@ describe('invokespecial', () => {
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -3077,9 +3019,7 @@ describe('Getstatic', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
   });
   test('GETSTATIC: Gets static int', () => {
@@ -3148,9 +3088,7 @@ describe('Getstatic', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.popStack()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -3220,9 +3158,7 @@ describe('Getstatic', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.popStack64() === 5n).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -3296,9 +3232,7 @@ describe('Getstatic', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.popStack64() === 5n).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -3373,9 +3307,7 @@ describe('Getstatic', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -3456,9 +3388,7 @@ describe('Getstatic', () => {
 
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
@@ -3527,9 +3457,7 @@ describe('Getstatic', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -3609,9 +3537,7 @@ describe('Putstatic', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(5);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
   });
   test('PUTSTATIC: Puts static int', () => {
@@ -3679,9 +3605,7 @@ describe('Putstatic', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldI')?.getValue()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -3751,9 +3675,7 @@ describe('Putstatic', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack64(5n);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldJ')?.getValue() === 5n).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -3827,9 +3749,7 @@ describe('Putstatic', () => {
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack64(5n);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(superClass.getFieldRef('staticFieldJ')?.getValue() === 5n).toBe(
       true
     );
@@ -3906,9 +3826,7 @@ describe('Putstatic', () => {
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -3989,9 +3907,7 @@ describe('Putstatic', () => {
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -4061,9 +3977,7 @@ describe('Putstatic', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -4145,9 +4059,7 @@ describe('Putstatic', () => {
     const method = mainClass.getMethod('main()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -4222,9 +4134,7 @@ describe('Putstatic', () => {
     const method = mainClass.getMethod('<clinit>()V') as MethodRef;
     thread.invokeSf(mainClass, method, 0, []);
     thread.pushStack(5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(mainClass.getFieldRef('staticFieldI')?.getValue()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -4300,9 +4210,7 @@ describe('Putstatic', () => {
     const method = mainClass.getMethod('<clinit>()V') as MethodRef;
     thread.invokeSf(mainClass, method as MethodRef, 0, []);
     thread.pushStack(5);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
@@ -4378,9 +4286,7 @@ describe('Putstatic', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1.3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldF')?.getValue()).toBe(
       Math.fround(1.3)
     );
@@ -4451,9 +4357,7 @@ describe('Putstatic', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(3);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldZ')?.getValue()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
@@ -4496,9 +4400,7 @@ describe('New', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(thread.popStack().getClass() === testClass).toBe(true);
@@ -4541,9 +4443,7 @@ describe('New', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -4592,9 +4492,7 @@ describe('New', () => {
     const method = testClass.getMethod('test0()V') as MethodRef;
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
       threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
@@ -4643,9 +4541,7 @@ describe('New', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
   });
 });
@@ -4674,9 +4570,7 @@ describe('Newarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     const arrayObj = thread.popStack() as JvmArray;
@@ -4709,9 +4603,7 @@ describe('Newarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     let arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnSF();
@@ -4720,9 +4612,7 @@ describe('Newarray', () => {
     code.setUint8(1, ArrayPrimitiveType.char);
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnSF();
@@ -4731,9 +4621,7 @@ describe('Newarray', () => {
     code.setUint8(1, ArrayPrimitiveType.float);
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnSF();
@@ -4742,9 +4630,7 @@ describe('Newarray', () => {
     code.setUint8(1, ArrayPrimitiveType.double);
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnSF();
@@ -4753,9 +4639,7 @@ describe('Newarray', () => {
     code.setUint8(1, ArrayPrimitiveType.byte);
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnSF();
@@ -4764,9 +4648,7 @@ describe('Newarray', () => {
     code.setUint8(1, ArrayPrimitiveType.short);
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnSF();
@@ -4775,9 +4657,7 @@ describe('Newarray', () => {
     code.setUint8(1, ArrayPrimitiveType.int);
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnSF();
@@ -4786,9 +4666,7 @@ describe('Newarray', () => {
     code.setUint8(1, ArrayPrimitiveType.long);
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0) === 0n).toBe(true);
     thread.returnSF();
@@ -4817,9 +4695,7 @@ describe('Newarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(-1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
@@ -4870,9 +4746,7 @@ describe('Anewarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     const arrayObj = thread.popStack() as JvmArray;
@@ -4917,9 +4791,7 @@ describe('Anewarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0) === null).toBe(true);
   });
@@ -4961,9 +4833,7 @@ describe('Anewarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(-1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
@@ -5014,9 +4884,7 @@ describe('Anewarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(0);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     const arrayObj = thread.popStack() as JvmArray;
@@ -5061,9 +4929,7 @@ describe('Anewarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const arrayObj = thread.popStack() as JvmArray;
     expect(arrayObj.get(0) === null).toBe(true);
   });
@@ -5105,9 +4971,7 @@ describe('Anewarray', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(-1);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
       'dispatchUncaughtException(Ljava/lang/Throwable;)V'
@@ -5162,9 +5026,7 @@ describe('Arraylength', () => {
     arrayRef.initialize(thread, 5);
     thread.pushStack(arrayRef);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.popStack()).toBe(5);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
@@ -5206,9 +5068,7 @@ describe('Arraylength', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(null);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
@@ -5267,9 +5127,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(null);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(null);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5315,9 +5173,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(null);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(null);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5370,9 +5226,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack() === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5431,9 +5285,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack() === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5492,9 +5344,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack() === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5544,9 +5394,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack() === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5596,9 +5444,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack() === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5648,9 +5494,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack() === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5712,9 +5556,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack() === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5775,9 +5617,7 @@ describe('Checkcast', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
@@ -5836,9 +5676,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(null);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(0);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5884,9 +5722,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(null);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(0);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -5939,9 +5775,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6000,9 +5834,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6061,9 +5893,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6113,9 +5943,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6165,9 +5993,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6217,9 +6043,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6281,9 +6105,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6344,9 +6166,7 @@ describe('Instanceof', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(obj);
 
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     expect(thread.popStack()).toBe(0);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -6376,9 +6196,7 @@ describe('Athrow', () => {
 
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     thread.pushStack(null);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
@@ -6413,9 +6231,7 @@ describe('Athrow', () => {
     thread.invokeSf(testClass, method as MethodRef, 0, []);
     const eObj = NullPointerException.instantiate();
     thread.pushStack(eObj);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
@@ -6458,9 +6274,7 @@ describe('Athrow', () => {
     thread.pushStack(0);
     thread.pushStack(1);
     thread.pushStack(eObj);
-    try {
-      runInstruction(thread, jni, () => {});
-    } catch (e) {}
+    runInstruction(thread, jni, () => {});
     expect(thread.getMethod().getName()).toBe('test0');
     expect(thread.popStack() === eObj).toBe(true);
     const sf = thread.peekStackFrame();
