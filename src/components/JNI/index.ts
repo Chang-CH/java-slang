@@ -4,7 +4,7 @@ import { ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { j2jsString } from '#utils/index';
+import { byteArray2charArray, j2jsString } from '#utils/index';
 import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
 import { StackFrame } from '../Thread/StackFrame';
 import Thread, { ThreadStatus } from '../Thread/Thread';
@@ -218,6 +218,49 @@ export function registerNatives(jni: JNI) {
     }
   );
 
+  jni.registerNativeMethod(
+    'java/io/FileOutputStream',
+    'writeBytes([BIIZ)V',
+    (thread: Thread, locals: any[]) => {
+      const stream = locals[0] as JvmObject;
+      const bytes = locals[1] as JvmArray;
+      const offset = locals[2] as number;
+      const len = locals[3] as number;
+      const append = locals[4] as boolean;
+
+      const javafd = stream._getField(
+        'fd',
+        'Ljava/io/FileDescriptor;',
+        'java/io/FileOutputStream'
+      ) as JvmObject;
+      const fd = javafd._getField(
+        'fd',
+        'I',
+        'java/io/FileDescriptor'
+      ) as number;
+
+      if (fd === -1) {
+        thread.throwNewException('java/io/IOException', 'Bad file descriptor');
+        return;
+      }
+
+      // stdout
+      if (fd === 1 || fd === 2) {
+        // const str = String.fromCharCode(
+        //   ...byteArray2charArray(bytes.getJsArray())
+        // );
+        const buf: Buffer = Buffer.from(bytes.getJsArray());
+        const str = buf.toString('utf8', offset, offset + len);
+        const sys = thread.getJVM().getSystem();
+        fd === 1 ? sys.stdout(str) : sys.stderr(str);
+        thread.returnSF();
+        return;
+      }
+
+      throw new Error('Not implemented');
+    }
+  );
+
   /**
    * system init
    * java/io/FileInputStream.initIDs()V
@@ -227,7 +270,6 @@ export function registerNatives(jni: JNI) {
    * java/io/FileOutputStream.initIDs()V
    * java/lang/Thread.isAlive()Z
    * java/lang/Thread.start0()V
-   * java/lang/Object.clone()Ljava/lang/Object;
    * sun/reflect/Reflection.getClassAccessFlags(Ljava/lang/Class;)I
    * java/lang/Class.getModifiers()I
    * java/lang/Class.getSuperclass()Ljava/lang/Class;

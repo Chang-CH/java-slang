@@ -228,4 +228,8 @@ export default class JVM {
   getUnsafeHeap() {
     return this.unsafeHeap;
   }
+
+  getSystem() {
+    return this.nativeSystem;
+  }
 }

@@ -1,11 +1,10 @@
-import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
+import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayClassRef } from '#types/class/ArrayClassRef';
 import { CLASS_TYPE, ClassRef } from '#types/class/ClassRef';
 import { JavaType } from '#types/dataTypes';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
-import { classFileToText } from '#utils/Prettify/classfile';
 import { primitiveTypeToName } from '../ExecutionEngine/Interpreter/utils';
 import AbstractClassLoader from './AbstractClassLoader';
 

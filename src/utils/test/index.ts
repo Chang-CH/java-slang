@@ -383,6 +383,12 @@ export class TestClassLoader extends AbstractClassLoader {
 }
 
 export class TestSystem extends AbstractSystem {
+  stdout(message: string): void {
+    throw new Error('Method not implemented.');
+  }
+  stderr(message: string): void {
+    throw new Error('Method not implemented.');
+  }
   readFile(path: string): ClassFile {
     throw new Error('Method not implemented.');
   }

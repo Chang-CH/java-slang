@@ -59,4 +59,12 @@ export default class NodeSystem extends AbstractSystem {
 
     throw new Error('File is not a class file');
   }
+
+  stdout(message: string): void {
+    console.log('\x1b[32m' + message + '\x1b[0m');
+  }
+
+  stderr(message: string): void {
+    console.error('\x1b[31m' + message + '\x1b[0m');
+  }
 }
