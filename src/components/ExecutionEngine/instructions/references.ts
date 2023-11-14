@@ -207,6 +207,7 @@ export function runPutfield(thread: Thread): void {
   thread.offsetPc(3);
 }
 
+// TODO: FIXME: wide locals should take up 2 indexes
 function invokeVirtual(
   thread: Thread,
   constant: ConstantMethodref,

@@ -1,5 +1,4 @@
 import Thread from '#jvm/components/Thread/Thread';
-import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
 import { JNI } from '../..';
@@ -19,6 +18,18 @@ export const registerSource = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const strObj = locals[0] as JvmObject;
       const str = j2jsString(strObj);
+      console.log(str);
+      thread.returnSF();
+    }
+  );
+
+  jni.registerNativeMethod(
+    'dynamic/Source',
+    'display(Ljava/lang/String;)V',
+    (thread: Thread, locals: any[]) => {
+      const strObj = locals[0] as JvmObject;
+      const str = j2jsString(strObj);
+      console.log('\x1b[31m' + 'SOURCE SHOULD BE GLOBAL' + '\x1b[0m');
       console.log(str);
       thread.returnSF();
     }

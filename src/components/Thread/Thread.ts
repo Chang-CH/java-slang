@@ -205,6 +205,11 @@ export default class Thread {
     this.stack[this.stackPointer].locals[index] = value;
   }
 
+  storeLocal64(index: number, value: any) {
+    this.stack[this.stackPointer].locals[index] = value;
+    this.stack[this.stackPointer].locals[index + 1] = value;
+  }
+
   loadLocal(index: number): any {
     return this.stack[this.stackPointer].locals[index];
   }
