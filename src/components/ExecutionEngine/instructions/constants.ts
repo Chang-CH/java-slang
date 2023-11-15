@@ -1,25 +1,11 @@
-import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import Thread from '#jvm/components/Thread/Thread';
-import {
-  ConstantDoubleInfo,
-  ConstantFloatInfo,
-  ConstantIntegerInfo,
-  ConstantLongInfo,
-} from '#jvm/external/ClassFile/types/constants';
-import {
-  LegacyConstantMethodref,
-  LegacyConstantClass,
-  LegacyConstantString,
-} from '#types/ConstantRef';
 import {
   ConstantClass,
   ConstantDouble,
   ConstantLong,
   ConstantMethodHandle,
-  ConstantMethodType,
-  ConstantString,
-} from '#types/constants';
-import { ClassRef } from '#types/class/ClassRef';
+} from '#types/class/Constants';
+import { ClassData } from '#types/class/ClassData';
 
 export function runNop(thread: Thread): void {
   thread.offsetPc(1);
@@ -149,7 +135,7 @@ export function loadConstant(
 
   let value = resolutionRes.getResult();
   if (ConstantClass.check(constant)) {
-    const clsRef = value as ClassRef;
+    const clsRef = value as ClassData;
     const initRes = clsRef.initialize(thread);
     if (!initRes.checkSuccess()) {
       if (initRes.checkError()) {

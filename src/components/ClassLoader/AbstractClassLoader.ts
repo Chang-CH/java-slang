@@ -11,10 +11,10 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
-import { MethodHandler, MethodRef } from '#types/MethodRef';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import { CLASS_STATUS, CLASS_TYPE, ClassRef } from '#types/class/ClassRef';
-import { ConstantUtf8, ConstantClass } from '#types/constants';
+import { MethodHandler, Method } from '#types/class/Method';
+import { ArrayClassData } from '#types/class/ArrayClassData';
+import { CLASS_STATUS, CLASS_TYPE, ClassData } from '#types/class/ClassData';
+import { ConstantUtf8, ConstantClass } from '#types/class/Constants';
 import { JvmObject } from '#types/reference/Object';
 import {
   ErrorResult,
@@ -30,7 +30,7 @@ export default abstract class AbstractClassLoader {
   protected nativeSystem: AbstractSystem;
   protected classPath: string;
   protected loadedClasses: {
-    [className: string]: ClassRef;
+    [className: string]: ClassData;
   };
   parentLoader: AbstractClassLoader | null;
 
@@ -117,7 +117,7 @@ export default abstract class AbstractClassLoader {
    * @param cls class data to resolve
    * @returns class data with resolved references
    */
-  protected linkClass(cls: ClassFile): ClassRef {
+  protected linkClass(cls: ClassFile): ClassData {
     const constantPool = cls.constantPool;
     const accessFlags = cls.accessFlags;
 
@@ -151,11 +151,11 @@ export default abstract class AbstractClassLoader {
       // assume object is loaded at initialization.
       superClass = (
         this.getClassRef('java/lang/Object') as any
-      ).getResult() as ClassRef;
+      ).getResult() as ClassData;
     }
 
     // resolve interfaces
-    const interfaces: ClassRef[] = [];
+    const interfaces: ClassData[] = [];
     cls.interfaces.forEach(interfaceIndex => {
       const interfaceNameIdx = (
         cls.constantPool[interfaceIndex] as ConstantClassInfo
@@ -186,7 +186,7 @@ export default abstract class AbstractClassLoader {
 
     const attributes = cls.attributes;
 
-    const data = new ClassRef(
+    const data = new ClassData(
       constantPool,
       accessFlags,
       thisClass,
@@ -204,15 +204,15 @@ export default abstract class AbstractClassLoader {
    * Adds the resolved class data to the memory area.
    * @param cls resolved class data
    */
-  protected loadClass(cls: ClassRef): ClassRef {
+  protected loadClass(cls: ClassData): ClassData {
     this.loadedClasses[cls.getClassname()] = cls;
     return cls;
   }
 
   protected _loadArrayClass(
     className: string,
-    componentCls: ClassRef
-  ): ImmediateResult<ClassRef> {
+    componentCls: ClassData
+  ): ImmediateResult<ClassData> {
     if (!this.parentLoader) {
       throw new Error('ClassLoader has no parent loader');
     }
@@ -223,7 +223,7 @@ export default abstract class AbstractClassLoader {
   protected _getClassRef(
     className: string,
     initiator: AbstractClassLoader
-  ): ImmediateResult<ClassRef> {
+  ): ImmediateResult<ClassData> {
     if (this.loadedClasses[className]) {
       return new SuccessResult(this.loadedClasses[className]);
     }
@@ -266,9 +266,9 @@ export default abstract class AbstractClassLoader {
   }
 
   createAnonymousClass(options: {
-    nestedHost: ClassRef;
-    superClass: ClassRef;
-    interfaces: ClassRef[];
+    nestedHost: ClassData;
+    superClass: ClassData;
+    interfaces: ClassData[];
     constants: ((c: ConstantInfo[]) => ConstantInfo)[];
     methods: {
       accessFlags: number;
@@ -422,7 +422,7 @@ export default abstract class AbstractClassLoader {
     });
     // #endregion
 
-    const clsRef = new ClassRef(
+    const clsRef = new ClassData(
       constantPool,
       options.flags,
       clsName,
@@ -445,7 +445,7 @@ export default abstract class AbstractClassLoader {
    * @param className
    * @returns
    */
-  getClassRef(className: string): ImmediateResult<ClassRef> {
+  getClassRef(className: string): ImmediateResult<ClassData> {
     return this._getClassRef(className, this);
   }
 
@@ -454,10 +454,10 @@ export default abstract class AbstractClassLoader {
    * @throws Error if class is not a primitive
    * @param className
    */
-  abstract getPrimitiveClassRef(className: string): ClassRef;
+  abstract getPrimitiveClassRef(className: string): ClassData;
 
   // TODO: follow classloading spec 5.3.5
-  protected abstract load(className: string): ImmediateResult<ClassRef>;
+  protected abstract load(className: string): ImmediateResult<ClassData>;
 
   abstract getJavaObject(): JvmObject | null;
 }

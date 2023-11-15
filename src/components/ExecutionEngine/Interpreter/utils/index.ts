@@ -1,4 +1,4 @@
-import { JavaType } from '#types/dataTypes';
+import { JavaType } from '#types/reference/Object';
 
 export function parseFirstDescriptor(descriptor: string) {
   switch (descriptor[0]) {

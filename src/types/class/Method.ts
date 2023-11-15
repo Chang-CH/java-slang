@@ -8,27 +8,27 @@ import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { ArrayClassRef } from './class/ArrayClassRef';
-import { ClassRef } from './class/ClassRef';
-import { ConstantClass, ConstantUtf8 } from './constants';
-import { JvmObject } from './reference/Object';
+import { ArrayClassData } from './ArrayClassData';
+import { ClassData } from './ClassData';
+import { ConstantClass, ConstantUtf8 } from './Constants';
+import { JvmObject } from '../reference/Object';
 import {
   DeferResult,
   ErrorResult,
   ImmediateResult,
   Result,
   SuccessResult,
-} from './result';
+} from '../result';
 
 export interface MethodHandler {
   startPc: number;
   endPc: number;
   handlerPc: number;
-  catchType: null | ClassRef;
+  catchType: null | ClassData;
 }
 
-export class MethodRef {
-  private cls: ClassRef;
+export class Method {
+  private cls: ClassData;
   private code: CodeAttribute | null; // native methods have no code
   private accessFlags: number;
   private name: string;
@@ -36,13 +36,13 @@ export class MethodRef {
   private attributes: Array<AttributeInfo>;
   private exceptionHandlers: MethodHandler[];
 
-  private static reflectMethodClass: ClassRef | null = null;
-  private static reflectConstructorClass: ClassRef | null = null;
+  private static reflectMethodClass: ClassData | null = null;
+  private static reflectConstructorClass: ClassData | null = null;
   private javaObject?: JvmObject;
   private slot: number;
 
   constructor(
-    cls: ClassRef,
+    cls: ClassData,
     code: CodeAttribute | null,
     accessFlags: number,
     name: string,
@@ -52,7 +52,7 @@ export class MethodRef {
       startPc: number;
       endPc: number;
       handlerPc: number;
-      catchType: null | ClassRef;
+      catchType: null | ClassData;
     }[],
     slot: number
   ) {
@@ -66,8 +66,11 @@ export class MethodRef {
     this.slot = slot;
   }
 
+  /**
+   * factory method for class loaders to create a method
+   */
   static fromLinkedInfo(
-    cls: ClassRef,
+    cls: ClassData,
     method: MethodInfo,
     exceptionHandlers: MethodHandler[],
     code: CodeAttribute | null,
@@ -82,7 +85,7 @@ export class MethodRef {
     const accessFlags = method.accessFlags;
     const attributes = method.attributes;
 
-    return new MethodRef(
+    return new Method(
       cls,
       code,
       accessFlags,
@@ -94,10 +97,16 @@ export class MethodRef {
     );
   }
 
-  static checkMethod(obj: any): obj is MethodRef {
+  /**
+   * Type guard function to check if an object is a Method.
+   */
+  static checkMethod(obj: any): obj is Method {
     return obj.code !== undefined;
   }
 
+  /**
+   * Gets the reflected java object for this method.
+   */
   getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
     if (this.javaObject) {
       return new SuccessResult(this.javaObject);
@@ -108,7 +117,7 @@ export class MethodRef {
     if (caRes.checkError()) {
       return new ErrorResult(caRes.getError().className, caRes.getError().msg);
     }
-    const caCls = caRes.getResult() as ArrayClassRef;
+    const caCls = caRes.getResult() as ArrayClassData;
 
     // #region create parameter class array
     const { args, ret } = parseMethodDescriptor(this.descriptor);
@@ -174,7 +183,7 @@ export class MethodRef {
     const isConstructor = this.name === '<init>';
     if (isConstructor) {
       // load constructor class
-      if (!MethodRef.reflectConstructorClass) {
+      if (!Method.reflectConstructorClass) {
         const fRes = loader.getClassRef('java/lang/reflect/Constructor');
         if (fRes.checkError()) {
           return new ErrorResult(
@@ -182,10 +191,10 @@ export class MethodRef {
             fRes.getError().msg
           );
         }
-        MethodRef.reflectConstructorClass = fRes.getResult();
+        Method.reflectConstructorClass = fRes.getResult();
       }
 
-      javaObject = MethodRef.reflectConstructorClass.instantiate();
+      javaObject = Method.reflectConstructorClass.instantiate();
       const initRes = javaObject.initialize(thread);
       if (!initRes.checkSuccess()) {
         if (initRes.checkError()) {
@@ -197,7 +206,7 @@ export class MethodRef {
         throw new Error('Reflected method should not have static initializer');
       }
     } else {
-      if (!MethodRef.reflectMethodClass) {
+      if (!Method.reflectMethodClass) {
         const fRes = thread
           .getClass()
           .getLoader()
@@ -208,10 +217,10 @@ export class MethodRef {
             fRes.getError().msg
           );
         }
-        MethodRef.reflectMethodClass = fRes.getResult();
+        Method.reflectMethodClass = fRes.getResult();
       }
 
-      javaObject = MethodRef.reflectMethodClass.instantiate();
+      javaObject = Method.reflectMethodClass.instantiate();
       const initRes = javaObject.initialize(thread);
       if (!initRes.checkSuccess()) {
         if (initRes.checkError()) {
@@ -326,6 +335,10 @@ export class MethodRef {
     return this.descriptor;
   }
 
+  /**
+   * Gets the slot number of this method in the class.
+   * Slot numbers can be used find a method given a class.
+   */
   getSlot() {
     return this.slot;
   }
@@ -340,7 +353,6 @@ export class MethodRef {
 
   getExceptionHandlers() {
     if (this.exceptionHandlers === undefined) {
-      console.log(this.cls.getClassname(), this.name, this.descriptor);
       throw new Error('Class not initialized');
     }
     return this.exceptionHandlers;
@@ -403,7 +415,10 @@ export class MethodRef {
     return (this.accessFlags & METHOD_FLAGS.ACC_SYNTHETIC) !== 0;
   }
 
-  checkAccess(accessingClass: ClassRef, symbolicClass: ClassRef) {
+  /**
+   * Checks if this method is accessible to a given class through a symbolic reference.
+   */
+  checkAccess(accessingClass: ClassData, symbolicClass: ClassData) {
     const declaringCls = this.getClass();
 
     // this is public

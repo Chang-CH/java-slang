@@ -1,6 +1,6 @@
 import Thread from '#jvm/components/Thread/Thread';
-import { ClassRef } from '#types/class/ClassRef';
-import { ArrayPrimitiveType, JavaType } from '#types/dataTypes';
+import { ClassData } from '#types/class/ClassData';
+import { JavaType } from './Object';
 import { Result, SuccessResult } from '#types/result';
 import { JvmObject } from './Object';
 
@@ -8,7 +8,7 @@ export class JvmArray extends JvmObject {
   private primitiveType: ArrayPrimitiveType | null;
   private length: number;
   private array: any[];
-  constructor(cls: ClassRef) {
+  constructor(cls: ClassData) {
     super(cls);
     switch (cls.getClassname()[1]) {
       case JavaType.boolean:
@@ -114,4 +114,15 @@ export class JvmArray extends JvmObject {
     clone.array = [...this.array]; // shallow copy
     return clone;
   }
+}
+
+export enum ArrayPrimitiveType {
+  boolean = 4,
+  char = 5,
+  float = 6,
+  double = 7,
+  byte = 8,
+  short = 9,
+  int = 10,
+  long = 11,
 }

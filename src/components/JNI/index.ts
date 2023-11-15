@@ -1,7 +1,7 @@
-import { FieldRef } from '#types/FieldRef';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import { ClassRef } from '#types/class/ClassRef';
-import { JavaType } from '#types/dataTypes';
+import { Field } from '#types/class/Field';
+import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ClassData } from '#types/class/ClassData';
+import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { byteArray2charArray, j2jsString } from '#utils/index';
@@ -190,7 +190,7 @@ export function registerNatives(jni: JNI) {
         'I',
         'java/lang/reflect/Constructor'
       ) as number;
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
       const methodRef = clsRef.getMethodFromSlot(methodSlot);
       if (!methodRef) {
         throw new Error('Invalid slot?');

@@ -1,7 +1,7 @@
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import JVM from '#jvm/index';
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { JvmArray } from '#types/reference/Array';
 import { stringifyCode } from '#utils/Prettify/classfile';
 import { JvmObject } from '../../types/reference/Object';
@@ -21,10 +21,10 @@ export default class Thread {
   private stack: StackFrame[];
   private stackPointer: number;
   private javaObject: JvmObject;
-  private threadClass: ClassRef;
+  private threadClass: ClassData;
   private jvm: JVM;
 
-  constructor(threadClass: ClassRef, jvm: JVM) {
+  constructor(threadClass: ClassData, jvm: JVM) {
     this.jvm = jvm;
     this.threadClass = threadClass;
     this.stack = [];
@@ -39,7 +39,7 @@ export default class Thread {
   }
 
   initialize(thread: Thread) {
-    const init = this.threadClass.getMethod('<init>()V') as MethodRef;
+    const init = this.threadClass.getMethod('<init>()V') as Method;
     if (!init) {
       throw new Error('Thread constructor not found');
     }
@@ -86,11 +86,11 @@ export default class Thread {
    * Gets class of current method
    * @returns
    */
-  getClass(): ClassRef {
+  getClass(): ClassData {
     return this.stack[this.stackPointer].class;
   }
 
-  getMethod(): MethodRef {
+  getMethod(): Method {
     return this.stack[this.stackPointer].method;
   }
 
@@ -167,8 +167,8 @@ export default class Thread {
   }
 
   invokeSf(
-    cls: ClassRef,
-    method: MethodRef,
+    cls: ClassData,
+    method: Method,
     pc: number,
     locals: any[],
     callback?: (ret: any, err?: any) => void

@@ -1,7 +1,7 @@
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import { CLASS_TYPE, ClassRef } from '#types/class/ClassRef';
-import { JavaType } from '#types/dataTypes';
+import { ArrayClassData } from '#types/class/ArrayClassData';
+import { CLASS_TYPE, ClassData } from '#types/class/ClassData';
+import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -12,7 +12,7 @@ import AbstractClassLoader from './AbstractClassLoader';
  * Reads classfile representation and loads it into memory area
  */
 export default class BootstrapClassLoader extends AbstractClassLoader {
-  private primitiveClasses: { [className: string]: ClassRef } = {};
+  private primitiveClasses: { [className: string]: ClassData } = {};
 
   constructor(nativeSystem: AbstractSystem, classPath: string) {
     super(nativeSystem, classPath, null);
@@ -20,8 +20,8 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
 
   private loadArray(
     className: string,
-    componentCls: ClassRef
-  ): ImmediateResult<ClassRef> {
+    componentCls: ClassData
+  ): ImmediateResult<ClassData> {
     // #region load array superclasses/interfaces
     const objRes = this.getClassRef('java/lang/Object');
     if (objRes.checkError()) {
@@ -37,7 +37,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     }
     // #endregion
 
-    const arrayClass = new ArrayClassRef(
+    const arrayClass = new ArrayClassData(
       [],
       CLASS_FLAGS.ACC_PUBLIC,
       className,
@@ -58,7 +58,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
    * Attempts to load a class file. Class should not already be loaded.
    * @param className name of class to load
    */
-  protected load(className: string): ImmediateResult<ClassRef> {
+  protected load(className: string): ImmediateResult<ClassData> {
     console.debug(`BsCL: loading ${className}`);
 
     const path = this.classPath ? this.classPath + '/' + className : className;
@@ -77,12 +77,12 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
 
   protected _loadArrayClass(
     className: string,
-    componentCls: ClassRef
-  ): ImmediateResult<ClassRef> {
+    componentCls: ClassData
+  ): ImmediateResult<ClassData> {
     return this.loadArray(className, componentCls);
   }
 
-  getPrimitiveClassRef(className: string): ClassRef {
+  getPrimitiveClassRef(className: string): ClassData {
     if (this.primitiveClasses[className]) {
       return this.primitiveClasses[className];
     }
@@ -91,7 +91,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
       throw new Error(`Invalid primitive class name: ${className}`);
     }
 
-    const cls = new ClassRef(
+    const cls = new ClassData(
       [],
       CLASS_FLAGS.ACC_PUBLIC,
       internalName,

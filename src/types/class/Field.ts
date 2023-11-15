@@ -1,26 +1,26 @@
 import Thread from '#jvm/components/Thread/Thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
-import { ClassRef } from './class/ClassRef';
-import { ConstantUtf8 } from './constants';
-import { JavaType } from './dataTypes';
-import { JvmObject } from './reference/Object';
-import { ErrorResult, ImmediateResult, Result, SuccessResult } from './result';
+import { ClassData } from './ClassData';
+import { ConstantUtf8 } from './Constants';
+import { JavaType } from '../reference/Object';
+import { JvmObject } from '../reference/Object';
+import { ErrorResult, ImmediateResult, Result, SuccessResult } from '../result';
 
-export class FieldRef {
-  private cls: ClassRef;
+export class Field {
+  private cls: ClassData;
   private fieldName: string;
   private fieldDesc: string;
   private value: any;
   private accessFlags: number;
   private attributes: AttributeInfo[];
 
-  private static reflectedClass: ClassRef | null = null;
+  private static reflectedClass: ClassData | null = null;
   private javaObject: JvmObject | null = null;
   private slot: number;
 
   constructor(
-    cls: ClassRef,
+    cls: ClassData,
     fieldName: string,
     fieldDesc: string,
     accessFlags: number,
@@ -53,13 +53,13 @@ export class FieldRef {
     }
   }
 
-  static fromFieldInfo(cls: ClassRef, field: FieldInfo, slot: number) {
+  static fromFieldInfo(cls: ClassData, field: FieldInfo, slot: number) {
     const fieldName = (cls.getConstant(field.nameIndex) as ConstantUtf8).get();
     const fieldDesc = (
       cls.getConstant(field.descriptorIndex) as ConstantUtf8
     ).get();
 
-    return new FieldRef(
+    return new Field(
       cls,
       fieldName,
       fieldDesc,
@@ -69,7 +69,7 @@ export class FieldRef {
     );
   }
 
-  static checkField(obj: any): obj is FieldRef {
+  static checkField(obj: any): obj is Field {
     return obj.fieldName !== undefined;
   }
 
@@ -82,7 +82,7 @@ export class FieldRef {
       return new SuccessResult(this.javaObject);
     }
 
-    if (!FieldRef.reflectedClass) {
+    if (!Field.reflectedClass) {
       const fRes = thread
         .getClass()
         .getLoader()
@@ -90,17 +90,17 @@ export class FieldRef {
       if (fRes.checkError()) {
         return new ErrorResult(fRes.getError().className, fRes.getError().msg);
       }
-      FieldRef.reflectedClass = fRes.getResult();
+      Field.reflectedClass = fRes.getResult();
     }
 
-    this.javaObject = FieldRef.reflectedClass.instantiate();
+    this.javaObject = Field.reflectedClass.instantiate();
     this.javaObject.initialize(thread);
 
     this.javaObject._putField(
       'clazz',
       'Ljava/lang/Class;',
       'java/lang/reflect/Field',
-      FieldRef.reflectedClass.getJavaObject()
+      Field.reflectedClass.getJavaObject()
     );
     this.javaObject._putField(
       'name',
@@ -167,7 +167,7 @@ export class FieldRef {
   }
 
   cloneField() {
-    const field = new FieldRef(
+    const field = new Field(
       this.cls,
       this.fieldName,
       this.fieldDesc,
@@ -231,10 +231,10 @@ export class FieldRef {
     thread: Thread,
     isStaticAccess: boolean = false,
     isPut: boolean = false
-  ): Result<FieldRef> {
+  ): Result<Field> {
     // logical xor
     if (isStaticAccess !== this.checkStatic()) {
-      return new ErrorResult<FieldRef>(
+      return new ErrorResult<Field>(
         'java/lang/IncompatibleClassChangeError',
         ''
       );
@@ -247,7 +247,7 @@ export class FieldRef {
       invokerClass !== fieldClass &&
       fieldClass.getNestedHost() !== invokerClass.getNestedHost()
     ) {
-      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+      return new ErrorResult<Field>('java/lang/IllegalAccessError', '');
     }
 
     if (
@@ -255,7 +255,7 @@ export class FieldRef {
       !invokerClass.checkCast(fieldClass) &&
       invokerClass.getPackageName() !== this.getClass().getPackageName()
     ) {
-      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+      return new ErrorResult<Field>('java/lang/IllegalAccessError', '');
     }
 
     const invokerMethod = thread.getMethod();
@@ -265,9 +265,9 @@ export class FieldRef {
       (fieldClass !== invokerClass ||
         invokerMethod.getName() !== (isStaticAccess ? '<clinit>' : '<init>'))
     ) {
-      return new ErrorResult<FieldRef>('java/lang/IllegalAccessError', '');
+      return new ErrorResult<Field>('java/lang/IllegalAccessError', '');
     }
 
-    return new SuccessResult<FieldRef>(this);
+    return new SuccessResult<Field>(this);
   }
 }

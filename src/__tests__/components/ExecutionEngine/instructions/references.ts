@@ -2,27 +2,26 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
-import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestClassLoader, TestSystem } from '#utils/test';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
-import { ArrayPrimitiveType } from '#types/dataTypes';
+import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import JVM from '#jvm/index';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import exp from 'node:constants';
+import { ArrayClassData } from '#types/class/ArrayClassData';
 
 let thread: Thread;
-let threadClass: ClassRef;
+let threadClass: ClassData;
 let testLoader: TestClassLoader;
 let testSystem: TestSystem;
 let jni: JNI;
-let NullPointerException: ClassRef;
-let ArithmeticException: ClassRef;
+let NullPointerException: ClassData;
+let ArithmeticException: ClassData;
 
 beforeEach(() => {
   jni = new JNI();
@@ -155,8 +154,8 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
 
-    const method = testClass.getMethod('test0()V') as MethodRef;
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    const method = testClass.getMethod('test0()V') as Method;
+    thread.invokeSf(testClass, method as Method, 0, []);
 
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -223,8 +222,8 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
 
-    const method = testClass.getMethod('test0()V') as MethodRef;
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    const method = testClass.getMethod('test0()V') as Method;
+    thread.invokeSf(testClass, method as Method, 0, []);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
     runInstruction(thread, jni, () => {});
     expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
@@ -283,14 +282,14 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
     const method = testClass.getMethod('test0(IDJ)V');
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     thread.pushStack64(2.5);
     thread.pushStack64(3n);
     runInstruction(thread, jni, () => {});
     expect(thread.peekStackFrame().locals[0]).toBe(1);
     expect(thread.peekStackFrame().locals[1]).toBe(2.5);
-    expect(thread.peekStackFrame().locals[2] === 3n).toBe(true);
+    expect(thread.peekStackFrame().locals[3] === 3n).toBe(true);
   });
   test('INVOKESTATIC: Undergoes value set conversion', () => {
     const ab = new ArrayBuffer(24);
@@ -346,7 +345,7 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
     const method = testClass.getMethod('test0(FD)V');
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     runInstruction(thread, jni, () => {});
@@ -422,7 +421,7 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     runInstruction(thread, jni, () => {});
@@ -499,7 +498,7 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     runInstruction(thread, jni, () => {});
@@ -590,7 +589,7 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     runInstruction(thread, jni, () => {});
@@ -667,7 +666,7 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     runInstruction(thread, jni, () => {});
@@ -769,7 +768,7 @@ describe('Invokestatic', () => {
     });
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, nativeMethodIdx);
-    const method = testClass.getMethod('test0()I') as MethodRef;
+    const method = testClass.getMethod('test0()I') as Method;
     jni.registerNativeMethod(
       'Test',
       'nativeFunc()I',
@@ -777,7 +776,7 @@ describe('Invokestatic', () => {
         thread.returnSF(5);
       }
     );
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     runInstruction(thread, jni, () => {});
     expect(thread.popStack()).toBe(5);
@@ -871,7 +870,7 @@ describe('Invokestatic', () => {
     });
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, nativeMethodIdx);
-    const method = testClass.getMethod('test0()J') as MethodRef;
+    const method = testClass.getMethod('test0()J') as Method;
     jni.registerNativeMethod(
       'Test',
       'nativeFunc()J',
@@ -879,7 +878,7 @@ describe('Invokestatic', () => {
         thread.returnSF(5n, null, true);
       }
     );
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     runInstruction(thread, jni, () => {});
     expect(thread.popStack64() === 5n).toBe(true);
@@ -945,9 +944,9 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
 
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     const objRef = new JvmObject(testClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -1010,7 +1009,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = testClass.getMethod('test0(IDJ)V');
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     const objRef = new JvmObject(testClass);
     thread.pushStack(objRef);
     thread.pushStack(1);
@@ -1020,7 +1019,7 @@ describe('invokevirtual', () => {
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
     expect(thread.peekStackFrame().locals[1]).toBe(1);
     expect(thread.peekStackFrame().locals[2]).toBe(2.5);
-    expect(thread.peekStackFrame().locals[3] === 3n).toBe(true);
+    expect(thread.peekStackFrame().locals[4] === 3n).toBe(true);
   });
   test('INVOKEVIRTUAL: Undergoes value set conversion', () => {
     const ab = new ArrayBuffer(24);
@@ -1076,7 +1075,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = testClass.getMethod('test0(FD)V');
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     const objRef = new JvmObject(testClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
@@ -1153,7 +1152,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
@@ -1231,7 +1230,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -1305,7 +1304,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(superClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -1386,7 +1385,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -1454,7 +1453,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(null);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -1529,7 +1528,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -1652,7 +1651,7 @@ describe('invokevirtual', () => {
     code.setUint8(0, OPCODE.INVOKEVIRTUAL);
     code.setUint16(1, methodIdx);
     const method = mainClass.getMethod('main()V');
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(failLookupClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -1751,8 +1750,8 @@ describe('Invokeinterface', () => {
     code.setUint8(3, 0);
     code.setUint8(4, 0);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -1840,8 +1839,8 @@ describe('Invokeinterface', () => {
     code.setUint8(3, 0);
     code.setUint8(4, 0);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     thread.pushStack(0.5);
@@ -1934,8 +1933,8 @@ describe('Invokeinterface', () => {
     code.setUint8(3, 0);
     code.setUint8(4, 0);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
@@ -2037,8 +2036,8 @@ describe('Invokeinterface', () => {
     code.setUint8(3, 0);
     code.setUint8(4, 0);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -2140,8 +2139,8 @@ describe('Invokeinterface', () => {
     code.setUint8(3, 0);
     code.setUint8(4, 0);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -2262,8 +2261,8 @@ describe('Invokeinterface', () => {
     code.setUint8(3, 0);
     code.setUint8(4, 0);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -2356,8 +2355,8 @@ describe('Invokeinterface', () => {
     code.setUint8(3, 0);
     code.setUint8(4, 0);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -2459,8 +2458,8 @@ describe('invokespecial', () => {
     code.setUint8(0, OPCODE.INVOKESPECIAL);
     code.setUint16(1, methodIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -2552,8 +2551,8 @@ describe('invokespecial', () => {
     code.setUint8(0, OPCODE.INVOKESPECIAL);
     code.setUint16(1, methodIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     thread.pushStack(0.5);
@@ -2649,8 +2648,8 @@ describe('invokespecial', () => {
     code.setUint8(0, OPCODE.INVOKESPECIAL);
     code.setUint16(1, methodIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     thread.pushStack(1.3);
@@ -2739,8 +2738,8 @@ describe('invokespecial', () => {
 
     code.setUint8(0, OPCODE.INVOKESPECIAL);
     code.setUint16(1, methodIdx);
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(interfaceClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -2832,8 +2831,8 @@ describe('invokespecial', () => {
     code.setUint8(0, OPCODE.INVOKESPECIAL);
     code.setUint16(1, methodIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -2936,8 +2935,8 @@ describe('invokespecial', () => {
     code.setUint8(0, OPCODE.INVOKESPECIAL);
     code.setUint16(1, methodIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     const objRef = new JvmObject(objClass);
     thread.pushStack(objRef);
     runInstruction(thread, jni, () => {});
@@ -3015,9 +3014,9 @@ describe('Getstatic', () => {
     });
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
     runInstruction(thread, jni, () => {});
     expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
@@ -3085,9 +3084,9 @@ describe('Getstatic', () => {
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     expect(thread.popStack()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -3155,9 +3154,9 @@ describe('Getstatic', () => {
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     expect(thread.popStack64() === 5n).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -3230,8 +3229,8 @@ describe('Getstatic', () => {
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     expect(thread.popStack64() === 5n).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -3305,8 +3304,8 @@ describe('Getstatic', () => {
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
@@ -3386,8 +3385,8 @@ describe('Getstatic', () => {
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
@@ -3454,9 +3453,9 @@ describe('Getstatic', () => {
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
@@ -3532,9 +3531,9 @@ describe('Putstatic', () => {
     });
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(5);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
     runInstruction(thread, jni, () => {});
@@ -3601,9 +3600,9 @@ describe('Putstatic', () => {
     });
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(5);
     runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldI')?.getValue()).toBe(5);
@@ -3671,9 +3670,9 @@ describe('Putstatic', () => {
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack64(5n);
     runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldJ')?.getValue() === 5n).toBe(true);
@@ -3746,8 +3745,8 @@ describe('Putstatic', () => {
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack64(5n);
     runInstruction(thread, jni, () => {});
     expect(superClass.getFieldRef('staticFieldJ')?.getValue() === 5n).toBe(
@@ -3823,8 +3822,8 @@ describe('Putstatic', () => {
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(5);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -3904,8 +3903,8 @@ describe('Putstatic', () => {
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(5);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -3973,9 +3972,9 @@ describe('Putstatic', () => {
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(5);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4056,8 +4055,8 @@ describe('Putstatic', () => {
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = mainClass.getMethod('main()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('main()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(5);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4131,7 +4130,7 @@ describe('Putstatic', () => {
     });
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = mainClass.getMethod('<clinit>()V') as MethodRef;
+    const method = mainClass.getMethod('<clinit>()V') as Method;
     thread.invokeSf(mainClass, method, 0, []);
     thread.pushStack(5);
     runInstruction(thread, jni, () => {});
@@ -4207,8 +4206,8 @@ describe('Putstatic', () => {
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
 
-    const method = mainClass.getMethod('<clinit>()V') as MethodRef;
-    thread.invokeSf(mainClass, method as MethodRef, 0, []);
+    const method = mainClass.getMethod('<clinit>()V') as Method;
+    thread.invokeSf(mainClass, method as Method, 0, []);
     thread.pushStack(5);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4282,9 +4281,9 @@ describe('Putstatic', () => {
     });
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1.3);
     runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldF')?.getValue()).toBe(
@@ -4353,9 +4352,9 @@ describe('Putstatic', () => {
     });
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(3);
     runInstruction(thread, jni, () => {});
     expect(testClass.getFieldRef('staticFieldZ')?.getValue()).toBe(1);
@@ -4397,9 +4396,9 @@ describe('New', () => {
     });
     code.setUint8(0, OPCODE.NEW);
     code.setUint16(1, classIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -4440,9 +4439,9 @@ describe('New', () => {
     });
     code.setUint8(0, OPCODE.NEW);
     code.setUint16(1, classIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
@@ -4489,9 +4488,9 @@ describe('New', () => {
     });
     code.setUint8(0, OPCODE.NEW);
     code.setUint16(1, classIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.method).toBe(
@@ -4537,9 +4536,9 @@ describe('New', () => {
     });
     code.setUint8(0, OPCODE.NEW);
     code.setUint16(1, classIdx);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     expect(testClass.status).toBe(CLASS_STATUS.PREPARED);
     runInstruction(thread, jni, () => {});
     expect(testClass.status).toBe(CLASS_STATUS.INITIALIZED);
@@ -4566,9 +4565,9 @@ describe('Newarray', () => {
     });
     code.setUint8(0, OPCODE.NEWARRAY);
     code.setUint8(1, ArrayPrimitiveType.boolean);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(0);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4599,9 +4598,9 @@ describe('Newarray', () => {
 
     // boolean
     code.setUint8(1, ArrayPrimitiveType.boolean);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     let arrayObj = thread.popStack() as JvmArray;
@@ -4610,7 +4609,7 @@ describe('Newarray', () => {
 
     // char
     code.setUint8(1, ArrayPrimitiveType.char);
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
@@ -4619,7 +4618,7 @@ describe('Newarray', () => {
 
     // float
     code.setUint8(1, ArrayPrimitiveType.float);
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
@@ -4628,7 +4627,7 @@ describe('Newarray', () => {
 
     // double
     code.setUint8(1, ArrayPrimitiveType.double);
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
@@ -4637,7 +4636,7 @@ describe('Newarray', () => {
 
     // byte
     code.setUint8(1, ArrayPrimitiveType.byte);
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
@@ -4646,7 +4645,7 @@ describe('Newarray', () => {
 
     // short
     code.setUint8(1, ArrayPrimitiveType.short);
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
@@ -4655,7 +4654,7 @@ describe('Newarray', () => {
 
     // int
     code.setUint8(1, ArrayPrimitiveType.int);
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
@@ -4664,7 +4663,7 @@ describe('Newarray', () => {
 
     // long
     code.setUint8(1, ArrayPrimitiveType.long);
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     arrayObj = thread.popStack() as JvmArray;
@@ -4691,9 +4690,9 @@ describe('Newarray', () => {
     });
     code.setUint8(0, OPCODE.NEWARRAY);
     code.setUint8(1, ArrayPrimitiveType.boolean);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(-1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4742,9 +4741,9 @@ describe('Anewarray', () => {
     });
     code.setUint8(0, OPCODE.ANEWARRAY);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(0);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4787,9 +4786,9 @@ describe('Anewarray', () => {
     });
     code.setUint8(0, OPCODE.ANEWARRAY);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     const arrayObj = thread.popStack() as JvmArray;
@@ -4829,9 +4828,9 @@ describe('Anewarray', () => {
     });
     code.setUint8(0, OPCODE.ANEWARRAY);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(-1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4880,9 +4879,9 @@ describe('Anewarray', () => {
     });
     code.setUint8(0, OPCODE.ANEWARRAY);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(0);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -4925,9 +4924,9 @@ describe('Anewarray', () => {
     });
     code.setUint8(0, OPCODE.ANEWARRAY);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(1);
     runInstruction(thread, jni, () => {});
     const arrayObj = thread.popStack() as JvmArray;
@@ -4967,9 +4966,9 @@ describe('Anewarray', () => {
     });
     code.setUint8(0, OPCODE.ANEWARRAY);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(-1);
     runInstruction(thread, jni, () => {});
     const lastFrame = thread.peekStackFrame();
@@ -5015,13 +5014,13 @@ describe('Arraylength', () => {
       loader: testLoader,
     });
     code.setUint8(0, OPCODE.ARRAYLENGTH);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
 
     const arrCls = (
       testLoader.getClassRef('[I') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const arrayRef = arrCls.instantiate();
     arrayRef.initialize(thread, 5);
     thread.pushStack(arrayRef);
@@ -5063,9 +5062,9 @@ describe('Arraylength', () => {
       loader: testLoader,
     });
     code.setUint8(0, OPCODE.ARRAYLENGTH);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(null);
 
     runInstruction(thread, jni, () => {});
@@ -5122,9 +5121,9 @@ describe('Checkcast', () => {
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(null);
 
     runInstruction(thread, jni, () => {});
@@ -5168,9 +5167,9 @@ describe('Checkcast', () => {
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(null);
 
     runInstruction(thread, jni, () => {});
@@ -5221,9 +5220,9 @@ describe('Checkcast', () => {
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5280,9 +5279,9 @@ describe('Checkcast', () => {
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5339,9 +5338,9 @@ describe('Checkcast', () => {
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5384,14 +5383,14 @@ describe('Checkcast', () => {
     });
     const arrCls = (
       testLoader.getClassRef('[I') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5434,14 +5433,14 @@ describe('Checkcast', () => {
     });
     const arrCls = (
       testLoader.getClassRef('[I') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5484,14 +5483,14 @@ describe('Checkcast', () => {
     });
     const arrCls = (
       testLoader.getClassRef('[I') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5546,14 +5545,14 @@ describe('Checkcast', () => {
 
     const arrCls = (
       testLoader.getClassRef('[LChild;') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5607,14 +5606,14 @@ describe('Checkcast', () => {
 
     const arrCls = (
       testLoader.getClassRef('[LChild;') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5671,9 +5670,9 @@ describe('Instanceof', () => {
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(null);
 
     runInstruction(thread, jni, () => {});
@@ -5717,9 +5716,9 @@ describe('Instanceof', () => {
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(null);
 
     runInstruction(thread, jni, () => {});
@@ -5770,9 +5769,9 @@ describe('Instanceof', () => {
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5829,9 +5828,9 @@ describe('Instanceof', () => {
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5888,9 +5887,9 @@ describe('Instanceof', () => {
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5933,14 +5932,14 @@ describe('Instanceof', () => {
     });
     const arrCls = (
       testLoader.getClassRef('[I') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -5983,14 +5982,14 @@ describe('Instanceof', () => {
     });
     const arrCls = (
       testLoader.getClassRef('[I') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -6033,14 +6032,14 @@ describe('Instanceof', () => {
     });
     const arrCls = (
       testLoader.getClassRef('[I') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -6095,14 +6094,14 @@ describe('Instanceof', () => {
 
     const arrCls = (
       testLoader.getClassRef('[LChild;') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -6156,14 +6155,14 @@ describe('Instanceof', () => {
 
     const arrCls = (
       testLoader.getClassRef('[LChild;') as any
-    ).getResult() as ArrayClassRef;
+    ).getResult() as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
     code.setUint16(1, classIndex);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(obj);
 
     runInstruction(thread, jni, () => {});
@@ -6192,9 +6191,9 @@ describe('Athrow', () => {
       loader: testLoader,
     });
     code.setUint8(0, OPCODE.ATHROW);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     thread.pushStack(null);
     runInstruction(thread, jni, () => {});
 
@@ -6226,9 +6225,9 @@ describe('Athrow', () => {
       loader: testLoader,
     });
     code.setUint8(0, OPCODE.ATHROW);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     const eObj = NullPointerException.instantiate();
     thread.pushStack(eObj);
     runInstruction(thread, jni, () => {});
@@ -6267,9 +6266,9 @@ describe('Athrow', () => {
       loader: testLoader,
     });
     code.setUint8(0, OPCODE.ATHROW);
-    const method = testClass.getMethod('test0()V') as MethodRef;
+    const method = testClass.getMethod('test0()V') as Method;
 
-    thread.invokeSf(testClass, method as MethodRef, 0, []);
+    thread.invokeSf(testClass, method as Method, 0, []);
     const eObj = NullPointerException.instantiate();
     thread.pushStack(0);
     thread.pushStack(1);

@@ -6,8 +6,8 @@ import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
@@ -21,7 +21,7 @@ const MAX_INT = 2147483647;
 const MIN_INT = -2147483648;
 
 let thread: Thread;
-let threadClass: ClassRef;
+let threadClass: ClassData;
 let code: DataView;
 let jni: JNI;
 
@@ -62,7 +62,7 @@ beforeEach(() => {
     loader: testLoader,
   });
   threadClass = (
-    testLoader.getClassRef('java/lang/Thread') as SuccessResult<ClassRef>
+    testLoader.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
   ).getResult();
 
   testLoader.createClass({
@@ -88,7 +88,7 @@ beforeEach(() => {
   });
 
   thread = new Thread(threadClass, new JVM(testSystem));
-  const method = testClass.getMethod('test0()V') as MethodRef;
+  const method = testClass.getMethod('test0()V') as Method;
   // ArithmeticException
   thread.invokeSf(testClass, method, 0, []);
 });

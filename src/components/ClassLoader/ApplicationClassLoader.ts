@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/class/ClassRef';
+import { ClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -18,7 +18,7 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
    * Attempts to load a class file
    * @param className name of class to load
    */
-  protected load(className: string): ImmediateResult<ClassRef> {
+  protected load(className: string): ImmediateResult<ClassData> {
     console.debug(`UserClassLoader: loading ${className}`);
     const path = this.classPath ? this.classPath + '/' + className : className;
 
@@ -34,7 +34,7 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
     return new SuccessResult(this.loadClass(classData));
   }
 
-  getPrimitiveClassRef(className: string): ClassRef {
+  getPrimitiveClassRef(className: string): ClassData {
     if (this.parentLoader === null) {
       throw new Error('Primitive class not found');
     }

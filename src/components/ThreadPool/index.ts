@@ -37,6 +37,13 @@ export abstract class AbstractThreadPool {
   getCurrentThread(): Thread | null {
     return this.currentThread;
   }
+
+  hasThreads(): boolean {
+    return (
+      this.threads.filter(x => x.getStatus() !== ThreadStatus.TERMINATED)
+        .length > 0
+    );
+  }
 }
 
 export class RoundRobinThreadPool extends AbstractThreadPool {

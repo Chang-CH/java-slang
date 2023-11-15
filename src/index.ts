@@ -1,5 +1,5 @@
-import { FieldRef } from '#types/FieldRef';
-import { ClassRef } from '#types/class/ClassRef';
+import { Field } from '#types/class/Field';
+import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ImmediateResult, ErrorResult, SuccessResult } from '#types/result';
@@ -18,7 +18,7 @@ export default class JVM {
   private nativeSystem: AbstractSystem;
   private jni: JNI;
 
-  cachedClasses: { [key: string]: ClassRef } = {};
+  cachedClasses: { [key: string]: ClassData } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
   private unsafeHeap: UnsafeHeap = new UnsafeHeap();
 
@@ -195,8 +195,8 @@ export default class JVM {
     }
     const strCls = strRes.getResult();
     const strObj = strCls.instantiate();
-    const fieldRef = strCls.getFieldRef('value[C') as FieldRef;
-    strObj.putField(fieldRef as FieldRef, charArr.getResult());
+    const fieldRef = strCls.getFieldRef('value[C') as Field;
+    strObj.putField(fieldRef as Field, charArr.getResult());
     return new SuccessResult<JvmObject>(strObj);
   }
 

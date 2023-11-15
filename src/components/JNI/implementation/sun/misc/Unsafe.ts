@@ -1,8 +1,8 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/Thread/Thread';
-import { FieldRef } from '#types/FieldRef';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import { ClassRef } from '#types/class/ClassRef';
+import { Field } from '#types/class/Field';
+import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { DeferResult, ErrorResult } from '#types/result';
@@ -107,7 +107,7 @@ export const registerUnsafe = (jni: JNI) => {
       //   );
       //   objBase = <any>cls.getConstructor(thread);
       //   fieldName = cls.getStaticFieldFromVMIndex(offset.toInt()).fullName;
-    } else if (ArrayClassRef.check(objCls)) {
+    } else if (ArrayClassData.check(objCls)) {
       // obj is an array. offset represents index * unit space
       const compCls = objCls.getComponentClass();
       const stride = typeIndexScale(compCls);
@@ -164,7 +164,7 @@ export const registerUnsafe = (jni: JNI) => {
         return 0;
       }
     }
-    const actual = (ref as FieldRef).getValue();
+    const actual = (ref as Field).getValue();
 
     if (actual === expected) {
       ref.putValue(newValue);
@@ -180,10 +180,10 @@ export const registerUnsafe = (jni: JNI) => {
     'arrayIndexScale(Ljava/lang/Class;)I',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[1] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
 
       // Should be array. return -1 for invalid class
-      if (!ArrayClassRef.check(clsRef)) {
+      if (!ArrayClassData.check(clsRef)) {
         thread.returnSF(-1);
         return;
       }
@@ -281,7 +281,7 @@ export const registerUnsafe = (jni: JNI) => {
         thread.returnSF(objBase[ref]);
         return;
       }
-      thread.returnSF((ref as FieldRef).getValue());
+      thread.returnSF((ref as Field).getValue());
     }
   );
 

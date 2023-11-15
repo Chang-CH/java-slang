@@ -38,6 +38,7 @@ export class Deque<T> {
     const prevHead = this.head.next;
     const node = new Node<T>(data, this.head, prevHead);
     this.head.next = node;
+    prevHead.prev = node;
     this.size += 1;
   }
 
@@ -45,6 +46,7 @@ export class Deque<T> {
     const prevTail = this.tail.prev;
     const node = new Node<T>(data, prevTail, this.tail);
     this.tail.prev = node;
+    prevTail.next = node;
     this.size += 1;
   }
 

@@ -1,4 +1,4 @@
-import { ClassRef } from '#types/class/ClassRef';
+import { ClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 
 /**
@@ -15,7 +15,7 @@ export const j2jsString = (str: JvmObject) => {
  * Returns the number of bytes that a primitive or reference takes up in memory.
  * @param cls ClassRef of the primitive or reference
  */
-export const typeIndexScale = (cls: ClassRef) => {
+export const typeIndexScale = (cls: ClassData) => {
   // Reference type
   if (!cls.checkPrimitive()) {
     return 4;

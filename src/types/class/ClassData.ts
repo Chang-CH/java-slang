@@ -9,10 +9,10 @@ import {
 import { ConstantInfo } from '#jvm/external/ClassFile/types/constants';
 import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
-import { FieldRef } from '../FieldRef';
-import { MethodHandler, MethodRef } from '../MethodRef';
+import { Field } from './Field';
+import { MethodHandler, Method } from './Method';
 import { JvmObject } from '../reference/Object';
-import { Constant, ConstantUtf8 } from '#types/constants';
+import { Constant, ConstantUtf8 } from '#types/class/Constants';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import {
   DeferResult,
@@ -35,7 +35,7 @@ export enum CLASS_TYPE {
   PRIMITIVE,
 }
 
-export class ClassRef {
+export class ClassData {
   protected type: CLASS_TYPE = CLASS_TYPE.NORMAL;
   public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
 
@@ -46,19 +46,19 @@ export class ClassRef {
 
   protected thisClass: string;
   protected packageName: string;
-  protected superClass: ClassRef | null;
+  protected superClass: ClassData | null;
 
-  protected interfaces: Array<ClassRef>;
+  protected interfaces: Array<ClassData>;
 
   protected fields: {
-    [fieldName: string]: FieldRef;
+    [fieldName: string]: Field;
   };
-  protected instanceFields: { [key: string]: FieldRef } | null = null;
-  protected allFields: FieldRef[] = [];
-  protected staticFields: FieldRef[] = [];
+  protected instanceFields: { [key: string]: Field } | null = null;
+  protected allFields: Field[] = [];
+  protected staticFields: Field[] = [];
 
   protected methods: {
-    [methodName: string]: MethodRef;
+    [methodName: string]: Method;
   };
 
   protected bootstrapMethods?: BootstrapMethodsAttribute;
@@ -66,16 +66,16 @@ export class ClassRef {
 
   protected javaObj?: JvmObject;
 
-  private nestedHost: ClassRef;
-  private nestedMembers: ClassRef[] = [];
+  private nestedHost: ClassData;
+  private nestedMembers: ClassData[] = [];
   private anonymousInnerId: number = 0;
 
   constructor(
     constantPool: Array<ConstantInfo>,
     accessFlags: number,
     thisClass: string,
-    superClass: ClassRef | null,
-    interfaces: Array<ClassRef>,
+    superClass: ClassData | null,
+    interfaces: Array<ClassData>,
     fields: Array<FieldInfo>,
     methods: {
       method: MethodInfo;
@@ -85,7 +85,7 @@ export class ClassRef {
     attributes: Array<AttributeInfo>,
     loader: AbstractClassLoader,
     type?: CLASS_TYPE,
-    nestedHost?: ClassRef
+    nestedHost?: ClassData
   ) {
     this.nestedHost = nestedHost ?? this;
     this.constantPool = new ConstantPool(this, constantPool);
@@ -96,12 +96,12 @@ export class ClassRef {
     this.interfaces = interfaces;
     this.fields = {};
     fields.forEach((field, index) => {
-      const fieldRef = FieldRef.fromFieldInfo(this, field, index);
+      const fieldRef = Field.fromFieldInfo(this, field, index);
       this.fields[fieldRef.getName() + fieldRef.getFieldDesc()] = fieldRef;
     });
     this.methods = {};
     methods.forEach((method, index) => {
-      const methodRef = MethodRef.fromLinkedInfo(
+      const methodRef = Method.fromLinkedInfo(
         this,
         method.method,
         method.exceptionHandlers,
@@ -136,13 +136,13 @@ export class ClassRef {
    * @param thread used to invoke the static initializer
    * @param onDefer callback to be called before invoking the static initializer.
    */
-  initialize(thread: Thread, onDefer?: () => void): Result<ClassRef> {
+  initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
     if (
       this.status === CLASS_STATUS.INITIALIZED ||
       this.status === CLASS_STATUS.INITIALIZING
     ) {
       // FIXME: check if current class is initializer
-      return new SuccessResult<ClassRef>(this);
+      return new SuccessResult<ClassData>(this);
     }
 
     const clsRes = this.loader.getClassRef('java/lang/Class');
@@ -166,11 +166,11 @@ export class ClassRef {
         [],
         () => (this.status = CLASS_STATUS.INITIALIZED)
       );
-      return new DeferResult<ClassRef>();
+      return new DeferResult<ClassData>();
     }
 
     this.status = CLASS_STATUS.INITIALIZED;
-    return new SuccessResult<ClassRef>(this);
+    return new SuccessResult<ClassData>(this);
   }
 
   // FIXME: seems like getJavaObject() is being called before initialization.
@@ -179,7 +179,7 @@ export class ClassRef {
     if (!this.javaObj) {
       // We assume that java/lang/Class has been loaded at JVM initialization (step 1)
       const clsCls = (
-        this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassRef>
+        this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassData>
       ).getResult();
 
       this.javaObj = new JvmObject(clsCls);
@@ -195,8 +195,8 @@ export class ClassRef {
     return this.javaObj;
   }
 
-  getFields(): FieldRef[] {
-    let result: FieldRef[] = [];
+  getFields(): Field[] {
+    let result: Field[] = [];
 
     if (this.superClass) {
       result = this.superClass.getFields();
@@ -215,7 +215,7 @@ export class ClassRef {
     return result;
   }
 
-  resolveClass(toResolve: string): ImmediateResult<ClassRef> {
+  resolveClass(toResolve: string): ImmediateResult<ClassData> {
     const res = this.loader.getClassRef(toResolve);
     if (res.checkError()) {
       return res;
@@ -237,7 +237,7 @@ export class ClassRef {
    * @param methodName
    * @returns MethodRef, if any
    */
-  private _resolveMethodSuper(methodName: string): MethodRef | null {
+  private _resolveMethodSuper(methodName: string): Method | null {
     // SKIPPED: If C declares exactly one method with the name specified by the method reference,
     // and the declaration is a signature polymorphic method (§2.9.3), then method lookup succeeds.
 
@@ -256,7 +256,7 @@ export class ClassRef {
    * @param methodName
    * @returns MethodRef, if any
    */
-  private _resolveMethodInterface(methodName: string): MethodRef | null {
+  private _resolveMethodInterface(methodName: string): Method | null {
     let abstractMethod = null;
     for (const inter of this.interfaces) {
       let method = inter.getMethod(methodName);
@@ -288,8 +288,8 @@ export class ClassRef {
    */
   resolveMethod(
     methodKey: string,
-    accessingClass: ClassRef
-  ): ImmediateResult<MethodRef> {
+    accessingClass: ClassData
+  ): ImmediateResult<Method> {
     // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
     let result = this._resolveMethodSuper(methodKey);
     if (result !== null) {
@@ -338,7 +338,7 @@ export class ClassRef {
   }
 
   getInstanceFields(): {
-    [fieldName: string]: FieldRef;
+    [fieldName: string]: Field;
   } {
     if (this.instanceFields !== null) {
       return this.instanceFields;
@@ -360,7 +360,7 @@ export class ClassRef {
     return res;
   }
 
-  getSuperClass(): ClassRef | null {
+  getSuperClass(): ClassData | null {
     return this.superClass;
   }
 
@@ -368,7 +368,7 @@ export class ClassRef {
     return this.interfaces;
   }
 
-  private _checkOverrides(overrideMethod: MethodRef, parentMethod: MethodRef) {
+  private _checkOverrides(overrideMethod: Method, parentMethod: Method) {
     if (overrideMethod === parentMethod) {
       return true;
     }
@@ -389,9 +389,9 @@ export class ClassRef {
 
   private _lookupMethodSuper(
     methodName: string,
-    resolvedMethod: MethodRef,
+    resolvedMethod: Method,
     checkOverride?: boolean
-  ): MethodRef | null {
+  ): Method | null {
     // If C contains a declaration for an instance method m that overrides the resolved method, then m is the method to be invoked.
     if (
       this.methods[methodName] &&
@@ -406,10 +406,8 @@ export class ClassRef {
     return superClass ? superClass._resolveMethodSuper(methodName) : null;
   }
 
-  private _lookupMethodInterface(
-    methodName: string
-  ): ImmediateResult<MethodRef> {
-    let res: MethodRef | null = null;
+  private _lookupMethodInterface(methodName: string): ImmediateResult<Method> {
+    let res: Method | null = null;
     for (const inter of this.interfaces) {
       let method = inter.getMethod(methodName);
 
@@ -441,10 +439,10 @@ export class ClassRef {
 
   lookupMethod(
     methodName: string,
-    resolvedMethod: MethodRef,
+    resolvedMethod: Method,
     checkOverride?: boolean,
     checkInterface?: boolean
-  ): ImmediateResult<MethodRef> {
+  ): ImmediateResult<Method> {
     // If C contains a declaration for an instance method m that overrides
     // the resolved method, then m is the method to be invoked.
     let methodRef = this._lookupMethodSuper(
@@ -471,7 +469,7 @@ export class ClassRef {
     return this._lookupMethodInterface(methodName);
   }
 
-  getMethod(methodName: string): MethodRef | null {
+  getMethod(methodName: string): Method | null {
     return this.methods[methodName] ?? null;
   }
 
@@ -479,7 +477,7 @@ export class ClassRef {
     return this.methods;
   }
 
-  getMethodFromSlot(slot: number): MethodRef | null {
+  getMethodFromSlot(slot: number): Method | null {
     for (const method of Object.values(this.methods)) {
       if (method.getSlot() === slot) {
         return method;
@@ -489,7 +487,7 @@ export class ClassRef {
     return null;
   }
 
-  getFieldRef(fieldName: string): FieldRef | null {
+  getFieldRef(fieldName: string): Field | null {
     if (this.fields[fieldName]) {
       return this.fields[fieldName];
     }
@@ -529,7 +527,7 @@ export class ClassRef {
    * @param castTo classref of supertype
    * @returns
    */
-  checkCast(castTo: ClassRef): boolean {
+  checkCast(castTo: ClassData): boolean {
     if (this === castTo) {
       return true;
     }
@@ -594,19 +592,19 @@ export class ClassRef {
     return this.anonymousInnerId++;
   }
 
-  nestMember(cls: ClassRef) {
+  nestMember(cls: ClassData) {
     this.nestedMembers.push(cls);
   }
 
-  nestHost(cls: ClassRef) {
+  nestHost(cls: ClassData) {
     this.nestedHost = cls;
   }
 
-  getNestedMembers(): ClassRef[] {
+  getNestedMembers(): ClassData[] {
     return this.nestedMembers;
   }
 
-  getNestedHost(): ClassRef {
+  getNestedHost(): ClassData {
     return this.nestedHost;
   }
 }

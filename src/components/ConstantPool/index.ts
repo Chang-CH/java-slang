@@ -16,7 +16,7 @@ import {
   ConstantStringInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { ClassRef } from '#types/class/ClassRef';
+import { ClassData } from '#types/class/ClassData';
 import {
   Constant,
   ConstantClass,
@@ -33,13 +33,13 @@ import {
   ConstantNameAndType,
   ConstantString,
   ConstantUtf8,
-} from '#types/constants';
+} from '#types/class/Constants';
 import { get } from 'http';
 
 export class ConstantPool {
   private pool: Constant[];
 
-  constructor(cls: ClassRef, infoArr: ConstantInfo[]) {
+  constructor(cls: ClassData, infoArr: ConstantInfo[]) {
     const pool: Constant[] = [];
 
     function init(index: number) {

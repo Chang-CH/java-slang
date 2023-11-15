@@ -1,21 +1,21 @@
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import Thread from './Thread';
 
 export abstract class StackFrame {
   public operandStack: any[];
   public maxStack: number;
-  public class: ClassRef;
-  public method: MethodRef;
+  public class: ClassData;
+  public method: Method;
   public pc: number;
   public locals: any[];
 
   constructor(
     operandStack: any[],
     maxStack: number,
-    cls: ClassRef,
-    method: MethodRef,
+    cls: ClassData,
+    method: Method,
     pc: number,
     locals: any[]
   ) {
@@ -46,8 +46,8 @@ export class JavaStackFrame extends StackFrame {
   constructor(
     operandStack: any[],
     maxStack: number,
-    cls: ClassRef,
-    method: MethodRef,
+    cls: ClassData,
+    method: Method,
     pc: number,
     locals: any[]
   ) {
@@ -63,8 +63,8 @@ export class InternalStackFrame extends StackFrame {
   constructor(
     operandStack: any[],
     maxStack: number,
-    cls: ClassRef,
-    method: MethodRef,
+    cls: ClassData,
+    method: Method,
     pc: number,
     locals: any[],
     callback: (ret: any, err?: any) => void

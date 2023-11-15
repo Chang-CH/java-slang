@@ -4,14 +4,14 @@ import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/ru
 import { JNI } from '#jvm/components/JNI';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import Thread from '#jvm/components/Thread/Thread';
 import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
 
 let thread: Thread;
-let threadClass: ClassRef;
+let threadClass: ClassData;
 let code: DataView;
 let jni: JNI;
 beforeEach(() => {
@@ -21,10 +21,10 @@ beforeEach(() => {
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = (
-    bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassRef>
-  ).getResult() as ClassRef;
+    bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
+  ).getResult() as ClassData;
   thread = new Thread(threadClass, new JVM(nativeSystem));
-  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  const method = threadClass.getMethod('<init>()V') as Method;
   code = (method._getCode() as CodeAttribute).code;
   thread.invokeSf(threadClass, method, 0, []);
 });

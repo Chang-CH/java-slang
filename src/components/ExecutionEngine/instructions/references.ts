@@ -6,10 +6,11 @@ import {
   ConstantMethodHandleInfo,
 } from '#jvm/external/ClassFile/types/constants';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
-import { JavaType, ArrayPrimitiveType } from '#types/dataTypes';
+import { ArrayPrimitiveType } from '#types/reference/Array';
+import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import {
   ConstantClass,
@@ -19,7 +20,7 @@ import {
   ConstantMethodref,
   ConstantNameAndType,
   ConstantUtf8,
-} from '#types/constants';
+} from '#types/class/Constants';
 
 export function runGetstatic(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
@@ -266,7 +267,7 @@ function invokeVirtual(
   return;
 }
 
-function getArgs(thread: Thread, methodRef: MethodRef): any[] {
+function getArgs(thread: Thread, methodRef: Method): any[] {
   const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
   const isNative = methodRef.checkNative();
   const args = [];

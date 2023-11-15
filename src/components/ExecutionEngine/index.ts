@@ -1,29 +1,33 @@
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
 import { JNI } from '../JNI';
 import Interpreter from './Interpreter';
-import NativeThreadGroup from './NativeThreadGroup';
+import { AbstractThreadPool, RoundRobinThreadPool } from '../ThreadPool';
+import { assert } from 'console';
 
 export default class ExecutionEngine {
-  private nativeThreadGroup: NativeThreadGroup;
+  private threadpool: AbstractThreadPool;
   private interpreter: Interpreter;
   private jni: JNI;
 
   constructor(jni: JNI) {
     this.jni = jni;
-    this.nativeThreadGroup = new NativeThreadGroup();
+    this.threadpool = new RoundRobinThreadPool(() => {});
     this.interpreter = new Interpreter(this.jni);
   }
 
   addThread(thread: Thread) {
-    this.nativeThreadGroup.addThread(thread);
+    this.threadpool.addThread(thread);
   }
 
   run() {
-    while (this.nativeThreadGroup.hasThreads()) {
-      const thread = this.nativeThreadGroup.getThread();
+    while (this.threadpool.hasThreads()) {
+      const thread = this.threadpool.getCurrentThread();
+      if (!thread) {
+        throw new Error('No thread to run');
+      }
 
       this.interpreter.runFor(thread, 100000, () => {
         thread.setStatus(ThreadStatus.TERMINATED);

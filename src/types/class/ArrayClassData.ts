@@ -3,22 +3,22 @@ import {
   AttributeInfo,
   CodeAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
+import { ConstantInfo } from '#jvm/external/ClassFile/types/constants';
 import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
-import { ConstantRef } from '#types/ConstantRef';
-import { MethodHandler } from '#types/MethodRef';
+import { MethodHandler } from '#types/class/Method';
 import { JvmArray } from '#types/reference/Array';
-import { ClassRef } from './ClassRef';
+import { ClassData } from './ClassData';
 
-export class ArrayClassRef extends ClassRef {
-  private componentClass?: ClassRef;
+export class ArrayClassData extends ClassData {
+  private componentClass?: ClassData;
 
   constructor(
-    constantPool: Array<ConstantRef>,
+    constantPool: Array<ConstantInfo>,
     accessFlags: number,
     thisClass: string,
-    superClass: ClassRef,
-    interfaces: Array<ClassRef>,
+    superClass: ClassData,
+    interfaces: Array<ClassData>,
     fields: Array<FieldInfo>,
     methods: {
       method: MethodInfo;
@@ -42,11 +42,11 @@ export class ArrayClassRef extends ClassRef {
     this.packageName = 'java/lang';
   }
 
-  setComponentClass(itemClass: ClassRef) {
+  setComponentClass(itemClass: ClassData) {
     this.componentClass = itemClass;
   }
 
-  getComponentClass(): ClassRef {
+  getComponentClass(): ClassData {
     if (this.componentClass === undefined) {
       throw new Error('Array item class not set');
     }
@@ -57,17 +57,17 @@ export class ArrayClassRef extends ClassRef {
     return new JvmArray(this);
   }
 
-  static check(c: ClassRef): c is ArrayClassRef {
+  static check(c: ClassData): c is ArrayClassData {
     return c.getClassname().startsWith('[');
   }
 
-  checkCast(castTo: ClassRef): boolean {
+  checkCast(castTo: ClassData): boolean {
     if (this === castTo) {
       return true;
     }
 
     // Not an array class
-    if (!ArrayClassRef.check(castTo)) {
+    if (!ArrayClassData.check(castTo)) {
       // is a class
       if (!castTo.checkInterface()) {
         // If T is a class type, then T must be Object.

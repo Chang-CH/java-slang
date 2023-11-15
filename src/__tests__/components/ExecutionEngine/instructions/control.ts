@@ -3,8 +3,8 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -12,7 +12,7 @@ import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
 
 let thread: Thread;
-let threadClass: ClassRef;
+let threadClass: ClassData;
 let code: DataView;
 let jni: JNI;
 
@@ -23,11 +23,11 @@ beforeEach(() => {
   const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
 
   threadClass = (
-    bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassRef>
+    bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
   ).getResult();
 
   thread = new Thread(threadClass, new JVM(nativeSystem));
-  const method = threadClass.getMethod('<init>()V') as MethodRef;
+  const method = threadClass.getMethod('<init>()V') as Method;
   code = (method._getCode() as CodeAttribute).code;
   thread.invokeSf(threadClass, method, 0, []);
 });

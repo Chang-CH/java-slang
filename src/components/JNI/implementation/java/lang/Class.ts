@@ -2,9 +2,9 @@ import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader
 import { primitiveNameToType } from '#jvm/components/ExecutionEngine/Interpreter/utils';
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/Thread/Thread';
-import { FieldRef } from '#types/FieldRef';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import { ClassRef } from '#types/class/ClassRef';
+import { Field } from '#types/class/Field';
+import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult } from '#types/result';
@@ -36,7 +36,7 @@ export const registerJavaLangClass = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
       const publicOnly = locals[1];
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
       const fields = clsRef.getFields();
 
       const result = [];
@@ -62,7 +62,7 @@ export const registerJavaLangClass = (jni: JNI) => {
         thread.throwNewException(err.className, err.msg);
         return;
       }
-      const faCls = faClsRes.getResult() as ArrayClassRef;
+      const faCls = faClsRes.getResult() as ArrayClassData;
       const faObj = faCls.instantiate();
       faObj.initArray(result.length, result);
 
@@ -100,8 +100,8 @@ export const registerJavaLangClass = (jni: JNI) => {
     'isArray()Z',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
-      thread.returnSF(ArrayClassRef.check(clsRef) ? 1 : 0);
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      thread.returnSF(ArrayClassData.check(clsRef) ? 1 : 0);
     }
   );
   jni.registerNativeMethod(
@@ -109,7 +109,7 @@ export const registerJavaLangClass = (jni: JNI) => {
     'isPrimitive()Z',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
       thread.returnSF(clsRef.checkPrimitive() ? 1 : 0);
     }
   );
@@ -119,7 +119,7 @@ export const registerJavaLangClass = (jni: JNI) => {
     'getName0()Ljava/lang/String;',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
       const name = clsRef.getClassname();
       const strRes = thread.getJVM().getInternedString(name);
       thread.returnSF(strRes);
@@ -131,9 +131,9 @@ export const registerJavaLangClass = (jni: JNI) => {
     'getComponentType()Ljava/lang/Class;',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
 
-      if (!ArrayClassRef.check(clsRef)) {
+      if (!ArrayClassData.check(clsRef)) {
         thread.returnSF(null);
         return;
       }
@@ -201,7 +201,7 @@ export const registerJavaLangClass = (jni: JNI) => {
     'isInterface()Z',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
       thread.returnSF(clsRef.checkInterface() ? 1 : 0);
     }
   );
@@ -213,7 +213,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const clsObj = locals[0] as JvmObject;
       const publicOnly = locals[1] === 1;
 
-      const clsRef = clsObj.getNativeField('classRef') as ClassRef;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
       const methods: JvmObject[] = [];
       let error: ErrorResult<JvmObject> | null = null;
       Object.entries(clsRef.getMethods()).forEach(([key, value]) => {
@@ -244,7 +244,7 @@ export const registerJavaLangClass = (jni: JNI) => {
         thread.throwNewException(err.className, err.msg);
         return;
       }
-      const caCls = caRes.getResult() as ArrayClassRef;
+      const caCls = caRes.getResult() as ArrayClassData;
       const caObj = caCls.instantiate();
       caObj.initArray(methods.length, methods);
 

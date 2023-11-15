@@ -7,7 +7,7 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { ConstantClass } from '#types/constants';
+import { ConstantClass } from '#types/class/Constants';
 
 export function runWide(thread: Thread): void {
   thread.offsetPc(1);

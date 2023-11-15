@@ -1,24 +1,24 @@
 import Thread from '#jvm/components/Thread/Thread';
-import { ClassRef } from '#types/class/ClassRef';
-import { FieldRef } from '#types/FieldRef';
+import { ClassData } from '#types/class/ClassData';
+import { Field } from '#types/class/Field';
 import { DeferResult, Result, SuccessResult } from '#types/result';
 
 export class JvmObject {
   public initStatus = false;
 
-  protected cls: ClassRef;
+  protected cls: ClassData;
   protected fields: {
-    [key: string]: FieldRef;
+    [key: string]: Field;
   };
   protected nativeFields: {
     [key: string]: any;
   } = {};
-  private fieldArr: { name: string; ref: FieldRef }[];
+  private fieldArr: { name: string; ref: Field }[];
 
   private static maxId = 0;
   private id;
 
-  constructor(cls: ClassRef) {
+  constructor(cls: ClassData) {
     this.cls = cls;
     this.fields = {};
     this.fieldArr = [];
@@ -64,7 +64,7 @@ export class JvmObject {
     return this.cls;
   }
 
-  getField(fieldRef: FieldRef): any {
+  getField(fieldRef: Field): any {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
@@ -81,7 +81,7 @@ export class JvmObject {
     throw new Error(`Invalid field`);
   }
 
-  putField(fieldRef: FieldRef, value: any) {
+  putField(fieldRef: Field, value: any) {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
@@ -113,7 +113,7 @@ export class JvmObject {
     this.nativeFields[name] = value;
   }
 
-  getFieldFromVMIndex(index: number): FieldRef {
+  getFieldFromVMIndex(index: number): Field {
     // TODO: check if VM index includes static fields
     // console.log(
     //   'getFieldFromVMIndex ',
@@ -155,4 +155,18 @@ export class JvmObject {
   hashCode(): number {
     return this.id;
   }
+}
+
+export enum JavaType {
+  byte = 'B',
+  char = 'C',
+  double = 'D',
+  float = 'F',
+  int = 'I',
+  long = 'J',
+  short = 'S',
+  boolean = 'Z',
+  reference = 'L',
+  array = '[',
+  void = 'V',
 }

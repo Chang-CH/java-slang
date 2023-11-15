@@ -3,8 +3,8 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassRef } from '#types/class/ClassRef';
-import { MethodRef } from '#types/MethodRef';
+import { ClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
@@ -17,7 +17,7 @@ import { JvmArray } from '#types/reference/Array';
 import { TestClassLoader, TestSystem } from '#utils/test';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
-import { ConstantClass } from '#types/constants';
+import { ConstantClass } from '#types/class/Constants';
 import AbstractSystem from '#utils/AbstractSystem';
 import JVM from '#jvm/index';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
@@ -25,11 +25,11 @@ import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
 let thread: Thread;
-let threadClass: ClassRef;
+let threadClass: ClassData;
 let code: DataView;
 let jni: JNI;
-let strClass: ClassRef;
-let testClass: ClassRef;
+let strClass: ClassData;
+let testClass: ClassData;
 
 beforeEach(() => {
   jni = new JNI();
@@ -137,7 +137,7 @@ beforeEach(() => {
     loader: testLoader,
     flags: CLASS_FLAGS.ACC_PUBLIC,
   });
-  const method = testClass.getMethod('test0()V') as MethodRef;
+  const method = testClass.getMethod('test0()V') as Method;
   thread.invokeSf(testClass, method, 0, []);
 });
 
@@ -393,7 +393,7 @@ describe('Multianewarray', () => {
     code.setUint8(0, OPCODE.MULTIANEWARRAY);
     code.setUint16(1, constIdx);
     code.setUint8(3, 2);
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
 
     thread.pushStack(2);
@@ -455,7 +455,7 @@ describe('Multianewarray', () => {
     code.setUint8(0, OPCODE.MULTIANEWARRAY);
     code.setUint16(1, constIdx);
     code.setUint8(3, 2);
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
 
     thread.pushStack(-1);
@@ -507,7 +507,7 @@ describe('Multianewarray', () => {
     code.setUint8(0, OPCODE.MULTIANEWARRAY);
     code.setUint16(1, constIdx);
     code.setUint8(3, 2);
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     thread.pushStack(0);
     thread.pushStack(3);

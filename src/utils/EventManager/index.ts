@@ -1,12 +1,12 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import { MethodRef } from '#types/MethodRef';
-import { ClassRef } from '#types/class/ClassRef';
+import { Method } from '#types/class/Method';
+import { ClassData } from '#types/class/ClassData';
 
 class EventManager {
   private _loadListenerId: number = 0;
   private loadListeners: {
     id: number;
-    cb: (loaded: ClassRef, loader: AbstractClassLoader) => void;
+    cb: (loaded: ClassData, loader: AbstractClassLoader) => void;
   }[] = [];
 
   private instructionListenerId: number = 0;
@@ -18,22 +18,22 @@ class EventManager {
   private invokeListenerId: number = 0;
   private invokeListeners: {
     id: number;
-    cb: (method: MethodRef, params: any[], sfDepth: number) => void;
+    cb: (method: Method, params: any[], sfDepth: number) => void;
   }[] = [];
 
   private returnListenerId: number = 0;
   private returnListeners: {
     id: number;
-    cb: (method: MethodRef, returnValue: any) => void;
+    cb: (method: Method, returnValue: any) => void;
   }[] = [];
 
-  onLoad(cb: (loaded: ClassRef, loader: AbstractClassLoader) => void): number {
+  onLoad(cb: (loaded: ClassData, loader: AbstractClassLoader) => void): number {
     const id = this._loadListenerId++;
     this.loadListeners.push({ id, cb });
     return id;
   }
 
-  loadEvent(loaded: ClassRef, loader: AbstractClassLoader) {
+  loadEvent(loaded: ClassData, loader: AbstractClassLoader) {
     this.loadListeners.forEach(listener => listener.cb(loaded, loader));
   }
 
@@ -64,14 +64,14 @@ class EventManager {
   }
 
   onInvoke(
-    cb: (method: MethodRef, params: any[], sfDepth: number) => void
+    cb: (method: Method, params: any[], sfDepth: number) => void
   ): number {
     const id = this.invokeListenerId++;
     this.invokeListeners.push({ id, cb });
     return id;
   }
 
-  invokeEvent(method: MethodRef, params: any[], sfDepth: number) {
+  invokeEvent(method: Method, params: any[], sfDepth: number) {
     this.invokeListeners.forEach(listener =>
       listener.cb(method, params, sfDepth)
     );
@@ -83,13 +83,13 @@ class EventManager {
     );
   }
 
-  onReturn(cb: (method: MethodRef, returnValue: any) => void): number {
+  onReturn(cb: (method: Method, returnValue: any) => void): number {
     const id = this.returnListenerId++;
     this.returnListeners.push({ id, cb });
     return id;
   }
 
-  returnEvent(method: MethodRef, returnValue: any) {
+  returnEvent(method: Method, returnValue: any) {
     this.returnListeners.forEach(listener => listener.cb(method, returnValue));
   }
 

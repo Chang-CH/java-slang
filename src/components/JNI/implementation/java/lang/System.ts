@@ -1,6 +1,6 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/Thread/Thread';
-import { ClassRef } from '#types/class/ClassRef';
+import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { SuccessResult } from '#types/result';
@@ -154,7 +154,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
         thread
           .getJVM()
           .getBootstrapClassLoader()
-          .getClassRef('java/lang/System') as SuccessResult<ClassRef>
+          .getClassRef('java/lang/System') as SuccessResult<ClassData>
       ).getResult();
 
       const fr = sysCls.getFieldRef('inLjava/io/InputStream;');
@@ -174,7 +174,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
         thread
           .getJVM()
           .getBootstrapClassLoader()
-          .getClassRef('java/lang/System') as SuccessResult<ClassRef>
+          .getClassRef('java/lang/System') as SuccessResult<ClassData>
       ).getResult();
 
       const fr = sysCls.getFieldRef('outLjava/io/PrintStream;');
@@ -194,7 +194,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
         thread
           .getJVM()
           .getBootstrapClassLoader()
-          .getClassRef('java/lang/System') as SuccessResult<ClassRef>
+          .getClassRef('java/lang/System') as SuccessResult<ClassData>
       ).getResult();
 
       const fr = sysCls.getFieldRef('errLjava/io/PrintStream;');

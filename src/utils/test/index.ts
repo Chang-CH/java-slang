@@ -16,10 +16,10 @@ import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { MethodHandler } from '#types/MethodRef';
-import { ArrayClassRef } from '#types/class/ArrayClassRef';
-import { CLASS_STATUS, ClassRef } from '#types/class/ClassRef';
-import { JavaType } from '#types/dataTypes';
+import { MethodHandler } from '#types/class/Method';
+import { ArrayClassData } from '#types/class/ArrayClassData';
+import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
+import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -28,8 +28,8 @@ export class TestClassLoader extends AbstractClassLoader {
   getJavaObject(): JvmObject | null {
     return null;
   }
-  private primitiveClasses: { [className: string]: ClassRef } = {};
-  getPrimitiveClassRef(className: string): ClassRef {
+  private primitiveClasses: { [className: string]: ClassData } = {};
+  getPrimitiveClassRef(className: string): ClassData {
     if (this.primitiveClasses[className]) {
       return this.primitiveClasses[className];
     }
@@ -67,7 +67,7 @@ export class TestClassLoader extends AbstractClassLoader {
         throw new Error(`Not a primitive: ${className}`);
     }
 
-    const cls = new ClassRef(
+    const cls = new ClassData(
       [],
       CLASS_FLAGS.ACC_PUBLIC,
       internalName,
@@ -84,8 +84,8 @@ export class TestClassLoader extends AbstractClassLoader {
 
   private loadArray(
     className: string,
-    componentCls: ClassRef
-  ): ImmediateResult<ClassRef> {
+    componentCls: ClassData
+  ): ImmediateResult<ClassData> {
     // #region load array superclasses/interfaces
     const objRes = this.getClassRef('java/lang/Object');
     if (objRes.checkError()) {
@@ -101,7 +101,7 @@ export class TestClassLoader extends AbstractClassLoader {
     }
     // #endregion
 
-    const arrayClass = new ArrayClassRef(
+    const arrayClass = new ArrayClassData(
       [],
       CLASS_FLAGS.ACC_PUBLIC,
       className,
@@ -118,7 +118,7 @@ export class TestClassLoader extends AbstractClassLoader {
     return new SuccessResult(arrayClass);
   }
 
-  load(className: string): ImmediateResult<ClassRef> {
+  load(className: string): ImmediateResult<ClassData> {
     const stubRef = this.createClass({
       className: className,
       loader: this,
@@ -126,7 +126,7 @@ export class TestClassLoader extends AbstractClassLoader {
     return new SuccessResult(stubRef);
   }
 
-  loadTestClassRef(className: string, ref: ClassRef) {
+  loadTestClassRef(className: string, ref: ClassData) {
     this.loadedClasses[className] = ref;
   }
 
@@ -178,9 +178,9 @@ export class TestClassLoader extends AbstractClassLoader {
   createClass(options: {
     className?: string;
     loader?: TestClassLoader;
-    superClass?: ClassRef;
+    superClass?: ClassData;
     constants?: ((c: ConstantInfo[]) => ConstantInfo)[];
-    interfaces?: ClassRef[];
+    interfaces?: ClassData[];
     methods?: {
       accessFlags?: METHOD_FLAGS[];
       name?: string;
@@ -346,7 +346,7 @@ export class TestClassLoader extends AbstractClassLoader {
     const interfaces = options.interfaces ?? [];
 
     const clsRef = options.isArray
-      ? new ArrayClassRef(
+      ? new ArrayClassData(
           constantPool,
           options.flags ?? 33,
           options.className ?? '[LTest',
@@ -357,7 +357,7 @@ export class TestClassLoader extends AbstractClassLoader {
           [],
           loader
         )
-      : new ClassRef(
+      : new ClassData(
           constantPool,
           options.flags ?? 33,
           options.className ?? 'Test/Test',
@@ -376,8 +376,8 @@ export class TestClassLoader extends AbstractClassLoader {
 
   protected _loadArrayClass(
     className: string,
-    componentCls: ClassRef
-  ): ImmediateResult<ClassRef> {
+    componentCls: ClassData
+  ): ImmediateResult<ClassData> {
     return this.loadArray(className, componentCls);
   }
 }

@@ -3,27 +3,29 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
-import { LegacyConstantClass } from '#types/ConstantRef';
 import { JvmObject } from '#types/reference/Object';
-import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
-import { ClassRef } from '#types/class/ClassRef';
+import {
+  ConstantClassInfo,
+  ConstantUtf8Info,
+} from '#jvm/external/ClassFile/types/constants';
+import { ClassData } from '#types/class/ClassData';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestSystem, TestClassLoader } from '#utils/test';
 import AbstractSystem from '#utils/AbstractSystem';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
-import { MethodRef } from '#types/MethodRef';
-import { ConstantClass, ConstantString } from '#types/constants';
+import { Method } from '#types/class/Method';
+import { ConstantClass, ConstantString } from '#types/class/Constants';
 import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
 let thread: Thread;
-let threadClass: ClassRef;
+let threadClass: ClassData;
 let code: DataView;
 let jni: JNI;
-let strClass: ClassRef;
-let testClass: ClassRef;
+let strClass: ClassData;
+let testClass: ClassData;
 
 beforeEach(() => {
   jni = new JNI();
@@ -123,7 +125,7 @@ beforeEach(() => {
     ],
     loader: testLoader,
   });
-  const method = testClass.getMethod('test0()V') as MethodRef;
+  const method = testClass.getMethod('test0()V') as Method;
   thread.invokeSf(testClass, method, 0, []);
 });
 
@@ -392,7 +394,7 @@ describe('Ldc', () => {
       ],
       loader: testLoader,
     });
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
@@ -431,7 +433,7 @@ describe('Ldc', () => {
       ],
       loader: testLoader,
     });
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
@@ -478,7 +480,7 @@ describe('Ldc', () => {
     const cstr = customClass.getConstant(constIdx) as ConstantString;
     const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).getResult();
 
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
@@ -524,7 +526,7 @@ describe('Ldc', () => {
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
 
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
@@ -572,7 +574,7 @@ describe('Ldc', () => {
     const clsConstant = customClass.getConstant(constIdx) as ConstantClass;
     clsConstant.resolve();
 
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
@@ -617,7 +619,7 @@ describe('LdcW', () => {
       ],
       loader: testLoader,
     });
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
@@ -656,7 +658,7 @@ describe('LdcW', () => {
       ],
       loader: testLoader,
     });
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
@@ -702,7 +704,7 @@ describe('LdcW', () => {
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
     const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).getResult();
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
@@ -747,7 +749,7 @@ describe('LdcW', () => {
     });
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
@@ -779,7 +781,7 @@ describe('LdcW', () => {
             tag: CONSTANT_TAG.Class,
             nameIndex: cPool.length - 1,
             classRef: testClass,
-          } as LegacyConstantClass;
+          } as ConstantClassInfo;
           return classConstant;
         },
       ],
@@ -794,7 +796,7 @@ describe('LdcW', () => {
       ],
       loader: testLoader,
     });
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
@@ -841,7 +843,7 @@ describe('Ldc2W', () => {
       ],
       loader: testLoader,
     });
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC2_W);
     code.setUint16(1, constIdx);
@@ -881,7 +883,7 @@ describe('Ldc2W', () => {
       ],
       loader: testLoader,
     });
-    const method = customClass.getMethod('test0()V') as MethodRef;
+    const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC2_W);
     code.setUint16(1, constIdx);
