@@ -26,7 +26,7 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
-      return new ErrorResult('java/lang/ClassNotFoundException', '');
+      return new ErrorResult('java/lang/ClassNotFoundException', className);
     }
 
     this.prepareClass(classFile);

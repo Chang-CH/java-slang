@@ -236,33 +236,7 @@ function invokeVirtual(
   }
 
   // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
-  const args = [];
-  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i].type) {
-      case 'V':
-        break; // should not happen
-      case 'B':
-      case 'C':
-      case 'I':
-      case 'S':
-      case 'Z':
-        args[i] = thread.popStack();
-        break;
-      case 'D':
-        args[i] = asDouble(thread.popStack64());
-        break;
-      case 'F':
-        args[i] = asFloat(thread.popStack());
-        break;
-      case 'J':
-        args[i] = thread.popStack64();
-        break;
-      case '[':
-      default: // references + arrays
-        args[i] = thread.popStack();
-    }
-  }
+  const args = getArgs(thread, methodRef);
   const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -290,6 +264,47 @@ function invokeVirtual(
   onFinish && onFinish();
   thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
   return;
+}
+
+function getArgs(thread: Thread, methodRef: MethodRef): any[] {
+  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
+  const isNative = methodRef.checkNative();
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    switch (methodDesc.args[i].type) {
+      case 'V':
+        break; // should not happen
+      case 'B':
+      case 'C':
+      case 'I':
+      case 'S':
+      case 'Z':
+        args.push(thread.popStack());
+        break;
+      case 'D':
+        const double = asDouble(thread.popStack64());
+        args.push(double);
+        if (!isNative) {
+          args.push(double);
+        }
+        break;
+      case 'F':
+        args.push(asFloat(thread.popStack()));
+        break;
+      case 'J':
+        const long = asDouble(thread.popStack64());
+        args.push(long);
+        if (!isNative) {
+          args.push(long);
+        }
+        break;
+      case '[':
+      default: // references + arrays
+        args.push(thread.popStack());
+    }
+  }
+
+  return args.reverse();
 }
 
 export function runInvokevirtual(thread: Thread): void {
@@ -335,33 +350,7 @@ export function runInvokespecial(thread: Thread): void {
   }
 
   // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
-  const args = [];
-  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i].type) {
-      case 'V':
-        break; // should not happen
-      case 'B':
-      case 'C':
-      case 'I':
-      case 'S':
-      case 'Z':
-        args[i] = thread.popStack();
-        break;
-      case 'D':
-        args[i] = asDouble(thread.popStack64());
-        break;
-      case 'F':
-        args[i] = asFloat(thread.popStack());
-        break;
-      case 'J':
-        args[i] = thread.popStack64();
-        break;
-      case '[':
-      default: // references + arrays
-        args[i] = thread.popStack();
-    }
-  }
+  const args = getArgs(thread, methodRef);
 
   const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
@@ -423,33 +412,7 @@ export function runInvokestatic(thread: Thread): void {
   }
 
   // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
-  const args = [];
-  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i].type) {
-      case 'V':
-        break; // should not happen
-      case 'B':
-      case 'C':
-      case 'I':
-      case 'S':
-      case 'Z':
-        args[i] = thread.popStack();
-        break;
-      case 'D':
-        args[i] = asDouble(thread.popStack64());
-        break;
-      case 'F':
-        args[i] = asFloat(thread.popStack());
-        break;
-      case 'J':
-        args[i] = thread.popStack64();
-        break;
-      case '[':
-      default: // references + arrays
-        args[i] = thread.popStack();
-    }
-  }
+  const args = getArgs(thread, methodRef);
 
   thread.offsetPc(3);
   thread.invokeSf(classRef, methodRef, 0, args);
@@ -487,34 +450,7 @@ export function runInvokeinterface(thread: Thread): void {
     return;
   }
 
-  // Get arguments
-  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
-  const args = [];
-  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i].type) {
-      case 'V':
-        break; // should not happen
-      case 'B':
-      case 'C':
-      case 'I':
-      case 'S':
-      case 'Z':
-        args[i] = thread.popStack();
-        break;
-      case 'D':
-        args[i] = asDouble(thread.popStack64());
-        break;
-      case 'F':
-        args[i] = asFloat(thread.popStack());
-        break;
-      case 'J':
-        args[i] = thread.popStack64();
-        break;
-      case '[':
-      default: // references + arrays
-        args[i] = thread.popStack();
-    }
-  }
+  const args = getArgs(thread, methodRef);
   const objRef = thread.popStack() as JvmObject;
 
   if (objRef === null) {
