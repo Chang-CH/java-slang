@@ -42,14 +42,14 @@ export class JvmObject {
 
   initialize(thread: Thread, ...rest: any[]): Result<JvmObject> {
     if (this.initStatus) {
-      return new SuccessResult(this);
+      return { result: this };
     }
 
     // TODO: check for other inits.
     const initMethod = this.cls.getMethod('<init>()V');
     if (!initMethod) {
       this.initStatus = true;
-      return new SuccessResult(this);
+      return { result: this };
     }
 
     thread.invokeSf(this.cls, initMethod, 0, [this], (ret, err) => {
@@ -57,7 +57,7 @@ export class JvmObject {
         this.initStatus = true;
       }
     });
-    return new DeferResult();
+    return { isDefer: true };
   }
 
   getClass() {

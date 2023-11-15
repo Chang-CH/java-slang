@@ -6,6 +6,7 @@ import {
   ConstantMethodHandle,
 } from '#types/class/Constants';
 import { ClassData } from '#types/class/ClassData';
+import { checkSuccess, checkError } from '#types/result';
 
 export function runNop(thread: Thread): void {
   thread.offsetPc(1);
@@ -111,36 +112,33 @@ export function loadConstant(
 
   if (ConstantMethodHandle.check(constant)) {
     const res = (constant as any).tempResolve(thread);
-    if (!res.checkSuccess()) {
-      if (res.checkError()) {
-        const err = res.getError();
-        thread.throwNewException(err.className, err.msg);
+    if (!checkSuccess(res)) {
+      if (checkError(res)) {
+        thread.throwNewException(res.exceptionCls, res.msg);
       }
       return;
     }
 
-    thread.pushStack(res.getResult());
+    thread.pushStack(res.result);
     onFinish && onFinish();
     return;
   }
 
   const resolutionRes = constant.resolve(thread);
-  if (!resolutionRes.checkSuccess()) {
-    if (resolutionRes.checkError()) {
-      const err = resolutionRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(resolutionRes)) {
+    if (checkError(resolutionRes)) {
+      thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
     }
     return;
   }
 
-  let value = resolutionRes.getResult();
+  let value = resolutionRes.result;
   if (ConstantClass.check(constant)) {
     const clsRef = value as ClassData;
     const initRes = clsRef.initialize(thread);
-    if (!initRes.checkSuccess()) {
-      if (initRes.checkError()) {
-        const err = initRes.getError();
-        thread.throwNewException(err.className, err.msg);
+    if (!checkSuccess(initRes)) {
+      if (checkError(initRes)) {
+        thread.throwNewException(initRes.exceptionCls, initRes.msg);
       }
       return;
     }

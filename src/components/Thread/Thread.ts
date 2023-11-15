@@ -3,6 +3,7 @@ import JVM from '#jvm/index';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmArray } from '#types/reference/Array';
+import { checkError, checkSuccess } from '#types/result';
 import { stringifyCode } from '#utils/Prettify/classfile';
 import { JvmObject } from '../../types/reference/Object';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './StackFrame';
@@ -34,10 +35,6 @@ export default class Thread {
     this.javaObject.putNativeField('thread', this);
   }
 
-  getJVM() {
-    return this.jvm;
-  }
-
   initialize(thread: Thread) {
     const init = this.threadClass.getMethod('<init>()V') as Method;
     if (!init) {
@@ -47,12 +44,14 @@ export default class Thread {
     thread.invokeSf(this.threadClass, init, 0, [this.javaObject]);
   }
 
-  getStatus() {
-    return this.status;
+  // #region getters
+
+  getJVM() {
+    return this.jvm;
   }
 
-  setStatus(status: ThreadStatus) {
-    this.status = status;
+  getStatus() {
+    return this.status;
   }
 
   getJavaObject() {
@@ -63,23 +62,8 @@ export default class Thread {
     return this.stack;
   }
 
-  /**
-   * Returns true if there are no stackframes left.
-   */
-  isStackEmpty() {
-    return this.stack.length === 0;
-  }
-
   getPC(): number {
     return this.stack[this.stackPointer].pc;
-  }
-
-  offsetPc(pc: number) {
-    this.stack[this.stackPointer].pc += pc;
-  }
-
-  setPc(pc: number) {
-    this.stack[this.stackPointer].pc = pc;
   }
 
   /**
@@ -97,6 +81,33 @@ export default class Thread {
   getCode(): DataView {
     return (this.stack[this.stackPointer].method._getCode() as CodeAttribute)
       .code;
+  }
+
+  // #endregion
+
+  // #region setters
+
+  setStatus(status: ThreadStatus) {
+    this.status = status;
+  }
+
+  offsetPc(pc: number) {
+    this.stack[this.stackPointer].pc += pc;
+  }
+
+  setPc(pc: number) {
+    this.stack[this.stackPointer].pc = pc;
+  }
+
+  // #endregion
+
+  // #region stack
+
+  /**
+   * Returns true if there are no stackframes left.
+   */
+  isStackEmpty() {
+    return this.stack.length === 0;
   }
 
   peekStackFrame() {
@@ -201,6 +212,10 @@ export default class Thread {
     this.stackPointer += 1;
   }
 
+  // #endregion
+
+  // #region locals
+
   storeLocal(index: number, value: any) {
     this.stack[this.stackPointer].locals[index] = value;
   }
@@ -214,34 +229,36 @@ export default class Thread {
     return this.stack[this.stackPointer].locals[index];
   }
 
+  // #endregion
+
+  // #region exceptions
+
   throwNewException(className: string, msg: string) {
     // Initialize exception
     // FIXME: push msg to stack
     const clsRes = this.getClass().getLoader().getClassRef(className);
-    if (clsRes.checkError()) {
-      const err = clsRes.getError();
-      if (err.className === 'java/lang/ClassNotFoundException') {
+    if (checkError(clsRes)) {
+      if (clsRes.exceptionCls === 'java/lang/ClassNotFoundException') {
         throw new Error(
           'Infinite loop detected: ClassNotFoundException not found'
         );
       }
 
-      this.throwNewException(err.className, err.msg);
+      this.throwNewException(clsRes.exceptionCls, clsRes.msg);
       return;
     }
 
-    const exceptionCls = clsRes.getResult();
+    const exceptionCls = clsRes.result;
     const initRes = exceptionCls.initialize(this);
     // TODO: check infinite loops
-    if (!initRes.checkSuccess()) {
-      if (initRes.checkError()) {
-        const err = initRes.getError();
-        this.throwNewException(err.className, err.msg);
+    if (!checkSuccess(initRes)) {
+      if (checkError(initRes)) {
+        this.throwNewException(initRes.exceptionCls, initRes.msg);
       }
       return;
     }
 
-    // initialize exception object with msg
+    // TODO: initialize exception object with msg
 
     console.error('throwing exception ', exceptionCls.getClassname(), msg);
     this.throwException(exceptionCls.instantiate());
@@ -295,4 +312,6 @@ export default class Thread {
       exception,
     ]);
   }
+
+  // #endregion
 }

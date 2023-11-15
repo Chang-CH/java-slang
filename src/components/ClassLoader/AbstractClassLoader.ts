@@ -9,22 +9,13 @@ import {
   ConstantInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
+import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
-import { MethodHandler, Method } from '#types/class/Method';
-import { ArrayClassData } from '#types/class/ArrayClassData';
-import { CLASS_STATUS, CLASS_TYPE, ClassData } from '#types/class/ClassData';
-import { ConstantUtf8, ConstantClass } from '#types/class/Constants';
+import { MethodHandler } from '#types/class/Method';
+import { CLASS_TYPE, ClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
-import {
-  ErrorResult,
-  ImmediateResult,
-  Result,
-  ResultType,
-  SuccessResult,
-} from '#types/result';
+import { ImmediateResult, checkError, checkSuccess } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
-import { TestClassLoader, TestSystem } from '#utils/test';
 
 export default abstract class AbstractClassLoader {
   protected nativeSystem: AbstractSystem;
@@ -91,10 +82,10 @@ export default abstract class AbstractClassLoader {
           (constantPool[ctIndex] as ConstantClassInfo).nameIndex
         ] as ConstantUtf8Info;
         const ctRes = this.getClassRef(catchType.value);
-        if (ctRes.checkError()) {
-          return new ErrorResult('java/lang/NoClassDefFoundError', '');
+        if (checkError(ctRes)) {
+          return { exceptionCls: 'java/lang/NoClassDefFoundError', msg: '' };
         }
-        const clsRef = ctRes.getResult();
+        const clsRef = ctRes.result;
 
         handlderTable.push({
           startPc: handler.startPc,
@@ -105,11 +96,13 @@ export default abstract class AbstractClassLoader {
       }
     }
 
-    return new SuccessResult({
-      method,
-      exceptionHandlers: handlderTable,
-      code,
-    });
+    return {
+      result: {
+        method,
+        exceptionHandlers: handlderTable,
+        code,
+      },
+    };
   }
 
   /**
@@ -137,21 +130,20 @@ export default abstract class AbstractClassLoader {
       ] as ConstantUtf8Info;
       const res = this.getClassRef(superClassName.value);
 
-      if (res.checkError()) {
+      if (checkError(res)) {
         // FIXME: save linker error, throw when attempting to get superclass
-        throw new Error(res.getError().className);
+        throw new Error(res.exceptionCls);
       }
 
-      superClass = res.getResult();
+      superClass = res.result;
     }
 
     if ((accessFlags & CLASS_FLAGS.ACC_INTERFACE) !== 0 && !superClass) {
       // Some compilers set superclass to object by default.
       // We force it to be java/lang/Object if it's not set.
       // assume object is loaded at initialization.
-      superClass = (
-        this.getClassRef('java/lang/Object') as any
-      ).getResult() as ClassData;
+      superClass = (this.getClassRef('java/lang/Object') as any)
+        .result as ClassData;
     }
 
     // resolve interfaces
@@ -164,10 +156,10 @@ export default abstract class AbstractClassLoader {
         cls.constantPool[interfaceNameIdx] as ConstantUtf8Info
       ).value;
       const res = this.getClassRef(interfaceName);
-      if (res.checkError()) {
-        throw new Error(res.getError().className);
+      if (checkError(res)) {
+        throw new Error(res.exceptionCls);
       }
-      interfaces.push(res.getResult());
+      interfaces.push(res.result);
     });
 
     const methods: {
@@ -177,10 +169,10 @@ export default abstract class AbstractClassLoader {
     }[] = [];
     cls.methods.forEach(method => {
       const res = this._linkMethod(constantPool, method);
-      if (res.checkError()) {
-        throw new Error(res.getError().className);
+      if (checkError(res)) {
+        throw new Error(res.exceptionCls);
       }
-      const mData = res.getResult();
+      const mData = res.result;
       methods.push(mData);
     });
 
@@ -225,7 +217,7 @@ export default abstract class AbstractClassLoader {
     initiator: AbstractClassLoader
   ): ImmediateResult<ClassData> {
     if (this.loadedClasses[className]) {
-      return new SuccessResult(this.loadedClasses[className]);
+      return { result: this.loadedClasses[className] };
     }
 
     // We might need the current loader to load its component class
@@ -236,16 +228,16 @@ export default abstract class AbstractClassLoader {
       // FIXME: linker errors should be thrown at runtime instead.
       if (itemClsName.startsWith('L')) {
         const itemRes = this._getClassRef(itemClsName.slice(1, -1), initiator);
-        if (itemRes.checkError()) {
+        if (checkError(itemRes)) {
           return itemRes;
         }
-        arrayObjCls = itemRes.getResult();
+        arrayObjCls = itemRes.result;
       } else if (itemClsName.startsWith('[')) {
         const itemRes = this._getClassRef(itemClsName, initiator);
-        if (itemRes.checkError()) {
+        if (checkError(itemRes)) {
           return itemRes;
         }
-        arrayObjCls = itemRes.getResult();
+        arrayObjCls = itemRes.result;
       } else {
         arrayObjCls = this.getPrimitiveClassRef(itemClsName);
       }
@@ -256,7 +248,7 @@ export default abstract class AbstractClassLoader {
 
     if (this.parentLoader) {
       const res = this.parentLoader._getClassRef(className, initiator);
-      if (res.checkSuccess()) {
+      if (checkSuccess(res)) {
         return res;
       }
     }
@@ -381,11 +373,11 @@ export default abstract class AbstractClassLoader {
         descriptor: method.descriptor,
       };
       const linkRes = this._linkMethod(constantPool, temp);
-      if (linkRes.checkError()) {
+      if (checkError(linkRes)) {
         throw new Error("Can't link method");
       }
 
-      methods.push(linkRes.getResult());
+      methods.push(linkRes.result);
     });
     // #endregion
 

@@ -7,7 +7,7 @@ import { ArrayClassData } from '#types/class/ArrayClassData';
 import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { ErrorResult } from '#types/result';
+import { ErrorResult, checkError, checkSuccess } from '#types/result';
 import { j2jsString } from '#utils/index';
 
 export const registerJavaLangClass = (jni: JNI) => {
@@ -43,26 +43,24 @@ export const registerJavaLangClass = (jni: JNI) => {
 
       for (const [name, field] of Object.entries(fields)) {
         const refRes = field.getReflectedObject(thread);
-        if (refRes.checkError()) {
-          const err = refRes.getError();
+        if (checkError(refRes)) {
           thread.returnSF();
-          thread.throwNewException(err.className, err.msg);
+          thread.throwNewException(refRes.exceptionCls, refRes.msg);
           return;
         }
-        result.push(refRes.getResult());
+        result.push(refRes.result);
       }
 
       const faClsRes = thread
         .getClass()
         .getLoader()
         .getClassRef('[Ljava/lang/reflect/Field;');
-      if (faClsRes.checkError()) {
-        const err = faClsRes.getError();
+      if (checkError(faClsRes)) {
         thread.returnSF();
-        thread.throwNewException(err.className, err.msg);
+        thread.throwNewException(faClsRes.exceptionCls, faClsRes.msg);
         return;
       }
-      const faCls = faClsRes.getResult() as ArrayClassData;
+      const faCls = faClsRes.result as ArrayClassData;
       const faObj = faCls.instantiate();
       faObj.initArray(result.length, result);
 
@@ -84,10 +82,9 @@ export const registerJavaLangClass = (jni: JNI) => {
         .getLoader()
         .getPrimitiveClassRef(primitiveClsName);
       const initRes = cls.initialize(thread);
-      if (!initRes.checkSuccess()) {
-        if (initRes.checkError()) {
-          const err = initRes.getError();
-          thread.throwNewException(err.className, err.msg);
+      if (!checkSuccess(initRes)) {
+        if (checkError(initRes)) {
+          thread.throwNewException(initRes.exceptionCls, initRes.msg);
         }
         return;
       }
@@ -169,13 +166,12 @@ export const registerJavaLangClass = (jni: JNI) => {
       }
 
       const loadRes = loader.getClassRef(name);
-      if (loadRes.checkError()) {
-        const err = loadRes.getError();
+      if (checkError(loadRes)) {
         thread.returnSF();
-        thread.throwNewException(err.className, err.msg);
+        thread.throwNewException(loadRes.exceptionCls, loadRes.msg);
         return;
       }
-      const loadedCls = loadRes.getResult();
+      const loadedCls = loadRes.result;
 
       if (!initialize) {
         thread.returnSF(loadedCls.getJavaObject());
@@ -183,11 +179,10 @@ export const registerJavaLangClass = (jni: JNI) => {
       }
 
       const initRes = loadedCls.initialize(thread);
-      if (!initRes.checkSuccess()) {
-        if (initRes.checkError()) {
-          const err = initRes.getError();
+      if (!checkSuccess(initRes)) {
+        if (checkError(initRes)) {
           thread.returnSF();
-          thread.throwNewException(err.className, err.msg);
+          thread.throwNewException(initRes.exceptionCls, initRes.msg);
           return;
         }
         return;
@@ -215,36 +210,37 @@ export const registerJavaLangClass = (jni: JNI) => {
 
       const clsRef = clsObj.getNativeField('classRef') as ClassData;
       const methods: JvmObject[] = [];
-      let error: ErrorResult<JvmObject> | null = null;
+      let error: ErrorResult | null = null;
       Object.entries(clsRef.getMethods()).forEach(([key, value]) => {
         if (!key.startsWith('<init>') || (publicOnly && !value.checkPublic())) {
           return;
         }
 
         const refRes = value.getReflectedObject(thread);
-        if (refRes.checkError()) {
+        if (checkError(refRes)) {
           error = refRes;
           return;
         }
-        methods.push(refRes.getResult());
+        methods.push(refRes.result);
       });
       if (error) {
-        const err = (error as ErrorResult<JvmObject>).getError();
         thread.returnSF();
-        thread.throwNewException(err.className, err.msg);
+        thread.throwNewException(
+          (error as ErrorResult).exceptionCls,
+          (error as ErrorResult).msg
+        );
         return;
       }
 
       const caRes = clsRef
         .getLoader()
         .getClassRef('[Ljava/lang/reflect/Constructor;');
-      if (caRes.checkError()) {
-        const err = caRes.getError();
+      if (checkError(caRes)) {
         thread.returnSF();
-        thread.throwNewException(err.className, err.msg);
+        thread.throwNewException(caRes.exceptionCls, caRes.msg);
         return;
       }
-      const caCls = caRes.getResult() as ArrayClassData;
+      const caCls = caRes.result as ArrayClassData;
       const caObj = caCls.instantiate();
       caObj.initArray(methods.length, methods);
 

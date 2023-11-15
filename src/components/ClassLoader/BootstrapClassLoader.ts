@@ -3,7 +3,12 @@ import { ArrayClassData } from '#types/class/ArrayClassData';
 import { CLASS_TYPE, ClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
-import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
+import {
+  ErrorResult,
+  ImmediateResult,
+  SuccessResult,
+  checkError,
+} from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import { primitiveTypeToName } from '../ExecutionEngine/Interpreter/utils';
 import AbstractClassLoader from './AbstractClassLoader';
@@ -24,15 +29,15 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
   ): ImmediateResult<ClassData> {
     // #region load array superclasses/interfaces
     const objRes = this.getClassRef('java/lang/Object');
-    if (objRes.checkError()) {
+    if (checkError(objRes)) {
       return objRes;
     }
     const cloneableRes = this.getClassRef('java/lang/Cloneable');
-    if (cloneableRes.checkError()) {
+    if (checkError(cloneableRes)) {
       return cloneableRes;
     }
     const serialRes = this.getClassRef('java/io/Serializable');
-    if (serialRes.checkError()) {
+    if (checkError(serialRes)) {
       return serialRes;
     }
     // #endregion
@@ -41,8 +46,8 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
       [],
       CLASS_FLAGS.ACC_PUBLIC,
       className,
-      objRes.getResult(),
-      [cloneableRes.getResult(), serialRes.getResult()],
+      objRes.result,
+      [cloneableRes.result, serialRes.result],
       [],
       [],
       [],
@@ -51,7 +56,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     arrayClass.setComponentClass(componentCls);
 
     this.loadClass(arrayClass);
-    return new SuccessResult(arrayClass);
+    return { result: arrayClass };
   }
 
   /**
@@ -67,12 +72,15 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
-      return new ErrorResult('java/lang/ClassNotFoundException', className);
+      return {
+        exceptionCls: 'java/lang/ClassNotFoundException',
+        msg: className,
+      };
     }
 
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
-    return new SuccessResult(this.loadClass(classData));
+    return { result: this.loadClass(classData) };
   }
 
   protected _loadArrayClass(

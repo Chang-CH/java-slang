@@ -20,6 +20,8 @@ import {
   ImmediateResult,
   Result,
   SuccessResult,
+  checkError,
+  checkSuccess,
 } from '#types/result';
 
 export enum CLASS_STATUS {
@@ -142,11 +144,11 @@ export class ClassData {
       this.status === CLASS_STATUS.INITIALIZING
     ) {
       // FIXME: check if current class is initializer
-      return new SuccessResult<ClassData>(this);
+      return { result: this };
     }
 
     const clsRes = this.loader.getClassRef('java/lang/Class');
-    if (clsRes.checkError()) {
+    if (checkError(clsRes)) {
       onDefer && onDefer();
       return clsRes;
     }
@@ -166,11 +168,11 @@ export class ClassData {
         [],
         () => (this.status = CLASS_STATUS.INITIALIZED)
       );
-      return new DeferResult<ClassData>();
+      return { isDefer: true };
     }
 
     this.status = CLASS_STATUS.INITIALIZED;
-    return new SuccessResult<ClassData>(this);
+    return { result: this };
   }
 
   // FIXME: seems like getJavaObject() is being called before initialization.
@@ -180,7 +182,7 @@ export class ClassData {
       // We assume that java/lang/Class has been loaded at JVM initialization (step 1)
       const clsCls = (
         this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassData>
-      ).getResult();
+      ).result;
 
       this.javaObj = new JvmObject(clsCls);
       this.javaObj.putNativeField('classRef', this);
@@ -217,13 +219,13 @@ export class ClassData {
 
   resolveClass(toResolve: string): ImmediateResult<ClassData> {
     const res = this.loader.getClassRef(toResolve);
-    if (res.checkError()) {
+    if (checkError(res)) {
       return res;
     }
-    const cls = res.getResult();
+    const cls = res.result;
 
     if (!cls.checkPublic() && cls.getPackageName() !== this.getPackageName()) {
-      return new ErrorResult('java/lang/IllegalAccessError', '');
+      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
     }
 
     return res;
@@ -293,10 +295,10 @@ export class ClassData {
     // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
     let result = this._resolveMethodSuper(methodKey);
     if (result !== null) {
-      const res = new SuccessResult(result);
-      const method = res.getResult();
+      const res = { result: result };
+      const method = res.result;
       if (!method.checkAccess(accessingClass, this)) {
-        return new ErrorResult('java/lang/IllegalAccessError', '');
+        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
       }
       return res;
     }
@@ -305,12 +307,12 @@ export class ClassData {
     result = this._resolveMethodInterface(methodKey);
     if (result !== null) {
       if (!result.checkAccess(accessingClass, this)) {
-        return new ErrorResult('java/lang/IllegalAccessError', '');
+        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
       }
-      return new SuccessResult(result);
+      return { result: result };
     }
     // If method lookup fails, method resolution throws a NoSuchMethodError
-    return new ErrorResult('java/lang/NoSuchMethodError', '');
+    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
   }
 
   /**
@@ -413,8 +415,8 @@ export class ClassData {
 
       if (!method) {
         const interRes = inter._lookupMethodInterface(methodName);
-        if (interRes.checkSuccess()) {
-          method = interRes.getResult();
+        if (checkSuccess(interRes)) {
+          method = interRes.result;
         }
       }
 
@@ -425,16 +427,19 @@ export class ClassData {
         !method.checkAbstract()
       ) {
         if (res) {
-          return new ErrorResult('java/lang/IncompatibleClassChangeError', '');
+          return {
+            exceptionCls: 'java/lang/IncompatibleClassChangeError',
+            msg: '',
+          };
         }
         res = method;
       }
     }
 
     if (res) {
-      return new SuccessResult(res);
+      return { result: res };
     }
-    return new ErrorResult('java/lang/AbstractMethodError', '');
+    return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
   }
 
   lookupMethod(
@@ -452,18 +457,18 @@ export class ClassData {
     );
     if (methodRef) {
       if (checkInterface && !methodRef.checkPublic()) {
-        return new ErrorResult('java/lang/IllegalAccessError', '');
+        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
       }
 
       if (methodRef.checkAbstract()) {
-        return new ErrorResult('java/lang/AbstractMethodError', '');
+        return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
       }
       if (methodRef.checkNative()) {
         // FIXME: If the code that implements the method cannot be bound,
         // invokevirtual throws an UnsatisfiedLinkError
       }
 
-      return new SuccessResult(methodRef);
+      return { result: methodRef };
     }
 
     return this._lookupMethodInterface(methodName);

@@ -63,7 +63,7 @@ beforeEach(() => {
   });
   threadClass = (
     testLoader.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
-  ).getResult();
+  ).result;
 
   testLoader.createClass({
     className: 'java/lang/ArithmeticException',

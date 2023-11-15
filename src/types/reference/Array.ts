@@ -51,7 +51,7 @@ export class JvmArray extends JvmObject {
 
     if (arr) {
       this.array = arr;
-      return new SuccessResult(this);
+      return { result: this };
     }
 
     let def;
@@ -85,7 +85,7 @@ export class JvmArray extends JvmObject {
     }
 
     this.array = new Array(length).fill(def);
-    return new SuccessResult(this);
+    return { result: this };
   }
 
   get(index: number) {

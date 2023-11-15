@@ -478,7 +478,7 @@ describe('Ldc', () => {
     });
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
-    const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).getResult();
+    const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).result;
 
     const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
@@ -703,7 +703,7 @@ describe('LdcW', () => {
     });
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
-    const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).getResult();
+    const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).result;
     const method = customClass.getMethod('test0()V') as Method;
     thread.invokeSf(customClass, method, 0, []);
     code.setUint8(0, OPCODE.LDC_W);

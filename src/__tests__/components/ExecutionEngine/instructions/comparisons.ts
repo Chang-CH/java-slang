@@ -22,7 +22,7 @@ beforeEach(() => {
 
   threadClass = (
     bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
-  ).getResult() as ClassData;
+  ).result as ClassData;
   thread = new Thread(threadClass, new JVM(nativeSystem));
   const method = threadClass.getMethod('<init>()V') as Method;
   code = (method._getCode() as CodeAttribute).code;

@@ -1,11 +1,6 @@
 import Thread from '#jvm/components/Thread/Thread';
 
 import { parseMethodDescriptor, asDouble, asFloat } from '../Interpreter/utils';
-import {
-  ConstantInvokeDynamicInfo,
-  ConstantMethodHandleInfo,
-} from '#jvm/external/ClassFile/types/constants';
-import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
@@ -18,9 +13,8 @@ import {
   ConstantInterfaceMethodref,
   ConstantInvokeDynamic,
   ConstantMethodref,
-  ConstantNameAndType,
-  ConstantUtf8,
 } from '#types/class/Constants';
+import { Result, checkError, checkSuccess } from '#types/result';
 
 export function runGetstatic(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
@@ -30,29 +24,26 @@ export function runGetstatic(thread: Thread): void {
     .getConstant(indexbyte) as ConstantFieldref;
   const fieldRes = constantField.resolve();
 
-  if (!fieldRes.checkSuccess()) {
-    if (fieldRes.checkError()) {
-      const err = fieldRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(fieldRes)) {
+    if (checkError(fieldRes)) {
+      thread.throwNewException(fieldRes.exceptionCls, fieldRes.msg);
       return;
     }
     return;
   }
-  const field = fieldRes.getResult();
+  const field = fieldRes.result;
 
   const accessCheck = field.checkAccess(thread, true, false);
-  if (accessCheck.checkError()) {
-    const err = accessCheck.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(accessCheck)) {
+    thread.throwNewException(accessCheck.exceptionCls, accessCheck.msg);
     return;
   }
 
   const fieldClass = field.getClass();
   const initRes = fieldClass.initialize(thread);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(initRes)) {
+    if (checkError(initRes)) {
+      thread.throwNewException(initRes.exceptionCls, initRes.msg);
       return;
     }
     return;
@@ -74,29 +65,26 @@ export function runPutstatic(thread: Thread): void {
     .getConstant(indexbyte) as ConstantFieldref;
   const fieldRes = constantField.resolve();
 
-  if (!fieldRes.checkSuccess()) {
-    if (fieldRes.checkError()) {
-      const err = fieldRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(fieldRes)) {
+    if (checkError(fieldRes)) {
+      thread.throwNewException(fieldRes.exceptionCls, fieldRes.msg);
       return;
     }
     return;
   }
-  const field = fieldRes.getResult();
+  const field = fieldRes.result;
 
   const accessCheck = field.checkAccess(thread, true, true);
-  if (accessCheck.checkError()) {
-    const err = accessCheck.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(accessCheck)) {
+    thread.throwNewException(accessCheck.exceptionCls, accessCheck.msg);
     return;
   }
 
   const fieldClass = field.getClass();
   const initRes = fieldClass.initialize(thread);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(initRes)) {
+    if (checkError(initRes)) {
+      thread.throwNewException(initRes.exceptionCls, initRes.msg);
       return;
     }
     return;
@@ -132,21 +120,18 @@ export function runGetfield(thread: Thread): void {
     .getConstant(indexbyte) as ConstantFieldref;
   const fieldRes = constantField.resolve();
 
-  if (!fieldRes.checkSuccess()) {
-    if (fieldRes.checkError()) {
-      const err = fieldRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(fieldRes)) {
+    if (checkError(fieldRes)) {
+      thread.throwNewException(fieldRes.exceptionCls, fieldRes.msg);
       return;
     }
-    // TODO: rollback
     return;
   }
-  const field = fieldRes.getResult();
+  const field = fieldRes.result;
 
   const accessCheck = field.checkAccess(thread, false, false);
-  if (accessCheck.checkError()) {
-    const err = accessCheck.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(accessCheck)) {
+    thread.throwNewException(accessCheck.exceptionCls, accessCheck.msg);
     return;
   }
 
@@ -174,20 +159,18 @@ export function runPutfield(thread: Thread): void {
     .getConstant(indexbyte) as ConstantFieldref;
   const fieldRes = constantField.resolve();
 
-  if (!fieldRes.checkSuccess()) {
-    if (fieldRes.checkError()) {
-      const err = fieldRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(fieldRes)) {
+    if (checkError(fieldRes)) {
+      thread.throwNewException(fieldRes.exceptionCls, fieldRes.msg);
       return;
     }
     return;
   }
-  const field = fieldRes.getResult();
+  const field = fieldRes.result;
 
   const accessCheck = field.checkAccess(thread, false, false);
-  if (accessCheck.checkError()) {
-    const err = accessCheck.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(accessCheck)) {
+    thread.throwNewException(accessCheck.exceptionCls, accessCheck.msg);
     return;
   }
 
@@ -208,36 +191,72 @@ export function runPutfield(thread: Thread): void {
   thread.offsetPc(3);
 }
 
-// TODO: FIXME: wide locals should take up 2 indexes
-function invokeVirtual(
+function resolveMethod(
   thread: Thread,
-  constant: ConstantMethodref,
-  onFinish?: () => void
-): void {
+  constant: ConstantMethodref | ConstantInterfaceMethodref
+): Result<{ classRef: ClassData; methodRef: Method; args: any[] }> {
   const methodRes = constant.resolve();
-  if (!methodRes.checkSuccess()) {
-    if (methodRes.checkError()) {
-      const err = methodRes.getError();
-      thread.throwNewException(err.className, err.msg);
-      return;
+  if (!checkSuccess(methodRes)) {
+    if (checkError(methodRes)) {
+      return methodRes;
     }
-    return;
+    return { isDefer: true };
   }
-  const methodRef = methodRes.getResult();
+  const methodRef = methodRes.result;
 
   const classRef = methodRef.getClass();
   const initRes = classRef.initialize(thread);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(initRes)) {
+    if (checkError(initRes)) {
+      return initRes;
+    }
+    return { isDefer: true };
+  }
+
+  const args = getArgs(thread, methodRef);
+
+  return { result: { classRef, methodRef, args } };
+}
+
+function lookupMethod(thread: Thread, methodRef: Method): Result<Method> {
+  const objRef = thread.popStack() as JvmObject;
+  if (objRef === null) {
+    return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
+  }
+  const runtimeClassRef = objRef.getClass();
+
+  // method lookup
+  const lookupResult = runtimeClassRef.lookupMethod(
+    methodRef.getName() + methodRef.getDescriptor(),
+    methodRef,
+    true
+  );
+  if (checkError(lookupResult)) {
+    return lookupResult;
+  }
+  const toInvoke = lookupResult.result;
+  if (toInvoke.checkAbstract()) {
+    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
+  }
+
+  return { result: toInvoke };
+}
+
+function invokeVirtual(
+  thread: Thread,
+  constant: ConstantMethodref | ConstantInterfaceMethodref,
+  onFinish?: () => void
+): void {
+  const resolutionRes = resolveMethod(thread, constant);
+  if (!checkSuccess(resolutionRes)) {
+    if (checkError(resolutionRes)) {
+      thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
       return;
     }
     return;
   }
+  const { methodRef, args } = resolutionRes.result;
 
-  // Get arguments
-  const args = getArgs(thread, methodRef);
   const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -251,12 +270,11 @@ function invokeVirtual(
     methodRef,
     true
   );
-  if (lookupResult.checkError()) {
-    const err = lookupResult.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(lookupResult)) {
+    thread.throwNewException(lookupResult.exceptionCls, lookupResult.msg);
     return;
   }
-  const toInvoke = lookupResult.getResult();
+  const toInvoke = lookupResult.result;
   if (toInvoke.checkAbstract()) {
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
@@ -321,37 +339,15 @@ export function runInvokespecial(thread: Thread): void {
   const constant = thread.getClass().getConstant(indexbyte) as
     | ConstantMethodref
     | ConstantInterfaceMethodref;
-
-  const methodRes = constant.resolve();
-  if (!methodRes.checkSuccess()) {
-    if (methodRes.checkError()) {
-      const err = methodRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  const resolutionRes = resolveMethod(thread, constant);
+  if (!checkSuccess(resolutionRes)) {
+    if (checkError(resolutionRes)) {
+      thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
       return;
     }
     return;
   }
-
-  const methodRef = methodRes.getResult();
-
-  // If all of the following are true, let C be the direct superclass of the current class:
-  //   The resolved method is not an instance initialization method (§2.9.1).
-  //   If the symbolic reference names a class (not an interface), then that class is a superclass of the current class.
-  //   The ACC_SUPER flag is set for the class file (§4.1).
-
-  const classRef = methodRef.getClass();
-  const initRes = classRef.initialize(thread);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
-      return;
-    }
-    return;
-  }
-
-  // Get arguments
-  const args = getArgs(thread, methodRef);
+  const { methodRef, args } = resolutionRes.result;
 
   const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
@@ -363,12 +359,11 @@ export function runInvokespecial(thread: Thread): void {
   const lookupResult = methodRef
     .getClass()
     .lookupMethod(methodRef.getName() + methodRef.getDescriptor(), methodRef);
-  if (lookupResult.checkError()) {
-    const err = lookupResult.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(lookupResult)) {
+    thread.throwNewException(lookupResult.exceptionCls, lookupResult.msg);
     return;
   }
-  const toInvoke = lookupResult.getResult();
+  const toInvoke = lookupResult.result;
   if (toInvoke.checkAbstract()) {
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
@@ -383,37 +378,20 @@ export function runInvokestatic(thread: Thread): void {
     | ConstantMethodref
     | ConstantInterfaceMethodref;
 
-  const methodRes = constant.resolve();
-  if (!methodRes.checkSuccess()) {
-    if (methodRes.checkError()) {
-      const err = methodRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  const resolutionRes = resolveMethod(thread, constant);
+  if (!checkSuccess(resolutionRes)) {
+    if (checkError(resolutionRes)) {
+      thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
       return;
     }
     return;
   }
-
-  const methodRef = methodRes.getResult();
+  const { classRef, methodRef, args } = resolutionRes.result;
 
   if (!methodRef.checkStatic()) {
     thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
     return;
   }
-
-  const classRef = methodRef.getClass();
-  // init class
-  const initRes = classRef.initialize(thread);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
-      return;
-    }
-    return;
-  }
-
-  // Get arguments
-  const args = getArgs(thread, methodRef);
 
   thread.offsetPc(3);
   thread.invokeSf(classRef, methodRef, 0, args);
@@ -425,33 +403,18 @@ export function runInvokeinterface(thread: Thread): void {
   const count = thread.getCode().getUint8(thread.getPC() + 3);
   const zero = thread.getCode().getUint8(thread.getPC() + 4);
 
-  let methodRef;
   const constant = thread
     .getClass()
     .getConstant(indexbyte) as ConstantInterfaceMethodref;
-  const res = constant.resolve();
-  if (!res.checkSuccess()) {
-    if (res.checkError()) {
-      const err = res.getError();
-      thread.throwNewException(err.className, err.msg);
+  const resolutionRes = resolveMethod(thread, constant);
+  if (!checkSuccess(resolutionRes)) {
+    if (checkError(resolutionRes)) {
+      thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
       return;
     }
     return;
   }
-  methodRef = res.getResult();
-
-  const classRef = methodRef.getClass();
-  const initRes = classRef.initialize(thread);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
-      return;
-    }
-    return;
-  }
-
-  const args = getArgs(thread, methodRef);
+  const { classRef, methodRef, args } = resolutionRes.result;
   const objRef = thread.popStack() as JvmObject;
 
   if (objRef === null) {
@@ -471,12 +434,11 @@ export function runInvokeinterface(thread: Thread): void {
     false,
     true
   );
-  if (lookupResult.checkError()) {
-    const err = lookupResult.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(lookupResult)) {
+    thread.throwNewException(lookupResult.exceptionCls, lookupResult.msg);
     return;
   }
-  const toInvoke = lookupResult.getResult();
+  const toInvoke = lookupResult.result;
   if (toInvoke.checkAbstract()) {
     thread.throwNewException('java/lang/NoSuchMethodError', '');
     return;
@@ -496,25 +458,24 @@ export function runInvokedynamic(thread: Thread): void {
 
   // #region Temporary lambda creation code
   const tempRes = callsiteConstant.tempResolve(thread);
-  if (!tempRes.checkSuccess()) {
-    if (tempRes.checkError()) {
-      const err = tempRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(tempRes)) {
+    if (checkError(tempRes)) {
+      thread.throwNewException(tempRes.exceptionCls, tempRes.msg);
       return;
     }
     return;
   }
-  const lambdaObj = tempRes.getResult();
+  const lambdaObj = tempRes.result;
   thread.pushStack(lambdaObj);
   thread.offsetPc(5);
   return;
   // #endregion
 
   // const cssRes = callsiteConstant.resolve(thread);
-  // if (!cssRes.checkSuccess()) {
-  //   if (cssRes.checkError()) {
+  // if (!checkSuccess(cssRes)) {
+  //   if (checkError(cssRes)) {
   //     const err = cssRes.getError();
-  //     thread.throwNewException(err.className, err.msg);
+  //     thread.throwNewException(err.exceptionCls, err.msg);
   //     return;
   //   }
   //   return;
@@ -578,16 +539,15 @@ export function runNew(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const invoker = thread.getClass();
   const res = (invoker.getConstant(indexbyte) as ConstantClass).resolve();
-  if (!res.checkSuccess()) {
-    if (res.checkError()) {
-      const err = res.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(res)) {
+    if (checkError(res)) {
+      thread.throwNewException(res.exceptionCls, res.msg);
       return;
     }
     return;
   }
 
-  const objCls = res.getResult();
+  const objCls = res.result;
   if (objCls.checkAbstract() || objCls.checkInterface()) {
     thread.throwNewException('java/lang/InstantiationError', '');
     return;
@@ -595,10 +555,9 @@ export function runNew(thread: Thread): void {
 
   // Load + initialize if needed
   const initRes = objCls.initialize(thread);
-  if (!initRes.checkSuccess()) {
-    if (initRes.checkError()) {
-      const err = initRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(initRes)) {
+    if (checkError(initRes)) {
+      thread.throwNewException(initRes.exceptionCls, initRes.msg);
       return;
     }
     return;
@@ -651,11 +610,11 @@ export function runNewarray(thread: Thread): void {
     .getClass()
     .getLoader()
     .getClassRef(className);
-  if (classResolutionResult.checkError()) {
+  if (checkError(classResolutionResult)) {
     throw new Error('Failed to load primitive array class');
   }
 
-  const arrayCls = classResolutionResult.getResult();
+  const arrayCls = classResolutionResult.result;
   const arrayref = arrayCls.instantiate() as unknown as JvmArray;
   arrayref.initArray(count);
   thread.pushStack(arrayref);
@@ -677,17 +636,16 @@ export function runAnewarray(thread: Thread): void {
   }
 
   const res = (invoker.getConstant(indexbyte) as ConstantClass).resolve();
-  if (res.checkError()) {
-    const err = res.getError();
-    thread.throwNewException(err.className, err.msg);
+  if (checkError(res)) {
+    thread.throwNewException(res.exceptionCls, res.msg);
     return;
   }
-  const objCls = res.getResult();
+  const objCls = res.result;
   // const initRes = objCls.initialize(thread, onDefer);
-  // if (!initRes.checkSuccess()) {
-  //   if (initRes.checkError()) {
+  // if (!checkSuccess(initRes)) {
+  //   if (checkError(initRes)) {
   //     const err = initRes.getError();
-  //     thread.throwNewException(err.className, err.msg);
+  //     thread.throwNewException(err.exceptionCls, err.msg);
   //     return;
   //   }
   //   return;
@@ -696,15 +654,15 @@ export function runAnewarray(thread: Thread): void {
   const arrayClassRes = invoker
     .getLoader()
     .getClassRef('[L' + objCls.getClassname() + ';');
-  if (arrayClassRes.checkError()) {
+  if (checkError(arrayClassRes)) {
     throw new Error('Failed to load array class');
   }
-  const arrayCls = arrayClassRes.getResult();
+  const arrayCls = arrayClassRes.result;
   // const aInitRes = arrayCls.initialize(thread, onDefer);
-  // if (!aInitRes.checkSuccess()) {
-  //   if (aInitRes.checkError()) {
+  // if (!checkSuccess(aInitRes)) {
+  //   if (checkError(aInitRes)) {
   //     const err = aInitRes.getError();
-  //     thread.throwNewException(err.className, err.msg);
+  //     thread.throwNewException(err.exceptionCls, err.msg);
   //     return;
   //   }
   //   return;
@@ -754,10 +712,12 @@ function _checkCast(
 
   const clsConstant = thread.getClass().getConstant(indexbyte);
   const resolutionResult = clsConstant.resolve();
-  if (!resolutionResult.checkSuccess()) {
-    if (resolutionResult.checkError()) {
-      const err = resolutionResult.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(resolutionResult)) {
+    if (checkError(resolutionResult)) {
+      thread.throwNewException(
+        resolutionResult.exceptionCls,
+        resolutionResult.msg
+      );
       return;
     }
     return;
@@ -765,7 +725,7 @@ function _checkCast(
 
   // S is the class of the object referred to by objectref and T is the resolved class
   const objClsS = objectref.getClass();
-  const targetClsT = resolutionResult.getResult();
+  const targetClsT = resolutionResult.result;
 
   let value = 0;
   if (objClsS.checkCast(targetClsT)) {

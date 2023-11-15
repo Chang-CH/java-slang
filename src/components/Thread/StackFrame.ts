@@ -27,19 +27,23 @@ export abstract class StackFrame {
     this.locals = locals;
   }
 
-  public onReturn(thread: Thread, retn: any) {
-    if (retn !== undefined) {
-      thread.pushStack(retn);
-    }
-  }
+  /**
+   * Behaviour when a method returns.
+   * Responsible for pushing return value to operand stack of stackframe below it.
+   */
+  abstract onReturn(thread: Thread, retn: any): void;
 
-  public onReturn64(thread: Thread, retn: any) {
-    thread.pushStack64(retn);
-  }
+  /**
+   * Behaviour when a method returns with a 64 bit value.
+   * Responsible for pushing return value to operand stack of stackframe below it.
+   */
+  abstract onReturn64(thread: Thread, retn: any): void;
 
-  onError(thread: Thread, err: JvmObject) {
-    // Do nothing (exception handling?)
-  }
+  /**
+   * Called when the frame is popped due to an uncaught exception.
+   * Does not prevent exception from being thrown in stackframe below it.
+   */
+  onError(thread: Thread, err: JvmObject) {}
 }
 
 export class JavaStackFrame extends StackFrame {
@@ -52,6 +56,16 @@ export class JavaStackFrame extends StackFrame {
     locals: any[]
   ) {
     super(operandStack, maxStack, cls, method, pc, locals);
+  }
+
+  public onReturn(thread: Thread, retn: any) {
+    if (retn !== undefined) {
+      thread.pushStack(retn);
+    }
+  }
+
+  public onReturn64(thread: Thread, retn: any) {
+    thread.pushStack64(retn);
   }
 }
 

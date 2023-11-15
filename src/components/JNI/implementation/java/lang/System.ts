@@ -155,7 +155,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
           .getJVM()
           .getBootstrapClassLoader()
           .getClassRef('java/lang/System') as SuccessResult<ClassData>
-      ).getResult();
+      ).result;
 
       const fr = sysCls.getFieldRef('inLjava/io/InputStream;');
       if (fr) {
@@ -175,7 +175,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
           .getJVM()
           .getBootstrapClassLoader()
           .getClassRef('java/lang/System') as SuccessResult<ClassData>
-      ).getResult();
+      ).result;
 
       const fr = sysCls.getFieldRef('outLjava/io/PrintStream;');
       if (fr) {
@@ -195,7 +195,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
           .getJVM()
           .getBootstrapClassLoader()
           .getClassRef('java/lang/System') as SuccessResult<ClassData>
-      ).getResult();
+      ).result;
 
       const fr = sysCls.getFieldRef('errLjava/io/PrintStream;');
       if (fr) {

@@ -18,6 +18,8 @@ import {
   ImmediateResult,
   Result,
   SuccessResult,
+  checkError,
+  checkSuccess,
 } from '../result';
 
 export interface MethodHandler {
@@ -109,30 +111,30 @@ export class Method {
    */
   getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
     if (this.javaObject) {
-      return new SuccessResult(this.javaObject);
+      return { result: this.javaObject };
     }
 
     const loader = this.cls.getLoader();
     const caRes = loader.getClassRef('[Ljava/lang/Class;');
-    if (caRes.checkError()) {
-      return new ErrorResult(caRes.getError().className, caRes.getError().msg);
+    if (checkError(caRes)) {
+      return caRes;
     }
-    const caCls = caRes.getResult() as ArrayClassData;
+    const caCls = caRes.result as ArrayClassData;
 
     // #region create parameter class array
     const { args, ret } = parseMethodDescriptor(this.descriptor);
     const parameterTypes = caCls.instantiate();
-    let error: ErrorResult<JvmObject> | null = null;
+    let error: ErrorResult | null = null;
     parameterTypes.initArray(
       args.length,
       args.map(arg => {
         if (arg.referenceCls) {
           const res = loader.getClassRef(arg.referenceCls);
-          if (res.checkError()) {
-            error = res as unknown as ErrorResult<JvmObject>;
+          if (checkError(res)) {
+            error = res;
             return null;
           }
-          return res.getResult().getJavaObject();
+          return res.result.getJavaObject();
         }
 
         return loader.getPrimitiveClassRef(arg.type).getJavaObject();
@@ -147,10 +149,10 @@ export class Method {
     let returnType: JvmObject;
     if (ret.referenceCls) {
       const res = loader.getClassRef(ret.referenceCls);
-      if (res.checkError()) {
-        return res as unknown as ErrorResult<JvmObject>;
+      if (checkError(res)) {
+        return res;
       }
-      returnType = res.getResult().getJavaObject();
+      returnType = res.result.getJavaObject();
     } else {
       returnType = loader.getPrimitiveClassRef(ret.type).getJavaObject();
     }
@@ -185,23 +187,17 @@ export class Method {
       // load constructor class
       if (!Method.reflectConstructorClass) {
         const fRes = loader.getClassRef('java/lang/reflect/Constructor');
-        if (fRes.checkError()) {
-          return new ErrorResult(
-            fRes.getError().className,
-            fRes.getError().msg
-          );
+        if (checkError(fRes)) {
+          return fRes;
         }
-        Method.reflectConstructorClass = fRes.getResult();
+        Method.reflectConstructorClass = fRes.result;
       }
 
       javaObject = Method.reflectConstructorClass.instantiate();
       const initRes = javaObject.initialize(thread);
-      if (!initRes.checkSuccess()) {
-        if (initRes.checkError()) {
-          return new ErrorResult(
-            initRes.getError().className,
-            initRes.getError().msg
-          );
+      if (!checkSuccess(initRes)) {
+        if (checkError(initRes)) {
+          return initRes;
         }
         throw new Error('Reflected method should not have static initializer');
       }
@@ -211,23 +207,17 @@ export class Method {
           .getClass()
           .getLoader()
           .getClassRef('java/lang/reflect/Method');
-        if (fRes.checkError()) {
-          return new ErrorResult(
-            fRes.getError().className,
-            fRes.getError().msg
-          );
+        if (checkError(fRes)) {
+          return fRes;
         }
-        Method.reflectMethodClass = fRes.getResult();
+        Method.reflectMethodClass = fRes.result;
       }
 
       javaObject = Method.reflectMethodClass.instantiate();
       const initRes = javaObject.initialize(thread);
-      if (!initRes.checkSuccess()) {
-        if (initRes.checkError()) {
-          return new ErrorResult(
-            initRes.getError().className,
-            initRes.getError().msg
-          );
+      if (!checkSuccess(initRes)) {
+        if (checkError(initRes)) {
+          return initRes;
         }
         throw new Error('Reflected method should not have static initializer');
       }
@@ -324,7 +314,7 @@ export class Method {
     // #endregion
 
     this.javaObject = javaObject;
-    return new SuccessResult(javaObject);
+    return { result: javaObject };
   }
 
   getName() {

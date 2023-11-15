@@ -8,6 +8,7 @@ import {
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ConstantClass } from '#types/class/Constants';
+import { checkSuccess, checkError } from '#types/result';
 
 export function runWide(thread: Thread): void {
   thread.offsetPc(1);
@@ -87,15 +88,14 @@ export function runMultianewarray(thread: Thread): void {
   }
 
   const clsRes = arrayClsConstant.resolve();
-  if (!clsRes.checkSuccess()) {
-    if (clsRes.checkError()) {
-      const err = clsRes.getError();
-      thread.throwNewException(err.className, err.msg);
+  if (!checkSuccess(clsRes)) {
+    if (checkError(clsRes)) {
+      thread.throwNewException(clsRes.exceptionCls, clsRes.msg);
     }
     return;
   }
 
-  const arrayCls = clsRes.getResult();
+  const arrayCls = clsRes.result;
   const res = arrayCls.instantiate() as JvmArray;
   res.initArray(dimArray[0]);
 
@@ -111,12 +111,14 @@ export function runMultianewarray(thread: Thread): void {
       .getClass()
       .getLoader()
       .getClassRef(currentType);
-    if (classResolutionResult.checkError()) {
-      const err = classResolutionResult.getError();
-      thread.throwNewException(err.className, err.msg);
+    if (checkError(classResolutionResult)) {
+      thread.throwNewException(
+        classResolutionResult.exceptionCls,
+        classResolutionResult.msg
+      );
       return;
     }
-    const arrayCls = classResolutionResult.getResult();
+    const arrayCls = classResolutionResult.result;
 
     for (const arr of pendingInit) {
       for (let j = 0; j < dimArray[i]; j++) {

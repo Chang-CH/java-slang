@@ -1,61 +1,28 @@
-export enum ResultType {
-  SUCCESS,
-  ERROR,
-  DEFER,
+export interface SuccessResult<T> {
+  result: T;
 }
 
-export abstract class Result<T> {
-  private resultType: ResultType;
-  constructor(ResultType: ResultType) {
-    this.resultType = ResultType;
-  }
-
-  checkError(): this is ErrorResult<T> {
-    return this.resultType === ResultType.ERROR;
-  }
-
-  checkSuccess(): this is SuccessResult<T> {
-    return this.resultType === ResultType.SUCCESS;
-  }
-
-  checkDefer(): this is DeferResult<T> {
-    return this.resultType === ResultType.DEFER;
-  }
+export interface ErrorResult {
+  exceptionCls: string;
+  msg: string;
 }
 
-export class SuccessResult<T> extends Result<T> {
-  private result: T;
-  constructor(result: T) {
-    super(ResultType.SUCCESS);
-    this.result = result;
-  }
-
-  public getResult(): T {
-    return this.result;
-  }
+export interface DeferResult {
+  isDefer: true;
 }
 
-export class ErrorResult<T> extends Result<T> {
-  private className: string;
-  private msg: string;
-  constructor(className: string, msg: string) {
-    super(ResultType.ERROR);
-    this.className = className;
-    this.msg = msg;
-  }
+export type Result<T> = SuccessResult<T> | ErrorResult | DeferResult;
 
-  public getError(): { className: string; msg: string } {
-    return {
-      className: this.className,
-      msg: this.msg,
-    };
-  }
+export type ImmediateResult<T> = SuccessResult<T> | ErrorResult;
+
+export function checkSuccess<T>(result: Result<T>): result is SuccessResult<T> {
+  return (result as SuccessResult<T>).result !== undefined;
 }
 
-export class DeferResult<T> extends Result<T> {
-  constructor() {
-    super(ResultType.DEFER);
-  }
+export function checkError<T>(result: Result<T>): result is ErrorResult {
+  return (result as ErrorResult).exceptionCls !== undefined;
 }
 
-export type ImmediateResult<T> = SuccessResult<T> | ErrorResult<T>;
+export function checkDefer<T>(result: Result<T>): result is DeferResult {
+  return (result as DeferResult).isDefer !== undefined;
+}

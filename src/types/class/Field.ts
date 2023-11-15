@@ -5,7 +5,13 @@ import { ClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import { JvmObject } from '../reference/Object';
-import { ErrorResult, ImmediateResult, Result, SuccessResult } from '../result';
+import {
+  ErrorResult,
+  ImmediateResult,
+  Result,
+  SuccessResult,
+  checkError,
+} from '../result';
 
 export class Field {
   private cls: ClassData;
@@ -79,7 +85,7 @@ export class Field {
 
   getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
     if (this.javaObject) {
-      return new SuccessResult(this.javaObject);
+      return { result: this.javaObject };
     }
 
     if (!Field.reflectedClass) {
@@ -87,10 +93,10 @@ export class Field {
         .getClass()
         .getLoader()
         .getClassRef('java/lang/reflect/Field');
-      if (fRes.checkError()) {
-        return new ErrorResult(fRes.getError().className, fRes.getError().msg);
+      if (checkError(fRes)) {
+        return fRes;
       }
-      Field.reflectedClass = fRes.getResult();
+      Field.reflectedClass = fRes.result;
     }
 
     this.javaObject = Field.reflectedClass.instantiate();
@@ -143,7 +149,7 @@ export class Field {
 
     this.javaObject.putNativeField('fieldRef', this);
 
-    return new SuccessResult(this.javaObject);
+    return { result: this.javaObject };
   }
 
   getValue() {
@@ -234,10 +240,10 @@ export class Field {
   ): Result<Field> {
     // logical xor
     if (isStaticAccess !== this.checkStatic()) {
-      return new ErrorResult<Field>(
-        'java/lang/IncompatibleClassChangeError',
-        ''
-      );
+      return {
+        exceptionCls: 'java/lang/IncompatibleClassChangeError',
+        msg: '',
+      };
     }
 
     const invokerClass = thread.getClass();
@@ -247,7 +253,7 @@ export class Field {
       invokerClass !== fieldClass &&
       fieldClass.getNestedHost() !== invokerClass.getNestedHost()
     ) {
-      return new ErrorResult<Field>('java/lang/IllegalAccessError', '');
+      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
     }
 
     if (
@@ -255,7 +261,7 @@ export class Field {
       !invokerClass.checkCast(fieldClass) &&
       invokerClass.getPackageName() !== this.getClass().getPackageName()
     ) {
-      return new ErrorResult<Field>('java/lang/IllegalAccessError', '');
+      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
     }
 
     const invokerMethod = thread.getMethod();
@@ -265,9 +271,9 @@ export class Field {
       (fieldClass !== invokerClass ||
         invokerMethod.getName() !== (isStaticAccess ? '<clinit>' : '<init>'))
     ) {
-      return new ErrorResult<Field>('java/lang/IllegalAccessError', '');
+      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
     }
 
-    return new SuccessResult<Field>(this);
+    return { result: this };
   }
 }

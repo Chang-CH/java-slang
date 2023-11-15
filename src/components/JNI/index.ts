@@ -17,6 +17,7 @@ import { registerJavaLangThread } from './implementation/java/lang/Thread';
 import { registerJavaSecurityAccessController } from './implementation/java/security/AccessController';
 import { registerSource } from './implementation/source';
 import { registerUnsafe } from './implementation/sun/misc/Unsafe';
+import { checkSuccess, checkError } from '#types/result';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -197,10 +198,9 @@ export function registerNatives(jni: JNI) {
       }
 
       const initRes = clsRef.initialize(thread);
-      if (!initRes.checkSuccess()) {
-        if (initRes.checkError()) {
-          const err = initRes.getError();
-          thread.throwNewException(err.className, err.msg);
+      if (!checkSuccess(initRes)) {
+        if (checkError(initRes)) {
+          thread.throwNewException(initRes.exceptionCls, initRes.msg);
         }
         return;
       }

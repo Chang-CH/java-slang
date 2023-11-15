@@ -1,6 +1,7 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/Thread/Thread';
 import { JvmObject } from '#types/reference/Object';
+import { checkSuccess, checkError } from '#types/result';
 
 export const registerJavaSecurityAccessController = (jni: JNI) => {
   jni.registerNativeMethod(
@@ -14,12 +15,11 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
         thread.getClass()
       );
 
-      if (!methodRes.checkSuccess()) {
-        const err = methodRes.getError();
-        thread.throwNewException(err.className, err.msg);
+      if (!checkSuccess(methodRes)) {
+        thread.throwNewException(methodRes.exceptionCls, methodRes.msg);
         return null;
       }
-      const methodRef = methodRes.getResult();
+      const methodRef = methodRes.result;
       thread.invokeSf(
         methodRef.getClass(),
         methodRef,
@@ -44,37 +44,33 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
       const action = locals[0] as JvmObject;
       const loader = thread.getClass().getLoader();
       const acRes = loader.getClassRef('java/security/AccessController');
-      if (acRes.checkError()) {
-        const err = acRes.getError();
-        thread.throwNewException(err.className, err.msg);
+      if (checkError(acRes)) {
+        thread.throwNewException(acRes.exceptionCls, acRes.msg);
         return;
       }
-      const acCls = acRes.getResult();
+      const acCls = acRes.result;
 
       const paRes = loader.getClassRef('java/security/PrivilegedAction');
-      if (paRes.checkError()) {
-        const err = paRes.getError();
-        thread.throwNewException(err.className, err.msg);
+      if (checkError(paRes)) {
+        thread.throwNewException(paRes.exceptionCls, paRes.msg);
         return;
       }
 
-      const paCls = paRes.getResult();
+      const paCls = paRes.result;
       const mRes = paCls.resolveMethod('run()Ljava/lang/Object;', acCls);
-      if (mRes.checkError()) {
-        const err = mRes.getError();
-        thread.throwNewException(err.className, err.msg);
+      if (checkError(mRes)) {
+        thread.throwNewException(mRes.exceptionCls, mRes.msg);
         return;
       }
-      const mRef = mRes.getResult();
+      const mRef = mRes.result;
 
       const runtimeCls = action.getClass();
       const lRes = runtimeCls.lookupMethod('run()Ljava/lang/Object;', mRef);
-      if (lRes.checkError()) {
-        const err = lRes.getError();
-        thread.throwNewException(err.className, err.msg);
+      if (checkError(lRes)) {
+        thread.throwNewException(lRes.exceptionCls, lRes.msg);
         return;
       }
-      const method = lRes.getResult();
+      const method = lRes.result;
       if (!method) {
         thread.throwNewException(
           'java/lang/NoSuchMethodException',

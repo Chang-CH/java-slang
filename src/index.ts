@@ -2,7 +2,13 @@ import { Field } from '#types/class/Field';
 import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { ImmediateResult, ErrorResult, SuccessResult } from '#types/result';
+import {
+  ImmediateResult,
+  ErrorResult,
+  SuccessResult,
+  checkError,
+  checkSuccess,
+} from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
@@ -62,18 +68,18 @@ export default class JVM {
     );
     const unsafeRes = this.bootstrapClassLoader.getClassRef('sun/misc/Unsafe');
     if (
-      objRes.checkError() ||
-      sysRes.checkError() ||
-      tRes.checkError() ||
-      tgRes.checkError() ||
-      clsRes.checkError() ||
-      unsafeRes.checkError()
+      checkError(objRes) ||
+      checkError(sysRes) ||
+      checkError(tRes) ||
+      checkError(tgRes) ||
+      checkError(clsRes) ||
+      checkError(unsafeRes)
     ) {
       throw new Error('Initialization classes not found');
     }
-    const sysCls = sysRes.getResult();
-    const threadCls = tRes.getResult();
-    const threadGroupCls = tgRes.getResult();
+    const sysCls = sysRes.result;
+    const threadCls = tRes.result;
+    const threadGroupCls = tgRes.result;
     // #endregion
 
     // register natives
@@ -83,7 +89,7 @@ export default class JVM {
 
     // #region initialize threadgroup object
     const tgInitRes = threadGroupCls.initialize(mainThread);
-    if (!tgInitRes.checkSuccess()) {
+    if (!checkSuccess(tgInitRes)) {
       throw new Error('ThreadGroup initialization failed');
     }
     const initialTg = threadGroupCls.instantiate();
@@ -141,15 +147,15 @@ export default class JVM {
     const threadRes =
       this.applicationClassLoader.getClassRef('java/lang/Thread');
 
-    if (threadRes.checkError()) {
+    if (checkError(threadRes)) {
       throw new Error('Thread class not found');
     }
-    if (mainRes.checkError()) {
+    if (checkError(mainRes)) {
       throw new Error('Main class not found');
     }
 
-    const mainCls = mainRes.getResult();
-    const threadCls = threadRes.getResult();
+    const mainCls = mainRes.result;
+    const threadCls = threadRes.result;
 
     const mainMethod = mainCls.getMethod('main([Ljava/lang/String;)V');
     if (!mainMethod) {
@@ -165,39 +171,37 @@ export default class JVM {
 
   private newCharArr(str: string): ImmediateResult<JvmArray> {
     const cArrRes = this.bootstrapClassLoader.getClassRef('[C');
-    if (cArrRes.checkError()) {
-      const err = cArrRes.getError();
-      return new ErrorResult<JvmArray>(err.className, err.msg);
+    if (checkError(cArrRes)) {
+      return cArrRes;
     }
 
-    const cArrCls = cArrRes.getResult();
+    const cArrCls = cArrRes.result;
     const cArr = cArrCls.instantiate() as JvmArray;
     const jsArr = [];
     for (let i = 0; i < str.length; i++) {
       jsArr.push(str.charCodeAt(i));
     }
     cArr.initArray(str.length, jsArr);
-    return new SuccessResult<JvmArray>(cArr);
+    return { result: cArr };
   }
 
   private newString(str: string): ImmediateResult<JvmObject> {
     const charArr = this.newCharArr(str);
 
-    if (!charArr.checkSuccess()) {
+    if (!checkSuccess(charArr)) {
       return charArr;
     }
 
     const strRes = this.bootstrapClassLoader.getClassRef('java/lang/String');
 
-    if (strRes.checkError()) {
-      const err = strRes.getError();
-      return new ErrorResult<JvmObject>(err.className, err.msg);
+    if (checkError(strRes)) {
+      return strRes;
     }
-    const strCls = strRes.getResult();
+    const strCls = strRes.result;
     const strObj = strCls.instantiate();
     const fieldRef = strCls.getFieldRef('value[C') as Field;
-    strObj.putField(fieldRef as Field, charArr.getResult());
-    return new SuccessResult<JvmObject>(strObj);
+    strObj.putField(fieldRef as Field, charArr.result);
+    return { result: strObj };
   }
 
   getInternedString(str: string) {
@@ -205,11 +209,11 @@ export default class JVM {
       return this.internedStrings[str];
     }
     const strRes = this.newString(str);
-    if (strRes.checkError()) {
+    if (checkError(strRes)) {
       throw new Error('String creation failed');
     }
 
-    this.internedStrings[str] = strRes.getResult();
+    this.internedStrings[str] = strRes.result;
     return this.internedStrings[str];
   }
 
@@ -223,5 +227,9 @@ export default class JVM {
 
   getSystem() {
     return this.nativeSystem;
+  }
+
+  getJNI() {
+    return this.jni;
   }
 }

@@ -34,7 +34,6 @@ import {
   ConstantString,
   ConstantUtf8,
 } from '#types/class/Constants';
-import { get } from 'http';
 
 export class ConstantPool {
   private pool: Constant[];

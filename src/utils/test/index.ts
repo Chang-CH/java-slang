@@ -21,7 +21,12 @@ import { ArrayClassData } from '#types/class/ArrayClassData';
 import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
-import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
+import {
+  ErrorResult,
+  ImmediateResult,
+  SuccessResult,
+  checkError,
+} from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 
 export class TestClassLoader extends AbstractClassLoader {
@@ -88,15 +93,15 @@ export class TestClassLoader extends AbstractClassLoader {
   ): ImmediateResult<ClassData> {
     // #region load array superclasses/interfaces
     const objRes = this.getClassRef('java/lang/Object');
-    if (objRes.checkError()) {
+    if (checkError(objRes)) {
       return objRes;
     }
     const cloneableRes = this.getClassRef('java/lang/Cloneable');
-    if (cloneableRes.checkError()) {
+    if (checkError(cloneableRes)) {
       return cloneableRes;
     }
     const serialRes = this.getClassRef('java/io/Serializable');
-    if (serialRes.checkError()) {
+    if (checkError(serialRes)) {
       return serialRes;
     }
     // #endregion
@@ -105,8 +110,8 @@ export class TestClassLoader extends AbstractClassLoader {
       [],
       CLASS_FLAGS.ACC_PUBLIC,
       className,
-      objRes.getResult(),
-      [cloneableRes.getResult(), serialRes.getResult()],
+      objRes.result,
+      [cloneableRes.result, serialRes.result],
       [],
       [],
       [],
@@ -115,7 +120,7 @@ export class TestClassLoader extends AbstractClassLoader {
     arrayClass.setComponentClass(componentCls);
 
     this.loadClass(arrayClass);
-    return new SuccessResult(arrayClass);
+    return { result: arrayClass };
   }
 
   load(className: string): ImmediateResult<ClassData> {
@@ -123,7 +128,7 @@ export class TestClassLoader extends AbstractClassLoader {
       className: className,
       loader: this,
     });
-    return new SuccessResult(stubRef);
+    return { result: stubRef };
   }
 
   loadTestClassRef(className: string, ref: ClassData) {
@@ -154,10 +159,10 @@ export class TestClassLoader extends AbstractClassLoader {
       for (const handler of code.exceptionTable) {
         const catchType = handler.catchType;
         const ctRes = this.getClassRef(catchType as unknown as string);
-        if (ctRes.checkError()) {
-          return new ErrorResult('java/lang/NoClassDefFoundError', '');
+        if (checkError(ctRes)) {
+          return { exceptionCls: 'java/lang/NoClassDefFoundError', msg: '' };
         }
-        const clsRef = ctRes.getResult();
+        const clsRef = ctRes.result;
 
         handlderTable.push({
           startPc: handler.startPc,
@@ -168,11 +173,13 @@ export class TestClassLoader extends AbstractClassLoader {
       }
     }
 
-    return new SuccessResult({
-      method,
-      exceptionHandlers: handlderTable,
-      code,
-    });
+    return {
+      result: {
+        method,
+        exceptionHandlers: handlderTable,
+        code,
+      },
+    };
   }
 
   createClass(options: {
@@ -291,11 +298,11 @@ export class TestClassLoader extends AbstractClassLoader {
           } as CodeAttribute);
 
           const res = this.linkMethod2(constantPool, temp);
-          if (res.checkError()) {
+          if (checkError(res)) {
             throw new Error("Can't link method");
           }
 
-          return res.getResult();
+          return res.result;
         })
       : [];
     const loader =

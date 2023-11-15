@@ -1,6 +1,6 @@
 import { ClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
-import { ErrorResult, ImmediateResult, SuccessResult } from '#types/result';
+import { ImmediateResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 
@@ -26,12 +26,15 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
     try {
       classFile = this.nativeSystem.readFile(path);
     } catch (e) {
-      return new ErrorResult('java/lang/ClassNotFoundException', className);
+      return {
+        exceptionCls: 'java/lang/ClassNotFoundException',
+        msg: className,
+      };
     }
 
     this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
-    return new SuccessResult(this.loadClass(classData));
+    return { result: this.loadClass(classData) };
   }
 
   getPrimitiveClassRef(className: string): ClassData {
