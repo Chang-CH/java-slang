@@ -1,6 +1,6 @@
 import Thread from '#jvm/components/Thread/Thread';
 
-import { parseMethodDescriptor, asDouble, asFloat } from '../Interpreter/utils';
+import { parseMethodDescriptor, asDouble, asFloat } from '#utils/index';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
@@ -15,6 +15,7 @@ import {
   ConstantMethodref,
 } from '#types/class/Constants';
 import { Result, checkError, checkSuccess } from '#types/result';
+import { JavaStackFrame, NativeStackFrame } from '../StackFrame';
 
 export function runGetstatic(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
@@ -281,8 +282,33 @@ function invokeVirtual(
   }
 
   onFinish && onFinish();
-  thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
-  return;
+
+  if (methodRef.checkNative()) {
+    const nativeMethod = thread
+      .getJVM()
+      .getJNI()
+      .getNativeMethod(
+        toInvoke.getClass().getClassname(),
+        toInvoke.getName() + toInvoke.getDescriptor()
+      );
+    if (!nativeMethod) {
+      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+      return;
+    }
+    thread.invokeStackFrame(
+      new NativeStackFrame(
+        toInvoke.getClass(),
+        toInvoke,
+        0,
+        [objRef, ...args],
+        nativeMethod
+      )
+    );
+  } else {
+    thread.invokeStackFrame(
+      new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args])
+    );
+  }
 }
 
 function getArgs(thread: Thread, methodRef: Method): any[] {
@@ -369,7 +395,33 @@ export function runInvokespecial(thread: Thread): void {
     return;
   }
   thread.offsetPc(3);
-  thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
+
+  if (methodRef.checkNative()) {
+    const nativeMethod = thread
+      .getJVM()
+      .getJNI()
+      .getNativeMethod(
+        toInvoke.getClass().getClassname(),
+        toInvoke.getName() + toInvoke.getDescriptor()
+      );
+    if (!nativeMethod) {
+      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+      return;
+    }
+    thread.invokeStackFrame(
+      new NativeStackFrame(
+        toInvoke.getClass(),
+        toInvoke,
+        0,
+        [objRef, ...args],
+        nativeMethod
+      )
+    );
+  } else {
+    thread.invokeStackFrame(
+      new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args])
+    );
+  }
 }
 
 export function runInvokestatic(thread: Thread): void {
@@ -394,7 +446,26 @@ export function runInvokestatic(thread: Thread): void {
   }
 
   thread.offsetPc(3);
-  thread.invokeSf(classRef, methodRef, 0, args);
+
+  if (methodRef.checkNative()) {
+    const nativeMethod = thread
+      .getJVM()
+      .getJNI()
+      .getNativeMethod(
+        classRef.getClassname(),
+        methodRef.getName() + methodRef.getDescriptor()
+      );
+    if (!nativeMethod) {
+      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+      return;
+    }
+
+    thread.invokeStackFrame(
+      new NativeStackFrame(classRef, methodRef, 0, args, nativeMethod)
+    );
+  } else {
+    thread.invokeStackFrame(new JavaStackFrame(classRef, methodRef, 0, args));
+  }
 }
 
 export function runInvokeinterface(thread: Thread): void {
@@ -445,7 +516,35 @@ export function runInvokeinterface(thread: Thread): void {
   }
 
   thread.offsetPc(5);
-  thread.invokeSf(toInvoke.getClass(), toInvoke, 0, [objRef, ...args]);
+
+  if (toInvoke.checkNative()) {
+    const methodCls = toInvoke.getClass();
+
+    const nativeMethod = thread
+      .getJVM()
+      .getJNI()
+      .getNativeMethod(
+        methodCls.getClassname(),
+        toInvoke.getName() + toInvoke.getDescriptor()
+      );
+    if (!nativeMethod) {
+      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+      return;
+    }
+    thread.invokeStackFrame(
+      new NativeStackFrame(
+        toInvoke.getClass(),
+        toInvoke,
+        0,
+        [objRef, ...args],
+        nativeMethod
+      )
+    );
+  } else {
+    thread.invokeStackFrame(
+      new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args])
+    );
+  }
 }
 
 export function runInvokedynamic(thread: Thread): void {

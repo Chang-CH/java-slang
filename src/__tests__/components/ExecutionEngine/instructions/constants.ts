@@ -1,6 +1,5 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
@@ -17,6 +16,8 @@ import { Method } from '#types/class/Method';
 import { ConstantClass, ConstantString } from '#types/class/Constants';
 import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
+import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
@@ -73,7 +74,8 @@ beforeEach(() => {
   });
   const jvm = new JVM(testSystem);
   (jvm as any).bootstrapClassLoader = testLoader;
-  thread = new Thread(threadClass, jvm);
+  const tPool = new RoundRobinThreadPool(() => {});
+  thread = new Thread(threadClass, jvm, tPool);
 
   const ab = new ArrayBuffer(50);
   code = new DataView(ab);
@@ -126,13 +128,13 @@ beforeEach(() => {
     loader: testLoader,
   });
   const method = testClass.getMethod('test0()V') as Method;
-  thread.invokeSf(testClass, method, 0, []);
+  thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
 });
 
 describe('Nop', () => {
   test('does not modify stack', () => {
     code.setUint8(0, OPCODE.NOP);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
@@ -144,7 +146,7 @@ describe('Nop', () => {
 describe('AconstNull', () => {
   test('pushes null to stack', () => {
     code.setUint8(0, OPCODE.ACONST_NULL);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -157,7 +159,7 @@ describe('AconstNull', () => {
 describe('IconstM1', () => {
   test('pushes -1 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_M1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -170,7 +172,7 @@ describe('IconstM1', () => {
 describe('Iconst0', () => {
   test('pushes 0 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_0);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -183,7 +185,7 @@ describe('Iconst0', () => {
 describe('Iconst1', () => {
   test('pushes 1 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -196,7 +198,7 @@ describe('Iconst1', () => {
 describe('Iconst2', () => {
   test('pushes 2 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -209,7 +211,7 @@ describe('Iconst2', () => {
 describe('Iconst3', () => {
   test('pushes 3 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_3);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -222,7 +224,7 @@ describe('Iconst3', () => {
 describe('Iconst4', () => {
   test('pushes 4 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_4);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -235,7 +237,7 @@ describe('Iconst4', () => {
 describe('Iconst5', () => {
   test('pushes 5 to stack', () => {
     code.setUint8(0, OPCODE.ICONST_5);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -248,7 +250,7 @@ describe('Iconst5', () => {
 describe('Lconst0', () => {
   test('pushes long 0 to stack', () => {
     code.setUint8(0, OPCODE.LCONST_0);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -261,7 +263,7 @@ describe('Lconst0', () => {
 describe('Lconst1', () => {
   test('pushes long 1 to stack', () => {
     code.setUint8(0, OPCODE.LCONST_1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -274,7 +276,7 @@ describe('Lconst1', () => {
 describe('Fconst0', () => {
   test('pushes float 0 to stack', () => {
     code.setUint8(0, OPCODE.FCONST_0);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -287,7 +289,7 @@ describe('Fconst0', () => {
 describe('Fconst1', () => {
   test('pushes float 1 to stack', () => {
     code.setUint8(0, OPCODE.FCONST_1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -300,7 +302,7 @@ describe('Fconst1', () => {
 describe('Fconst2', () => {
   test('pushes float 2 to stack', () => {
     code.setUint8(0, OPCODE.FCONST_2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -313,7 +315,7 @@ describe('Fconst2', () => {
 describe('Dconst0', () => {
   test('pushes double 0 to stack', () => {
     code.setUint8(0, OPCODE.DCONST_0);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -326,7 +328,7 @@ describe('Dconst0', () => {
 describe('Dconst1', () => {
   test('pushes double 1 to stack', () => {
     code.setUint8(0, OPCODE.DCONST_1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -340,7 +342,7 @@ describe('Bipush', () => {
   test('pushes byte to stack', () => {
     code.setUint8(0, OPCODE.BIPUSH);
     code.setInt8(1, 128);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
     expect(lastFrame.operandStack[0]).toBe(-128);
@@ -353,7 +355,7 @@ describe('Sipush', () => {
   test('pushes short to stack', () => {
     code.setUint8(0, OPCODE.SIPUSH);
     code.setInt16(1, 32768);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -369,7 +371,7 @@ describe('Sipush', () => {
 describe('Ldc', () => {
   test('reads int from constant pool and pushes to stack', () => {
     // use custom class
-    thread.returnSF();
+    thread.returnStackFrame();
     const intConstant = {
       tag: CONSTANT_TAG.Integer,
       value: -99,
@@ -395,10 +397,10 @@ describe('Ldc', () => {
       loader: testLoader,
     });
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -408,7 +410,7 @@ describe('Ldc', () => {
   });
 
   test('reads float from constant pool and pushes to stack', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     const floatConstant = {
       tag: CONSTANT_TAG.Float,
       value: Math.fround(-0.3),
@@ -434,10 +436,10 @@ describe('Ldc', () => {
       loader: testLoader,
     });
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -447,7 +449,7 @@ describe('Ldc', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     let constIdx = 0;
     const customClass = testLoader.createClass({
       className: 'custom',
@@ -481,10 +483,10 @@ describe('Ldc', () => {
     const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).result;
 
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -494,7 +496,7 @@ describe('Ldc', () => {
   });
 
   test('initializes uninitialized string from constant pool', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     let constIdx = 0;
     const customClass = testLoader.createClass({
       className: 'custom',
@@ -527,10 +529,10 @@ describe('Ldc', () => {
     const cstr = customClass.getConstant(constIdx) as ConstantString;
 
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -541,7 +543,7 @@ describe('Ldc', () => {
   });
 
   test('reads classref from constant pool and pushes to stack', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     let constIdx = 0;
     const customClass = testLoader.createClass({
       className: 'custom',
@@ -575,10 +577,10 @@ describe('Ldc', () => {
     clsConstant.resolve();
 
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC);
     code.setUint8(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -594,7 +596,7 @@ describe('Ldc', () => {
 describe('LdcW', () => {
   test('reads int from constant pool and pushes to stack', () => {
     // use custom class
-    thread.returnSF();
+    thread.returnStackFrame();
     const intConstant = {
       tag: CONSTANT_TAG.Integer,
       value: -99,
@@ -620,10 +622,10 @@ describe('LdcW', () => {
       loader: testLoader,
     });
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -633,7 +635,7 @@ describe('LdcW', () => {
   });
 
   test('reads float from constant pool and pushes to stack', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     const floatConstant = {
       tag: CONSTANT_TAG.Float,
       value: Math.fround(-0.3),
@@ -659,10 +661,10 @@ describe('LdcW', () => {
       loader: testLoader,
     });
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -672,7 +674,7 @@ describe('LdcW', () => {
   });
 
   test('reads string from constant pool and pushes to stack', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     let constIdx = 0;
     const customClass = testLoader.createClass({
       className: 'custom',
@@ -705,10 +707,10 @@ describe('LdcW', () => {
     const cstr = customClass.getConstant(constIdx) as ConstantString;
     const str = (cstr.resolve(thread) as SuccessResult<JvmObject>).result;
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -718,7 +720,7 @@ describe('LdcW', () => {
   });
 
   test('initializes uninitialized string from constant pool', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     let constIdx = 0;
     const customClass = testLoader.createClass({
       className: 'custom',
@@ -750,10 +752,10 @@ describe('LdcW', () => {
 
     const cstr = customClass.getConstant(constIdx) as ConstantString;
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -764,7 +766,7 @@ describe('LdcW', () => {
   });
 
   test('reads classref from constant pool and pushes to stack', () => {
-    thread.returnSF();
+    thread.returnStackFrame();
     let classConstant;
     const strContent = {
       tag: CONSTANT_TAG.Utf8,
@@ -797,10 +799,10 @@ describe('LdcW', () => {
       loader: testLoader,
     });
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC_W);
     code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
@@ -818,7 +820,7 @@ describe('LdcW', () => {
 describe('Ldc2W', () => {
   test('reads long from constant pool and pushes to stack', () => {
     // use custom class
-    thread.returnSF();
+    thread.returnStackFrame();
     const longConstant = {
       tag: CONSTANT_TAG.Long,
       value: 99n,
@@ -844,10 +846,10 @@ describe('Ldc2W', () => {
       loader: testLoader,
     });
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC2_W);
     code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
@@ -858,7 +860,7 @@ describe('Ldc2W', () => {
 
   test('reads double from constant pool and pushes to stack', () => {
     // use custom class
-    thread.returnSF();
+    thread.returnStackFrame();
     const doubleConstant = {
       tag: CONSTANT_TAG.Double,
       value: -0.3,
@@ -884,10 +886,10 @@ describe('Ldc2W', () => {
       loader: testLoader,
     });
     const method = customClass.getMethod('test0()V') as Method;
-    thread.invokeSf(customClass, method, 0, []);
+    thread.invokeStackFrame(new JavaStackFrame(customClass, method, 0, []));
     code.setUint8(0, OPCODE.LDC2_W);
     code.setUint16(1, constIdx);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);

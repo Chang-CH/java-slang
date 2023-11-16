@@ -24,6 +24,10 @@ export abstract class AbstractThreadPool {
    */
   abstract updateStatus(thread: Thread, oldStatus: ThreadStatus): void;
 
+  abstract quantumOver(thread: Thread): void;
+
+  abstract run(): void;
+
   /**
    * Gets all threads in the threadpool.
    */
@@ -42,6 +46,12 @@ export abstract class AbstractThreadPool {
     return (
       this.threads.filter(x => x.getStatus() !== ThreadStatus.TERMINATED)
         .length > 0
+    );
+  }
+
+  clearTerminated() {
+    this.threads = this.threads.filter(
+      x => x.getStatus() !== ThreadStatus.TERMINATED
     );
   }
 }
@@ -70,7 +80,16 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
   }
 
   quantumOver(thread: Thread): void {
-    // TODO: check thread is runnable before pushing
+    if (thread.getStatus() === ThreadStatus.TERMINATED) {
+      this.clearTerminated();
+      return;
+    }
     this.threadQueue.pushBack(thread);
+  }
+
+  run() {
+    while (!this.threadQueue.isEmpty()) {
+      this.threadQueue.popFront().runFor(10000);
+    }
   }
 }

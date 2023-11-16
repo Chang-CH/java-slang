@@ -14,7 +14,7 @@ export const registerUnsafe = (jni: JNI) => {
     'sun/misc/Unsafe',
     'registerNatives()V',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -49,7 +49,7 @@ export const registerUnsafe = (jni: JNI) => {
     'sun/misc/Unsafe',
     'arrayBaseOffset(Ljava/lang/Class;)I',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF(0);
+      thread.returnStackFrame(0);
     }
   );
 
@@ -76,7 +76,7 @@ export const registerUnsafe = (jni: JNI) => {
       const chars = cArr.getJsArray();
       // #endregion
 
-      thread.returnSF(BigInt(slot), null, true);
+      thread.returnStackFrame64(BigInt(slot));
     }
   );
 
@@ -184,7 +184,7 @@ export const registerUnsafe = (jni: JNI) => {
 
       // Should be array. return -1 for invalid class
       if (!ArrayClassData.check(clsRef)) {
-        thread.returnSF(-1);
+        thread.returnStackFrame(-1);
         return;
       }
 
@@ -195,7 +195,7 @@ export const registerUnsafe = (jni: JNI) => {
         ' cls: ',
         clsRef.getComponentClass().getClassname()
       );
-      thread.returnSF(scale);
+      thread.returnStackFrame(scale);
     }
   );
 
@@ -203,7 +203,7 @@ export const registerUnsafe = (jni: JNI) => {
     'sun/misc/Unsafe',
     'addressSize()I',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF(4);
+      thread.returnStackFrame(4);
     }
   );
 
@@ -227,7 +227,7 @@ export const registerUnsafe = (jni: JNI) => {
         offset
       );
 
-      thread.returnSF(
+      thread.returnStackFrame(
         unsafeCompareAndSwap(thread, unsafe, obj1, offset, expected, newValue)
       );
     }
@@ -243,7 +243,7 @@ export const registerUnsafe = (jni: JNI) => {
       const expected = locals[3] as number;
       const newValue = locals[4] as number;
 
-      thread.returnSF(
+      thread.returnStackFrame(
         unsafeCompareAndSwap(thread, unsafe, obj1, offset, expected, newValue)
       );
     }
@@ -259,7 +259,7 @@ export const registerUnsafe = (jni: JNI) => {
       const expected = locals[3] as bigint;
       const newValue = locals[4] as bigint;
 
-      thread.returnSF(
+      thread.returnStackFrame(
         unsafeCompareAndSwap(thread, unsafe, obj1, offset, expected, newValue)
       );
     }
@@ -278,10 +278,10 @@ export const registerUnsafe = (jni: JNI) => {
       const ref = fi[1];
       if (typeof ref === 'number') {
         // array type
-        thread.returnSF(objBase[ref]);
+        thread.returnStackFrame(objBase[ref]);
         return;
       }
-      thread.returnSF((ref as Field).getValue());
+      thread.returnStackFrame((ref as Field).getValue());
     }
   );
 
@@ -293,7 +293,7 @@ export const registerUnsafe = (jni: JNI) => {
       const heap = thread.getJVM().getUnsafeHeap();
       const addr = heap.allocate(size);
       console.log('ALLOCATE ADDR: ', addr);
-      thread.returnSF(addr, null, true);
+      thread.returnStackFrame(addr);
     }
   );
 
@@ -307,7 +307,7 @@ export const registerUnsafe = (jni: JNI) => {
       const view = heap.get(address);
       console.log('PUTLONG: ', address, value, view ? 'OK' : 'NULL');
       view.setBigInt64(0, value);
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
   jni.registerNativeMethod(
@@ -318,7 +318,7 @@ export const registerUnsafe = (jni: JNI) => {
       const heap = thread.getJVM().getUnsafeHeap();
       const view = heap.get(address);
       console.log('GETBYTE: ', view.getInt8(0));
-      thread.returnSF(view.getInt8(0));
+      thread.returnStackFrame(view.getInt8(0));
     }
   );
   jni.registerNativeMethod(
@@ -328,7 +328,7 @@ export const registerUnsafe = (jni: JNI) => {
       const address = locals[1] as bigint;
       const heap = thread.getJVM().getUnsafeHeap();
       heap.free(address);
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 };

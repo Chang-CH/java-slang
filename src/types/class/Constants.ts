@@ -1,8 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import {
-  parseFieldDescriptor,
-  parseMethodDescriptor,
-} from '#jvm/components/ExecutionEngine/Interpreter/utils';
+import { parseFieldDescriptor, parseMethodDescriptor } from '#utils/index';
 import Thread from '#jvm/components/Thread/Thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
@@ -24,6 +21,7 @@ import {
   checkError,
   checkSuccess,
 } from '#types/result';
+import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;
@@ -234,7 +232,9 @@ function createMethodType(
   if (!toInvoke) {
     return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
   }
-  thread.invokeSf(mhnCls, toInvoke, 0, [retCls, paramClsArr], cb);
+  thread.invokeStackFrame(
+    new InternalStackFrame(mhnCls, toInvoke, 0, [retCls, paramClsArr], cb)
+  );
   // #endregion
 
   return { isDefer: true };
@@ -398,15 +398,17 @@ export class ConstantMethodType extends Constant {
     if (!toInvoke) {
       return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
     }
-    thread.invokeSf(
-      mtCls,
-      toInvoke,
-      0,
-      [retCls, paramClsArr, 1],
-      (mt: JvmObject) => {
-        console.log(mt);
-        this.result = { result: mt };
-      }
+    thread.invokeStackFrame(
+      new InternalStackFrame(
+        mtCls,
+        toInvoke,
+        0,
+        [retCls, paramClsArr, 1],
+        (mt: JvmObject) => {
+          console.log(mt);
+          this.result = { result: mt };
+        }
+      )
     );
     return { isDefer: true };
   }
@@ -1073,23 +1075,25 @@ export class ConstantMethodHandle extends Constant {
       // Should intern string here, i.e. same string value same object
       const nameStr = thread.getJVM().getInternedString(ref.getName());
 
-      thread.invokeSf(
-        mhnCls,
-        method,
-        0,
-        [
-          this.cls.getJavaObject(),
-          this.referenceKind,
-          ref.getClass().getJavaObject(),
-          nameStr,
-          obj,
-        ],
-        (mh: JvmObject) => {
-          if (!mh) {
-            throw new Error('not implemented');
+      thread.invokeStackFrame(
+        new InternalStackFrame(
+          mhnCls,
+          method,
+          0,
+          [
+            this.cls.getJavaObject(),
+            this.referenceKind,
+            ref.getClass().getJavaObject(),
+            nameStr,
+            obj,
+          ],
+          (mh: JvmObject) => {
+            if (!mh) {
+              throw new Error('not implemented');
+            }
+            this.result = { result: mh };
           }
-          this.result = { result: mh };
-        }
+        )
       );
     };
     // #endregion

@@ -9,7 +9,7 @@ export const registerJavaLangDouble = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const double = locals[0];
       dataview.setFloat64(0, double);
-      thread.returnSF(dataview.getBigInt64(0), null, true);
+      thread.returnStackFrame64(dataview.getBigInt64(0));
     }
   );
   jni.registerNativeMethod(
@@ -18,7 +18,7 @@ export const registerJavaLangDouble = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const long = locals[0];
       dataview.getBigInt64(0, long);
-      thread.returnSF(dataview.getFloat64(0), null, true);
+      thread.returnStackFrame64(dataview.getFloat64(0));
     }
   );
 };

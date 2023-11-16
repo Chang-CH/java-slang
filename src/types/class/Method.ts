@@ -1,4 +1,4 @@
-import { parseMethodDescriptor } from '#jvm/components/ExecutionEngine/Interpreter/utils';
+import { parseMethodDescriptor } from '#utils/index';
 import Thread from '#jvm/components/Thread/Thread';
 import {
   AttributeInfo,

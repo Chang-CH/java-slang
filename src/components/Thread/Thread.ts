@@ -6,6 +6,7 @@ import { JvmArray } from '#types/reference/Array';
 import { checkError, checkSuccess } from '#types/result';
 import { stringifyCode } from '#utils/Prettify/classfile';
 import { JvmObject } from '../../types/reference/Object';
+import { AbstractThreadPool } from '../ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './StackFrame';
 
 export enum ThreadStatus {
@@ -25,7 +26,10 @@ export default class Thread {
   private threadClass: ClassData;
   private jvm: JVM;
 
-  constructor(threadClass: ClassData, jvm: JVM) {
+  private quantumLeft: number = 0;
+  private tpool: AbstractThreadPool;
+
+  constructor(threadClass: ClassData, jvm: JVM, tpool: AbstractThreadPool) {
     this.jvm = jvm;
     this.threadClass = threadClass;
     this.stack = [];
@@ -33,6 +37,7 @@ export default class Thread {
     this.javaObject = threadClass.instantiate();
     // call init?
     this.javaObject.putNativeField('thread', this);
+    this.tpool = tpool;
   }
 
   initialize(thread: Thread) {
@@ -41,7 +46,35 @@ export default class Thread {
       throw new Error('Thread constructor not found');
     }
 
-    thread.invokeSf(this.threadClass, init, 0, [this.javaObject]);
+    thread.invokeStackFrame(
+      new InternalStackFrame(
+        this.threadClass,
+        init,
+        0,
+        [this.javaObject],
+        () => {}
+      )
+    );
+  }
+
+  runFor(quantum: number) {
+    this.quantumLeft = quantum;
+
+    while (this.quantumLeft && this.stack.length > 0) {
+      this.peekStackFrame().run(this);
+      this.quantumLeft -= 1;
+    }
+
+    this.tpool.quantumOver(this);
+  }
+
+  /**
+   * Used internally to run the thread without terminating the thread at the end.
+   */
+  _run() {
+    while (this.stack.length > 0) {
+      this.peekStackFrame().run(this);
+    }
   }
 
   // #region getters
@@ -156,11 +189,7 @@ export default class Thread {
     return value;
   }
 
-  returnSF(
-    ret?: any,
-    err?: JvmObject | null,
-    isWide: boolean = false
-  ): StackFrame {
+  returnStackFrame(ret?: any, err?: JvmObject): StackFrame {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
     if (this.stackPointer < -1 || sf === undefined) {
@@ -173,42 +202,29 @@ export default class Thread {
       return sf;
     }
 
-    isWide ? sf.onReturn64(this, ret) : sf.onReturn(this, ret);
+    sf.onReturn(this, ret);
     return sf;
   }
 
-  invokeSf(
-    cls: ClassData,
-    method: Method,
-    pc: number,
-    locals: any[],
-    callback?: (ret: any, err?: any) => void
-  ) {
-    if (callback) {
-      this.stack.push(
-        new InternalStackFrame(
-          [],
-          method.getMaxStack(),
-          cls,
-          method,
-          pc,
-          locals,
-          callback
-        )
-      );
-      this.stackPointer += 1;
-      return;
+  returnStackFrame64(ret?: any, err?: JvmObject): StackFrame {
+    const sf = this.stack.pop();
+    this.stackPointer -= 1;
+    if (this.stackPointer < -1 || sf === undefined) {
+      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
+      throw new Error('Stack Underflow');
     }
 
-    const stackframe = new JavaStackFrame(
-      [],
-      method.getMaxStack(),
-      cls,
-      method,
-      pc,
-      locals
-    );
-    this.stack.push(stackframe);
+    if (err) {
+      sf.onError(this, err);
+      return sf;
+    }
+
+    sf.onReturn64(this, ret);
+    return sf;
+  }
+
+  invokeStackFrame(sf: StackFrame) {
+    this.stack.push(sf);
     this.stackPointer += 1;
   }
 
@@ -273,7 +289,7 @@ export default class Thread {
 
       // Native methods cannot handle exceptions
       if (method.checkNative()) {
-        this.returnSF(null, exception);
+        this.returnStackFrame(null, exception);
         this.stackPointer -= 1;
         continue;
       }
@@ -295,7 +311,7 @@ export default class Thread {
           return;
         }
       }
-      this.returnSF(null, exception);
+      this.returnStackFrame(null, exception);
     }
 
     const unhandledMethod = this.threadClass.getMethod(
@@ -307,10 +323,12 @@ export default class Thread {
       );
     }
 
-    this.invokeSf(this.threadClass, unhandledMethod, 0, [
-      this.getJavaObject(),
-      exception,
-    ]);
+    this.invokeStackFrame(
+      new JavaStackFrame(this.threadClass, unhandledMethod, 0, [
+        this.getJavaObject(),
+        exception,
+      ])
+    );
   }
 
   // #endregion

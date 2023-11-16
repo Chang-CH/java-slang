@@ -9,7 +9,7 @@ export const registerSource = (jni: JNI) => {
     'display(I)V',
     (thread: Thread, locals: any[]) => {
       console.log(locals[0]);
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
   jni.registerNativeMethod(
@@ -19,7 +19,7 @@ export const registerSource = (jni: JNI) => {
       const strObj = locals[0] as JvmObject;
       const str = j2jsString(strObj);
       console.log(str);
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -31,7 +31,7 @@ export const registerSource = (jni: JNI) => {
       const str = j2jsString(strObj);
       console.log('\x1b[31m' + 'SOURCE SHOULD BE GLOBAL' + '\x1b[0m');
       console.log(str);
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 };

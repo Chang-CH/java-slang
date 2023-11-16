@@ -5,8 +5,8 @@ import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { byteArray2charArray, j2jsString } from '#utils/index';
-import { parseFieldDescriptor } from '../ExecutionEngine/Interpreter/utils';
-import { StackFrame } from '../Thread/StackFrame';
+import { parseFieldDescriptor } from '#utils/index';
+import { InternalStackFrame, StackFrame } from '../Thread/StackFrame';
 import Thread, { ThreadStatus } from '../Thread/Thread';
 import { registerJavaLangClass } from './implementation/java/lang/Class';
 import { registerJavaLangDouble } from './implementation/java/lang/Double';
@@ -22,7 +22,7 @@ export class JNI {
   private classes: {
     [className: string]: {
       methods: {
-        [methodName: string]: Function;
+        [methodName: string]: (thread: Thread, locals: any[]) => void;
       };
     };
   };
@@ -34,7 +34,7 @@ export class JNI {
   registerNativeMethod(
     className: string,
     methodName: string,
-    method: Function
+    method: (thread: Thread, locals: any[]) => void
   ) {
     if (!this.classes[className]) {
       this.classes[className] = {
@@ -44,7 +44,10 @@ export class JNI {
     this.classes[className].methods[methodName] = method;
   }
 
-  getNativeMethod(className: string, methodName: string) {
+  getNativeMethod(
+    className: string,
+    methodName: string
+  ): (thread: Thread, locals: any[]) => void {
     if (!this.classes?.[className]?.methods?.[methodName]) {
       // FIXME: Returns an empty function for now, but should throw an error
       console.error(`Native method missing: ${className}.${methodName} `);
@@ -53,7 +56,7 @@ export class JNI {
       switch (retType) {
         case JavaType.array:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF(null);
+            thread.returnStackFrame(null);
           };
         case JavaType.byte:
         case JavaType.int:
@@ -61,31 +64,31 @@ export class JNI {
         case JavaType.char:
         case JavaType.short:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF(0);
+            thread.returnStackFrame(0);
           };
         case JavaType.double:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF(0.0, null, true);
+            thread.returnStackFrame64(0.0);
           };
         case JavaType.float:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF(0.0);
+            thread.returnStackFrame(0.0);
           };
         case JavaType.long:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF(0n, null, true);
+            thread.returnStackFrame64(0n);
           };
         case JavaType.reference:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF(null);
+            thread.returnStackFrame(null);
           };
         case JavaType.void:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF();
+            thread.returnStackFrame();
           };
         default:
           return (thread: Thread, ...params: any) => {
-            thread.returnSF();
+            thread.returnStackFrame();
           };
       }
     }
@@ -133,7 +136,7 @@ export function registerNatives(jni: JNI) {
     'getCallerClass()Ljava/lang/Class;',
     (thread: Thread, locals: any[]) => {
       const callerclass = getCallerClass(thread, 2);
-      thread.returnSF(callerclass);
+      thread.returnStackFrame(callerclass);
     }
   );
 
@@ -144,7 +147,7 @@ export function registerNatives(jni: JNI) {
       const strObj = locals[0] as JvmObject;
       const strVal = j2jsString(strObj);
       const internedStr = thread.getJVM().getInternedString(strVal);
-      thread.returnSF(internedStr);
+      thread.returnStackFrame(internedStr);
     }
   );
 
@@ -163,7 +166,7 @@ export function registerNatives(jni: JNI) {
     'java/lang/Runtime',
     'availableProcessors()I',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF(1);
+      thread.returnStackFrame(1);
     }
   );
 
@@ -171,7 +174,7 @@ export function registerNatives(jni: JNI) {
     'sun/misc/VM',
     'initialize()V',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -211,10 +214,12 @@ export function registerNatives(jni: JNI) {
         console.error('newInstance0: Auto unboxing not implemented');
       }
       const params = [retObj, ...(paramArr ? paramArr.getJsArray() : [])];
-      thread.invokeSf(clsRef, methodRef, 0, params, () => {
-        thread.returnSF();
-        thread.returnSF(retObj);
-      });
+      thread.invokeStackFrame(
+        new InternalStackFrame(clsRef, methodRef, 0, params, () => {
+          thread.returnStackFrame();
+          thread.returnStackFrame(retObj);
+        })
+      );
     }
   );
 
@@ -253,7 +258,7 @@ export function registerNatives(jni: JNI) {
         const str = buf.toString('utf8', offset, offset + len);
         const sys = thread.getJVM().getSystem();
         fd === 1 ? sys.stdout(str) : sys.stderr(str);
-        thread.returnSF();
+        thread.returnStackFrame();
         return;
       }
 

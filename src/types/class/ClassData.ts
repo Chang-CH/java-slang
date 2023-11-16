@@ -23,6 +23,7 @@ import {
   checkError,
   checkSuccess,
 } from '#types/result';
+import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
 
 export enum CLASS_STATUS {
   PREPARED,
@@ -161,12 +162,14 @@ export class ClassData {
     if (this.methods['<clinit>()V']) {
       this.status = CLASS_STATUS.INITIALIZING;
       onDefer && onDefer();
-      thread.invokeSf(
-        this,
-        this.methods['<clinit>()V'],
-        0,
-        [],
-        () => (this.status = CLASS_STATUS.INITIALIZED)
+      thread.invokeStackFrame(
+        new InternalStackFrame(
+          this,
+          this.methods['<clinit>()V'],
+          0,
+          [],
+          () => (this.status = CLASS_STATUS.INITIALIZED)
+        )
       );
       return { isDefer: true };
     }

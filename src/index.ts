@@ -12,17 +12,24 @@ import {
 import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
-import ExecutionEngine from './components/ExecutionEngine';
 import { JNI, registerNatives } from './components/JNI';
 import Thread from './components/Thread/Thread';
 import { UnsafeHeap } from './components/UnsafeHeap';
+import {
+  InternalStackFrame,
+  JavaStackFrame,
+} from './components/Thread/StackFrame';
+import {
+  AbstractThreadPool,
+  RoundRobinThreadPool,
+} from './components/ThreadPool';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
   private applicationClassLoader?: ApplicationClassLoader;
-  private engine: ExecutionEngine;
   private nativeSystem: AbstractSystem;
   private jni: JNI;
+  private threadpool: AbstractThreadPool;
 
   cachedClasses: { [key: string]: ClassData } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
@@ -54,7 +61,7 @@ export default class JVM {
       this.jvmOptions.javaClassPath
     );
     this.jni = new JNI();
-    this.engine = new ExecutionEngine(this.jni);
+    this.threadpool = new RoundRobinThreadPool(() => {});
   }
 
   initialize() {
@@ -85,7 +92,7 @@ export default class JVM {
     // register natives
     registerNatives(this.jni);
 
-    const mainThread = new Thread(threadCls, this);
+    const mainThread = new Thread(threadCls, this, this.threadpool);
 
     // #region initialize threadgroup object
     const tgInitRes = threadGroupCls.initialize(mainThread);
@@ -94,7 +101,7 @@ export default class JVM {
     }
     const initialTg = threadGroupCls.instantiate();
     initialTg.initialize(mainThread);
-    this.engine.runThread(mainThread);
+    mainThread._run();
     // #endregion
 
     // #region initialize Thread class
@@ -108,12 +115,12 @@ export default class JVM {
     javaThread.putField(pFr, 1);
 
     threadCls.initialize(mainThread);
-    this.engine.runThread(mainThread);
+    mainThread._run();
     // #endregion
 
     // #region initialize thread object
     mainThread.initialize(mainThread);
-    this.engine.runThread(mainThread);
+    mainThread._run();
     this._initialThread = mainThread;
     // #endregion
 
@@ -123,8 +130,10 @@ export default class JVM {
     if (!sInitMr) {
       throw new Error('System initialization method not found');
     }
-    mainThread.invokeSf(sysCls, sInitMr, 0, []);
-    this.engine.runThread(mainThread);
+    mainThread.invokeStackFrame(
+      new InternalStackFrame(sysCls, sInitMr, 0, [], () => {})
+    );
+    mainThread._run();
     console.log('// #endregion system class initialized'.padEnd(150, '#'));
     // #endregion
 
@@ -162,11 +171,10 @@ export default class JVM {
       throw new Error('Main method not found');
     }
     const mainThread = this._initialThread as Thread;
-    mainThread.invokeSf(mainCls, mainMethod, 0, []);
+    mainThread.invokeStackFrame(new JavaStackFrame(mainCls, mainMethod, 0, []));
     mainCls.initialize(mainThread);
-
-    this.engine.addThread(mainThread);
-    this.engine.run();
+    this.threadpool.addThread(mainThread);
+    this.threadpool.run();
   }
 
   private newCharArr(str: string): ImmediateResult<JvmArray> {

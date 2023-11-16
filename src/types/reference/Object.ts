@@ -1,3 +1,4 @@
+import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
 import Thread from '#jvm/components/Thread/Thread';
 import { ClassData } from '#types/class/ClassData';
 import { Field } from '#types/class/Field';
@@ -52,11 +53,13 @@ export class JvmObject {
       return { result: this };
     }
 
-    thread.invokeSf(this.cls, initMethod, 0, [this], (ret, err) => {
-      if (!err) {
-        this.initStatus = true;
-      }
-    });
+    thread.invokeStackFrame(
+      new InternalStackFrame(this.cls, initMethod, 0, [this], (ret, err) => {
+        if (!err) {
+          this.initStatus = true;
+        }
+      })
+    );
     return { isDefer: true };
   }
 

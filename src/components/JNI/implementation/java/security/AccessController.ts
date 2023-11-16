@@ -1,4 +1,8 @@
 import { JNI } from '#jvm/components/JNI';
+import {
+  InternalStackFrame,
+  JavaStackFrame,
+} from '#jvm/components/Thread/StackFrame';
 import Thread from '#jvm/components/Thread/Thread';
 import { JvmObject } from '#types/reference/Object';
 import { checkSuccess, checkError } from '#types/result';
@@ -20,19 +24,21 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
         return null;
       }
       const methodRef = methodRes.result;
-      thread.invokeSf(
-        methodRef.getClass(),
-        methodRef,
-        0,
-        [action],
-        (ret: JvmObject) => {
-          console.debug(
-            'RUN doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;',
-            { ...ret, cls: null }
-          );
-          thread.returnSF();
-          thread.returnSF(ret);
-        }
+      thread.invokeStackFrame(
+        new InternalStackFrame(
+          methodRef.getClass(),
+          methodRef,
+          0,
+          [action],
+          (ret: JvmObject) => {
+            console.debug(
+              'RUN doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;',
+              { ...ret, cls: null }
+            );
+            thread.returnStackFrame();
+            thread.returnStackFrame(ret);
+          }
+        )
       );
     }
   );
@@ -79,8 +85,10 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
         return;
       }
 
-      thread.returnSF();
-      thread.invokeSf(runtimeCls, method, 0, [action]);
+      thread.returnStackFrame();
+      thread.invokeStackFrame(
+        new JavaStackFrame(runtimeCls, method, 0, [action])
+      );
     }
   );
 };

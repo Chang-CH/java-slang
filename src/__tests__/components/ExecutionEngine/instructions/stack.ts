@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
+
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
@@ -10,6 +10,8 @@ import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
+import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 
 let thread: Thread;
 let threadClass: ClassData;
@@ -26,17 +28,18 @@ beforeEach(() => {
   threadClass = (
     bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
   ).result;
-  thread = new Thread(threadClass, new JVM(nativeSystem));
+  const tPool = new RoundRobinThreadPool(() => {});
+  thread = new Thread(threadClass, new JVM(nativeSystem), tPool);
   const method = threadClass.getMethod('<init>()V') as Method;
   code = (method._getCode() as CodeAttribute).code;
-  thread.invokeSf(threadClass, method, 0, []);
+  thread.invokeStackFrame(new JavaStackFrame(threadClass, method, 0, []));
 });
 
 describe('Pop', () => {
   test('POP: pop stack', () => {
     thread.pushStack(1);
     code.setUint8(0, OPCODE.POP);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -49,7 +52,7 @@ describe('Pop2', () => {
     thread.pushStack(1);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.POP2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -59,7 +62,7 @@ describe('Pop2', () => {
   test('POP2: pop stack 1 double', () => {
     thread.pushStack64(1.0);
     code.setUint8(0, OPCODE.POP2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
@@ -71,7 +74,7 @@ describe('Dup', () => {
   test('DUP: duplicates reference', () => {
     thread.pushStack(javaThread);
     code.setUint8(0, OPCODE.DUP);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(lastFrame.operandStack[0] === javaThread).toBe(true);
@@ -88,7 +91,7 @@ describe('DupX1', () => {
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP_X1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(3);
     expect(lastFrame.operandStack[0] === v1).toBe(true);
@@ -108,7 +111,7 @@ describe('DupX2', () => {
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP_X2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
     expect(thread.popStack() === v1).toBe(true);
@@ -123,7 +126,7 @@ describe('DupX2', () => {
     thread.pushStack64(5.0);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP_X2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
     expect(thread.popStack() === v1).toBe(true);
@@ -141,7 +144,7 @@ describe('Dup2', () => {
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
     expect(lastFrame.operandStack[0] === v2).toBe(true);
@@ -154,7 +157,7 @@ describe('Dup2', () => {
   test('DUP2: duplicates category 2', () => {
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DUP2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(4);
     expect(thread.popStack64()).toBe(5.0);
@@ -173,7 +176,7 @@ describe('Dup2X1', () => {
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP2_X1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(5);
     expect(lastFrame.operandStack[0] === v2).toBe(true);
@@ -189,7 +192,7 @@ describe('Dup2X1', () => {
     thread.pushStack64(5.0);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP2_X1);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(5);
     expect(thread.popStack()).toBe(v1);
@@ -211,7 +214,7 @@ describe('Dup2X2', () => {
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP2_X2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
     expect(lastFrame.operandStack[0] === v2).toBe(true);
@@ -231,7 +234,7 @@ describe('Dup2X2', () => {
     thread.pushStack(v1);
     thread.pushStack64(5.0);
     code.setUint8(0, OPCODE.DUP2_X2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
     expect(thread.popStack64()).toBe(5.0);
@@ -249,7 +252,7 @@ describe('Dup2X2', () => {
     thread.pushStack(v2);
     thread.pushStack(v1);
     code.setUint8(0, OPCODE.DUP2_X2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
     expect(thread.popStack()).toBe(v1);
@@ -264,7 +267,7 @@ describe('Dup2X2', () => {
     thread.pushStack64(5.0);
     thread.pushStack64(6.0);
     code.setUint8(0, OPCODE.DUP2_X2);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(6);
     expect(thread.popStack64()).toBe(6.0);
@@ -282,7 +285,7 @@ describe('Swap', () => {
     thread.pushStack(v1);
     thread.pushStack(v2);
     code.setUint8(0, OPCODE.SWAP);
-    runInstruction(thread, jni, () => {});
+    thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
     expect(thread.popStack()).toBe(v1);

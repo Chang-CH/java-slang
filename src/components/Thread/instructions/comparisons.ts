@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/Thread/Thread';
-import { asDouble, asFloat } from '../Interpreter/utils';
+import { asDouble, asFloat } from '#utils/index';
 
 export function runLcmp(thread: Thread): void {
   thread.offsetPc(1);

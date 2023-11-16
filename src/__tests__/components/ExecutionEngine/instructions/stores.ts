@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-import runInstruction from '#jvm/components/ExecutionEngine/Interpreter/utils/runInstruction';
+
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
@@ -11,6 +11,8 @@ import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
+import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 
 let thread: Thread;
 let threadClass: ClassData;
@@ -27,10 +29,11 @@ beforeEach(() => {
   threadClass = (
     bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
   ).result;
-  thread = new Thread(threadClass, new JVM(nativeSystem));
+  const tPool = new RoundRobinThreadPool(() => {});
+  thread = new Thread(threadClass, new JVM(nativeSystem), tPool);
   const method = threadClass.getMethod('<init>()V') as Method;
   code = (method._getCode() as CodeAttribute).code;
-  thread.invokeSf(threadClass, method, 0, []);
+  thread.invokeStackFrame(new JavaStackFrame(threadClass, method, 0, []));
 });
 
 describe('Istore', () => {
@@ -41,7 +44,7 @@ describe('Istore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -58,7 +61,7 @@ describe('Istore0', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -75,7 +78,7 @@ describe('Istore1', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -92,7 +95,7 @@ describe('Istore2', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -109,7 +112,7 @@ describe('Istore3', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -127,7 +130,7 @@ describe('Lstore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -144,7 +147,7 @@ describe('Lstore0', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -161,7 +164,7 @@ describe('Lstore1', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -178,7 +181,7 @@ describe('Lstore2', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -195,7 +198,7 @@ describe('Lstore3', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -213,7 +216,7 @@ describe('Fstore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -229,7 +232,7 @@ describe('Fstore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -246,7 +249,7 @@ describe('Fstore0', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -261,7 +264,7 @@ describe('Fstore0', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -278,7 +281,7 @@ describe('Fstore1', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -293,7 +296,7 @@ describe('Fstore1', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -310,7 +313,7 @@ describe('Fstore2', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -325,7 +328,7 @@ describe('Fstore2', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -342,7 +345,7 @@ describe('Fstore3', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -357,7 +360,7 @@ describe('Fstore3', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -375,7 +378,7 @@ describe('Dstore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -391,7 +394,7 @@ describe('Dstore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -408,7 +411,7 @@ describe('Dstore0', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -423,7 +426,7 @@ describe('Dstore0', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -440,7 +443,7 @@ describe('Dstore1', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -455,7 +458,7 @@ describe('Dstore1', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -472,7 +475,7 @@ describe('Dstore2', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -487,7 +490,7 @@ describe('Dstore2', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -504,7 +507,7 @@ describe('Dstore3', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -519,7 +522,7 @@ describe('Dstore3', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -538,7 +541,7 @@ describe('Astore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -556,7 +559,7 @@ describe('Astore0', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -574,7 +577,7 @@ describe('Astore1', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -592,7 +595,7 @@ describe('Astore2', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -610,7 +613,7 @@ describe('Astore3', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -633,7 +636,7 @@ describe('Iastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -649,7 +652,7 @@ describe('Iastore', () => {
     code.setUint8(0, OPCODE.IASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -668,7 +671,7 @@ describe('Iastore', () => {
     code.setUint8(0, OPCODE.IASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -687,7 +690,7 @@ describe('Iastore', () => {
     code.setUint8(0, OPCODE.IASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -709,7 +712,7 @@ describe('Lastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -725,7 +728,7 @@ describe('Lastore', () => {
     code.setUint8(0, OPCODE.LASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -744,7 +747,7 @@ describe('Lastore', () => {
     code.setUint8(0, OPCODE.LASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -763,7 +766,7 @@ describe('Lastore', () => {
     code.setUint8(0, OPCODE.LASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -785,7 +788,7 @@ describe('Fastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -801,7 +804,7 @@ describe('Fastore', () => {
     code.setUint8(0, OPCODE.FASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -820,7 +823,7 @@ describe('Fastore', () => {
     code.setUint8(0, OPCODE.FASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -839,7 +842,7 @@ describe('Fastore', () => {
     code.setUint8(0, OPCODE.FASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -861,7 +864,7 @@ describe('Dastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -877,7 +880,7 @@ describe('Dastore', () => {
     code.setUint8(0, OPCODE.DASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -896,7 +899,7 @@ describe('Dastore', () => {
     code.setUint8(0, OPCODE.DASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -915,7 +918,7 @@ describe('Dastore', () => {
     code.setUint8(0, OPCODE.DASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -940,7 +943,7 @@ describe('Aastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -956,7 +959,7 @@ describe('Aastore', () => {
     code.setUint8(0, OPCODE.AASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -978,7 +981,7 @@ describe('Aastore', () => {
     code.setUint8(0, OPCODE.AASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1000,7 +1003,7 @@ describe('Aastore', () => {
     code.setUint8(0, OPCODE.AASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1022,7 +1025,7 @@ describe('Bastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -1042,7 +1045,7 @@ describe('Bastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -1058,7 +1061,7 @@ describe('Bastore', () => {
     code.setUint8(0, OPCODE.BASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1077,7 +1080,7 @@ describe('Bastore', () => {
     code.setUint8(0, OPCODE.BASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1096,7 +1099,7 @@ describe('Bastore', () => {
     code.setUint8(0, OPCODE.BASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1118,7 +1121,7 @@ describe('Castore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -1138,7 +1141,7 @@ describe('Castore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -1154,7 +1157,7 @@ describe('Castore', () => {
     code.setUint8(0, OPCODE.CASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1173,7 +1176,7 @@ describe('Castore', () => {
     code.setUint8(0, OPCODE.CASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1192,7 +1195,7 @@ describe('Castore', () => {
     code.setUint8(0, OPCODE.CASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1214,7 +1217,7 @@ describe('Sastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -1234,7 +1237,7 @@ describe('Sastore', () => {
 
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
@@ -1250,7 +1253,7 @@ describe('Sastore', () => {
     code.setUint8(0, OPCODE.SASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1269,7 +1272,7 @@ describe('Sastore', () => {
     code.setUint8(0, OPCODE.SASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
@@ -1288,7 +1291,7 @@ describe('Sastore', () => {
     code.setUint8(0, OPCODE.SASTORE);
     try {
       try {
-        runInstruction(thread, jni, () => {});
+        thread.runFor(1);
       } catch (e) {}
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;

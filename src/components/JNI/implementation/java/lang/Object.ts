@@ -6,7 +6,7 @@ export const registerJavaLangObject = (jni: JNI) => {
     'java/lang/Object',
     'registerNatives()V',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -15,7 +15,7 @@ export const registerJavaLangObject = (jni: JNI) => {
     'getClass()Ljava/lang/Class;',
     (thread: Thread, locals: any[]) => {
       const obj = locals[0];
-      thread.returnSF(obj.getClass().getJavaObject());
+      thread.returnStackFrame(obj.getClass().getJavaObject());
     }
   );
 
@@ -25,7 +25,7 @@ export const registerJavaLangObject = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const obj = locals[0];
       const clone = obj.clone();
-      thread.returnSF(clone);
+      thread.returnStackFrame(clone);
     }
   );
 
@@ -34,7 +34,7 @@ export const registerJavaLangObject = (jni: JNI) => {
     'hashCode()I',
     (thread: Thread, locals: any[]) => {
       const obj = locals[0];
-      thread.returnSF(obj.hashCode());
+      thread.returnStackFrame(obj.hashCode());
     }
   );
 };

@@ -9,7 +9,7 @@ export const registerJavaLangFloat = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const float = locals[0];
       dataview.setFloat32(0, float);
-      thread.returnSF(dataview.getInt32(0));
+      thread.returnStackFrame(dataview.getInt32(0));
     }
   );
 };

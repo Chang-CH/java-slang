@@ -1,4 +1,5 @@
 import { JNI } from '#jvm/components/JNI';
+import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
 import Thread from '#jvm/components/Thread/Thread';
 import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
@@ -10,7 +11,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
     'java/lang/System',
     'registerNatives()V',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -73,7 +74,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
         }
       }
 
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -128,18 +129,20 @@ export const registerJavaLangSystem = (jni: JNI) => {
         return;
       }
 
-      thread.returnSF(props);
+      thread.returnStackFrame(props);
 
       Object.entries(systemProperties).forEach(([key, value]) => {
         const keyObj = thread.getJVM().getInternedString(key);
         const valueObj = thread.getJVM().getInternedString(value);
 
-        thread.invokeSf(
-          props.getClass(),
-          method,
-          0,
-          [props, keyObj, valueObj],
-          () => {}
+        thread.invokeStackFrame(
+          new InternalStackFrame(
+            props.getClass(),
+            method,
+            0,
+            [props, keyObj, valueObj],
+            () => {}
+          )
         );
       });
     }
@@ -161,7 +164,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
       if (fr) {
         fr.putValue(stream);
       }
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -181,7 +184,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
       if (fr) {
         fr.putValue(stream);
       }
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -201,7 +204,7 @@ export const registerJavaLangSystem = (jni: JNI) => {
       if (fr) {
         fr.putValue(stream);
       }
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 };

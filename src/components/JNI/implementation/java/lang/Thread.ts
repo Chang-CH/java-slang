@@ -22,7 +22,7 @@ export const registerJavaLangThread = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       // priority field of the thread object is already set.
       // method serves to update our internal priority if we decide to use it.
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
 
@@ -30,7 +30,7 @@ export const registerJavaLangThread = (jni: JNI) => {
     'java/lang/Thread',
     'registerNatives()V',
     (thread: Thread, locals: any[]) => {
-      thread.returnSF();
+      thread.returnStackFrame();
     }
   );
   jni.registerNativeMethod(
@@ -38,7 +38,7 @@ export const registerJavaLangThread = (jni: JNI) => {
     'currentThread()Ljava/lang/Thread;',
     (thread: Thread, locals: any[]) => {
       const threadObj = thread.getJavaObject();
-      thread.returnSF(threadObj);
+      thread.returnStackFrame(threadObj);
     }
   );
 
@@ -50,7 +50,7 @@ export const registerJavaLangThread = (jni: JNI) => {
       setTimeout(
         () => {
           thread.setStatus(ThreadStatus.RUNNABLE);
-          thread.returnSF();
+          thread.returnStackFrame();
         },
         Number(locals[0] as BigInt)
       );

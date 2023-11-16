@@ -81,4 +81,8 @@ export class Deque<T> {
 
     return node.data;
   }
+
+  isEmpty(): boolean {
+    return this.size === 0;
+  }
 }

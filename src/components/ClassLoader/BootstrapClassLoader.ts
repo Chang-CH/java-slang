@@ -10,7 +10,7 @@ import {
   checkError,
 } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
-import { primitiveTypeToName } from '../ExecutionEngine/Interpreter/utils';
+import { primitiveTypeToName } from '#utils/index';
 import AbstractClassLoader from './AbstractClassLoader';
 
 /**
