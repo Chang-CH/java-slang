@@ -60,9 +60,17 @@ export default class Thread {
   runFor(quantum: number) {
     this.quantumLeft = quantum;
 
-    while (this.quantumLeft && this.stack.length > 0) {
+    while (
+      this.quantumLeft &&
+      this.stack.length > 0 &&
+      this.status === ThreadStatus.RUNNABLE
+    ) {
       this.peekStackFrame().run(this);
       this.quantumLeft -= 1;
+    }
+
+    if (this.stack.length === 0) {
+      this.status = ThreadStatus.TERMINATED;
     }
 
     this.tpool.quantumOver(this);
@@ -121,7 +129,9 @@ export default class Thread {
   // #region setters
 
   setStatus(status: ThreadStatus) {
+    const oldStatus = this.status;
     this.status = status;
+    this.tpool.updateStatus(this, oldStatus);
   }
 
   offsetPc(pc: number) {
@@ -193,6 +203,7 @@ export default class Thread {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
     if (this.stackPointer < -1 || sf === undefined) {
+      console.log(this.stackPointer);
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');
     }

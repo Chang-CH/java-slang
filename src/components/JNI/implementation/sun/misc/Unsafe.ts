@@ -293,7 +293,7 @@ export const registerUnsafe = (jni: JNI) => {
       const heap = thread.getJVM().getUnsafeHeap();
       const addr = heap.allocate(size);
       console.log('ALLOCATE ADDR: ', addr);
-      thread.returnStackFrame(addr);
+      thread.returnStackFrame64(addr);
     }
   );
 

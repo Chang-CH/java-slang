@@ -1,6 +1,5 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
-import { JvmObject } from '#types/reference/Object';
 
 export const registerJavaLangThread = (jni: JNI) => {
   // jni.registerNativeMethod(
@@ -46,11 +45,11 @@ export const registerJavaLangThread = (jni: JNI) => {
     'java/lang/Thread',
     'sleep(J)V',
     (thread: Thread, locals: any[]) => {
-      thread.setStatus(ThreadStatus.WAITING);
+      thread.setStatus(ThreadStatus.TIMED_WAITING);
+      thread.returnStackFrame();
       setTimeout(
         () => {
           thread.setStatus(ThreadStatus.RUNNABLE);
-          thread.returnStackFrame();
         },
         Number(locals[0] as BigInt)
       );

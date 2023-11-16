@@ -75,21 +75,52 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
     }
   }
 
+  nextThread() {
+    if (this.threadQueue.isEmpty()) {
+      this.currentThread = null;
+    } else {
+      this.currentThread = this.threadQueue.popFront();
+    }
+  }
+
   updateStatus(thread: Thread, oldStatus: ThreadStatus): void {
-    throw new Error('Method not implemented.');
+    if (thread.getStatus() === oldStatus) {
+      return;
+    }
+
+    if (thread.getStatus() === ThreadStatus.TERMINATED) {
+      this.clearTerminated();
+      this.nextThread();
+      return;
+    }
+
+    if (thread.getStatus() === ThreadStatus.RUNNABLE) {
+      this.threadQueue.pushBack(thread);
+      // restart loop
+      if (this.currentThread === null) {
+        this.nextThread();
+        this.run();
+      }
+    } else if (
+      thread === this.currentThread &&
+      oldStatus === ThreadStatus.RUNNABLE
+    ) {
+      this.nextThread();
+    }
   }
 
   quantumOver(thread: Thread): void {
     if (thread.getStatus() === ThreadStatus.TERMINATED) {
       this.clearTerminated();
-      return;
+    } else if (thread.getStatus() === ThreadStatus.RUNNABLE) {
+      this.threadQueue.pushBack(thread);
     }
-    this.threadQueue.pushBack(thread);
+    this.nextThread();
   }
 
   run() {
-    while (!this.threadQueue.isEmpty()) {
-      this.threadQueue.popFront().runFor(10000);
+    while (this.currentThread) {
+      this.currentThread.runFor(10000);
     }
   }
 }

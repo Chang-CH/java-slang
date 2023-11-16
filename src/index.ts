@@ -13,7 +13,7 @@ import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
 import { JNI, registerNatives } from './components/JNI';
-import Thread from './components/Thread/Thread';
+import Thread, { ThreadStatus } from './components/Thread/Thread';
 import { UnsafeHeap } from './components/UnsafeHeap';
 import {
   InternalStackFrame,
@@ -125,7 +125,6 @@ export default class JVM {
     // #endregion
 
     // #region initialize system class
-    console.log('// #region initializing system class'.padEnd(150, '#'));
     const sInitMr = sysCls.getMethod('initializeSystemClass()V');
     if (!sInitMr) {
       throw new Error('System initialization method not found');
@@ -134,7 +133,6 @@ export default class JVM {
       new InternalStackFrame(sysCls, sInitMr, 0, [], () => {})
     );
     mainThread._run();
-    console.log('// #endregion system class initialized'.padEnd(150, '#'));
     // #endregion
 
     //   'source/Source',
@@ -173,6 +171,7 @@ export default class JVM {
     const mainThread = this._initialThread as Thread;
     mainThread.invokeStackFrame(new JavaStackFrame(mainCls, mainMethod, 0, []));
     mainCls.initialize(mainThread);
+    mainThread.setStatus(ThreadStatus.RUNNABLE);
     this.threadpool.addThread(mainThread);
     this.threadpool.run();
   }
