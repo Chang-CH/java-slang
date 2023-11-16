@@ -1,12 +1,12 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { JvmArray } from '#types/reference/Array';
-import { TestClassLoader, TestSystem } from '#utils/test';
+import { TestClassLoader, TestSystem } from '#utils/testUtility';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -70,57 +70,11 @@ beforeEach(() => {
   });
   const tPool = new RoundRobinThreadPool(() => {});
   thread = new Thread(threadClass, new JVM(testSystem), tPool);
+  thread.setStatus(ThreadStatus.RUNNABLE);
 
   const ab = new ArrayBuffer(50);
   code = new DataView(ab);
   let fieldIdx = 0;
-  testClass = testLoader.createClass({
-    className: 'Test',
-    constants: [
-      () => ({
-        tag: CONSTANT_TAG.Utf8,
-        length: 11,
-        value: 'staticField',
-      }),
-      () => ({
-        tag: CONSTANT_TAG.Utf8,
-        length: 1,
-        value: 'I',
-      }),
-      () => ({
-        tag: CONSTANT_TAG.Utf8,
-        length: 4,
-        value: 'Test',
-      }),
-      cPool => ({
-        tag: CONSTANT_TAG.NameAndType,
-        nameIndex: cPool.length - 3,
-        descriptorIndex: cPool.length - 2,
-      }),
-      cPool => ({
-        tag: CONSTANT_TAG.Class,
-        nameIndex: cPool.length - 2,
-      }),
-      cPool => {
-        fieldIdx = cPool.length;
-        return {
-          tag: CONSTANT_TAG.Fieldref,
-          classIndex: cPool.length - 1,
-          nameAndTypeIndex: cPool.length - 2,
-        };
-      },
-    ],
-    methods: [
-      {
-        accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-        name: 'test0',
-        descriptor: '()V',
-        attributes: [],
-        code: code,
-      },
-    ],
-    loader: testLoader,
-  });
   testLoader.createClass({
     className: 'java/lang/NegativeArraySizeException',
     loader: testLoader,

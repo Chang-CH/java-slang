@@ -1,12 +1,12 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
-import { TestClassLoader, TestSystem } from '#utils/test';
+import { TestClassLoader, TestSystem } from '#utils/testUtility';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayPrimitiveType } from '#types/reference/Array';
@@ -97,6 +97,7 @@ beforeEach(() => {
 
   const tPool = new RoundRobinThreadPool(() => {});
   thread = new Thread(threadClass, new JVM(testSystem), tPool);
+  thread.setStatus(ThreadStatus.RUNNABLE);
 });
 
 // method resolution tested under classref

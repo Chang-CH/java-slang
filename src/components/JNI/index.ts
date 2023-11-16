@@ -1,13 +1,11 @@
-import { Field } from '#types/class/Field';
-import { ArrayClassData } from '#types/class/ArrayClassData';
 import { ClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { byteArray2charArray, j2jsString } from '#utils/index';
+import { j2jsString } from '#utils/index';
 import { parseFieldDescriptor } from '#utils/index';
 import { InternalStackFrame, StackFrame } from '../Thread/StackFrame';
-import Thread, { ThreadStatus } from '../Thread/Thread';
+import Thread from '../Thread/Thread';
 import { registerJavaLangClass } from './implementation/java/lang/Class';
 import { registerJavaLangDouble } from './implementation/java/lang/Double';
 import { registerJavaLangFloat } from './implementation/java/lang/Float';

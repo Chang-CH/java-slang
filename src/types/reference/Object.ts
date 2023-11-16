@@ -1,8 +1,7 @@
-import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
 import Thread from '#jvm/components/Thread/Thread';
 import { ClassData } from '#types/class/ClassData';
 import { Field } from '#types/class/Field';
-import { DeferResult, Result, SuccessResult } from '#types/result';
+import { Result } from '#types/result';
 
 export class JvmObject {
   public initStatus = false;
@@ -53,13 +52,11 @@ export class JvmObject {
       return { result: this };
     }
 
-    thread.invokeStackFrame(
-      new InternalStackFrame(this.cls, initMethod, 0, [this], (ret, err) => {
-        if (!err) {
-          this.initStatus = true;
-        }
-      })
-    );
+    thread._invokeInternal(this.cls, initMethod, 0, [this], (ret, err) => {
+      if (!err) {
+        this.initStatus = true;
+      }
+    });
     return { isDefer: true };
   }
 

@@ -16,13 +16,13 @@ import { JNI, registerNatives } from './components/JNI';
 import Thread, { ThreadStatus } from './components/Thread/Thread';
 import { UnsafeHeap } from './components/UnsafeHeap';
 import {
-  InternalStackFrame,
-  JavaStackFrame,
-} from './components/Thread/StackFrame';
-import {
   AbstractThreadPool,
   RoundRobinThreadPool,
 } from './components/ThreadPool';
+import {
+  InternalStackFrame,
+  JavaStackFrame,
+} from './components/Thread/StackFrame';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;

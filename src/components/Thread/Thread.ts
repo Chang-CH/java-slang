@@ -2,9 +2,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import JVM from '#jvm/index';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
-import { JvmArray } from '#types/reference/Array';
 import { checkError, checkSuccess } from '#types/result';
-import { stringifyCode } from '#utils/Prettify/classfile';
 import { JvmObject } from '../../types/reference/Object';
 import { AbstractThreadPool } from '../ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './StackFrame';
@@ -237,6 +235,17 @@ export default class Thread {
   invokeStackFrame(sf: StackFrame) {
     this.stack.push(sf);
     this.stackPointer += 1;
+  }
+
+  _invokeInternal(
+    cls: ClassData,
+    method: Method,
+    pc: number,
+    locals: any[],
+    callback: (ret: any, err?: any) => void
+  ) {
+    const sf = new InternalStackFrame(cls, method, pc, locals, callback);
+    this.invokeStackFrame(sf);
   }
 
   // #endregion

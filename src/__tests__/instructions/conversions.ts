@@ -1,16 +1,9 @@
-import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
-import { Method } from '#types/class/Method';
-import { JvmObject } from '#types/reference/Object';
-import NodeSystem from '#utils/NodeSystem';
-import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { SuccessResult } from '#types/result';
-import JVM from '#jvm/index';
-import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { setupTest } from '#utils/testUtility';
 
 let thread: Thread;
 let threadClass: ClassData;
@@ -18,20 +11,14 @@ let code: DataView;
 let jni: JNI;
 
 beforeEach(() => {
-  jni = new JNI();
-  const nativeSystem = new NodeSystem({});
-
-  const bscl = new BootstrapClassLoader(nativeSystem, 'natives');
-
-  threadClass = (
-    bscl.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
-  ).result;
-
-  const tPool = new RoundRobinThreadPool(() => {});
-  thread = new Thread(threadClass, new JVM(nativeSystem), tPool);
-  const method = threadClass.getMethod('<init>()V') as Method;
-  code = (method._getCode() as CodeAttribute).code;
-  thread.invokeStackFrame(new JavaStackFrame(threadClass, method, 0, []));
+  const setup = setupTest();
+  thread = setup.thread;
+  threadClass = setup.classes.threadClass;
+  code = setup.code;
+  jni = setup.jni;
+  const testClass = setup.classes.testClass;
+  const method = setup.method;
+  thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
 });
 
 describe('I2l', () => {

@@ -6,7 +6,7 @@ import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JavaType } from '#types/reference/Object';
-import { JvmArray } from '#types/reference/Array';
+import type { JvmArray } from '#types/reference/Array';
 import {
   ConstantClass,
   ConstantFieldref,
@@ -15,7 +15,7 @@ import {
   ConstantMethodref,
 } from '#types/class/Constants';
 import { Result, checkError, checkSuccess } from '#types/result';
-import { JavaStackFrame, NativeStackFrame } from '../StackFrame';
+import { NativeStackFrame, JavaStackFrame } from '../StackFrame';
 
 export function runGetstatic(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);

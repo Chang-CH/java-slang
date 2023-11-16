@@ -1,6 +1,6 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
 import {
@@ -9,15 +9,13 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 import { ClassData } from '#types/class/ClassData';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
-import { TestSystem, TestClassLoader } from '#utils/test';
+import { TestClassLoader } from '#utils/testUtility';
 import AbstractSystem from '#utils/AbstractSystem';
-import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { Method } from '#types/class/Method';
 import { ConstantClass, ConstantString } from '#types/class/Constants';
 import { SuccessResult } from '#types/result';
-import JVM from '#jvm/index';
+import { setupTest } from '../../utils/testUtility';
 import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
-import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
@@ -29,105 +27,16 @@ let strClass: ClassData;
 let testClass: ClassData;
 
 beforeEach(() => {
-  jni = new JNI();
-  testSystem = new TestSystem();
-  testLoader = new TestClassLoader(testSystem, '', null);
-
-  const dispatchUncaughtCode = new DataView(new ArrayBuffer(8));
-  dispatchUncaughtCode.setUint8(0, OPCODE.RETURN);
-  threadClass = testLoader.createClass({
-    className: 'java/lang/Thread',
-    methods: [
-      {
-        accessFlags: [METHOD_FLAGS.ACC_PROTECTED],
-        name: 'dispatchUncaughtException',
-        descriptor: '(Ljava/lang/Throwable;)V',
-        attributes: [],
-        code: dispatchUncaughtCode,
-      },
-    ],
-    loader: testLoader,
-  });
-  strClass = testLoader.createClass({
-    className: 'java/lang/String',
-    loader: testLoader,
-    fields: [
-      {
-        accessFlags: [FIELD_FLAGS.ACC_FINAL, FIELD_FLAGS.ACC_PRIVATE],
-        name: 'value',
-        descriptor: '[C',
-        attributes: [],
-      },
-    ],
-  });
-  const clsClass = testLoader.createClass({
-    className: 'java/lang/Class',
-    loader: testLoader,
-    fields: [
-      {
-        accessFlags: [FIELD_FLAGS.ACC_PUBLIC],
-        name: 'classLoader',
-        descriptor: 'Ljava/lang/ClassLoader;',
-        attributes: [],
-      },
-    ],
-  });
-  const jvm = new JVM(testSystem);
-  (jvm as any).bootstrapClassLoader = testLoader;
-  const tPool = new RoundRobinThreadPool(() => {});
-  thread = new Thread(threadClass, jvm, tPool);
-
-  const ab = new ArrayBuffer(50);
-  code = new DataView(ab);
-  let fieldIdx = 0;
-  testClass = testLoader.createClass({
-    className: 'Test',
-    constants: [
-      () => ({
-        tag: CONSTANT_TAG.Utf8,
-        length: 11,
-        value: 'staticField',
-      }),
-      () => ({
-        tag: CONSTANT_TAG.Utf8,
-        length: 1,
-        value: 'I',
-      }),
-      () => ({
-        tag: CONSTANT_TAG.Utf8,
-        length: 4,
-        value: 'Test',
-      }),
-      cPool => ({
-        tag: CONSTANT_TAG.NameAndType,
-        nameIndex: cPool.length - 3,
-        descriptorIndex: cPool.length - 2,
-      }),
-      cPool => ({
-        tag: CONSTANT_TAG.Class,
-        nameIndex: cPool.length - 2,
-      }),
-      cPool => {
-        fieldIdx = cPool.length;
-        return {
-          tag: CONSTANT_TAG.Fieldref,
-          classIndex: cPool.length - 1,
-          nameAndTypeIndex: cPool.length - 2,
-        };
-      },
-    ],
-    methods: [
-      {
-        accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-        name: 'test0',
-        descriptor: '()V',
-        attributes: [],
-        code: code,
-      },
-    ],
-    loader: testLoader,
-  });
-  const method = testClass.getMethod('test0()V') as Method;
+  const setup = setupTest();
+  testSystem = setup.testSystem;
+  testLoader = setup.testLoader;
+  thread = setup.thread;
+  threadClass = setup.classes.threadClass;
+  code = setup.code;
+  jni = setup.jni;
+  strClass = setup.classes.strClass;
+  testClass = setup.classes.testClass;
+  const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
 });
 

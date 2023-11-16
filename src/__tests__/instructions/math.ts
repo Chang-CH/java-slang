@@ -1,21 +1,11 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 
 import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
-import NodeSystem from '#utils/NodeSystem';
-import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { ClassData } from '#types/class/ClassData';
-import { Method } from '#types/class/Method';
-import { SuccessResult } from '#types/result';
-import JVM from '#jvm/index';
-import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
-import { TestClassLoader, TestSystem } from '#utils/test';
-import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
-import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
+import { setupTest } from '#utils/testUtility';
 import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
-import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 
 const MAX_LONG = 9223372036854775807n;
 const MIN_LONG = -9223372036854775808n;
@@ -28,71 +18,13 @@ let code: DataView;
 let jni: JNI;
 
 beforeEach(() => {
-  jni = new JNI();
-  const testSystem = new TestSystem();
-  const testLoader = new TestClassLoader(testSystem, '', null);
-
-  const dispatchUncaughtCode = new DataView(new ArrayBuffer(8));
-  dispatchUncaughtCode.setUint8(0, OPCODE.RETURN);
-  threadClass = testLoader.createClass({
-    className: 'java/lang/Thread',
-    methods: [
-      {
-        accessFlags: [METHOD_FLAGS.ACC_PROTECTED],
-        name: 'dispatchUncaughtException',
-        descriptor: '(Ljava/lang/Throwable;)V',
-        attributes: [],
-        code: dispatchUncaughtCode,
-      },
-    ],
-    loader: testLoader,
-  });
-  const clsClass = testLoader.createClass({
-    className: 'java/lang/Class',
-    loader: testLoader,
-    fields: [
-      {
-        accessFlags: [FIELD_FLAGS.ACC_PUBLIC],
-        name: 'classLoader',
-        descriptor: 'Ljava/lang/ClassLoader;',
-        attributes: [],
-      },
-    ],
-  });
-  testLoader.createClass({
-    className: 'java/lang/Object',
-    loader: testLoader,
-  });
-  threadClass = (
-    testLoader.getClassRef('java/lang/Thread') as SuccessResult<ClassData>
-  ).result;
-
-  testLoader.createClass({
-    className: 'java/lang/ArithmeticException',
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
-  });
-
-  const ab = new ArrayBuffer(100);
-  code = new DataView(ab);
-  const testClass = testLoader.createClass({
-    className: 'Test',
-    methods: [
-      {
-        accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
-        name: 'test0',
-        descriptor: '()V',
-        attributes: [],
-        code: code,
-      },
-    ],
-    loader: testLoader,
-  });
-
-  const tPool = new RoundRobinThreadPool(() => {});
-  thread = new Thread(threadClass, new JVM(testSystem), tPool);
-  const method = testClass.getMethod('test0()V') as Method;
-  // ArithmeticException
+  const setup = setupTest();
+  thread = setup.thread;
+  threadClass = setup.classes.threadClass;
+  code = setup.code;
+  jni = setup.jni;
+  const testClass = setup.classes.testClass;
+  const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
 });
 

@@ -1,13 +1,10 @@
-import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import {
   AttributeInfo,
   CodeAttribute,
-  ExceptionHandler,
 } from '#jvm/external/ClassFile/types/attributes';
 import {
-  ConstantClassInfo,
   ConstantInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
@@ -16,18 +13,21 @@ import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { MethodHandler } from '#types/class/Method';
+import { Method, MethodHandler } from '#types/class/Method';
 import { ArrayClassData } from '#types/class/ArrayClassData';
 import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
-import {
-  ErrorResult,
-  ImmediateResult,
-  SuccessResult,
-  checkError,
-} from '#types/result';
+import { ImmediateResult, checkError, checkSuccess } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
+import { JNI } from '#jvm/components/JNI';
+import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
+import { AbstractThreadPool } from '#jvm/components/ThreadPool';
+import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
+import JVM from '#jvm/index';
+import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
+import { Field } from '#types/class/Field';
+import { JvmArray } from '#types/reference/Array';
 
 export class TestClassLoader extends AbstractClassLoader {
   getJavaObject(): JvmObject | null {
@@ -400,3 +400,251 @@ export class TestSystem extends AbstractSystem {
     throw new Error('Method not implemented.');
   }
 }
+
+export class TestThreadPool extends AbstractThreadPool {
+  constructor(onEmpty: () => void) {
+    super(onEmpty);
+  }
+  addThread(thread: Thread): void {}
+  updateStatus(thread: Thread, oldStatus: ThreadStatus): void {}
+
+  quantumOver(thread: Thread): void {}
+  run(): void {}
+}
+
+export class TestThread extends Thread {
+  constructor(threadClass: ClassData, jvm: JVM, tpool: AbstractThreadPool) {
+    super(threadClass, jvm, tpool);
+    this.setStatus(ThreadStatus.RUNNABLE);
+  }
+}
+
+export class TestJVM extends JVM {
+  testLoader: TestClassLoader;
+  tinternedStrings: {
+    [key: string]: JvmObject;
+  } = {};
+  constructor(
+    nativeSystem: AbstractSystem,
+    testLoader: TestClassLoader,
+    options?: {
+      javaClassPath?: string;
+      userDir?: string;
+    }
+  ) {
+    super(nativeSystem, options);
+    this.testLoader = testLoader;
+  }
+
+  private tnewCharArr(str: string): ImmediateResult<JvmArray> {
+    const cArrRes = this.testLoader.getClassRef('[C');
+    if (checkError(cArrRes)) {
+      return cArrRes;
+    }
+
+    const cArrCls = cArrRes.result;
+    const cArr = cArrCls.instantiate() as JvmArray;
+    const jsArr = [];
+    for (let i = 0; i < str.length; i++) {
+      jsArr.push(str.charCodeAt(i));
+    }
+    cArr.initArray(str.length, jsArr);
+    return { result: cArr };
+  }
+
+  private tnewString(str: string): ImmediateResult<JvmObject> {
+    const charArr = this.tnewCharArr(str);
+
+    if (!checkSuccess(charArr)) {
+      return charArr;
+    }
+
+    const strRes = this.testLoader.getClassRef('java/lang/String');
+
+    if (checkError(strRes)) {
+      return strRes;
+    }
+    const strCls = strRes.result;
+    const strObj = strCls.instantiate();
+    const fieldRef = strCls.getFieldRef('value[C') as Field;
+    strObj.putField(fieldRef as Field, charArr.result);
+    return { result: strObj };
+  }
+
+  getInternedString(str: string) {
+    if (this.tinternedStrings[str]) {
+      return this.tinternedStrings[str];
+    }
+    const strRes = this.tnewString(str);
+    if (checkError(strRes)) {
+      throw new Error('testString creation failed');
+    }
+
+    this.tinternedStrings[str] = strRes.result;
+    return this.tinternedStrings[str];
+  }
+}
+
+export const setupTest = () => {
+  const jni = new JNI();
+  const testSystem = new TestSystem();
+  const testLoader = new TestClassLoader(testSystem, '', null);
+
+  // #region create dummy classes
+  const dispatchUncaughtCode = new DataView(new ArrayBuffer(8));
+  dispatchUncaughtCode.setUint8(0, OPCODE.RETURN);
+  const threadClass = testLoader.createClass({
+    className: 'java/lang/Thread',
+    methods: [
+      {
+        accessFlags: [METHOD_FLAGS.ACC_PROTECTED],
+        name: 'dispatchUncaughtException',
+        descriptor: '(Ljava/lang/Throwable;)V',
+        attributes: [],
+        code: dispatchUncaughtCode,
+      },
+    ],
+    loader: testLoader,
+  });
+  const clsClass = testLoader.createClass({
+    className: 'java/lang/Class',
+    loader: testLoader,
+    fields: [
+      {
+        accessFlags: [FIELD_FLAGS.ACC_PUBLIC],
+        name: 'classLoader',
+        descriptor: 'Ljava/lang/ClassLoader;',
+        attributes: [],
+      },
+    ],
+  });
+  testLoader.createClass({
+    className: 'java/lang/Object',
+    loader: testLoader,
+  });
+  testLoader.createClass({
+    className: 'java/lang/Cloneable',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
+  });
+  testLoader.createClass({
+    className: 'java/io/Serializable',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
+  });
+  const strClass = testLoader.createClass({
+    className: 'java/lang/String',
+    loader: testLoader,
+    fields: [
+      {
+        accessFlags: [FIELD_FLAGS.ACC_FINAL, FIELD_FLAGS.ACC_PRIVATE],
+        name: 'value',
+        descriptor: '[C',
+        attributes: [],
+      },
+    ],
+  });
+
+  const code = new DataView(new ArrayBuffer(100));
+  let methodIdx = 0;
+  const testClass = testLoader.createClass({
+    className: 'Test',
+    constants: [
+      () => ({
+        tag: CONSTANT_TAG.Utf8,
+        length: 3,
+        value: '()V',
+      }),
+      () => ({
+        tag: CONSTANT_TAG.Utf8,
+        length: 5,
+        value: 'test0',
+      }),
+      () => ({
+        tag: CONSTANT_TAG.Utf8,
+        length: 4,
+        value: 'Test',
+      }),
+      cPool => ({
+        tag: CONSTANT_TAG.NameAndType,
+        nameIndex: cPool.length - 2,
+        descriptorIndex: cPool.length - 3,
+      }),
+      cPool => ({
+        tag: CONSTANT_TAG.Class,
+        nameIndex: cPool.length - 2,
+      }),
+      cPool => {
+        methodIdx = cPool.length;
+        return {
+          tag: CONSTANT_TAG.Methodref,
+          classIndex: cPool.length - 1,
+          nameAndTypeIndex: cPool.length - 2,
+        };
+      },
+    ],
+    methods: [
+      {
+        accessFlags: [METHOD_FLAGS.ACC_STATIC],
+        name: 'test0',
+        descriptor: '()V',
+        attributes: [],
+        code: code,
+      },
+    ],
+    loader: testLoader,
+  });
+  const method = testClass.getMethod('test0()V') as Method;
+  // #endregion
+
+  // #region exception classes
+  const Throwable = testLoader.createClass({
+    className: 'java/lang/Throwable',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_PUBLIC,
+  });
+  const NullPointerException = testLoader.createClass({
+    className: 'java/lang/NullPointerException',
+    superClass: Throwable,
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_PUBLIC,
+  });
+  const ArithmeticException = testLoader.createClass({
+    className: 'java/lang/ArithmeticException',
+    superClass: Throwable,
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_PUBLIC,
+  });
+  const IllegalAccessError = testLoader.createClass({
+    className: 'java/lang/IllegalAccessError',
+    superClass: Throwable,
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_PUBLIC,
+  });
+
+  //   #endregion
+
+  const tPool = new TestThreadPool(() => {});
+  const jvm = new TestJVM(testSystem, testLoader);
+  const thread = new TestThread(threadClass, jvm, tPool);
+
+  return {
+    jni,
+    testSystem,
+    testLoader,
+    thread,
+    method,
+    code,
+    classes: {
+      threadClass,
+      testClass,
+      clsClass,
+      strClass,
+      Throwable,
+      NullPointerException,
+      ArithmeticException,
+      IllegalAccessError,
+    },
+    tPool,
+  };
+};

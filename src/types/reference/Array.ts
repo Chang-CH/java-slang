@@ -1,7 +1,7 @@
 import Thread from '#jvm/components/Thread/Thread';
 import { ClassData } from '#types/class/ClassData';
 import { JavaType } from './Object';
-import { Result, SuccessResult } from '#types/result';
+import { Result } from '#types/result';
 import { JvmObject } from './Object';
 
 export class JvmArray extends JvmObject {
