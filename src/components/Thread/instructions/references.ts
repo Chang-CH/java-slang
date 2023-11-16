@@ -283,7 +283,7 @@ function invokeVirtual(
 
   onFinish && onFinish();
 
-  if (methodRef.checkNative()) {
+  if (toInvoke.checkNative()) {
     const nativeMethod = thread
       .getJVM()
       .getJNI()
