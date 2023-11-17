@@ -14,7 +14,12 @@ import {
   ConstantInvokeDynamic,
   ConstantMethodref,
 } from '#types/class/Constants';
-import { Result, checkError, checkSuccess } from '#types/result';
+import {
+  ImmediateResult,
+  Result,
+  checkError,
+  checkSuccess,
+} from '#types/result';
 import { NativeStackFrame, JavaStackFrame } from '../StackFrame';
 
 export function runGetstatic(thread: Thread): void {
@@ -219,10 +224,21 @@ function resolveMethod(
   return { result: { classRef, methodRef, args } };
 }
 
-function lookupMethod(thread: Thread, methodRef: Method): Result<Method> {
+// looks up method for invokevirtual/invokeinterface.
+// checks interface for invokeinterface, otherwise checks override
+function lookupMethod(
+  thread: Thread,
+  methodRef: Method,
+  checkInterface: boolean,
+  checkCastTo?: ClassData
+): ImmediateResult<{ toInvoke: Method; objRef: JvmObject }> {
   const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
     return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
+  }
+
+  if (checkCastTo && !objRef.getClass().checkCast(checkCastTo)) {
+    return { exceptionCls: 'java/lang/IncompatibleClassChangeError', msg: '' };
   }
   const runtimeClassRef = objRef.getClass();
 
@@ -230,7 +246,8 @@ function lookupMethod(thread: Thread, methodRef: Method): Result<Method> {
   const lookupResult = runtimeClassRef.lookupMethod(
     methodRef.getName() + methodRef.getDescriptor(),
     methodRef,
-    true
+    !checkInterface,
+    checkInterface
   );
   if (checkError(lookupResult)) {
     return lookupResult;
@@ -240,7 +257,7 @@ function lookupMethod(thread: Thread, methodRef: Method): Result<Method> {
     return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
   }
 
-  return { result: toInvoke };
+  return { result: { toInvoke, objRef } };
 }
 
 function invokeVirtual(
@@ -258,28 +275,13 @@ function invokeVirtual(
   }
   const { methodRef, args } = resolutionRes.result;
 
-  const objRef = thread.popStack() as JvmObject;
-  if (objRef === null) {
-    thread.throwNewException('java/lang/NullPointerException', '');
-    return;
-  }
-  const runtimeClassRef = objRef.getClass();
-
   // method lookup
-  const lookupResult = runtimeClassRef.lookupMethod(
-    methodRef.getName() + methodRef.getDescriptor(),
-    methodRef,
-    true
-  );
-  if (checkError(lookupResult)) {
-    thread.throwNewException(lookupResult.exceptionCls, lookupResult.msg);
+  const toInvokeRes = lookupMethod(thread, methodRef, false);
+  if (checkError(toInvokeRes)) {
+    thread.throwNewException(toInvokeRes.exceptionCls, toInvokeRes.msg);
     return;
   }
-  const toInvoke = lookupResult.result;
-  if (toInvoke.checkAbstract()) {
-    thread.throwNewException('java/lang/NoSuchMethodError', '');
-    return;
-  }
+  const { toInvoke, objRef } = toInvokeRes.result;
 
   onFinish && onFinish();
 
@@ -485,35 +487,14 @@ export function runInvokeinterface(thread: Thread): void {
     }
     return;
   }
-  const { classRef, methodRef, args } = resolutionRes.result;
-  const objRef = thread.popStack() as JvmObject;
+  const { methodRef, args } = resolutionRes.result;
 
-  if (objRef === null) {
-    thread.throwNewException('java/lang/NullPointerException', '');
+  const toInvokeRes = lookupMethod(thread, methodRef, true);
+  if (checkError(toInvokeRes)) {
+    thread.throwNewException(toInvokeRes.exceptionCls, toInvokeRes.msg);
     return;
   }
-  if (!objRef.getClass().checkCast(classRef)) {
-    thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
-    return;
-  }
-  const runtimeClassRef = objRef.getClass();
-
-  // method lookup
-  const lookupResult = runtimeClassRef.lookupMethod(
-    methodRef.getName() + methodRef.getDescriptor(),
-    methodRef,
-    false,
-    true
-  );
-  if (checkError(lookupResult)) {
-    thread.throwNewException(lookupResult.exceptionCls, lookupResult.msg);
-    return;
-  }
-  const toInvoke = lookupResult.result;
-  if (toInvoke.checkAbstract()) {
-    thread.throwNewException('java/lang/NoSuchMethodError', '');
-    return;
-  }
+  const { toInvoke, objRef } = toInvokeRes.result;
 
   thread.offsetPc(5);
 

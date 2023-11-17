@@ -2248,8 +2248,8 @@ describe('Invokeinterface', () => {
     thread.pushStack(objRef);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method).toBe(
-      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
@@ -2344,8 +2344,8 @@ describe('Invokeinterface', () => {
     thread.pushStack(objRef);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
-    expect(lastFrame.method).toBe(
-      threadClass.getMethod('dispatchUncaughtException(Ljava/lang/Throwable;)V')
+    expect(lastFrame.method.getName() + lastFrame.method.getDescriptor()).toBe(
+      'dispatchUncaughtException(Ljava/lang/Throwable;)V'
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
