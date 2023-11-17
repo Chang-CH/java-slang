@@ -1,103 +1,36 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
-import { TestClassLoader, TestSystem } from '#utils/testUtility';
+import { TestClassLoader, setupTest } from '#utils/testUtility';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import JVM from '#jvm/index';
 import { ArrayClassData } from '#types/class/ArrayClassData';
 import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
-import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 
 let thread: Thread;
 let threadClass: ClassData;
 let testLoader: TestClassLoader;
-let testSystem: TestSystem;
 let jni: JNI;
 let NullPointerException: ClassData;
-let ArithmeticException: ClassData;
 
 beforeEach(() => {
-  jni = new JNI();
-  testSystem = new TestSystem();
-  testLoader = new TestClassLoader(testSystem, '', null);
-
-  const dispatchUncaughtCode = new DataView(new ArrayBuffer(8));
-  dispatchUncaughtCode.setUint8(0, OPCODE.RETURN);
-  threadClass = testLoader.createClass({
-    className: 'java/lang/Thread',
-    methods: [
-      {
-        accessFlags: [METHOD_FLAGS.ACC_PROTECTED],
-        name: 'dispatchUncaughtException',
-        descriptor: '(Ljava/lang/Throwable;)V',
-        attributes: [],
-        code: dispatchUncaughtCode,
-      },
-    ],
-    loader: testLoader,
-  });
-  const clsClass = testLoader.createClass({
-    className: 'java/lang/Class',
-    loader: testLoader,
-    fields: [
-      {
-        accessFlags: [FIELD_FLAGS.ACC_PUBLIC],
-        name: 'classLoader',
-        descriptor: 'Ljava/lang/ClassLoader;',
-        attributes: [],
-      },
-    ],
-  });
-  testLoader.createClass({
-    className: 'java/lang/Object',
-    loader: testLoader,
-  });
-  testLoader.createClass({
-    className: 'java/lang/Cloneable',
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
-  });
-  testLoader.createClass({
-    className: 'java/io/Serializable',
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
-  });
-  const Throwable = testLoader.createClass({
-    className: 'java/lang/Throwable',
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
-  });
-  NullPointerException = testLoader.createClass({
-    className: 'java/lang/NullPointerException',
-    superClass: Throwable,
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
-  });
-  ArithmeticException = testLoader.createClass({
-    className: 'java/lang/ArithmeticException',
-    superClass: Throwable,
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
-  });
-  ArithmeticException = testLoader.createClass({
-    className: 'java/lang/IllegalAccessError',
-    superClass: Throwable,
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
-  });
-
-  const tPool = new RoundRobinThreadPool(() => {});
-  thread = new Thread(threadClass, new JVM(testSystem), tPool);
-  thread.setStatus(ThreadStatus.RUNNABLE);
+  const setup = setupTest();
+  thread = setup.thread;
+  threadClass = setup.classes.threadClass;
+  jni = setup.jni;
+  const testClass = setup.classes.testClass;
+  const method = setup.method;
+  testLoader = setup.testLoader;
+  thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
+  NullPointerException = setup.classes.NullPointerException;
 });
 
 // method resolution tested under classref
@@ -789,13 +722,9 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, nativeMethodIdx);
     const method = testClass.getMethod('test0()I') as Method;
-    jni.registerNativeMethod(
-      'Test',
-      'nativeFunc()I',
-      (thread: Thread, locals: any[]) => {
-        thread.returnStackFrame(5);
-      }
-    );
+    jni.registerNativeMethod('Test', 'nativeFunc()I', (thread: Thread) => {
+      thread.returnStackFrame(5);
+    });
     thread.invokeStackFrame(
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
@@ -893,13 +822,9 @@ describe('Invokestatic', () => {
     code.setUint8(0, OPCODE.INVOKESTATIC);
     code.setUint16(1, nativeMethodIdx);
     const method = testClass.getMethod('test0()J') as Method;
-    jni.registerNativeMethod(
-      'Test',
-      'nativeFunc()J',
-      (thread: Thread, locals: any[]) => {
-        thread.returnStackFrame64(5n);
-      }
-    );
+    jni.registerNativeMethod('Test', 'nativeFunc()J', (thread: Thread) => {
+      thread.returnStackFrame64(5n);
+    });
     thread.invokeStackFrame(
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
@@ -5263,11 +5188,6 @@ describe('Checkcast', () => {
       loader: testLoader,
     });
 
-    const sClass = testLoader.createClass({
-      className: 'SC',
-      loader: testLoader,
-    });
-
     code.setUint8(0, OPCODE.CHECKCAST);
     code.setUint16(1, classIndex);
     const method = testClass.getMethod('test0()V') as Method;
@@ -5701,8 +5621,8 @@ describe('Checkcast', () => {
 
     const childClass = testLoader.createClass({
       className: 'Child',
-      superClass: sClass,
       loader: testLoader,
+      superClass: sClass,
     });
 
     const arrCls = (testLoader.getClassRef('[LChild;') as any)
@@ -5754,16 +5674,6 @@ describe('Checkcast', () => {
           code: code,
         },
       ],
-      loader: testLoader,
-    });
-
-    const sClass = testLoader.createClass({
-      className: 'SC',
-      loader: testLoader,
-    });
-
-    const childClass = testLoader.createClass({
-      className: 'Child',
       loader: testLoader,
     });
 
@@ -5824,11 +5734,6 @@ describe('Instanceof', () => {
           code: code,
         },
       ],
-      loader: testLoader,
-    });
-
-    const sClass = testLoader.createClass({
-      className: 'SC',
       loader: testLoader,
     });
 
@@ -6265,8 +6170,8 @@ describe('Instanceof', () => {
 
     const childClass = testLoader.createClass({
       className: 'Child',
-      superClass: sClass,
       loader: testLoader,
+      superClass: sClass,
     });
 
     const arrCls = (testLoader.getClassRef('[LChild;') as any)
@@ -6318,16 +6223,6 @@ describe('Instanceof', () => {
           code: code,
         },
       ],
-      loader: testLoader,
-    });
-
-    const sClass = testLoader.createClass({
-      className: 'SC',
-      loader: testLoader,
-    });
-
-    const childClass = testLoader.createClass({
-      className: 'Child',
       loader: testLoader,
     });
 

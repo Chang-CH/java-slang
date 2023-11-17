@@ -814,6 +814,8 @@ export class NativeStackFrame extends StackFrame {
   }
 
   public onReturn64(thread: Thread, retn: any) {
-    thread.pushStack64(retn);
+    if (retn !== undefined) {
+      thread.pushStack64(retn);
+    }
   }
 }

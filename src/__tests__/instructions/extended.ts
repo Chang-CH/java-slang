@@ -1,91 +1,30 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/Thread/Thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { JvmArray } from '#types/reference/Array';
-import { TestClassLoader, TestSystem } from '#utils/testUtility';
+import { TestClassLoader, setupTest } from '#utils/testUtility';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
-import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
-import AbstractSystem from '#utils/AbstractSystem';
-import JVM from '#jvm/index';
-import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
-import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 
-let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
 let thread: Thread;
 let threadClass: ClassData;
 let code: DataView;
 let jni: JNI;
-let strClass: ClassData;
-let testClass: ClassData;
 
 beforeEach(() => {
-  jni = new JNI();
-  testSystem = new TestSystem();
-  testLoader = new TestClassLoader(testSystem, '', null);
-
-  const dispatchUncaughtCode = new DataView(new ArrayBuffer(8));
-  dispatchUncaughtCode.setUint8(0, OPCODE.RETURN);
-  threadClass = testLoader.createClass({
-    className: 'java/lang/Thread',
-    methods: [
-      {
-        accessFlags: [METHOD_FLAGS.ACC_PROTECTED],
-        name: 'dispatchUncaughtException',
-        descriptor: '(Ljava/lang/Throwable;)V',
-        attributes: [],
-        code: dispatchUncaughtCode,
-      },
-    ],
-    loader: testLoader,
-  });
-  strClass = testLoader.createClass({
-    className: 'java/lang/String',
-    loader: testLoader,
-    fields: [
-      {
-        accessFlags: [FIELD_FLAGS.ACC_FINAL, FIELD_FLAGS.ACC_PRIVATE],
-        name: 'value',
-        descriptor: '[C',
-        attributes: [],
-      },
-    ],
-  });
-  const clsClass = testLoader.createClass({
-    className: 'java/lang/Class',
-    loader: testLoader,
-    fields: [
-      {
-        accessFlags: [FIELD_FLAGS.ACC_PUBLIC],
-        name: 'classLoader',
-        descriptor: 'Ljava/lang/ClassLoader;',
-        attributes: [],
-      },
-    ],
-  });
-  const tPool = new RoundRobinThreadPool(() => {});
-  thread = new Thread(threadClass, new JVM(testSystem), tPool);
-  thread.setStatus(ThreadStatus.RUNNABLE);
-
-  const ab = new ArrayBuffer(50);
-  code = new DataView(ab);
-  let fieldIdx = 0;
-  testLoader.createClass({
-    className: 'java/lang/NegativeArraySizeException',
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
-  });
-  testLoader.createClass({
-    className: 'java/lang/NullPointerException',
-    loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
-  });
-  const method = testClass.getMethod('test0()V') as Method;
+  const setup = setupTest();
+  thread = setup.thread;
+  threadClass = setup.classes.threadClass;
+  code = setup.code;
+  jni = setup.jni;
+  const testClass = setup.classes.testClass;
+  const method = setup.method;
+  testLoader = setup.testLoader;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
 });
 

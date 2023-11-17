@@ -424,9 +424,11 @@ export class TestJVM extends JVM {
   tinternedStrings: {
     [key: string]: JvmObject;
   } = {};
+  tJNI: JNI;
   constructor(
     nativeSystem: AbstractSystem,
     testLoader: TestClassLoader,
+    testJNI: JNI,
     options?: {
       javaClassPath?: string;
       userDir?: string;
@@ -434,6 +436,7 @@ export class TestJVM extends JVM {
   ) {
     super(nativeSystem, options);
     this.testLoader = testLoader;
+    this.tJNI = testJNI;
   }
 
   private tnewCharArr(str: string): ImmediateResult<JvmArray> {
@@ -482,6 +485,10 @@ export class TestJVM extends JVM {
 
     this.tinternedStrings[str] = strRes.result;
     return this.tinternedStrings[str];
+  }
+
+  getJNI(): JNI {
+    return this.tJNI;
   }
 }
 
@@ -621,11 +628,16 @@ export const setupTest = () => {
     loader: testLoader,
     flags: CLASS_FLAGS.ACC_PUBLIC,
   });
+  testLoader.createClass({
+    className: 'java/lang/NegativeArraySizeException',
+    loader: testLoader,
+    flags: CLASS_FLAGS.ACC_PUBLIC,
+  });
 
   //   #endregion
 
   const tPool = new TestThreadPool(() => {});
-  const jvm = new TestJVM(testSystem, testLoader);
+  const jvm = new TestJVM(testSystem, testLoader, jni);
   const thread = new TestThread(threadClass, jvm, tPool);
 
   return {
