@@ -1,6 +1,6 @@
 import { JNI } from '#jvm/components/JNI';
-import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
-import Thread from '#jvm/components/Thread/Thread';
+import { InternalStackFrame } from '#jvm/components/stackframe';
+import Thread from '#jvm/components/thread';
 import { ClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';

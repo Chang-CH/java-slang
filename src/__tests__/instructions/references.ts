@@ -1,19 +1,22 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
-import { TestClassLoader, setupTest } from '#utils/testUtility';
+import {
+  TestClassLoader,
+  setupTest,
+} from '#jvm/__tests__/__utils__/test-utility';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ArrayClassData } from '#types/class/ArrayClassData';
-import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { JavaStackFrame } from '#jvm/components/stackframe';
 
 let thread: Thread;
 let threadClass: ClassData;

@@ -1,7 +1,7 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 
-import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
@@ -10,9 +10,9 @@ import NodeSystem from '#utils/NodeSystem';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { SuccessResult } from '#types/result';
 import JVM from '#jvm/index';
-import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { JavaStackFrame } from '#jvm/components/stackframe';
 import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
-import { setupTest } from '#utils/testUtility';
+import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
 let thread: Thread;
 let threadClass: ClassData;

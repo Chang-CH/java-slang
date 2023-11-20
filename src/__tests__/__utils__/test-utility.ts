@@ -21,7 +21,7 @@ import { JvmObject } from '#types/reference/Object';
 import { ImmediateResult, checkError, checkSuccess } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import { JNI } from '#jvm/components/JNI';
-import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/thread';
 import { AbstractThreadPool } from '#jvm/components/ThreadPool';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import JVM from '#jvm/index';

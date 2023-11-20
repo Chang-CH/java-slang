@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 
 import { parseMethodDescriptor, asDouble, asFloat } from '#utils/index';
 import { ClassData } from '#types/class/ClassData';
@@ -20,7 +20,7 @@ import {
   checkError,
   checkSuccess,
 } from '#types/result';
-import { NativeStackFrame, JavaStackFrame } from '../StackFrame';
+import { NativeStackFrame, JavaStackFrame } from '../stackframe';
 
 export function runGetstatic(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);

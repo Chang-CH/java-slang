@@ -1,11 +1,11 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
 import { ClassData } from '#types/class/ClassData';
-import { setupTest } from '#utils/testUtility';
-import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
+import { JavaStackFrame } from '#jvm/components/stackframe';
 
 const MAX_LONG = 9223372036854775807n;
 const MIN_LONG = -9223372036854775808n;

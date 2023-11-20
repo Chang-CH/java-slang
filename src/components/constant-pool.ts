@@ -80,6 +80,7 @@ export class ConstantPool {
           );
           return;
         // #endregion
+
         // #region utf8 dependency
         case CONSTANT_TAG.String:
           const strIndex = (constant as ConstantStringInfo).stringIndex;

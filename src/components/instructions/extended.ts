@@ -1,10 +1,6 @@
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { asFloat, asDouble, parseFirstDescriptor } from '#utils/index';
-import {
-  ConstantClassInfo,
-  ConstantUtf8Info,
-} from '#jvm/external/ClassFile/types/constants';
+import { asFloat, asDouble } from '#utils/index';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ConstantClass } from '#types/class/Constants';

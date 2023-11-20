@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { parseFieldDescriptor, parseMethodDescriptor } from '#utils/index';
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
@@ -16,12 +16,11 @@ import {
   Result,
   SuccessResult,
   ErrorResult,
-  DeferResult,
   ImmediateResult,
   checkError,
   checkSuccess,
 } from '#types/result';
-import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
+import { InternalStackFrame } from '#jvm/components/stackframe';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;
@@ -410,6 +409,7 @@ export class ConstantMethodType extends Constant {
         }
       )
     );
+    // #endregion
     return { isDefer: true };
   }
 

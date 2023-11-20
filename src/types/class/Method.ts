@@ -1,5 +1,4 @@
 import { parseMethodDescriptor } from '#utils/index';
-import Thread from '#jvm/components/Thread/Thread';
 import {
   AttributeInfo,
   CodeAttribute,
@@ -21,6 +20,7 @@ import {
   checkError,
   checkSuccess,
 } from '../result';
+import Thread from '#jvm/components/thread';
 
 export interface MethodHandler {
   startPc: number;

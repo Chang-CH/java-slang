@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { asDouble, asFloat } from '#utils/index';
 
 const MIN_INT = -2147483648;

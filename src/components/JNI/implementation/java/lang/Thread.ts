@@ -1,5 +1,5 @@
 import { JNI } from '#jvm/components/JNI';
-import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/thread';
 
 export const registerJavaLangThread = (jni: JNI) => {
   // jni.registerNativeMethod(

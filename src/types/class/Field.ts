@@ -1,17 +1,11 @@
-import Thread from '#jvm/components/Thread/Thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { ClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import { JvmObject } from '../reference/Object';
-import {
-  ErrorResult,
-  ImmediateResult,
-  Result,
-  SuccessResult,
-  checkError,
-} from '../result';
+import { ImmediateResult, Result, checkError } from '../result';
+import Thread from '#jvm/components/thread';
 
 export class Field {
   private cls: ClassData;

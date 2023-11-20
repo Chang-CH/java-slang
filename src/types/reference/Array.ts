@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { ClassData } from '#types/class/ClassData';
 import { JavaType } from './Object';
 import { Result } from '#types/result';

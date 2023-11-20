@@ -1,9 +1,9 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
-import Thread from '#jvm/components/Thread/Thread';
-import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
-import { setupTest } from '#utils/testUtility';
+import Thread from '#jvm/components/thread';
+import { JavaStackFrame } from '#jvm/components/stackframe';
+import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
 let thread: Thread;
 let threadClass: ClassData;

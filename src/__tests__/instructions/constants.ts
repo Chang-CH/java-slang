@@ -1,6 +1,6 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread, { ThreadStatus } from '#jvm/components/Thread/Thread';
+import Thread, { ThreadStatus } from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
 import {
@@ -9,13 +9,13 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 import { ClassData } from '#types/class/ClassData';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
-import { TestClassLoader } from '#utils/testUtility';
+import { TestClassLoader } from '#jvm/__tests__/__utils__/test-utility';
 import AbstractSystem from '#utils/AbstractSystem';
 import { Method } from '#types/class/Method';
 import { ConstantClass, ConstantString } from '#types/class/Constants';
 import { SuccessResult } from '#types/result';
-import { setupTest } from '../../utils/testUtility';
-import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
+import { setupTest } from '../__utils__/test-utility';
+import { JavaStackFrame } from '#jvm/components/stackframe';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;

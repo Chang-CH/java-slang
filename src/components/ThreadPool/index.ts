@@ -1,4 +1,4 @@
-import Thread, { ThreadStatus } from '../Thread/Thread';
+import Thread, { ThreadStatus } from '../thread';
 import { Deque } from './utils/deque';
 
 export abstract class AbstractThreadPool {
@@ -43,10 +43,8 @@ export abstract class AbstractThreadPool {
   }
 
   hasThreads(): boolean {
-    return (
-      this.threads.filter(x => x.getStatus() !== ThreadStatus.TERMINATED)
-        .length > 0
-    );
+    this.clearTerminated();
+    return this.threads.length > 0;
   }
 
   clearTerminated() {

@@ -1,5 +1,5 @@
 import { JNI } from '#jvm/components/JNI';
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 
 export const registerJavaLangDouble = (jni: JNI) => {
   const dataview = new DataView(new ArrayBuffer(8));

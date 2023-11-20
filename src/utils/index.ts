@@ -54,36 +54,6 @@ export const byteArray2charArray = (byteArray: number[]) => {
   return res;
 };
 
-export function parseFirstDescriptor(descriptor: string) {
-  switch (descriptor[0]) {
-    case JavaType.byte:
-      return { type: JavaType.byte, index: 1 };
-    case JavaType.char:
-      return { type: JavaType.char, index: 1 };
-    case JavaType.double:
-      return { type: JavaType.double, index: 1 };
-    case JavaType.float:
-      return { type: JavaType.float, index: 1 };
-    case JavaType.int:
-      return { type: JavaType.int, index: 1 };
-    case JavaType.long:
-      return { type: JavaType.long, index: 1 };
-    case JavaType.short:
-      return { type: JavaType.short, index: 1 };
-    case JavaType.boolean:
-      return { type: JavaType.boolean, index: 1 };
-    case JavaType.array:
-      return { type: JavaType.array, index: 0 };
-    case JavaType.reference:
-      const end = descriptor.indexOf(';');
-      return { type: JavaType.reference, index: end + 1 };
-    case JavaType.void:
-      return { type: JavaType.void, index: 1 };
-    default:
-      throw new Error(`Unknown type ${descriptor[0]}`);
-  }
-}
-
 export function parseFieldDescriptor(
   descriptor: string,
   index: number

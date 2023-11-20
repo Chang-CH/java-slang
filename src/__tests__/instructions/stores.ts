@@ -1,11 +1,11 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
 import { ClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
-import { JavaStackFrame } from '#jvm/components/Thread/StackFrame';
-import { setupTest } from '#utils/testUtility';
+import { JavaStackFrame } from '#jvm/components/stackframe';
+import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
 let thread: Thread;
 let threadClass: ClassData;

@@ -1,5 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import Thread from '#jvm/components/Thread/Thread';
+import Thread from '#jvm/components/thread';
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import {
   BootstrapMethodsAttribute,
@@ -13,7 +13,7 @@ import { Field } from './Field';
 import { MethodHandler, Method } from './Method';
 import { JvmObject } from '../reference/Object';
 import { Constant, ConstantUtf8 } from '#types/class/Constants';
-import { ConstantPool } from '#jvm/components/ConstantPool';
+import { ConstantPool } from '#jvm/components/constant-pool';
 import {
   DeferResult,
   ErrorResult,
@@ -23,7 +23,7 @@ import {
   checkError,
   checkSuccess,
 } from '#types/result';
-import { InternalStackFrame } from '#jvm/components/Thread/StackFrame';
+import { InternalStackFrame } from '#jvm/components/stackframe';
 
 export enum CLASS_STATUS {
   PREPARED,
@@ -466,11 +466,6 @@ export class ClassData {
       if (methodRef.checkAbstract()) {
         return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
       }
-      if (methodRef.checkNative()) {
-        // FIXME: If the code that implements the method cannot be bound,
-        // invokevirtual throws an UnsatisfiedLinkError
-      }
-
       return { result: methodRef };
     }
 

@@ -45,7 +45,10 @@ export default abstract class AbstractClassLoader {
     return;
   }
 
-  private _linkMethod(
+  /**
+   * Finds and stores commonly used attributes.
+   */
+  private _processMethod(
     constantPool: ConstantInfo[],
     method: MethodInfo
   ): ImmediateResult<{
@@ -64,12 +67,12 @@ export default abstract class AbstractClassLoader {
       }
     }
 
-    const handlderTable: MethodHandler[] = [];
+    const handlertable: MethodHandler[] = [];
     if (code) {
       for (const handler of code.exceptionTable) {
         const ctIndex = handler.catchType;
         if (ctIndex === 0) {
-          handlderTable.push({
+          handlertable.push({
             startPc: handler.startPc,
             endPc: handler.endPc,
             handlerPc: handler.handlerPc,
@@ -87,7 +90,7 @@ export default abstract class AbstractClassLoader {
         }
         const clsRef = ctRes.result;
 
-        handlderTable.push({
+        handlertable.push({
           startPc: handler.startPc,
           endPc: handler.endPc,
           handlerPc: handler.handlerPc,
@@ -99,16 +102,14 @@ export default abstract class AbstractClassLoader {
     return {
       result: {
         method,
-        exceptionHandlers: handlderTable,
+        exceptionHandlers: handlertable,
         code,
       },
     };
   }
 
   /**
-   * Resolves symbolic references in the constant pool.
-   * @param cls class data to resolve
-   * @returns class data with resolved references
+   * Resolve references in the class data.
    */
   protected linkClass(cls: ClassFile): ClassData {
     const constantPool = cls.constantPool;
@@ -168,7 +169,7 @@ export default abstract class AbstractClassLoader {
       code: CodeAttribute | null;
     }[] = [];
     cls.methods.forEach(method => {
-      const res = this._linkMethod(constantPool, method);
+      const res = this._processMethod(constantPool, method);
       if (checkError(res)) {
         throw new Error(res.exceptionCls);
       }
@@ -193,8 +194,7 @@ export default abstract class AbstractClassLoader {
   }
 
   /**
-   * Adds the resolved class data to the memory area.
-   * @param cls resolved class data
+   * Stores the resolved class data.
    */
   protected loadClass(cls: ClassData): ClassData {
     this.loadedClasses[cls.getClassname()] = cls;
@@ -372,7 +372,7 @@ export default abstract class AbstractClassLoader {
         name: method.name,
         descriptor: method.descriptor,
       };
-      const linkRes = this._linkMethod(constantPool, temp);
+      const linkRes = this._processMethod(constantPool, temp);
       if (checkError(linkRes)) {
         throw new Error("Can't link method");
       }
@@ -432,10 +432,7 @@ export default abstract class AbstractClassLoader {
   }
 
   /**
-   * Gets the class data given the classname, loads the class if not loaded.
-   *
-   * @param className
-   * @returns
+   * Gets the reference class data given the classname, loads the class if not loaded.
    */
   getClassRef(className: string): ImmediateResult<ClassData> {
     return this._getClassRef(className, this);
@@ -448,7 +445,6 @@ export default abstract class AbstractClassLoader {
    */
   abstract getPrimitiveClassRef(className: string): ClassData;
 
-  // TODO: follow classloading spec 5.3.5
   protected abstract load(className: string): ImmediateResult<ClassData>;
 
   abstract getJavaObject(): JvmObject | null;

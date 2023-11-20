@@ -13,16 +13,13 @@ import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
 import { JNI, registerNatives } from './components/JNI';
-import Thread, { ThreadStatus } from './components/Thread/Thread';
-import { UnsafeHeap } from './components/UnsafeHeap';
+import Thread, { ThreadStatus } from './components/thread';
+import { UnsafeHeap } from './components/unsafe-heap';
 import {
   AbstractThreadPool,
   RoundRobinThreadPool,
 } from './components/ThreadPool';
-import {
-  InternalStackFrame,
-  JavaStackFrame,
-} from './components/Thread/StackFrame';
+import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;

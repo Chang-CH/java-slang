@@ -3,9 +3,9 @@ import JVM from '#jvm/index';
 import { ClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { checkError, checkSuccess } from '#types/result';
-import { JvmObject } from '../../types/reference/Object';
-import { AbstractThreadPool } from '../ThreadPool';
-import { InternalStackFrame, JavaStackFrame, StackFrame } from './StackFrame';
+import { JvmObject } from '../types/reference/Object';
+import { AbstractThreadPool } from './ThreadPool';
+import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
 
 export enum ThreadStatus {
   NEW,
