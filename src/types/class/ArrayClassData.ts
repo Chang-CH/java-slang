@@ -42,6 +42,10 @@ export class ArrayClassData extends ClassData {
     this.packageName = 'java/lang';
   }
 
+  getDescriptor(): string {
+    return this.getClassname();
+  }
+
   setComponentClass(itemClass: ClassData) {
     this.componentClass = itemClass;
   }

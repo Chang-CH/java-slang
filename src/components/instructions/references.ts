@@ -197,7 +197,7 @@ export function runPutfield(thread: Thread): void {
   thread.offsetPc(3);
 }
 
-function resolveMethod(
+function invokeInit(
   thread: Thread,
   constant: ConstantMethodref | ConstantInterfaceMethodref
 ): Result<{ classRef: ClassData; methodRef: Method; args: any[] }> {
@@ -219,7 +219,7 @@ function resolveMethod(
     return { isDefer: true };
   }
 
-  const args = getArgs(thread, methodRef);
+  const args = methodRef.getArgs(thread);
 
   return { result: { classRef, methodRef, args } };
 }
@@ -265,7 +265,7 @@ function invokeVirtual(
   constant: ConstantMethodref | ConstantInterfaceMethodref,
   onFinish?: () => void
 ): void {
-  const resolutionRes = resolveMethod(thread, constant);
+  const resolutionRes = invokeInit(thread, constant);
   if (!checkSuccess(resolutionRes)) {
     if (checkError(resolutionRes)) {
       thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
@@ -313,47 +313,6 @@ function invokeVirtual(
   }
 }
 
-function getArgs(thread: Thread, methodRef: Method): any[] {
-  const methodDesc = parseMethodDescriptor(methodRef.getDescriptor());
-  const isNative = methodRef.checkNative();
-  const args = [];
-  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-    switch (methodDesc.args[i].type) {
-      case 'V':
-        break; // should not happen
-      case 'B':
-      case 'C':
-      case 'I':
-      case 'S':
-      case 'Z':
-        args.push(thread.popStack());
-        break;
-      case 'D':
-        const double = asDouble(thread.popStack64());
-        args.push(double);
-        if (!isNative) {
-          args.push(double);
-        }
-        break;
-      case 'F':
-        args.push(asFloat(thread.popStack()));
-        break;
-      case 'J':
-        const long = asDouble(thread.popStack64());
-        args.push(long);
-        if (!isNative) {
-          args.push(long);
-        }
-        break;
-      case '[':
-      default: // references + arrays
-        args.push(thread.popStack());
-    }
-  }
-
-  return args.reverse();
-}
-
 export function runInvokevirtual(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const constant = thread
@@ -367,7 +326,7 @@ export function runInvokespecial(thread: Thread): void {
   const constant = thread.getClass().getConstant(indexbyte) as
     | ConstantMethodref
     | ConstantInterfaceMethodref;
-  const resolutionRes = resolveMethod(thread, constant);
+  const resolutionRes = invokeInit(thread, constant);
   if (!checkSuccess(resolutionRes)) {
     if (checkError(resolutionRes)) {
       thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
@@ -432,7 +391,7 @@ export function runInvokestatic(thread: Thread): void {
     | ConstantMethodref
     | ConstantInterfaceMethodref;
 
-  const resolutionRes = resolveMethod(thread, constant);
+  const resolutionRes = invokeInit(thread, constant);
   if (!checkSuccess(resolutionRes)) {
     if (checkError(resolutionRes)) {
       thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
@@ -479,7 +438,7 @@ export function runInvokeinterface(thread: Thread): void {
   const constant = thread
     .getClass()
     .getConstant(indexbyte) as ConstantInterfaceMethodref;
-  const resolutionRes = resolveMethod(thread, constant);
+  const resolutionRes = invokeInit(thread, constant);
   if (!checkSuccess(resolutionRes)) {
     if (checkError(resolutionRes)) {
       thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
@@ -756,6 +715,7 @@ export function runAnewarray(thread: Thread): void {
 export function runArraylength(thread: Thread): void {
   const arrayref = thread.popStack() as JvmArray;
   if (arrayref === null) {
+    console.log('array: ', arrayref);
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
   }
@@ -814,6 +774,15 @@ function _checkCast(
   if (!isCC) {
     thread.pushStack(value);
   } else {
+    if (value !== 1) {
+      console.log(
+        'checkcast failed, topStack: ',
+        objClsS.getClassname(),
+        'target: ',
+        targetClsT.getClassname()
+      );
+    }
+
     value === 1
       ? thread.pushStack(objectref)
       : thread.throwNewException('java/lang/ClassCastException', '');

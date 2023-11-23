@@ -100,8 +100,6 @@ export class JvmObject {
       this.fields[key].putValue(value);
       return;
     }
-    console.error("putField: can't find field", key);
-
     throw new Error(`Invalid field`);
   }
 

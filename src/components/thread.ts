@@ -303,6 +303,7 @@ export default class Thread {
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
 
+    let shouldClearStack;
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
       const method = this.getMethod();

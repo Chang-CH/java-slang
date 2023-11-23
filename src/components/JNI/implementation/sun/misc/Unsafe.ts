@@ -265,24 +265,32 @@ export const registerUnsafe = (jni: JNI) => {
     }
   );
 
+  const getFromVMIndex = (thread: Thread, locals: any[]) => {
+    const unsafe = locals[0] as JvmObject;
+    const obj = locals[1] as JvmObject;
+    const offset = locals[2] as bigint;
+
+    const fi = getFieldInfo(thread, unsafe, obj, offset);
+    const objBase = fi[0];
+    const ref = fi[1];
+    if (typeof ref === 'number') {
+      // array type
+      thread.returnStackFrame(objBase[ref]);
+      return;
+    }
+    thread.returnStackFrame((ref as Field).getValue());
+  };
+
   jni.registerNativeMethod(
     'sun/misc/Unsafe',
     'getIntVolatile(Ljava/lang/Object;J)I',
-    (thread: Thread, locals: any[]) => {
-      const unsafe = locals[0] as JvmObject;
-      const obj = locals[1] as JvmObject;
-      const offset = locals[2] as bigint;
+    getFromVMIndex
+  );
 
-      const fi = getFieldInfo(thread, unsafe, obj, offset);
-      const objBase = fi[0];
-      const ref = fi[1];
-      if (typeof ref === 'number') {
-        // array type
-        thread.returnStackFrame(objBase[ref]);
-        return;
-      }
-      thread.returnStackFrame((ref as Field).getValue());
-    }
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object;',
+    getFromVMIndex
   );
 
   jni.registerNativeMethod(

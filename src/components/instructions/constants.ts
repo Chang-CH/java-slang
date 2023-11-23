@@ -110,19 +110,19 @@ export function loadConstant(
   const invoker = thread.getClass();
   const constant = invoker.getConstant(index);
 
-  if (ConstantMethodHandle.check(constant)) {
-    const res = (constant as any).tempResolve(thread);
-    if (!checkSuccess(res)) {
-      if (checkError(res)) {
-        thread.throwNewException(res.exceptionCls, res.msg);
-      }
-      return;
-    }
+  // if (ConstantMethodHandle.check(constant)) {
+  //   const res = (constant as any).tempResolve(thread);
+  //   if (!checkSuccess(res)) {
+  //     if (checkError(res)) {
+  //       thread.throwNewException(res.exceptionCls, res.msg);
+  //     }
+  //     return;
+  //   }
 
-    thread.pushStack(res.result);
-    onFinish && onFinish();
-    return;
-  }
+  //   thread.pushStack(res.result);
+  //   onFinish && onFinish();
+  //   return;
+  // }
 
   const resolutionRes = constant.resolve(thread);
   if (!checkSuccess(resolutionRes)) {

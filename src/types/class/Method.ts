@@ -1,4 +1,4 @@
-import { parseMethodDescriptor } from '#utils/index';
+import { asDouble, asFloat, parseMethodDescriptor } from '#utils/index';
 import {
   AttributeInfo,
   CodeAttribute,
@@ -9,18 +9,16 @@ import {
 } from '#jvm/external/ClassFile/types/methods';
 import { ArrayClassData } from './ArrayClassData';
 import { ClassData } from './ClassData';
-import { ConstantClass, ConstantUtf8 } from './Constants';
+import { ConstantUtf8 } from './Constants';
 import { JvmObject } from '../reference/Object';
 import {
-  DeferResult,
   ErrorResult,
   ImmediateResult,
-  Result,
-  SuccessResult,
   checkError,
   checkSuccess,
 } from '../result';
 import Thread from '#jvm/components/thread';
+import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
 
 export interface MethodHandler {
   startPc: number;
@@ -235,11 +233,9 @@ export class Method {
         'java/lang/reflect/Method',
         returnType
       );
-
-      console.error('reflected method annotationDefault not initialized');
       javaObject._putField(
         'annotationDefault',
-        'Ljava/lang/annotation/Annotation;',
+        '[B',
         'java/lang/reflect/Method',
         null
       );
@@ -313,6 +309,8 @@ export class Method {
     );
     // #endregion
 
+    javaObject.putNativeField('methodRef', this);
+
     this.javaObject = javaObject;
     return { result: javaObject };
   }
@@ -346,6 +344,91 @@ export class Method {
       throw new Error('Class not initialized');
     }
     return this.exceptionHandlers;
+  }
+
+  getAccessFlags() {
+    return this.accessFlags;
+  }
+
+  getArgs(thread: Thread): any[] {
+    // We should memoize parsing in the future.
+    const methodDesc = parseMethodDescriptor(this.descriptor);
+    const isNative = this.checkNative();
+    const args = [];
+    for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+      switch (methodDesc.args[i].type) {
+        case 'V':
+          break; // should not happen
+        case 'B':
+        case 'C':
+        case 'I':
+        case 'S':
+        case 'Z':
+          args.push(thread.popStack());
+          break;
+        case 'D':
+          const double = asDouble(thread.popStack64());
+          args.push(double);
+          if (!isNative) {
+            args.push(double);
+          }
+          break;
+        case 'F':
+          args.push(asFloat(thread.popStack()));
+          break;
+        case 'J':
+          const long = asDouble(thread.popStack64());
+          args.push(long);
+          if (!isNative) {
+            args.push(long);
+          }
+          break;
+        case '[':
+        default: // references + arrays
+          args.push(thread.popStack());
+      }
+    }
+
+    return args.reverse();
+  }
+
+  getBridgeMethod() {
+    return (thread: Thread) => {
+      let sf;
+
+      const args = this.getArgs(thread);
+      let locals;
+
+      // push object for non static invokes
+      if (!this.checkStatic()) {
+        const obj = thread.popStack();
+        if (obj === null) {
+          thread.throwNewException('java/lang/NullPointerException', '');
+          return;
+        }
+        locals = [obj, ...args];
+      } else {
+        locals = args;
+      }
+
+      if (this.checkNative()) {
+        const nativeMethod = thread
+          .getJVM()
+          .getJNI()
+          .getNativeMethod(
+            this.cls.getClassname(),
+            this.name + this.descriptor
+          );
+        if (!nativeMethod) {
+          thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+          return;
+        }
+        sf = new NativeStackFrame(this.cls, this, 0, locals, nativeMethod);
+      } else {
+        sf = new JavaStackFrame(this.cls, this, 0, locals);
+      }
+      thread.invokeStackFrame(sf);
+    };
   }
 
   /**

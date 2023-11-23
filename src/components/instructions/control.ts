@@ -29,22 +29,31 @@ export function runRet(thread: Thread): void {
 
 // TODO: test
 export function runTableswitch(thread: Thread): void {
-  thread.offsetPc(1);
-  thread.offsetPc(thread.getPC() % 4); // padding
+  let offset = thread.getPC() + 1;
+  if (offset % 4 !== 0) {
+    offset += 4 - (offset % 4); // padding
+  }
 
-  const def = thread.getCode().getInt32(thread.getPC());
-  thread.offsetPc(4);
-  const low = thread.getCode().getInt32(thread.getPC());
-  thread.offsetPc(4);
-  const high = thread.getCode().getInt32(thread.getPC());
-  thread.offsetPc(4);
+  const def = thread.getCode().getInt32(offset);
+  offset += 4;
+  const low = thread.getCode().getInt32(offset);
+  offset += 4;
+  const high = thread.getCode().getInt32(offset);
+  offset += 4;
+
+  const index = thread.popStack();
+  if (index < low || index > high) {
+    thread.offsetPc(def);
+    return;
+  }
 
   const offsets = []; // 0 indexed
   for (let i = 0; i < high - low + 1; i++) {
-    offsets.push(thread.getCode().getInt32(thread.getPC()));
-    thread.offsetPc(4);
+    offsets.push(thread.getCode().getInt32(offset));
+    offset += 4;
   }
-  throw new Error('runInstruction: Not implemented');
+
+  thread.offsetPc(offsets[index - low]);
 }
 
 // TODO: test

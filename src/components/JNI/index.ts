@@ -2,7 +2,7 @@ import { ClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { j2jsString } from '#utils/index';
+import { autoBox, autoUnbox, j2jsString } from '#utils/index';
 import { parseFieldDescriptor } from '#utils/index';
 import { InternalStackFrame, StackFrame } from '../stackframe';
 import Thread from '../thread';
@@ -16,6 +16,9 @@ import { registerJavaSecurityAccessController } from './implementation/java/secu
 import { registerSource } from './implementation/source';
 import { registerUnsafe } from './implementation/sun/misc/Unsafe';
 import { checkSuccess, checkError } from '#types/result';
+import { Method } from '#types/class/Method';
+import { REFERENCE_KIND } from '#jvm/external/ClassFile/types/constants';
+import { ArrayClassData } from '#types/class/ArrayClassData';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -264,36 +267,253 @@ export function registerNatives(jni: JNI) {
     }
   );
 
-  /**
-   * system init
-   * java/io/FileInputStream.initIDs()V
-   * java/io/FileDescriptor.initIDs()V
-   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.addressSize()I
-   * java/io/FileOutputStream.initIDs()V
-   * java/lang/Thread.isAlive()Z
-   * java/lang/Thread.start0()V
-   * sun/reflect/Reflection.getClassAccessFlags(Ljava/lang/Class;)I
-   * java/lang/Class.getModifiers()I
-   * java/lang/Class.getSuperclass()Ljava/lang/Class;
-   * java/util/concurrent/atomic/AtomicLong.VMSupportsCS8()Z
-   * sun/misc/Signal.findSignal(Ljava/lang/String;)I
-   * sun/misc/Signal.handle0(IJ)J
-   * sun/io/Win32ErrorMode.setErrorMode(J)J
-   * java/lang/Object.notifyAll()V
-   * java/io/FileOutputStream.writeBytes([BIIZ)V: used to display println
-   * java/lang/Throwable.fillInStackTrace(I)Ljava/lang/Throwable;: for throwing exceptions
-   */
+  // Based on OpenJDK 8 MethodHandleNatives.java #113
+  enum MemberNameFlags {
+    MN_IS_METHOD = 0x00010000, // method (not constructor)
+    MN_IS_CONSTRUCTOR = 0x00020000, // constructor
+    MN_IS_FIELD = 0x00040000, // field
+    MN_IS_TYPE = 0x00080000, // nested type
+    MN_CALLER_SENSITIVE = 0x00100000, // @CallerSensitive annotation detected
+    MN_TRUSTED_FINAL = 0x00200000, // trusted final field
+    MN_HIDDEN_MEMBER = 0x00400000, // members defined in a hidden class or with @Hidden
+    MN_REFERENCE_KIND_SHIFT = 24, // refKind
+    MN_REFERENCE_KIND_MASK = 0x0f000000 >> MN_REFERENCE_KIND_SHIFT,
+  }
+
+  jni.registerNativeMethod(
+    'java/lang/invoke/MethodHandleNatives',
+    'resolve(Ljava/lang/invoke/MemberName;Ljava/lang/Class;)Ljava/lang/invoke/MemberName;',
+    (thread: Thread, locals: any[]) => {
+      const memberName = locals[0] as JvmObject; // MemberName
+
+      const type = memberName._getField(
+        'type',
+        'Ljava/lang/Object;',
+        'java/lang/invoke/MemberName'
+      ) as JvmObject;
+      const jNameString = memberName._getField(
+        'name',
+        'Ljava/lang/String;',
+        'java/lang/invoke/MemberName'
+      ) as JvmObject;
+      const clsObj = memberName._getField(
+        'clazz',
+        'Ljava/lang/Class;',
+        'java/lang/invoke/MemberName'
+      ) as JvmObject;
+      const flags = memberName._getField(
+        'flags',
+        'I',
+        'java/lang/invoke/MemberName'
+      ) as number;
+
+      if (clsObj === null || jNameString === null || type === null) {
+        console.log(
+          'INVALID MEMBERNAME WITH: ',
+          clsObj === null,
+          jNameString === null,
+          type === null
+        );
+        thread.throwNewException(
+          'java/lang/IllegalArgumentException',
+          'Invalid MemberName'
+        );
+        return;
+      }
+
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      const methodName = j2jsString(jNameString);
+
+      if (
+        flags &
+        (MemberNameFlags.MN_IS_CONSTRUCTOR | MemberNameFlags.MN_IS_METHOD)
+      ) {
+        const rtype = (
+          (
+            type._getField(
+              'rtype',
+              'Ljava/lang/Class;',
+              'java/lang/invoke/MethodType'
+            ) as JvmObject
+          ).getNativeField('classRef') as ClassData
+        ).getDescriptor();
+        const ptypes = (
+          type._getField(
+            'ptypes',
+            '[Ljava/lang/Class;',
+            'java/lang/invoke/MethodType'
+          ) as JvmArray
+        )
+          .getJsArray()
+          .map((cls: JvmObject) =>
+            cls.getNativeField('classRef').getDescriptor()
+          );
+        const methodDesc = `(${ptypes.join('')})${rtype}`;
+
+        // method resolution
+        const lookupRes = clsRef.lookupMethod(
+          methodName + methodDesc,
+          null as any,
+          false,
+          false,
+          true
+        );
+        if (checkError(lookupRes)) {
+          console.log(
+            'FAILED TO FIND: ',
+            clsRef.getClassname(),
+            methodName,
+            methodDesc
+          );
+          thread.throwNewException(
+            'java/lang/NoSuchMethodError',
+            `Invalid method ${methodDesc}`
+          );
+          return;
+        }
+
+        const methodRef = lookupRes.result;
+
+        const methodFlags = methodRef.getAccessFlags();
+        console.log('METHODHANDLE FLAGS: ', methodFlags);
+        console.warn(
+          'MethodHandle resolution: CALLER_SENSITIVE not implemented'
+        ); // FIXME: check method caller sensitive and |= caller sensitive flag.
+        const refKind = flags >>> MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
+        memberName._putField(
+          'flags',
+          'I',
+          'java/lang/invoke/MemberName',
+          methodFlags | flags
+        );
+
+        memberName.putNativeField('bridgeMethod', methodRef.getBridgeMethod());
+
+        thread.returnStackFrame(memberName);
+        return;
+      } else if (flags & MemberNameFlags.MN_IS_FIELD) {
+        // field resolution
+        throw new Error('Field resolution not implemented');
+      } else {
+        thread.throwNewException(
+          'java/lang/LinkageError',
+          `Could not resolve member name`
+        );
+        return;
+      }
+    }
+  );
+
+  jni.registerNativeMethod(
+    'sun/reflect/Reflection',
+    'getClassAccessFlags(Ljava/lang/Class;)I',
+    (thread: Thread, locals: any[]) => {
+      const clsObj = locals[0] as JvmObject;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      thread.returnStackFrame(clsRef.getAccessFlags());
+    }
+  );
+
+  jni.registerNativeMethod(
+    'sun/reflect/NativeMethodAccessorImpl',
+    'invoke0(Ljava/lang/reflect/Method;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;',
+    (thread: Thread, locals: any[]) => {
+      const methodObj = locals[0] as JvmObject; // reflected method
+      const methodCls = (
+        methodObj._getField(
+          'clazz',
+          'Ljava/lang/Class;',
+          'java/lang/reflect/Method'
+        ) as JvmObject
+      ).getNativeField('classRef') as ClassData;
+      const methodSlot = methodObj._getField(
+        'slot',
+        'I',
+        'java/lang/reflect/Method'
+      ) as number;
+      const method = methodCls.getMethodFromSlot(methodSlot);
+      if (!method) {
+        throw new Error('Invalid slot?');
+      }
+      const retType = methodObj._getField(
+        'returnType',
+        'Ljava/lang/Class;',
+        'java/lang/reflect/Method'
+      ) as JvmObject;
+
+      const paramJavaArray = locals[2] as JvmArray;
+      let params: any[] = [];
+      if (paramJavaArray != null) {
+        params = paramJavaArray.getJsArray().map(x => autoUnbox(x));
+      }
+
+      thread.invokeStackFrame(
+        new InternalStackFrame(methodCls, method, 0, params, (ret, err) => {
+          if (err) {
+            // FIXME: wrap exception instead
+            thread.throwNewException(
+              'java/lang/reflect/InvocationTargetException',
+              err.exceptionCls + ': ' + err.msg
+            );
+            return;
+          }
+
+          // void return type returns null
+          if (ret === undefined) {
+            thread.returnStackFrame(null);
+            return;
+          }
+          thread.returnStackFrame(autoBox(ret));
+        })
+      );
+    }
+  );
+
+  // java/lang/reflect/Array.newArray(Ljava/lang/Class;I)Ljava/lang/Object;
+  jni.registerNativeMethod(
+    'java/lang/reflect/Array',
+    'newArray(Ljava/lang/Class;I)Ljava/lang/Object;',
+    (thread: Thread, locals: any[]) => {
+      const clsRef = (locals[0] as JvmObject).getNativeField(
+        'classRef'
+      ) as ClassData;
+      const length = locals[1] as number;
+      const shouldWrap =
+        !clsRef.checkPrimitive() && !ArrayClassData.check(clsRef);
+      let clsName = '[' + clsRef.getDescriptor();
+      console.log('REFLECT NEWARR: ', clsName);
+
+      const arrClsRes = clsRef.getLoader().getClassRef(clsName);
+      if (checkError(arrClsRes)) {
+        thread.throwNewException(
+          'java/lang/ClassNotFoundException',
+          arrClsRes.msg
+        );
+        return;
+      }
+      const arrClsRef = arrClsRes.result as ArrayClassData;
+      const arr = arrClsRef.instantiate();
+      arr.initArray(length);
+      thread.returnStackFrame(arr);
+    }
+  );
+
+  // java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object;
 
   /**
-   * MethodType Resolution
-   * java/io/FileInputStream.initIDs()V
-   * java/io/FileDescriptor.initIDs()V
-   * sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I
-   * sun/misc/Unsafe.addressSize()I
-   * java/io/FileOutputStream.initIDs()V
-   * java/lang/Thread.isAlive()Z
-   * sun/misc/Unsafe.compareAndSwapLong(Ljava/lang/Object;JJJ)Z
-   * java/lang/Thread.start0()V
+java/security/AccessController.getStackAccessControlContext()Ljava/security/AccessControlContext; 
+java/io/FileInputStream.initIDs()V 
+java/io/FileDescriptor.initIDs()V 
+java/io/FileOutputStream.initIDs()V 
+java/util/concurrent/atomic/AtomicLong.VMSupportsCS8()Z 
+sun/misc/Signal.findSignal(Ljava/lang/String;)I 
+sun/misc/Signal.handle0(IJ)J 
+sun/io/Win32ErrorMode.setErrorMode(J)J 
+java/lang/Object.notifyAll()V 
+java/lang/invoke/MethodHandleNatives.registerNatives()V 
+java/lang/invoke/MethodHandleNatives.getConstant(I)I 
+sun/misc/Unsafe.getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; 
+java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object; 
+java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
    */
 }

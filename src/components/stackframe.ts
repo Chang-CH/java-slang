@@ -42,6 +42,18 @@ const overrides: {
       }
     },
   },
+  'java/lang/ref/Reference': {
+    '<clinit>()V': (thread: Thread, locals: any[]) => {
+      thread.returnStackFrame();
+      return true;
+    },
+  },
+  'java/nio/charset/Charset$3': {
+    'run()Ljava/lang/Object;': (thread: Thread, locals: any[]) => {
+      thread.returnStackFrame();
+      return true;
+    },
+  },
 };
 
 const checkOverride = (thread: Thread, method: Method) => {
@@ -68,7 +80,7 @@ const runInstruction = (thread: Thread, method: Method) => {
         method.getName() + method.getDescriptor()
       }:${OPCODE[opcode]}#${thread.getPC()}, stack: ${
         thread.peekStackFrame().operandStack
-      }}`
+      }`
   );
   switch (opcode) {
     case OPCODE.NOP:
@@ -712,13 +724,13 @@ export abstract class StackFrame {
   }
 
   /**
-   * Behaviour when a method returns.
+   * Behaviour when a method returns. Stackframe is already popped.
    * Responsible for pushing return value to operand stack of stackframe below it.
    */
   abstract onReturn(thread: Thread, retn: any): void;
 
   /**
-   * Behaviour when a method returns with a 64 bit value.
+   * Behaviour when a method returns with a 64 bit value. Stackframe is already popped.
    * Responsible for pushing return value to operand stack of stackframe below it.
    */
   abstract onReturn64(thread: Thread, retn: any): void;

@@ -24,6 +24,7 @@ import {
   checkSuccess,
 } from '#types/result';
 import { InternalStackFrame } from '#jvm/components/stackframe';
+import { primitiveNameToType } from '#utils/index';
 
 export enum CLASS_STATUS {
   PREPARED,
@@ -200,6 +201,9 @@ export class ClassData {
     return this.javaObj;
   }
 
+  /**
+   * Gets all fields, including in its superclasses and superinterfaces.
+   */
   getFields(): Field[] {
     let result: Field[] = [];
 
@@ -338,6 +342,17 @@ export class ClassData {
     return this.thisClass;
   }
 
+  getDescriptor(): string {
+    if (this.checkPrimitive()) {
+      const primitive = primitiveNameToType(this.thisClass);
+      if (!primitive) {
+        throw new Error('Invalid primitive class name');
+      }
+      return primitive;
+    }
+    return `L${this.thisClass};`;
+  }
+
   getPackageName(): string {
     return this.packageName;
   }
@@ -392,32 +407,63 @@ export class ClassData {
     );
   }
 
+  private _getSignaturePolyMethod(signature: string): Method | null {
+    if (this.thisClass !== 'java/lang/invoke/MethodHandle') {
+      return null;
+    }
+
+    const method = this.methods[signature];
+    if (!method) {
+      return null;
+    }
+
+    if (method.checkVarargs() && method.checkNative()) {
+      return method;
+    }
+
+    return null;
+  }
+
   private _lookupMethodSuper(
-    methodName: string,
+    signature: string,
     resolvedMethod: Method,
-    checkOverride?: boolean
+    checkOverride?: boolean,
+    polySignature?: string
   ): Method | null {
     // If C contains a declaration for an instance method m that overrides the resolved method, then m is the method to be invoked.
     if (
-      this.methods[methodName] &&
+      this.methods[signature] &&
       (!checkOverride ||
-        this._checkOverrides(this.methods[methodName], resolvedMethod))
+        this._checkOverrides(this.methods[signature], resolvedMethod))
     ) {
-      return this.methods[methodName];
+      return this.methods[signature];
+    }
+
+    let m;
+    if (polySignature && (m = this._getSignaturePolyMethod(polySignature))) {
+      return m;
     }
 
     // Otherwise, if C has a superclass, step 2 of method resolution is recursively invoked on the direct superclass of C.
     const superClass = this.getSuperClass();
-    return superClass ? superClass._resolveMethodSuper(methodName) : null;
+    return superClass ? superClass._resolveMethodSuper(signature) : null;
   }
 
-  private _lookupMethodInterface(methodName: string): ImmediateResult<Method> {
+  private _lookupMethodInterface(
+    signature: string,
+    polySignature?: string
+  ): ImmediateResult<Method> {
     let res: Method | null = null;
     for (const inter of this.interfaces) {
-      let method = inter.getMethod(methodName);
+      let method = inter.getMethod(signature);
+
+      let m;
+      if (polySignature && (m = this._getSignaturePolyMethod(polySignature))) {
+        return { result: m };
+      }
 
       if (!method) {
-        const interRes = inter._lookupMethodInterface(methodName);
+        const interRes = inter._lookupMethodInterface(signature);
         if (checkSuccess(interRes)) {
           method = interRes.result;
         }
@@ -446,17 +492,25 @@ export class ClassData {
   }
 
   lookupMethod(
-    methodName: string,
+    signature: string,
     resolvedMethod: Method,
     checkOverride?: boolean,
-    checkInterface?: boolean
+    checkInterface?: boolean,
+    checkSigPoly?: boolean
   ): ImmediateResult<Method> {
+    let polySignature;
+    if (checkSigPoly) {
+      polySignature = `${
+        signature.split('(')[0]
+      }([Ljava/lang/Object;)Ljava/lang/Object;`;
+    }
     // If C contains a declaration for an instance method m that overrides
     // the resolved method, then m is the method to be invoked.
     let methodRef = this._lookupMethodSuper(
-      methodName,
+      signature,
       resolvedMethod,
-      checkOverride
+      checkOverride,
+      polySignature
     );
     if (methodRef) {
       if (checkInterface && !methodRef.checkPublic()) {
@@ -469,9 +523,12 @@ export class ClassData {
       return { result: methodRef };
     }
 
-    return this._lookupMethodInterface(methodName);
+    return this._lookupMethodInterface(signature, polySignature);
   }
 
+  /**
+   * Gets a method declared in the current class. does not search superclasses/interfaces.
+   */
   getMethod(methodName: string): Method | null {
     return this.methods[methodName] ?? null;
   }

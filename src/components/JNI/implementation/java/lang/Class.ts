@@ -9,6 +9,7 @@ import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, checkError, checkSuccess } from '#types/result';
 import { j2jsString } from '#utils/index';
+import { Method } from '#types/class/Method';
 
 export const registerJavaLangClass = (jni: JNI) => {
   const clsName = 'java/lang/Class';
@@ -19,6 +20,31 @@ export const registerJavaLangClass = (jni: JNI) => {
       const clsObj = locals[0] as JvmObject;
       console.warn('Class.desiredAssertionStatus0: assertions disabled');
       thread.returnStackFrame(0);
+    }
+  );
+
+  jni.registerNativeMethod(
+    clsName,
+    'getModifiers()I',
+    (thread: Thread, locals: any[]) => {
+      const clsObj = locals[0] as JvmObject;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      thread.returnStackFrame(clsRef.getAccessFlags());
+    }
+  );
+
+  jni.registerNativeMethod(
+    clsName,
+    'getSuperclass()Ljava/lang/Class;',
+    (thread: Thread, locals: any[]) => {
+      const clsObj = locals[0] as JvmObject;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      const superCls = clsRef.getSuperClass();
+      if (!superCls) {
+        thread.returnStackFrame(null);
+        return;
+      }
+      thread.returnStackFrame(superCls.getJavaObject());
     }
   );
 
@@ -245,6 +271,106 @@ export const registerJavaLangClass = (jni: JNI) => {
       caObj.initArray(methods.length, methods);
 
       thread.returnStackFrame(caObj);
+    }
+  );
+
+  jni.registerNativeMethod(
+    clsName,
+    'getDeclaredMethods0(Z)[Ljava/lang/reflect/Method;',
+    (thread: Thread, locals: any[]) => {
+      const clsObj = locals[0] as JvmObject;
+      const classRef = clsObj.getNativeField('classRef') as ClassData;
+      const methods = classRef.getMethods();
+      const publicOnly = locals[1] === 1;
+
+      const mArrRes = classRef
+        .getLoader()
+        .getClassRef('[Ljava/lang/reflect/Method;');
+      if (checkError(mArrRes)) {
+        thread.throwNewException(mArrRes.exceptionCls, mArrRes.msg);
+        return;
+      }
+      const mArrCls = mArrRes.result as ArrayClassData;
+      const mArr = mArrCls.instantiate();
+
+      const jsMethodArr = [];
+      for (const [name, method] of Object.entries(methods)) {
+        if (publicOnly && !method.checkPublic()) {
+          continue;
+        }
+
+        const refRes = method.getReflectedObject(thread);
+        if (checkError(refRes)) {
+          thread.throwNewException(refRes.exceptionCls, refRes.msg);
+          return;
+        }
+        jsMethodArr.push(refRes.result);
+      }
+      mArr.initArray(jsMethodArr.length, jsMethodArr);
+      thread.returnStackFrame(mArr);
+    }
+  );
+
+  jni.registerNativeMethod(
+    clsName,
+    'isAssignableFrom(Ljava/lang/Class;)Z',
+    (thread: Thread, locals: any[]) => {
+      const clsObj = locals[0] as JvmObject;
+      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      const clsObj2 = locals[1] as JvmObject;
+      const clsRef2 = clsObj2.getNativeField('classRef') as ClassData;
+      thread.returnStackFrame(clsRef2.checkCast(clsRef));
+    }
+  );
+
+  // java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object;
+  jni.registerNativeMethod(
+    clsName,
+    'getEnclosingMethod0()[Ljava/lang/Object;',
+    (thread: Thread, locals: any[]) => {
+      const jThis = locals[0] as JvmObject;
+      const thisCls = jThis.getNativeField('classRef') as ClassData;
+      if (thisCls.checkPrimitive() || ArrayClassData.check(thisCls)) {
+        thread.returnStackFrame(null);
+        return;
+      }
+      // TODO: get enclosing methodf from attribute enclosingmethod
+      console.error(
+        'native method missing: Class.getEnclosingMethod0() for reference class'
+      );
+      thread.returnStackFrame(null);
+    }
+  );
+
+  // java/lang/Class.getDeclaredClasses0()[Ljava/lang/Class;
+  jni.registerNativeMethod(
+    clsName,
+    'getDeclaredClasses0()[Ljava/lang/Class;',
+    (thread: Thread, locals: any[]) => {
+      const jThis = locals[0] as JvmObject;
+      const thisCls = jThis.getNativeField('classRef') as ClassData;
+
+      const clsArrRes = thisCls.getLoader().getClassRef('[Ljava/lang/Class;');
+      if (checkError(clsArrRes)) {
+        thread.throwNewException(clsArrRes.exceptionCls, clsArrRes.msg);
+        return;
+      }
+      const clsArrCls = clsArrRes.result as ArrayClassData;
+      const clsArr = clsArrCls.instantiate();
+
+      if (thisCls.checkPrimitive() || ArrayClassData.check(thisCls)) {
+        clsArr.initArray(0);
+        thread.returnStackFrame(clsArr);
+        return;
+      }
+
+      // TODO: get inner classes from attribute innerclasses
+      console.error(
+        'native method missing: Class.getDeclaredClasses0() for inner class'
+      );
+      const innerclasses: any[] = [];
+      clsArr.initArray(innerclasses.length, innerclasses);
+      thread.returnStackFrame(clsArr);
     }
   );
 };

@@ -325,94 +325,6 @@ export class ConstantMethodType extends Constant {
     });
   }
 
-  public tempResolve(thread: Thread): Result<JvmObject> {
-    if (this.result) {
-      return this.result;
-    }
-    this.result = { isDefer: true };
-    const descriptor = this.descriptor.get();
-    const loader = this.cls.getLoader();
-
-    const mtRef = loader.getClassRef('java/lang/invoke/MethodType');
-    if (checkError(mtRef)) {
-      return mtRef;
-    }
-    const mtCls = mtRef.result;
-    const initRes = mtCls.initialize(thread);
-    if (!checkSuccess(initRes)) {
-      if (checkError(initRes)) {
-        return initRes;
-      }
-      return { isDefer: true };
-    }
-
-    // #region create Class object array
-    const classes = parseMethodDescriptor(descriptor);
-    const classArray: JvmObject[] = [];
-    let error: ErrorResult | null = null;
-    const resolver = ({
-      type,
-      referenceCls,
-    }: {
-      type: string;
-      referenceCls: string | undefined;
-    }) => {
-      // primitive
-      if (!referenceCls) {
-        const pClsRes = loader.getPrimitiveClassRef(type);
-        classArray.push(pClsRes.getJavaObject());
-        return;
-      }
-      const clsRes = loader.getClassRef(referenceCls);
-      if (!checkSuccess(clsRes)) {
-        if (!error) {
-          error = clsRes;
-        }
-        return;
-      }
-      classArray.push(clsRes.result.getJavaObject());
-    };
-    classes.args.forEach(resolver);
-    resolver(classes.ret);
-    if (error) {
-      return error;
-    }
-
-    const clArrRes = loader.getClassRef('[Ljava/lang/Class;');
-    if (checkError(clArrRes)) {
-      if (!error) {
-        return clArrRes;
-      }
-      return error;
-    }
-    const paramClsArr = clArrRes.result.instantiate() as JvmArray;
-    const retCls = classArray.pop();
-    paramClsArr.initialize(thread, classArray.length, classArray);
-    // #endregion
-
-    // #region create MethodType object
-    const toInvoke = mtCls.getMethod(
-      'makeImpl(Ljava/lang/Class;[Ljava/lang/Class;Z)Ljava/lang/invoke/MethodType;'
-    );
-    if (!toInvoke) {
-      return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
-    }
-    thread.invokeStackFrame(
-      new InternalStackFrame(
-        mtCls,
-        toInvoke,
-        0,
-        [retCls, paramClsArr, 1],
-        (mt: JvmObject) => {
-          console.log(mt);
-          this.result = { result: mt };
-        }
-      )
-    );
-    // #endregion
-    return { isDefer: true };
-  }
-
   getDescriptor() {
     return this.descriptor.get();
   }
@@ -1036,10 +948,10 @@ export class ConstantMethodHandle extends Constant {
   }
 
   public resolve(thread: Thread): Result<JvmObject> {
+    console.log('MH RESOLVE: ', this.result);
     if (this.result) {
       return this.result;
     }
-    this.result = { isDefer: true };
 
     // #region Step 1: resolve field/method
     const refRes = this.reference.resolve();
@@ -1050,7 +962,6 @@ export class ConstantMethodHandle extends Constant {
       }
       return { isDefer: true };
     }
-    this.result = { isDefer: true };
     const ref = refRes.result;
     // #endregion
 
@@ -1087,9 +998,9 @@ export class ConstantMethodHandle extends Constant {
             nameStr,
             obj,
           ],
-          (mh: JvmObject) => {
-            if (!mh) {
-              throw new Error('not implemented');
+          (mh: JvmObject, err?: any) => {
+            if (!mh || err) {
+              thread.throwException(err);
             }
             this.result = { result: mh };
           }
@@ -1141,7 +1052,7 @@ export class ConstantMethodHandle extends Constant {
     }
     // #endregion
 
-    return this.result;
+    return { isDefer: true };
   }
 
   public tempGetReference() {
