@@ -15,8 +15,6 @@ import { JvmObject } from '../reference/Object';
 import { Constant, ConstantUtf8 } from '#types/class/Constants';
 import { ConstantPool } from '#jvm/components/constant-pool';
 import {
-  DeferResult,
-  ErrorResult,
   ImmediateResult,
   Result,
   SuccessResult,
@@ -338,10 +336,16 @@ export class ClassData {
     return this.accessFlags;
   }
 
+  /**
+   *  Gets the classname for the current class, e.g. package/Class
+   */
   getClassname(): string {
     return this.thisClass;
   }
 
+  /**
+   * Gets the descriptor for the current class, e.g. Lpackage/Class;
+   */
   getDescriptor(): string {
     if (this.checkPrimitive()) {
       const primitive = primitiveNameToType(this.thisClass);
