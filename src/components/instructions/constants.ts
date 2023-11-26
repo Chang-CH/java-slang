@@ -5,7 +5,7 @@ import {
   ConstantLong,
   ConstantMethodHandle,
 } from '#types/class/Constants';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { checkSuccess, checkError } from '#types/result';
 
 export function runNop(thread: Thread): void {
@@ -134,7 +134,7 @@ export function loadConstant(
 
   let value = resolutionRes.result;
   if (ConstantClass.check(constant)) {
-    const clsRef = value as ClassData;
+    const clsRef = value as ReferenceClassData;
     const initRes = clsRef.initialize(thread);
     if (!checkSuccess(initRes)) {
       if (checkError(initRes)) {

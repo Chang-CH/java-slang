@@ -7,7 +7,7 @@ import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { TestClassLoader } from '#jvm/__tests__/__utils__/test-utility';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -20,11 +20,11 @@ import { JavaStackFrame } from '#jvm/components/stackframe';
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
 let thread: Thread;
-let threadClass: ClassData;
+let threadClass: ReferenceClassData;
 let code: DataView;
 let jni: JNI;
-let strClass: ClassData;
-let testClass: ClassData;
+let strClass: ReferenceClassData;
+let testClass: ReferenceClassData;
 
 beforeEach(() => {
   const setup = setupTest();
@@ -34,8 +34,8 @@ beforeEach(() => {
   threadClass = setup.classes.threadClass;
   code = setup.code;
   jni = setup.jni;
-  strClass = setup.classes.strClass;
-  testClass = setup.classes.testClass;
+  strClass = setup.classes.strClass as ReferenceClassData;
+  testClass = setup.classes.testClass as ReferenceClassData;
   const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
 });

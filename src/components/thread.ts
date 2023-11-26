@@ -1,6 +1,6 @@
-import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import JVM from '#jvm/index';
-import { ClassData } from '#types/class/ClassData';
+import { Code } from '#types/class/Attributes';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { checkError, checkSuccess } from '#types/result';
 import { JvmObject } from '../types/reference/Object';
@@ -21,13 +21,17 @@ export default class Thread {
   private stack: StackFrame[];
   private stackPointer: number;
   private javaObject: JvmObject;
-  private threadClass: ClassData;
+  private threadClass: ReferenceClassData;
   private jvm: JVM;
 
   private quantumLeft: number = 0;
   private tpool: AbstractThreadPool;
 
-  constructor(threadClass: ClassData, jvm: JVM, tpool: AbstractThreadPool) {
+  constructor(
+    threadClass: ReferenceClassData,
+    jvm: JVM,
+    tpool: AbstractThreadPool
+  ) {
     this.jvm = jvm;
     this.threadClass = threadClass;
     this.stack = [];
@@ -118,8 +122,7 @@ export default class Thread {
   }
 
   getCode(): DataView {
-    return (this.stack[this.stackPointer].method._getCode() as CodeAttribute)
-      .code;
+    return (this.stack[this.stackPointer].method._getCode() as Code).code;
   }
 
   // #endregion
@@ -201,7 +204,6 @@ export default class Thread {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
     if (this.stackPointer < -1 || sf === undefined) {
-      console.log(this.stackPointer);
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');
     }
@@ -238,7 +240,7 @@ export default class Thread {
   }
 
   _invokeInternal(
-    cls: ClassData,
+    cls: ReferenceClassData,
     method: Method,
     pc: number,
     locals: any[],
@@ -296,14 +298,19 @@ export default class Thread {
 
     // TODO: initialize exception object with msg
 
-    console.error('throwing exception ', exceptionCls.getClassname(), msg);
+    console.error(
+      'throwing exception ',
+      exceptionCls.getClassname(),
+      msg,
+      this.getMethod().getName(),
+      this.getPC()
+    );
     this.throwException(exceptionCls.instantiate());
   }
 
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
 
-    let shouldClearStack;
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
       const method = this.getMethod();
@@ -319,12 +326,25 @@ export default class Thread {
       const pc = this.getPC();
 
       for (const handler of eTable) {
-        // compiler should ensure catch type is an instance of Throwable
+        let handlerCls: ClassData | null;
+        if (handler.catchType !== null) {
+          const clsResolution = handler.catchType.resolve();
+          if (checkError(clsResolution)) {
+            this.throwNewException(
+              clsResolution.exceptionCls,
+              clsResolution.msg
+            );
+            return;
+          }
+          handlerCls = clsResolution.result;
+        } else {
+          handlerCls = null;
+        }
+
         if (
           pc >= handler.startPc &&
-          pc <= handler.endPc &&
-          (handler.catchType === null ||
-            exceptionCls.checkCast(handler.catchType))
+          pc < handler.endPc &&
+          (handlerCls === null || exceptionCls.checkCast(handlerCls))
         ) {
           // clear the operand stack and push exception
           this.stack[this.stackPointer].operandStack = [exception];

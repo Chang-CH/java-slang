@@ -1,4 +1,4 @@
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
@@ -195,7 +195,7 @@ export function registerNatives(jni: JNI) {
         'I',
         'java/lang/reflect/Constructor'
       ) as number;
-      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      const clsRef = clsObj.getNativeField('classRef') as ReferenceClassData;
       const methodRef = clsRef.getMethodFromSlot(methodSlot);
       if (!methodRef) {
         throw new Error('Invalid slot?');
@@ -308,12 +308,6 @@ export function registerNatives(jni: JNI) {
       ) as number;
 
       if (clsObj === null || jNameString === null || type === null) {
-        console.log(
-          'INVALID MEMBERNAME WITH: ',
-          clsObj === null,
-          jNameString === null,
-          type === null
-        );
         thread.throwNewException(
           'java/lang/IllegalArgumentException',
           'Invalid MemberName'
@@ -321,7 +315,7 @@ export function registerNatives(jni: JNI) {
         return;
       }
 
-      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      const clsRef = clsObj.getNativeField('classRef') as ReferenceClassData;
       const methodName = j2jsString(jNameString);
 
       if (
@@ -335,7 +329,7 @@ export function registerNatives(jni: JNI) {
               'Ljava/lang/Class;',
               'java/lang/invoke/MethodType'
             ) as JvmObject
-          ).getNativeField('classRef') as ClassData
+          ).getNativeField('classRef') as ReferenceClassData
         ).getDescriptor();
         const ptypes = (
           type._getField(
@@ -359,12 +353,6 @@ export function registerNatives(jni: JNI) {
           true
         );
         if (checkError(lookupRes)) {
-          console.log(
-            'FAILED TO FIND: ',
-            clsRef.getClassname(),
-            methodName,
-            methodDesc
-          );
           thread.throwNewException(
             'java/lang/NoSuchMethodError',
             `Invalid method ${methodDesc}`
@@ -375,7 +363,6 @@ export function registerNatives(jni: JNI) {
         const methodRef = lookupRes.result;
 
         const methodFlags = methodRef.getAccessFlags();
-        console.log('METHODHANDLE FLAGS: ', methodFlags);
         console.warn(
           'MethodHandle resolution: CALLER_SENSITIVE not implemented'
         ); // FIXME: check method caller sensitive and |= caller sensitive flag.
@@ -409,7 +396,7 @@ export function registerNatives(jni: JNI) {
     'getClassAccessFlags(Ljava/lang/Class;)I',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      const clsRef = clsObj.getNativeField('classRef') as ReferenceClassData;
       thread.returnStackFrame(clsRef.getAccessFlags());
     }
   );
@@ -425,7 +412,7 @@ export function registerNatives(jni: JNI) {
           'Ljava/lang/Class;',
           'java/lang/reflect/Method'
         ) as JvmObject
-      ).getNativeField('classRef') as ClassData;
+      ).getNativeField('classRef') as ReferenceClassData;
       const methodSlot = methodObj._getField(
         'slot',
         'I',
@@ -476,12 +463,10 @@ export function registerNatives(jni: JNI) {
     (thread: Thread, locals: any[]) => {
       const clsRef = (locals[0] as JvmObject).getNativeField(
         'classRef'
-      ) as ClassData;
+      ) as ReferenceClassData;
       const length = locals[1] as number;
-      const shouldWrap =
-        !clsRef.checkPrimitive() && !ArrayClassData.check(clsRef);
+      const shouldWrap = !clsRef.checkPrimitive() && !clsRef.checkArray();
       let clsName = '[' + clsRef.getDescriptor();
-      console.log('REFLECT NEWARR: ', clsName);
 
       const arrClsRes = clsRef.getLoader().getClassRef(clsName);
       if (checkError(arrClsRes)) {

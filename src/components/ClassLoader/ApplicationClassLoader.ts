@@ -1,4 +1,4 @@
-import { ClassData } from '#types/class/ClassData';
+import { ClassData, PrimitiveClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 import { ImmediateResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
@@ -37,7 +37,7 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
     return { result: this.loadClass(classData) };
   }
 
-  getPrimitiveClassRef(className: string): ClassData {
+  getPrimitiveClassRef(className: string): PrimitiveClassData {
     if (this.parentLoader === null) {
       throw new Error('Primitive class not found');
     }

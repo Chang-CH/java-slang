@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { ClassData } from '#types/class/ClassData';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Field } from '#types/class/Field';
 import { Result } from '#types/result';
 
@@ -52,11 +52,17 @@ export class JvmObject {
       return { result: this };
     }
 
-    thread._invokeInternal(this.cls, initMethod, 0, [this], (ret, err) => {
-      if (!err) {
-        this.initStatus = true;
+    thread._invokeInternal(
+      this.cls as ReferenceClassData,
+      initMethod,
+      0,
+      [this],
+      (ret, err) => {
+        if (!err) {
+          this.initStatus = true;
+        }
       }
-    });
+    );
     return { isDefer: true };
   }
 

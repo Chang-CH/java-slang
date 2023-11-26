@@ -3,6 +3,7 @@ import {
   AttributeInfo,
   CodeAttribute,
   ExceptionHandler,
+  SignatureAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
 import {
   ConstantInfo,
@@ -286,7 +287,7 @@ function readCodeAttribute(
     offset,
   };
 }
-
+// TODO:
 function readAttributeStackMapTable(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -310,6 +311,7 @@ function readAttributeStackMapTable(
     offset,
   };
 }
+// TODO:
 function readAttributeExceptions(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -333,6 +335,7 @@ function readAttributeExceptions(
     offset,
   };
 }
+// TODO:
 function readAttributeInnerClasses(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -356,6 +359,7 @@ function readAttributeInnerClasses(
     offset,
   };
 }
+// TODO:
 function readAttributeEnclosingMethod(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -379,6 +383,7 @@ function readAttributeEnclosingMethod(
     offset,
   };
 }
+// TODO:
 function readAttributeSynthetic(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -408,23 +413,19 @@ function readAttributeSignature(
   attributeLength: number,
   view: DataView,
   offset: number
-) {
-  console.warn('readAttributeSignature is not implemented!');
-  const info = [];
-
-  for (let i = 0; i < attributeLength; i += 1) {
-    info.push(view.getUint8(offset));
-    offset += 1;
-  }
-
+): { result: SignatureAttribute; offset: number } {
+  const signatureIndex = view.getUint16(offset);
+  offset += 2;
   return {
     result: {
+      attributeLength,
       attributeNameIndex,
-      info,
+      signatureIndex,
     },
     offset,
   };
 }
+// TODO:
 function readAttributeSourceFile(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -448,6 +449,7 @@ function readAttributeSourceFile(
     offset,
   };
 }
+// TODO:
 function readAttributeSourceDebugExtension(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -502,6 +504,7 @@ function readAttributeLineNumberTable(
     offset,
   };
 }
+// TODO:
 function readAttributeLocalVariableTable(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -525,6 +528,7 @@ function readAttributeLocalVariableTable(
     offset,
   };
 }
+// TODO:
 function readAttributeLocalVariableTypeTable(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -548,6 +552,7 @@ function readAttributeLocalVariableTypeTable(
     offset,
   };
 }
+// TODO:
 function readAttributeDeprecated(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -571,6 +576,7 @@ function readAttributeDeprecated(
     offset,
   };
 }
+// TODO:
 function readAttributeRuntimeVisibleAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -594,6 +600,7 @@ function readAttributeRuntimeVisibleAnnotations(
     offset,
   };
 }
+// TODO:
 function readAttributeRuntimeInvisibleAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -617,6 +624,7 @@ function readAttributeRuntimeInvisibleAnnotations(
     offset,
   };
 }
+// TODO:
 function readAttributeRuntimeVisibleParameterAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -642,6 +650,7 @@ function readAttributeRuntimeVisibleParameterAnnotations(
     offset,
   };
 }
+// TODO:
 function readAttributeRuntimeInvisibleParameterAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -667,6 +676,7 @@ function readAttributeRuntimeInvisibleParameterAnnotations(
     offset,
   };
 }
+// TODO:
 function readAttributeAnnotationDefault(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,

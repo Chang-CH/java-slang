@@ -1,5 +1,5 @@
 import { Field } from '#types/class/Field';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import {
@@ -28,7 +28,7 @@ export default class JVM {
   private jni: JNI;
   private threadpool: AbstractThreadPool;
 
-  cachedClasses: { [key: string]: ClassData } = {};
+  cachedClasses: { [key: string]: ReferenceClassData } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
   private unsafeHeap: UnsafeHeap = new UnsafeHeap();
 
@@ -89,7 +89,11 @@ export default class JVM {
     // register natives
     registerNatives(this.jni);
 
-    const mainThread = new Thread(threadCls, this, this.threadpool);
+    const mainThread = new Thread(
+      threadCls as ReferenceClassData,
+      this,
+      this.threadpool
+    );
 
     // #region initialize threadgroup object
     const tgInitRes = threadGroupCls.initialize(mainThread);
@@ -127,7 +131,13 @@ export default class JVM {
       throw new Error('System initialization method not found');
     }
     mainThread.invokeStackFrame(
-      new InternalStackFrame(sysCls, sInitMr, 0, [], () => {})
+      new InternalStackFrame(
+        sysCls as ReferenceClassData,
+        sInitMr,
+        0,
+        [],
+        () => {}
+      )
     );
     mainThread._run();
     // #endregion

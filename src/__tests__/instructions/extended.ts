@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JNI } from '#jvm/components/JNI';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
@@ -15,7 +15,7 @@ import Thread from '#jvm/components/thread';
 
 let testLoader: TestClassLoader;
 let thread: Thread;
-let threadClass: ClassData;
+let threadClass: ReferenceClassData;
 let code: DataView;
 let jni: JNI;
 

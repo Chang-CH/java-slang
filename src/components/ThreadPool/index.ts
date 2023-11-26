@@ -63,7 +63,6 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
   }
 
   addThread(thread: Thread): void {
-    console.log('ADDTHREAD RUN');
     this.threads.push(thread);
 
     // TODO: check thread is runnable before pushing

@@ -70,7 +70,6 @@ export function runLookupswitch(thread: Thread): void {
 
   const value = thread.popStack();
 
-  console.log('LOOKUP', value, offset, def);
   for (let i = 0; i < npairCount; i++) {
     const key = thread.getCode().getInt32(offset);
     if (key === value) {

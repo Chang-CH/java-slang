@@ -3,7 +3,7 @@ import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoad
 
 import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { SuccessResult } from '#types/result';
@@ -12,7 +12,7 @@ import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 
 let thread: Thread;
-let threadClass: ClassData;
+let threadClass: ReferenceClassData;
 let testLoader: AbstractClassLoader;
 let code: DataView;
 let jni: JNI;
@@ -445,8 +445,9 @@ describe('ALOAD_3', () => {
 
 describe('IALOAD', () => {
   test('IALOAD: loads int from array', () => {
-    const arrCls = (testLoader.getClassRef('[I') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[I') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -477,8 +478,9 @@ describe('IALOAD', () => {
   });
 
   test('IALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[I') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[I') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -499,8 +501,9 @@ describe('IALOAD', () => {
   });
 
   test('IALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[I') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[I') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -523,8 +526,9 @@ describe('IALOAD', () => {
 
 describe('LALOAD', () => {
   test('LALOAD: loads long from array', () => {
-    const arrCls = (testLoader.getClassRef('[J') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[J') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99n]);
     thread.pushStack(arrayRef);
@@ -555,8 +559,9 @@ describe('LALOAD', () => {
   });
 
   test('LALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[J') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[J') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99n]);
     thread.pushStack(arrayRef);
@@ -576,8 +581,9 @@ describe('LALOAD', () => {
   });
 
   test('LALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[J') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[J') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99n]);
     thread.pushStack(arrayRef);
@@ -599,8 +605,9 @@ describe('LALOAD', () => {
 
 describe('FALOAD', () => {
   test('FALOAD: loads float from array', () => {
-    const arrCls = (testLoader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[F') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
@@ -631,8 +638,9 @@ describe('FALOAD', () => {
   });
 
   test('FALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[F') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
@@ -652,8 +660,9 @@ describe('FALOAD', () => {
   });
 
   test('FALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[F') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
@@ -675,8 +684,9 @@ describe('FALOAD', () => {
 
 describe('DALOAD', () => {
   test('DALOAD: loads float from array', () => {
-    const arrCls = (testLoader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[F') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
@@ -707,8 +717,9 @@ describe('DALOAD', () => {
   });
 
   test('DALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[F') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
@@ -728,8 +739,9 @@ describe('DALOAD', () => {
   });
 
   test('DALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[F') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99.0]);
     thread.pushStack(arrayRef);
@@ -752,7 +764,9 @@ describe('DALOAD', () => {
 describe('AALOAD', () => {
   test('AALOAD: loads ref from array', () => {
     const arrCls = (
-      testLoader.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      testLoader.getClassRef(
+        '[Ljava/lang/Thread;'
+      ) as SuccessResult<ReferenceClassData>
     ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [null]);
@@ -769,12 +783,16 @@ describe('AALOAD', () => {
 
   test('AALOAD: loads arrayref from array', () => {
     const iarrCls = (
-      testLoader.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      testLoader.getClassRef(
+        '[Ljava/lang/Thread;'
+      ) as SuccessResult<ReferenceClassData>
     ).result;
     const iarrayRef = iarrCls.instantiate() as JvmArray;
     iarrayRef.initialize(thread, 1, [null]);
     const arrCls = (
-      testLoader.getClassRef('[[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      testLoader.getClassRef(
+        '[[Ljava/lang/Thread;'
+      ) as SuccessResult<ReferenceClassData>
     ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [iarrayRef]);
@@ -807,7 +825,9 @@ describe('AALOAD', () => {
 
   test('AALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      testLoader.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      testLoader.getClassRef(
+        '[Ljava/lang/Thread;'
+      ) as SuccessResult<ReferenceClassData>
     ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
@@ -830,7 +850,9 @@ describe('AALOAD', () => {
 
   test('AALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      testLoader.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      testLoader.getClassRef(
+        '[Ljava/lang/Thread;'
+      ) as SuccessResult<ReferenceClassData>
     ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
@@ -854,8 +876,9 @@ describe('AALOAD', () => {
 
 describe('BALOAD', () => {
   test('BALOAD: loads boolean from array', () => {
-    const arrCls = (testLoader.getClassRef('[Z') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[Z') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -886,8 +909,9 @@ describe('BALOAD', () => {
   });
 
   test('BALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[Z') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[Z') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -908,8 +932,9 @@ describe('BALOAD', () => {
   });
 
   test('BALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[Z') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[Z') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -932,8 +957,9 @@ describe('BALOAD', () => {
 
 describe('CALOAD', () => {
   test('CALOAD: loads char from array', () => {
-    const arrCls = (testLoader.getClassRef('[C') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[C') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -964,8 +990,9 @@ describe('CALOAD', () => {
   });
 
   test('CALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[C') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[C') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -986,8 +1013,9 @@ describe('CALOAD', () => {
   });
 
   test('CALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[C') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[C') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -1010,8 +1038,9 @@ describe('CALOAD', () => {
 
 describe('SALOAD', () => {
   test('SALOAD: loads short from array', () => {
-    const arrCls = (testLoader.getClassRef('[S') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[S') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -1042,8 +1071,9 @@ describe('SALOAD', () => {
   });
 
   test('SALOAD: high index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[S') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[S') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);
@@ -1064,8 +1094,9 @@ describe('SALOAD', () => {
   });
 
   test('SALOAD: low index OOB throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (testLoader.getClassRef('[S') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (
+      testLoader.getClassRef('[S') as SuccessResult<ReferenceClassData>
+    ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
     arrayRef.initialize(thread, 1, [99]);
     thread.pushStack(arrayRef);

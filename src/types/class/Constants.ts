@@ -8,7 +8,7 @@ import * as info from '#jvm/external/ClassFile/types/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { Field } from '#types/class/Field';
 import { Method } from '#types/class/Method';
-import { ClassData } from '#types/class/ClassData';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
@@ -48,7 +48,7 @@ export abstract class Constant {
 export class ConstantInteger extends Constant {
   private value: number;
 
-  constructor(cls: ClassData, value: number) {
+  constructor(cls: ReferenceClassData, value: number) {
     super(CONSTANT_TAG.Integer, cls);
     this.value = value;
   }
@@ -65,7 +65,7 @@ export class ConstantInteger extends Constant {
 export class ConstantFloat extends Constant {
   private value: number;
 
-  constructor(cls: ClassData, value: number) {
+  constructor(cls: ReferenceClassData, value: number) {
     super(CONSTANT_TAG.Float, cls);
     this.value = value;
   }
@@ -79,7 +79,7 @@ export class ConstantFloat extends Constant {
   }
 
   static fromInfo(
-    cls: ClassData,
+    cls: ReferenceClassData,
     constant: info.ConstantFloatInfo
   ): ConstantFloat {
     return new ConstantFloat(cls, constant.value);
@@ -89,7 +89,7 @@ export class ConstantFloat extends Constant {
 export class ConstantLong extends Constant {
   private value: bigint;
 
-  constructor(cls: ClassData, value: bigint) {
+  constructor(cls: ReferenceClassData, value: bigint) {
     super(CONSTANT_TAG.Long, cls);
     this.value = value;
   }
@@ -103,7 +103,7 @@ export class ConstantLong extends Constant {
   }
 
   static fromInfo(
-    cls: ClassData,
+    cls: ReferenceClassData,
     constant: info.ConstantLongInfo
   ): ConstantLong {
     return new ConstantLong(cls, constant.value);
@@ -113,7 +113,7 @@ export class ConstantLong extends Constant {
 export class ConstantDouble extends Constant {
   private value: number;
 
-  constructor(cls: ClassData, value: number) {
+  constructor(cls: ReferenceClassData, value: number) {
     super(CONSTANT_TAG.Double, cls);
     this.value = value;
   }
@@ -127,7 +127,7 @@ export class ConstantDouble extends Constant {
   }
 
   static fromInfo(
-    cls: ClassData,
+    cls: ReferenceClassData,
     constant: info.ConstantDoubleInfo
   ): ConstantDouble {
     return new ConstantDouble(cls, constant.value);
@@ -137,7 +137,7 @@ export class ConstantDouble extends Constant {
 export class ConstantUtf8 extends Constant {
   private value: string;
 
-  constructor(cls: ClassData, value: string) {
+  constructor(cls: ReferenceClassData, value: string) {
     super(CONSTANT_TAG.Utf8, cls);
     this.value = value;
   }
@@ -151,7 +151,7 @@ export class ConstantUtf8 extends Constant {
   }
 
   static fromInfo(
-    cls: ClassData,
+    cls: ReferenceClassData,
     constant: info.ConstantUtf8Info
   ): ConstantUtf8 {
     return new ConstantUtf8(cls, constant.value);
@@ -232,7 +232,13 @@ function createMethodType(
     return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
   }
   thread.invokeStackFrame(
-    new InternalStackFrame(mhnCls, toInvoke, 0, [retCls, paramClsArr], cb)
+    new InternalStackFrame(
+      mhnCls as ReferenceClassData,
+      toInvoke,
+      0,
+      [retCls, paramClsArr],
+      cb
+    )
   );
   // #endregion
 
@@ -245,7 +251,7 @@ export class ConstantString extends Constant {
   private str: ConstantUtf8;
   private result?: Result<JvmObject>;
 
-  constructor(cls: ClassData, str: ConstantUtf8) {
+  constructor(cls: ReferenceClassData, str: ConstantUtf8) {
     super(CONSTANT_TAG.String, cls);
     this.str = str;
     this.isResolved = false;
@@ -278,7 +284,11 @@ export class ConstantNameAndType extends Constant {
   private name: ConstantUtf8;
   private descriptor: ConstantUtf8;
 
-  constructor(cls: ClassData, name: ConstantUtf8, descriptor: ConstantUtf8) {
+  constructor(
+    cls: ReferenceClassData,
+    name: ConstantUtf8,
+    descriptor: ConstantUtf8
+  ) {
     super(CONSTANT_TAG.NameAndType, cls);
     this.name = name;
     this.descriptor = descriptor;
@@ -297,7 +307,7 @@ export class ConstantMethodType extends Constant {
   private descriptor: ConstantUtf8;
   private result?: Result<JvmObject>;
 
-  constructor(cls: ClassData, descriptor: ConstantUtf8) {
+  constructor(cls: ReferenceClassData, descriptor: ConstantUtf8) {
     super(CONSTANT_TAG.MethodType, cls);
     this.descriptor = descriptor;
     this.isResolved = false;
@@ -378,7 +388,7 @@ export class ConstantInvokeDynamic extends Constant {
   private result?: Result<JvmObject>;
 
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     bootstrapMethodAttrIndex: number,
     nameAndType: ConstantNameAndType
   ) {
@@ -536,208 +546,208 @@ export class ConstantInvokeDynamic extends Constant {
     // // the references to instances of Class, java.lang.invoke.MethodHandle, java.lang.invoke.MethodType, and String.
   }
 
-  public tempResolve(thread: Thread): Result<JvmObject> {
-    const nameAndTypeRes = this.nameAndType.get();
+  // public tempResolve(thread: Thread): Result<JvmObject> {
+  //   const nameAndTypeRes = this.nameAndType.get();
 
-    const bootstrapMethod = this.cls.getBootstrapMethod(
-      this.bootstrapMethodAttrIndex
-    );
-    const bootstrapMhConst = this.cls.getConstant(
-      bootstrapMethod.bootstrapMethodRef
-    ) as ConstantMethodHandle;
+  //   const bootstrapMethod = this.cls.getBootstrapMethod(
+  //     this.bootstrapMethodAttrIndex
+  //   );
+  //   const bootstrapMhConst = this.cls.getConstant(
+  //     bootstrapMethod.bootstrapMethodRef
+  //   ) as ConstantMethodHandle;
 
-    const constref = bootstrapMhConst.tempGetReference();
-    const refres = constref.resolve();
-    if (!checkSuccess<Field | Method>(refres)) {
-      if (checkError(refres)) {
-        return refres;
-      }
-      return { isDefer: true };
-    }
-    const res = refres.result;
+  //   const constref = bootstrapMhConst.tempGetReference();
+  //   const refres = constref.resolve();
+  //   if (!checkSuccess<Field | Method>(refres)) {
+  //     if (checkError(refres)) {
+  //       return refres;
+  //     }
+  //     return { isDefer: true };
+  //   }
+  //   const res = refres.result;
 
-    const bsArgIdx = bootstrapMethod.bootstrapArguments;
-    const argConst = this.cls.getConstant(bsArgIdx[0]) as ConstantMethodType;
-    const mhConst = this.cls.getConstant(bsArgIdx[1]) as ConstantMethodHandle;
-    const invokeRes = mhConst.tempGetReference().resolve();
-    if (!checkSuccess<Field | Method>(invokeRes)) {
-      if (checkError(invokeRes)) {
-        return invokeRes;
-      }
-      return { isDefer: true };
-    }
-    const { ret } = parseMethodDescriptor(nameAndTypeRes.descriptor);
+  //   const bsArgIdx = bootstrapMethod.bootstrapArguments;
+  //   const argConst = this.cls.getConstant(bsArgIdx[0]) as ConstantMethodType;
+  //   const mhConst = this.cls.getConstant(bsArgIdx[1]) as ConstantMethodHandle;
+  //   const invokeRes = mhConst.tempGetReference().resolve();
+  //   if (!checkSuccess<Field | Method>(invokeRes)) {
+  //     if (checkError(invokeRes)) {
+  //       return invokeRes;
+  //     }
+  //     return { isDefer: true };
+  //   }
+  //   const { ret } = parseMethodDescriptor(nameAndTypeRes.descriptor);
 
-    const clsName = ret.referenceCls;
-    if (!clsName) {
-      throw new Error('Only lambdas are supported at the moment');
-    }
-    const loader = this.cls.getLoader();
-    const clsRes = loader.getClassRef(clsName);
-    const objRes = loader.getClassRef('java/lang/Object');
-    if (checkError(clsRes) || checkError(objRes)) {
-      return (checkError(clsRes) ? clsRes : objRes) as ErrorResult;
-    }
+  //   const clsName = ret.referenceCls;
+  //   if (!clsName) {
+  //     throw new Error('Only lambdas are supported at the moment');
+  //   }
+  //   const loader = this.cls.getLoader();
+  //   const clsRes = loader.getClassRef(clsName);
+  //   const objRes = loader.getClassRef('java/lang/Object');
+  //   if (checkError(clsRes) || checkError(objRes)) {
+  //     return (checkError(clsRes) ? clsRes : objRes) as ErrorResult;
+  //   }
 
-    const thisClsName = this.cls.getClassname();
-    const intercls = clsRes.result;
-    const objCls = objRes.result;
-    const erasedDesc = argConst.getDescriptor();
-    const methodName = nameAndTypeRes.name;
-    const toInvoke = invokeRes.result as Method;
-    const invokerName = toInvoke.getName();
-    const invokerDesc = toInvoke.getDescriptor();
-    const parsedDesc = parseMethodDescriptor(invokerDesc);
-    const methodArgs = parsedDesc.args;
-    const methodRet = parsedDesc.ret;
+  //   const thisClsName = this.cls.getClassname();
+  //   const intercls = clsRes.result;
+  //   const objCls = objRes.result;
+  //   const erasedDesc = argConst.getDescriptor();
+  //   const methodName = nameAndTypeRes.name;
+  //   const toInvoke = invokeRes.result as Method;
+  //   const invokerName = toInvoke.getName();
+  //   const invokerDesc = toInvoke.getDescriptor();
+  //   const parsedDesc = parseMethodDescriptor(invokerDesc);
+  //   const methodArgs = parsedDesc.args;
+  //   const methodRet = parsedDesc.ret;
 
-    // #region Create code
-    // load(1) * n -> invoke(3) -> return(1)
-    const codeSize = 3 + methodArgs.length * 2 + 1;
-    const code = new DataView(new ArrayBuffer(codeSize));
-    let maxStack = methodArgs.length;
-    let invokeIndex = -1;
-    let ptr = 0;
-    // load params
-    methodArgs.forEach((arg, index) => {
-      switch (arg.type) {
-        case JavaType.char:
-        case JavaType.byte:
-        case JavaType.int:
-        case JavaType.boolean:
-        case JavaType.short:
-          code.setUint8(ptr, OPCODE.ILOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.double:
-          maxStack += 1;
-          code.setUint8(ptr, OPCODE.DLOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.float:
-          code.setUint8(ptr, OPCODE.FLOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.long:
-          maxStack += 1;
-          code.setUint8(ptr, OPCODE.LLOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.reference:
-          code.setUint8(ptr, OPCODE.ALOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.array:
-          code.setUint8(ptr, OPCODE.ALOAD);
-          code.setUint8(ptr + 1, index + 1);
-          break;
-        case JavaType.void:
-          throw new Error('Void type in params');
-      }
-      ptr += 2;
-    });
-    // invoke lambda
-    code.setUint8(ptr, OPCODE.INVOKESTATIC);
-    invokeIndex = ptr + 1;
-    code.setUint16(ptr + 1, -1); // We fix this index later
-    ptr += 3;
-    // return value
-    let retStack = 1;
-    switch (methodRet.type) {
-      case JavaType.char:
-      case JavaType.byte:
-      case JavaType.int:
-      case JavaType.boolean:
-      case JavaType.short:
-        code.setUint8(ptr, OPCODE.IRETURN);
-        break;
-      case JavaType.double:
-        retStack += 1;
-        code.setUint8(ptr, OPCODE.DRETURN);
-        break;
-      case JavaType.float:
-        code.setUint8(ptr, OPCODE.FRETURN);
-        break;
-      case JavaType.long:
-        retStack += 1;
-        code.setUint8(ptr, OPCODE.LRETURN);
-        break;
-      case JavaType.reference:
-        code.setUint8(ptr, OPCODE.ARETURN);
-        break;
-      case JavaType.array:
-        code.setUint8(ptr, OPCODE.ARETURN);
-        break;
-      case JavaType.void:
-        retStack = 0;
-        code.setUint8(ptr, OPCODE.RETURN);
-    }
-    // empty args still requries stack for return
-    maxStack = Math.max(maxStack, retStack);
-    // #endregion
+  //   // #region Create code
+  //   // load(1) * n -> invoke(3) -> return(1)
+  //   const codeSize = 3 + methodArgs.length * 2 + 1;
+  //   const code = new DataView(new ArrayBuffer(codeSize));
+  //   let maxStack = methodArgs.length;
+  //   let invokeIndex = -1;
+  //   let ptr = 0;
+  //   // load params
+  //   methodArgs.forEach((arg, index) => {
+  //     switch (arg.type) {
+  //       case JavaType.char:
+  //       case JavaType.byte:
+  //       case JavaType.int:
+  //       case JavaType.boolean:
+  //       case JavaType.short:
+  //         code.setUint8(ptr, OPCODE.ILOAD);
+  //         code.setUint8(ptr + 1, index + 1);
+  //         break;
+  //       case JavaType.double:
+  //         maxStack += 1;
+  //         code.setUint8(ptr, OPCODE.DLOAD);
+  //         code.setUint8(ptr + 1, index + 1);
+  //         break;
+  //       case JavaType.float:
+  //         code.setUint8(ptr, OPCODE.FLOAD);
+  //         code.setUint8(ptr + 1, index + 1);
+  //         break;
+  //       case JavaType.long:
+  //         maxStack += 1;
+  //         code.setUint8(ptr, OPCODE.LLOAD);
+  //         code.setUint8(ptr + 1, index + 1);
+  //         break;
+  //       case JavaType.reference:
+  //         code.setUint8(ptr, OPCODE.ALOAD);
+  //         code.setUint8(ptr + 1, index + 1);
+  //         break;
+  //       case JavaType.array:
+  //         code.setUint8(ptr, OPCODE.ALOAD);
+  //         code.setUint8(ptr + 1, index + 1);
+  //         break;
+  //       case JavaType.void:
+  //         throw new Error('Void type in params');
+  //     }
+  //     ptr += 2;
+  //   });
+  //   // invoke lambda
+  //   code.setUint8(ptr, OPCODE.INVOKESTATIC);
+  //   invokeIndex = ptr + 1;
+  //   code.setUint16(ptr + 1, -1); // We fix this index later
+  //   ptr += 3;
+  //   // return value
+  //   let retStack = 1;
+  //   switch (methodRet.type) {
+  //     case JavaType.char:
+  //     case JavaType.byte:
+  //     case JavaType.int:
+  //     case JavaType.boolean:
+  //     case JavaType.short:
+  //       code.setUint8(ptr, OPCODE.IRETURN);
+  //       break;
+  //     case JavaType.double:
+  //       retStack += 1;
+  //       code.setUint8(ptr, OPCODE.DRETURN);
+  //       break;
+  //     case JavaType.float:
+  //       code.setUint8(ptr, OPCODE.FRETURN);
+  //       break;
+  //     case JavaType.long:
+  //       retStack += 1;
+  //       code.setUint8(ptr, OPCODE.LRETURN);
+  //       break;
+  //     case JavaType.reference:
+  //       code.setUint8(ptr, OPCODE.ARETURN);
+  //       break;
+  //     case JavaType.array:
+  //       code.setUint8(ptr, OPCODE.ARETURN);
+  //       break;
+  //     case JavaType.void:
+  //       retStack = 0;
+  //       code.setUint8(ptr, OPCODE.RETURN);
+  //   }
+  //   // empty args still requries stack for return
+  //   maxStack = Math.max(maxStack, retStack);
+  //   // #endregion
 
-    let methodRefIndex = -1;
-    const anonCls = loader.createAnonymousClass({
-      nestedHost: this.cls,
-      superClass: objCls,
-      interfaces: [intercls],
-      constants: [
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          value: thisClsName,
-          length: thisClsName.length,
-        }),
-        constantPool => ({
-          tag: CONSTANT_TAG.Class,
-          nameIndex: constantPool.length - 1,
-        }),
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          value: invokerDesc,
-          length: invokerDesc.length,
-        }),
-        () => ({
-          tag: CONSTANT_TAG.Utf8,
-          value: invokerName,
-          length: invokerName.length,
-        }),
-        constantPool => ({
-          tag: CONSTANT_TAG.NameAndType,
-          nameIndex: constantPool.length - 1,
-          descriptorIndex: constantPool.length - 2,
-        }),
-        constantPool => {
-          methodRefIndex = constantPool.length;
-          return {
-            tag: CONSTANT_TAG.Methodref,
-            classIndex: constantPool.length - 4,
-            nameAndTypeIndex: constantPool.length - 1,
-          };
-        },
-      ],
-      methods: [
-        {
-          accessFlags: METHOD_FLAGS.ACC_PUBLIC,
-          name: methodName,
-          descriptor: erasedDesc,
-          attributes: [],
-          maxStack,
-          maxLocals: methodArgs.length + 1,
-          code,
-          exceptionTable: [],
-        },
-      ],
-      fields: [],
-      flags: CLASS_FLAGS.ACC_PUBLIC,
-    });
+  //   let methodRefIndex = -1;
+  //   const anonCls = loader.createAnonymousClass({
+  //     nestedHost: this.cls,
+  //     superClass: objCls,
+  //     interfaces: [intercls],
+  //     constants: [
+  //       () => ({
+  //         tag: CONSTANT_TAG.Utf8,
+  //         value: thisClsName,
+  //         length: thisClsName.length,
+  //       }),
+  //       constantPool => ({
+  //         tag: CONSTANT_TAG.Class,
+  //         nameIndex: constantPool.length - 1,
+  //       }),
+  //       () => ({
+  //         tag: CONSTANT_TAG.Utf8,
+  //         value: invokerDesc,
+  //         length: invokerDesc.length,
+  //       }),
+  //       () => ({
+  //         tag: CONSTANT_TAG.Utf8,
+  //         value: invokerName,
+  //         length: invokerName.length,
+  //       }),
+  //       constantPool => ({
+  //         tag: CONSTANT_TAG.NameAndType,
+  //         nameIndex: constantPool.length - 1,
+  //         descriptorIndex: constantPool.length - 2,
+  //       }),
+  //       constantPool => {
+  //         methodRefIndex = constantPool.length;
+  //         return {
+  //           tag: CONSTANT_TAG.Methodref,
+  //           classIndex: constantPool.length - 4,
+  //           nameAndTypeIndex: constantPool.length - 1,
+  //         };
+  //       },
+  //     ],
+  //     methods: [
+  //       {
+  //         accessFlags: METHOD_FLAGS.ACC_PUBLIC,
+  //         name: methodName,
+  //         descriptor: erasedDesc,
+  //         attributes: [],
+  //         maxStack,
+  //         maxLocals: methodArgs.length + 1,
+  //         code,
+  //         exceptionTable: [],
+  //       },
+  //     ],
+  //     fields: [],
+  //     flags: CLASS_FLAGS.ACC_PUBLIC,
+  //   });
 
-    // Fix constant index for invoke
-    code.setUint16(invokeIndex, methodRefIndex);
+  //   // Fix constant index for invoke
+  //   code.setUint16(invokeIndex, methodRefIndex);
 
-    const lambdaObj = anonCls.instantiate();
+  //   const lambdaObj = anonCls.instantiate();
 
-    return { result: lambdaObj };
-  }
+  //   return { result: lambdaObj };
+  // }
 }
 
 export class ConstantFieldref extends Constant {
@@ -746,7 +756,7 @@ export class ConstantFieldref extends Constant {
   private result?: Result<Field>;
 
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     classConstant: ConstantClass,
     nameAndTypeConstant: ConstantNameAndType
   ) {
@@ -798,7 +808,7 @@ export class ConstantMethodref extends Constant {
   private result?: Result<Method>;
 
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     classConstant: ConstantClass,
     nameAndTypeConstant: ConstantNameAndType
   ) {
@@ -861,7 +871,7 @@ export class ConstantInterfaceMethodref extends Constant {
   private result?: Result<Method>;
 
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     classConstant: ConstantClass,
     nameAndTypeConstant: ConstantNameAndType
   ) {
@@ -929,7 +939,7 @@ export class ConstantMethodHandle extends Constant {
   private result?: Result<JvmObject>;
 
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     referenceKind: info.REFERENCE_KIND,
     reference: ConstantFieldref | ConstantMethodref | ConstantInterfaceMethodref
   ) {
@@ -948,7 +958,6 @@ export class ConstantMethodHandle extends Constant {
   }
 
   public resolve(thread: Thread): Result<JvmObject> {
-    console.log('MH RESOLVE: ', this.result);
     if (this.result) {
       return this.result;
     }
@@ -973,7 +982,7 @@ export class ConstantMethodHandle extends Constant {
           .getLoader()
           .getClassRef(
             'java/lang/invoke/MethodHandleNatives'
-          ) as SuccessResult<ClassData>
+          ) as SuccessResult<ReferenceClassData>
       ).result;
 
       const method = mhnCls.getMethod(

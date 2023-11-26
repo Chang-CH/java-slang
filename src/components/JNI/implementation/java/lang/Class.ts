@@ -4,7 +4,7 @@ import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
 import { Field } from '#types/class/Field';
 import { ArrayClassData } from '#types/class/ArrayClassData';
-import { ClassData } from '#types/class/ClassData';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ErrorResult, checkError, checkSuccess } from '#types/result';
@@ -63,7 +63,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const clsObj = locals[0] as JvmObject;
       const publicOnly = locals[1];
       const clsRef = clsObj.getNativeField('classRef') as ClassData;
-      const fields = clsRef.getFields();
+      const fields = clsRef.getDeclaredFields();
 
       const result = [];
 
@@ -123,8 +123,8 @@ export const registerJavaLangClass = (jni: JNI) => {
     'isArray()Z',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassData;
-      thread.returnStackFrame(ArrayClassData.check(clsRef) ? 1 : 0);
+      const clsRef = clsObj.getNativeField('classRef') as ReferenceClassData;
+      thread.returnStackFrame(clsRef.checkArray() ? 1 : 0);
     }
   );
   jni.registerNativeMethod(
@@ -156,7 +156,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const clsObj = locals[0] as JvmObject;
       const clsRef = clsObj.getNativeField('classRef') as ClassData;
 
-      if (!ArrayClassData.check(clsRef)) {
+      if (!clsRef.checkArray()) {
         thread.returnStackFrame(null);
         return;
       }
@@ -176,11 +176,6 @@ export const registerJavaLangClass = (jni: JNI) => {
       const callerClassObj = locals[3] as JvmObject;
 
       const name = j2jsString(nameJStr).replaceAll('.', '/');
-
-      console.log(
-        'forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;: ',
-        name
-      );
 
       let loader: AbstractClassLoader;
       if (loaderObj) {
@@ -330,7 +325,7 @@ export const registerJavaLangClass = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const jThis = locals[0] as JvmObject;
       const thisCls = jThis.getNativeField('classRef') as ClassData;
-      if (thisCls.checkPrimitive() || ArrayClassData.check(thisCls)) {
+      if (thisCls.checkPrimitive() || thisCls.checkArray()) {
         thread.returnStackFrame(null);
         return;
       }
@@ -358,7 +353,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const clsArrCls = clsArrRes.result as ArrayClassData;
       const clsArr = clsArrCls.instantiate();
 
-      if (thisCls.checkPrimitive() || ArrayClassData.check(thisCls)) {
+      if (thisCls.checkPrimitive() || thisCls.checkArray()) {
         clsArr.initArray(0);
         thread.returnStackFrame(clsArr);
         return;

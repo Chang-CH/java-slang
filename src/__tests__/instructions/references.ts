@@ -2,7 +2,7 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
 import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
-import { CLASS_STATUS, ClassData } from '#types/class/ClassData';
+import { CLASS_STATUS, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
@@ -19,10 +19,10 @@ import { ArrayClassData } from '#types/class/ArrayClassData';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 
 let thread: Thread;
-let threadClass: ClassData;
+let threadClass: ReferenceClassData;
 let testLoader: TestClassLoader;
 let jni: JNI;
-let NullPointerException: ClassData;
+let NullPointerException: ReferenceClassData;
 
 beforeEach(() => {
   const setup = setupTest();
@@ -33,7 +33,8 @@ beforeEach(() => {
   const method = setup.method;
   testLoader = setup.testLoader;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
-  NullPointerException = setup.classes.NullPointerException;
+  NullPointerException = setup.classes
+    .NullPointerException as ReferenceClassData;
 });
 
 // method resolution tested under classref
@@ -319,7 +320,7 @@ describe('Invokestatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -490,7 +491,7 @@ describe('Invokestatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -534,7 +535,7 @@ describe('Invokestatic', () => {
           code: code,
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -613,7 +614,7 @@ describe('Invokestatic', () => {
           code: code,
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -1061,7 +1062,7 @@ describe('invokevirtual', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -1216,7 +1217,7 @@ describe('invokevirtual', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -1293,7 +1294,7 @@ describe('invokevirtual', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -1713,7 +1714,7 @@ describe('Invokeinterface', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -1804,7 +1805,7 @@ describe('Invokeinterface', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -1900,7 +1901,7 @@ describe('Invokeinterface', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -1957,7 +1958,7 @@ describe('Invokeinterface', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -2062,7 +2063,7 @@ describe('Invokeinterface', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -2186,7 +2187,11 @@ describe('Invokeinterface', () => {
     const objClass = testLoader.createClass({
       className: 'objClass',
       flags: CLASS_FLAGS.ACC_INTERFACE,
-      interfaces: [interfaceClass, superInterA, superInterB],
+      interfaces: [
+        interfaceClass as ReferenceClassData,
+        superInterA as ReferenceClassData,
+        superInterB as ReferenceClassData,
+      ],
       loader: testLoader,
     });
 
@@ -2282,7 +2287,7 @@ describe('Invokeinterface', () => {
     const objClass = testLoader.createClass({
       className: 'objClass',
       flags: CLASS_FLAGS.ACC_INTERFACE,
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -2390,7 +2395,7 @@ describe('invokespecial', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       loader: testLoader,
     });
 
@@ -2485,7 +2490,7 @@ describe('invokespecial', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       loader: testLoader,
     });
 
@@ -2584,7 +2589,7 @@ describe('invokespecial', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       loader: testLoader,
     });
 
@@ -2676,7 +2681,7 @@ describe('invokespecial', () => {
       className: 'interfaceClass',
       flags: CLASS_FLAGS.ACC_INTERFACE,
       methods: [],
-      superClass: objClass,
+      superClass: objClass as ReferenceClassData,
       loader: testLoader,
     });
     const mainClass = testLoader.createClass({
@@ -2724,7 +2729,7 @@ describe('invokespecial', () => {
           code: code,
         },
       ],
-      interfaces: [interfaceClass],
+      interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -2771,7 +2776,7 @@ describe('invokespecial', () => {
           code: new DataView(new ArrayBuffer(8)),
         },
       ],
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       loader: testLoader,
     });
 
@@ -2877,7 +2882,10 @@ describe('invokespecial', () => {
 
     const objClass = testLoader.createClass({
       className: 'objClass',
-      interfaces: [superInterA, superInterB],
+      interfaces: [
+        superInterA as ReferenceClassData,
+        superInterB as ReferenceClassData,
+      ],
       loader: testLoader,
     });
 
@@ -3183,7 +3191,7 @@ describe('Getstatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -3259,7 +3267,7 @@ describe('Getstatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -3342,7 +3350,7 @@ describe('Getstatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -3714,7 +3722,7 @@ describe('Putstatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -3792,7 +3800,7 @@ describe('Putstatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -3875,7 +3883,7 @@ describe('Putstatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -4031,7 +4039,7 @@ describe('Putstatic', () => {
     });
     const mainClass = testLoader.createClass({
       className: 'mainClass',
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -4185,7 +4193,7 @@ describe('Putstatic', () => {
     const mainClass = testLoader.createClass({
       className: 'mainClass',
       status: CLASS_STATUS.INITIALIZING,
-      superClass: superClass,
+      superClass: superClass as ReferenceClassData,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -5349,7 +5357,7 @@ describe('Checkcast', () => {
 
     const childClass = testLoader.createClass({
       className: 'child',
-      superClass: sClass,
+      superClass: sClass as ReferenceClassData,
       loader: testLoader,
     });
 
@@ -5410,7 +5418,7 @@ describe('Checkcast', () => {
 
     const childClass = testLoader.createClass({
       className: 'child',
-      interfaces: [sClass],
+      interfaces: [sClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -5625,7 +5633,7 @@ describe('Checkcast', () => {
     const childClass = testLoader.createClass({
       className: 'Child',
       loader: testLoader,
-      superClass: sClass,
+      superClass: sClass as ReferenceClassData,
     });
 
     const arrCls = (testLoader.getClassRef('[LChild;') as any)
@@ -5898,7 +5906,7 @@ describe('Instanceof', () => {
 
     const childClass = testLoader.createClass({
       className: 'child',
-      superClass: sClass,
+      superClass: sClass as ReferenceClassData,
       loader: testLoader,
     });
 
@@ -5959,7 +5967,7 @@ describe('Instanceof', () => {
 
     const childClass = testLoader.createClass({
       className: 'child',
-      interfaces: [sClass],
+      interfaces: [sClass as ReferenceClassData],
       loader: testLoader,
     });
 
@@ -6174,7 +6182,7 @@ describe('Instanceof', () => {
     const childClass = testLoader.createClass({
       className: 'Child',
       loader: testLoader,
-      superClass: sClass,
+      superClass: sClass as ReferenceClassData,
     });
 
     const arrCls = (testLoader.getClassRef('[LChild;') as any)
@@ -6336,7 +6344,7 @@ describe('Athrow', () => {
           exceptionTable: [
             {
               startPc: 0,
-              endPc: 1,
+              endPc: 2,
               handlerPc: 99,
               catchType: 'java/lang/NullPointerException',
             },

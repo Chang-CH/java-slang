@@ -1,4 +1,8 @@
-import { ClassData } from '#types/class/ClassData';
+import { ConstantPool } from '#jvm/components/constant-pool';
+import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
+import { IAttribute, info2Attribute } from '#types/class/Attributes';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
+import { ConstantUtf8 } from '#types/class/Constants';
 import { JavaType, JvmObject } from '#types/reference/Object';
 
 /**
@@ -171,6 +175,24 @@ export function primitiveNameToType(pName: string) {
     default:
       return null;
   }
+}
+
+export function attrInfo2Interface(
+  infoArr: AttributeInfo[],
+  constantPool: ConstantPool
+) {
+  const attributes: { [attributeName: string]: IAttribute[] } = {};
+  // attributes
+  infoArr.forEach(attr => {
+    const attrName = (
+      constantPool.get(attr.attributeNameIndex) as ConstantUtf8
+    ).get();
+    if (!attributes[attrName]) {
+      attributes[attrName] = [];
+    }
+    attributes[attrName].push(info2Attribute(attr, constantPool));
+  });
+  return attributes;
 }
 
 export function autoBox(obj: any) {

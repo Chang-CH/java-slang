@@ -1,30 +1,33 @@
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
-import { ClassData } from './ClassData';
+import { ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import { JvmObject } from '../reference/Object';
 import { ImmediateResult, Result, checkError } from '../result';
 import Thread from '#jvm/components/thread';
+import { IAttribute } from './Attributes';
+import { ConstantPool } from '#jvm/components/constant-pool';
+import { attrInfo2Interface } from '#utils/index';
 
 export class Field {
-  private cls: ClassData;
+  private cls: ReferenceClassData;
   private fieldName: string;
   private fieldDesc: string;
   private value: any;
   private accessFlags: number;
-  private attributes: AttributeInfo[];
+  private attributes: { [attributeName: string]: IAttribute[] } = {};
 
-  private static reflectedClass: ClassData | null = null;
+  private static reflectedClass: ReferenceClassData | null = null;
   private javaObject: JvmObject | null = null;
   private slot: number;
 
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     fieldName: string,
     fieldDesc: string,
     accessFlags: number,
-    attributes: AttributeInfo[],
+    attributes: { [attributeName: string]: IAttribute[] },
     slot: number
   ) {
     this.cls = cls;
@@ -53,7 +56,12 @@ export class Field {
     }
   }
 
-  static fromFieldInfo(cls: ClassData, field: FieldInfo, slot: number) {
+  static fromFieldInfo(
+    cls: ReferenceClassData,
+    field: FieldInfo,
+    slot: number,
+    constantPool: ConstantPool
+  ) {
     const fieldName = (cls.getConstant(field.nameIndex) as ConstantUtf8).get();
     const fieldDesc = (
       cls.getConstant(field.descriptorIndex) as ConstantUtf8
@@ -64,7 +72,7 @@ export class Field {
       fieldName,
       fieldDesc,
       field.accessFlags,
-      field.attributes,
+      attrInfo2Interface(field.attributes, constantPool),
       slot
     );
   }
@@ -90,7 +98,7 @@ export class Field {
       if (checkError(fRes)) {
         return fRes;
       }
-      Field.reflectedClass = fRes.result;
+      Field.reflectedClass = fRes.result as ReferenceClassData;
     }
 
     this.javaObject = Field.reflectedClass.instantiate();
@@ -242,11 +250,8 @@ export class Field {
 
     const invokerClass = thread.getClass();
     const fieldClass = this.getClass();
-    if (
-      this.checkPrivate() &&
-      invokerClass !== fieldClass &&
-      fieldClass.getNestedHost() !== invokerClass.getNestedHost()
-    ) {
+    // FIXME: check innter classes if private
+    if (this.checkPrivate() && invokerClass !== fieldClass) {
       return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
     }
 

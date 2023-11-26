@@ -2,7 +2,7 @@ import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
 import { Field } from '#types/class/Field';
 import { ArrayClassData } from '#types/class/ArrayClassData';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { DeferResult, ErrorResult } from '#types/result';
@@ -107,7 +107,7 @@ export const registerUnsafe = (jni: JNI) => {
       //   );
       //   objBase = <any>cls.getConstructor(thread);
       //   fieldName = cls.getStaticFieldFromVMIndex(offset.toInt()).fullName;
-    } else if (ArrayClassData.check(objCls)) {
+    } else if (objCls.checkArray()) {
       // obj is an array. offset represents index * unit space
       const compCls = objCls.getComponentClass();
       const stride = typeIndexScale(compCls);
@@ -180,15 +180,17 @@ export const registerUnsafe = (jni: JNI) => {
     'arrayIndexScale(Ljava/lang/Class;)I',
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[1] as JvmObject;
-      const clsRef = clsObj.getNativeField('classRef') as ClassData;
+      const clsRef = clsObj.getNativeField('classRef') as ReferenceClassData;
 
       // Should be array. return -1 for invalid class
-      if (!ArrayClassData.check(clsRef)) {
+      if (!clsRef.checkArray()) {
         thread.returnStackFrame(-1);
         return;
       }
 
-      const scale = typeIndexScale(clsRef.getComponentClass());
+      const scale = typeIndexScale(
+        (clsRef as ArrayClassData).getComponentClass()
+      );
       console.log(
         'ArrayIndexScale: ',
         scale,
@@ -300,7 +302,6 @@ export const registerUnsafe = (jni: JNI) => {
       const size = locals[1] as bigint;
       const heap = thread.getJVM().getUnsafeHeap();
       const addr = heap.allocate(size);
-      console.log('ALLOCATE ADDR: ', addr);
       thread.returnStackFrame64(addr);
     }
   );
@@ -313,7 +314,6 @@ export const registerUnsafe = (jni: JNI) => {
       const value = locals[2] as bigint;
       const heap = thread.getJVM().getUnsafeHeap();
       const view = heap.get(address);
-      console.log('PUTLONG: ', address, value, view ? 'OK' : 'NULL');
       view.setBigInt64(0, value);
       thread.returnStackFrame();
     }
@@ -325,7 +325,6 @@ export const registerUnsafe = (jni: JNI) => {
       const address = locals[1] as bigint;
       const heap = thread.getJVM().getUnsafeHeap();
       const view = heap.get(address);
-      console.log('GETBYTE: ', view.getInt8(0));
       thread.returnStackFrame(view.getInt8(0));
     }
   );

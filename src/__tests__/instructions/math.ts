@@ -3,7 +3,7 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 
@@ -13,7 +13,7 @@ const MAX_INT = 2147483647;
 const MIN_INT = -2147483648;
 
 let thread: Thread;
-let threadClass: ClassData;
+let threadClass: ReferenceClassData;
 let code: DataView;
 let jni: JNI;
 

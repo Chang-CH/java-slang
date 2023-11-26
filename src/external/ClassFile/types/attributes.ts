@@ -236,7 +236,6 @@ export interface BootstrapMethod {
   bootstrapArguments: Array<number>;
 }
 
-
 export type AttributeInfo =
   | ConstantValueAttribute
   | CodeAttribute
@@ -252,4 +251,4 @@ export type AttributeInfo =
   | LocalVariableTableAttribute
   | LocalVariableTypeTableAttribute
   | DeprecatedAttribute
-  | BootstrapMethodsAttribute 
+  | BootstrapMethodsAttribute;

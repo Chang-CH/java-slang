@@ -1,21 +1,14 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 
-import Thread, { ThreadStatus } from '#jvm/components/thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
-import { ClassData } from '#types/class/ClassData';
-import { Method } from '#types/class/Method';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
-import NodeSystem from '#utils/NodeSystem';
-import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
-import { SuccessResult } from '#types/result';
-import JVM from '#jvm/index';
 import { JavaStackFrame } from '#jvm/components/stackframe';
-import { RoundRobinThreadPool } from '#jvm/components/ThreadPool';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
 let thread: Thread;
-let threadClass: ClassData;
+let threadClass: ReferenceClassData;
 let code: DataView;
 let jni: JNI;
 let javaThread: JvmObject;

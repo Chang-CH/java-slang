@@ -1,53 +1,46 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import {
-  AttributeInfo,
-  CodeAttribute,
-} from '#jvm/external/ClassFile/types/attributes';
-import { ConstantInfo } from '#jvm/external/ClassFile/types/constants';
-import { FieldInfo } from '#jvm/external/ClassFile/types/fields';
-import { MethodInfo } from '#jvm/external/ClassFile/types/methods';
-import { MethodHandler } from '#types/class/Method';
 import { JvmArray } from '#types/reference/Array';
-import { ClassData } from './ClassData';
+import { ErrorResult, checkError } from '#types/result';
+import { CLASS_TYPE, ClassData, ReferenceClassData } from './ClassData';
 
 export class ArrayClassData extends ClassData {
   private componentClass?: ClassData;
 
   constructor(
-    constantPool: Array<ConstantInfo>,
     accessFlags: number,
     thisClass: string,
-    superClass: ClassData,
-    interfaces: Array<ClassData>,
-    fields: Array<FieldInfo>,
-    methods: {
-      method: MethodInfo;
-      exceptionHandlers: MethodHandler[];
-      code: CodeAttribute | null;
-    }[],
-    attributes: Array<AttributeInfo>,
-    loader: AbstractClassLoader
+    loader: AbstractClassLoader,
+    componentClass: ClassData,
+    onError: (error: ErrorResult) => void
   ) {
-    super(
-      constantPool,
-      accessFlags,
-      thisClass,
-      superClass,
-      interfaces,
-      fields,
-      methods,
-      attributes,
-      loader
-    );
+    super(loader, accessFlags, CLASS_TYPE.ARRAY, thisClass);
     this.packageName = 'java/lang';
+    this.componentClass = componentClass;
+
+    // #region load array superclasses/interfaces
+    const objRes = loader.getClassRef('java/lang/Object');
+    if (checkError(objRes)) {
+      onError(objRes);
+      return;
+    }
+    const cloneableRes = loader.getClassRef('java/lang/Cloneable');
+    if (checkError(cloneableRes)) {
+      onError(cloneableRes);
+      return;
+    }
+    const serialRes = loader.getClassRef('java/io/Serializable');
+    if (checkError(serialRes)) {
+      onError(serialRes);
+      return;
+    }
+    // #endregion
+    this.superClass = objRes.result as ReferenceClassData;
+    this.interfaces.push(cloneableRes.result as ReferenceClassData);
+    this.interfaces.push(serialRes.result as ReferenceClassData);
   }
 
   getDescriptor(): string {
     return this.getClassname();
-  }
-
-  setComponentClass(itemClass: ClassData) {
-    this.componentClass = itemClass;
   }
 
   getComponentClass(): ClassData {
@@ -61,8 +54,8 @@ export class ArrayClassData extends ClassData {
     return new JvmArray(this);
   }
 
-  static check(c: ClassData): c is ArrayClassData {
-    return c.getClassname().startsWith('[');
+  checkArray(): this is ArrayClassData {
+    return true;
   }
 
   checkCast(castTo: ClassData): boolean {
@@ -71,7 +64,7 @@ export class ArrayClassData extends ClassData {
     }
 
     // Not an array class
-    if (!ArrayClassData.check(castTo)) {
+    if (!castTo.checkArray()) {
       // is a class
       if (!castTo.checkInterface()) {
         // If T is a class type, then T must be Object.

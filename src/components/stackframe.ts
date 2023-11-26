@@ -1,4 +1,4 @@
-import { ClassData } from '#types/class/ClassData';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
@@ -17,6 +17,7 @@ import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import { Code } from '#types/class/Attributes';
 
 const overrides: {
   [cls: string]: {
@@ -69,9 +70,7 @@ const checkOverride = (thread: Thread, method: Method) => {
 };
 
 const runInstruction = (thread: Thread, method: Method) => {
-  const opcode = (method._getCode() as CodeAttribute).code.getUint8(
-    thread.getPC()
-  );
+  const opcode = (method._getCode() as Code).code.getUint8(thread.getPC());
 
   let result;
   console.debug(
@@ -772,7 +771,7 @@ export class JavaStackFrame extends StackFrame {
 export class InternalStackFrame extends StackFrame {
   private callback: (ret: any, err?: any) => void;
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     method: Method,
     pc: number,
     locals: any[],
@@ -805,7 +804,7 @@ export class InternalStackFrame extends StackFrame {
 export class NativeStackFrame extends StackFrame {
   private nativeMethod: (thread: Thread, locals: any[]) => void;
   constructor(
-    cls: ClassData,
+    cls: ReferenceClassData,
     method: Method,
     pc: number,
     locals: any[],

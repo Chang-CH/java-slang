@@ -1,12 +1,12 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { Method } from '#types/class/Method';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 
 class EventManager {
   private _loadListenerId: number = 0;
   private loadListeners: {
     id: number;
-    cb: (loaded: ClassData, loader: AbstractClassLoader) => void;
+    cb: (loaded: ReferenceClassData, loader: AbstractClassLoader) => void;
   }[] = [];
 
   private instructionListenerId: number = 0;
@@ -27,13 +27,15 @@ class EventManager {
     cb: (method: Method, returnValue: any) => void;
   }[] = [];
 
-  onLoad(cb: (loaded: ClassData, loader: AbstractClassLoader) => void): number {
+  onLoad(
+    cb: (loaded: ReferenceClassData, loader: AbstractClassLoader) => void
+  ): number {
     const id = this._loadListenerId++;
     this.loadListeners.push({ id, cb });
     return id;
   }
 
-  loadEvent(loaded: ClassData, loader: AbstractClassLoader) {
+  loadEvent(loaded: ReferenceClassData, loader: AbstractClassLoader) {
     this.loadListeners.forEach(listener => listener.cb(loaded, loader));
   }
 

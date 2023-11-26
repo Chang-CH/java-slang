@@ -1,14 +1,20 @@
-import { asDouble, asFloat, parseMethodDescriptor } from '#utils/index';
+import {
+  asDouble,
+  asFloat,
+  attrInfo2Interface,
+  parseMethodDescriptor,
+} from '#utils/index';
 import {
   AttributeInfo,
   CodeAttribute,
+  ExceptionHandler,
 } from '#jvm/external/ClassFile/types/attributes';
 import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
 import { ArrayClassData } from './ArrayClassData';
-import { ClassData } from './ClassData';
+import { ClassData, ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JvmObject } from '../reference/Object';
 import {
@@ -19,82 +25,66 @@ import {
 } from '../result';
 import Thread from '#jvm/components/thread';
 import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
+import { ConstantPool } from '#jvm/components/constant-pool';
+import { Code, IAttribute, info2Attribute } from './Attributes';
 
 export interface MethodHandler {
   startPc: number;
   endPc: number;
   handlerPc: number;
-  catchType: null | ClassData;
+  catchType: null | ReferenceClassData;
 }
 
 export class Method {
-  private cls: ClassData;
-  private code: CodeAttribute | null; // native methods have no code
+  private cls: ReferenceClassData;
+  private code: Code | null; // native methods have no code
   private accessFlags: number;
   private name: string;
   private descriptor: string;
-  private attributes: Array<AttributeInfo>;
-  private exceptionHandlers: MethodHandler[];
+  private attributes: { [attributeName: string]: IAttribute[] } = {};
 
-  private static reflectMethodClass: ClassData | null = null;
-  private static reflectConstructorClass: ClassData | null = null;
+  private static reflectMethodClass: ReferenceClassData | null = null;
+  private static reflectConstructorClass: ReferenceClassData | null = null;
   private javaObject?: JvmObject;
   private slot: number;
 
   constructor(
-    cls: ClassData,
-    code: CodeAttribute | null,
+    cls: ReferenceClassData,
     accessFlags: number,
     name: string,
     descriptor: string,
-    attributes: Array<AttributeInfo>,
-    exceptionHandlers: {
-      startPc: number;
-      endPc: number;
-      handlerPc: number;
-      catchType: null | ClassData;
-    }[],
+    attributes: { [attributeName: string]: IAttribute[] },
     slot: number
   ) {
     this.cls = cls;
-    this.code = code;
+    this.code = (attributes['Code']?.[0] as Code) ?? null;
     this.accessFlags = accessFlags;
     this.name = name;
     this.descriptor = descriptor;
     this.attributes = attributes;
-    this.exceptionHandlers = exceptionHandlers;
     this.slot = slot;
   }
 
   /**
    * factory method for class loaders to create a method
    */
-  static fromLinkedInfo(
-    cls: ClassData,
+  static fromInfo(
+    cls: ReferenceClassData,
     method: MethodInfo,
-    exceptionHandlers: MethodHandler[],
-    code: CodeAttribute | null,
-    slot: number
+    slot: number,
+    constantPool: ConstantPool
   ) {
     // get name and descriptor
     const name = (cls.getConstant(method.nameIndex) as ConstantUtf8).get();
     const descriptor = (
       cls.getConstant(method.descriptorIndex) as ConstantUtf8
     ).get();
-
     const accessFlags = method.accessFlags;
-    const attributes = method.attributes;
 
-    return new Method(
-      cls,
-      code,
-      accessFlags,
-      name,
-      descriptor,
-      attributes,
-      exceptionHandlers,
-      slot
-    );
+    // get attributes
+    const attributes = attrInfo2Interface(method.attributes, constantPool);
+
+    return new Method(cls, accessFlags, name, descriptor, attributes, slot);
   }
 
   /**
@@ -188,7 +178,7 @@ export class Method {
         if (checkError(fRes)) {
           return fRes;
         }
-        Method.reflectConstructorClass = fRes.result;
+        Method.reflectConstructorClass = fRes.result as ReferenceClassData;
       }
 
       javaObject = Method.reflectConstructorClass.instantiate();
@@ -208,7 +198,7 @@ export class Method {
         if (checkError(fRes)) {
           return fRes;
         }
-        Method.reflectMethodClass = fRes.result;
+        Method.reflectMethodClass = fRes.result as ReferenceClassData;
       }
 
       javaObject = Method.reflectMethodClass.instantiate();
@@ -340,10 +330,10 @@ export class Method {
   }
 
   getExceptionHandlers() {
-    if (this.exceptionHandlers === undefined) {
-      throw new Error('Class not initialized');
+    if (!this.code) {
+      return [];
     }
-    return this.exceptionHandlers;
+    return this.code.exceptionTable;
   }
 
   getAccessFlags() {
@@ -526,11 +516,8 @@ export class Method {
     }
 
     // R is private
-    // nestmate test se17 5.4.4.
-    return (
-      accessingClass === declaringCls ||
-      declaringCls.getNestedHost() === accessingClass.getNestedHost()
-    );
+    // FIXME: test inner class
+    return accessingClass === declaringCls;
   }
 
   _getCode() {

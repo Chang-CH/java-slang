@@ -1,7 +1,7 @@
 import Thread from '#jvm/components/thread';
 
 import { parseMethodDescriptor, asDouble, asFloat } from '#utils/index';
-import { ClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 import { ArrayPrimitiveType } from '#types/reference/Array';
@@ -200,7 +200,7 @@ export function runPutfield(thread: Thread): void {
 function invokeInit(
   thread: Thread,
   constant: ConstantMethodref | ConstantInterfaceMethodref
-): Result<{ classRef: ClassData; methodRef: Method; args: any[] }> {
+): Result<{ classRef: ReferenceClassData; methodRef: Method; args: any[] }> {
   const methodRes = constant.resolve();
   if (!checkSuccess(methodRes)) {
     if (checkError(methodRes)) {
@@ -230,7 +230,7 @@ function lookupMethod(
   thread: Thread,
   methodRef: Method,
   checkInterface: boolean,
-  checkCastTo?: ClassData
+  checkCastTo?: ReferenceClassData
 ): ImmediateResult<{ toInvoke: Method; objRef: JvmObject }> {
   const objRef = thread.popStack() as JvmObject;
   if (objRef === null) {
@@ -495,20 +495,21 @@ export function runInvokedynamic(thread: Thread): void {
   const invoker = thread.getClass();
   const callsiteConstant = invoker.getConstant(index) as ConstantInvokeDynamic;
 
-  // #region Temporary lambda creation code
-  const tempRes = callsiteConstant.tempResolve(thread);
-  if (!checkSuccess(tempRes)) {
-    if (checkError(tempRes)) {
-      thread.throwNewException(tempRes.exceptionCls, tempRes.msg);
-      return;
-    }
-    return;
-  }
-  const lambdaObj = tempRes.result;
-  thread.pushStack(lambdaObj);
+  // // #region Temporary lambda creation code
+  // const tempRes = callsiteConstant.tempResolve(thread);
+  // if (!checkSuccess(tempRes)) {
+  //   if (checkError(tempRes)) {
+  //     thread.throwNewException(tempRes.exceptionCls, tempRes.msg);
+  //     return;
+  //   }
+  //   return;
+  // }
+  // const lambdaObj = tempRes.result;
+  // thread.pushStack(lambdaObj);
+  console.warn('INDY not implemented');
   thread.offsetPc(5);
   return;
-  // #endregion
+  // // #endregion
 
   // const cssRes = callsiteConstant.resolve(thread);
   // if (!checkSuccess(cssRes)) {
@@ -715,7 +716,6 @@ export function runAnewarray(thread: Thread): void {
 export function runArraylength(thread: Thread): void {
   const arrayref = thread.popStack() as JvmArray;
   if (arrayref === null) {
-    console.log('array: ', arrayref);
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
   }
@@ -774,15 +774,6 @@ function _checkCast(
   if (!isCC) {
     thread.pushStack(value);
   } else {
-    if (value !== 1) {
-      console.log(
-        'checkcast failed, topStack: ',
-        objClsS.getClassname(),
-        'target: ',
-        targetClsT.getClassname()
-      );
-    }
-
     value === 1
       ? thread.pushStack(objectref)
       : thread.throwNewException('java/lang/ClassCastException', '');
