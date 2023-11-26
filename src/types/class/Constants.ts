@@ -48,7 +48,7 @@ export abstract class Constant {
 export class ConstantInteger extends Constant {
   private value: number;
 
-  constructor(cls: ReferenceClassData, value: number) {
+  constructor(cls: ClassData, value: number) {
     super(CONSTANT_TAG.Integer, cls);
     this.value = value;
   }
@@ -65,7 +65,7 @@ export class ConstantInteger extends Constant {
 export class ConstantFloat extends Constant {
   private value: number;
 
-  constructor(cls: ReferenceClassData, value: number) {
+  constructor(cls: ClassData, value: number) {
     super(CONSTANT_TAG.Float, cls);
     this.value = value;
   }
@@ -79,7 +79,7 @@ export class ConstantFloat extends Constant {
   }
 
   static fromInfo(
-    cls: ReferenceClassData,
+    cls: ClassData,
     constant: info.ConstantFloatInfo
   ): ConstantFloat {
     return new ConstantFloat(cls, constant.value);
@@ -89,7 +89,7 @@ export class ConstantFloat extends Constant {
 export class ConstantLong extends Constant {
   private value: bigint;
 
-  constructor(cls: ReferenceClassData, value: bigint) {
+  constructor(cls: ClassData, value: bigint) {
     super(CONSTANT_TAG.Long, cls);
     this.value = value;
   }
@@ -103,7 +103,7 @@ export class ConstantLong extends Constant {
   }
 
   static fromInfo(
-    cls: ReferenceClassData,
+    cls: ClassData,
     constant: info.ConstantLongInfo
   ): ConstantLong {
     return new ConstantLong(cls, constant.value);
@@ -113,7 +113,7 @@ export class ConstantLong extends Constant {
 export class ConstantDouble extends Constant {
   private value: number;
 
-  constructor(cls: ReferenceClassData, value: number) {
+  constructor(cls: ClassData, value: number) {
     super(CONSTANT_TAG.Double, cls);
     this.value = value;
   }
@@ -127,7 +127,7 @@ export class ConstantDouble extends Constant {
   }
 
   static fromInfo(
-    cls: ReferenceClassData,
+    cls: ClassData,
     constant: info.ConstantDoubleInfo
   ): ConstantDouble {
     return new ConstantDouble(cls, constant.value);
@@ -137,7 +137,7 @@ export class ConstantDouble extends Constant {
 export class ConstantUtf8 extends Constant {
   private value: string;
 
-  constructor(cls: ReferenceClassData, value: string) {
+  constructor(cls: ClassData, value: string) {
     super(CONSTANT_TAG.Utf8, cls);
     this.value = value;
   }
@@ -151,7 +151,7 @@ export class ConstantUtf8 extends Constant {
   }
 
   static fromInfo(
-    cls: ReferenceClassData,
+    cls: ClassData,
     constant: info.ConstantUtf8Info
   ): ConstantUtf8 {
     return new ConstantUtf8(cls, constant.value);
@@ -251,7 +251,7 @@ export class ConstantString extends Constant {
   private str: ConstantUtf8;
   private result?: Result<JvmObject>;
 
-  constructor(cls: ReferenceClassData, str: ConstantUtf8) {
+  constructor(cls: ClassData, str: ConstantUtf8) {
     super(CONSTANT_TAG.String, cls);
     this.str = str;
     this.isResolved = false;
@@ -284,11 +284,7 @@ export class ConstantNameAndType extends Constant {
   private name: ConstantUtf8;
   private descriptor: ConstantUtf8;
 
-  constructor(
-    cls: ReferenceClassData,
-    name: ConstantUtf8,
-    descriptor: ConstantUtf8
-  ) {
+  constructor(cls: ClassData, name: ConstantUtf8, descriptor: ConstantUtf8) {
     super(CONSTANT_TAG.NameAndType, cls);
     this.name = name;
     this.descriptor = descriptor;
@@ -307,7 +303,7 @@ export class ConstantMethodType extends Constant {
   private descriptor: ConstantUtf8;
   private result?: Result<JvmObject>;
 
-  constructor(cls: ReferenceClassData, descriptor: ConstantUtf8) {
+  constructor(cls: ClassData, descriptor: ConstantUtf8) {
     super(CONSTANT_TAG.MethodType, cls);
     this.descriptor = descriptor;
     this.isResolved = false;
@@ -388,7 +384,7 @@ export class ConstantInvokeDynamic extends Constant {
   private result?: Result<JvmObject>;
 
   constructor(
-    cls: ReferenceClassData,
+    cls: ClassData,
     bootstrapMethodAttrIndex: number,
     nameAndType: ConstantNameAndType
   ) {
@@ -756,7 +752,7 @@ export class ConstantFieldref extends Constant {
   private result?: Result<Field>;
 
   constructor(
-    cls: ReferenceClassData,
+    cls: ClassData,
     classConstant: ConstantClass,
     nameAndTypeConstant: ConstantNameAndType
   ) {
@@ -808,7 +804,7 @@ export class ConstantMethodref extends Constant {
   private result?: Result<Method>;
 
   constructor(
-    cls: ReferenceClassData,
+    cls: ClassData,
     classConstant: ConstantClass,
     nameAndTypeConstant: ConstantNameAndType
   ) {
@@ -871,7 +867,7 @@ export class ConstantInterfaceMethodref extends Constant {
   private result?: Result<Method>;
 
   constructor(
-    cls: ReferenceClassData,
+    cls: ClassData,
     classConstant: ConstantClass,
     nameAndTypeConstant: ConstantNameAndType
   ) {
@@ -939,7 +935,7 @@ export class ConstantMethodHandle extends Constant {
   private result?: Result<JvmObject>;
 
   constructor(
-    cls: ReferenceClassData,
+    cls: ClassData,
     referenceKind: info.REFERENCE_KIND,
     reference: ConstantFieldref | ConstantMethodref | ConstantInterfaceMethodref
   ) {

@@ -52,6 +52,8 @@ export abstract class ClassData {
 
   protected interfaces: Array<ReferenceClassData> = [];
 
+  protected constantPool: ConstantPool;
+
   protected fields: {
     [fieldName: string]: Field;
   } = {};
@@ -75,6 +77,7 @@ export abstract class ClassData {
     this.type = type;
     this.thisClass = thisClass;
     this.packageName = thisClass.split('/').slice(0, -1).join('/');
+    this.constantPool = new ConstantPool(this, []);
   }
 
   checkPrimitive(): this is PrimitiveClassData {
@@ -87,6 +90,19 @@ export abstract class ClassData {
 
   checkReference(): this is ReferenceClassData {
     return false;
+  }
+
+  /**
+   * Gets all fields, including private and protected fields but excluding inherited fields.
+   */
+  getDeclaredFields(): Field[] {
+    let result: Field[] = [];
+
+    for (const field of Object.values(this.fields)) {
+      result.push(field);
+    }
+
+    return result;
   }
 
   checkPublic() {
@@ -139,444 +155,6 @@ export abstract class ClassData {
     return res;
   }
 
-  /**
-   * Getters
-   */
-  getLoader(): AbstractClassLoader {
-    return this.loader;
-  }
-
-  getPackageName(): string {
-    return this.packageName;
-  }
-
-  /**
-   * Initializes the class. If the class has a static initializer, it is invoked.
-   * @param thread used to invoke the static initializer
-   * @param onDefer callback to be called before invoking the static initializer.
-   */
-  initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
-    return { result: this };
-  }
-
-  getJavaObject(): JvmObject {
-    if (!this.javaClassObject) {
-      // We assume that java/lang/Class has been loaded at JVM initialization
-      const clsCls = (
-        this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassData>
-      ).result;
-
-      this.javaClassObject = new JvmObject(clsCls);
-      this.javaClassObject.putNativeField('classRef', this);
-      this.javaClassObject._putField(
-        'classLoader',
-        'Ljava/lang/ClassLoader;',
-        'java/lang/Class',
-        this.loader.getJavaObject()
-      );
-    }
-
-    return this.javaClassObject;
-  }
-
-  /**
-   * Gets all fields, including private and protected fields but excluding inherited fields.
-   */
-  getDeclaredFields(): Field[] {
-    return [];
-  }
-
-  /**
-   * Resolves method reference from the current class.
-   * Returns exception if any.
-   * @param methodKey method name + method descriptor
-   * @param accessingClass class that is accessing the method
-   * @returns
-   */
-  resolveMethod(
-    methodKey: string,
-    accessingClass: ClassData
-  ): ImmediateResult<Method> {
-    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
-  }
-
-  getConstant(constantIndex: number): Constant {
-    throw new Error('Abstract ClassData has no constants');
-  }
-
-  getAccessFlags(): number {
-    return this.accessFlags;
-  }
-
-  /**
-   *  Gets the classname for the current class, e.g. package/Class
-   */
-  getClassname(): string {
-    return this.thisClass;
-  }
-
-  /**
-   * Gets the descriptor for the current class, e.g. Lpackage/Class;
-   */
-  getDescriptor(): string {
-    if (this.checkPrimitive()) {
-      const primitive = primitiveNameToType(this.thisClass);
-      if (!primitive) {
-        throw new Error('Invalid primitive class name');
-      }
-      return primitive;
-    }
-    return `L${this.thisClass};`;
-  }
-
-  /**
-   * Gets all instance fields, including inherited fields.
-   */
-  getInstanceFields(): {
-    [fieldName: string]: Field;
-  } {
-    return {};
-  }
-
-  getSuperClass(): ClassData | null {
-    return null;
-  }
-
-  getInterfaces(): ReferenceClassData[] {
-    return [];
-  }
-
-  /**
-   * Method lookup. Searches in superclasses and superinterfaces too.
-   * @param {string} signature method signature to search for
-   * @param resolvedMethod
-   * @param {boolean} checkOverride check if the method overrides resolvedMethod
-   * @param {boolean} checkPublic check if method is explicitly public
-   * @param {boolean} searchSigPoly also search for Signature Polymorphic methods
-   * @returns
-   */
-  lookupMethod(
-    signature: string,
-    resolvedMethod: Method,
-    checkOverride?: boolean,
-    checkPublic?: boolean,
-    searchSigPoly?: boolean
-  ): ImmediateResult<Method> {
-    return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
-  }
-
-  /**
-   * Gets a method declared in the current class. does not search superclasses/interfaces.
-   */
-  getMethod(methodName: string): Method | null {
-    return null;
-  }
-
-  getMethods(): { [methodName: string]: Method } {
-    return {};
-  }
-
-  getMethodFromSlot(slot: number): Method | null {
-    return null;
-  }
-
-  getFieldRef(fieldName: string): Field | null {
-    return null;
-  }
-
-  /**
-   * Checks if the current class can be cast to the specified class
-   * @param castTo classref of supertype
-   * @returns
-   */
-  abstract checkCast(castTo: ClassData): boolean;
-
-  instantiate(): JvmObject {
-    return new JvmObject(this);
-  }
-}
-
-export class PrimitiveClassData extends ClassData {
-  private primitiveType: string;
-  constructor(loader: AbstractClassLoader, primitiveName: string) {
-    super(
-      loader,
-      CLASS_FLAGS.ACC_ABSTRACT & CLASS_FLAGS.ACC_FINAL & CLASS_FLAGS.ACC_PUBLIC,
-      CLASS_TYPE.PRIMITIVE,
-      primitiveName
-    );
-
-    this.primitiveType = primitiveNameToType(primitiveName) as string;
-    this.status = CLASS_STATUS.INITIALIZED;
-  }
-
-  checkPrimitive(): this is PrimitiveClassData {
-    return true;
-  }
-
-  getDescriptor(): string {
-    return this.primitiveType;
-  }
-
-  checkCast(castTo: ClassData): boolean {
-    return this === castTo;
-  }
-}
-
-export class ReferenceClassData extends ClassData {
-  protected constantPool: ConstantPool;
-
-  protected bootstrapMethods?: BootstrapMethodsAttribute;
-  private nestedHost: ReferenceClassData = this;
-  private nestedMembers: ReferenceClassData[] = [];
-  private anonymousInnerId: number = 0;
-
-  constructor(
-    classfile: ClassFile,
-    loader: AbstractClassLoader,
-    className: string,
-    onError: (error: ErrorResult) => void,
-    cpOverrides?: JvmArray
-  ) {
-    super(loader, classfile.accessFlags, CLASS_TYPE.REFERENCE, className);
-    this.loader = loader;
-
-    this.constantPool = new ConstantPool(
-      this,
-      classfile.constantPool,
-      cpOverrides
-    );
-
-    // get superclass
-    // superclass is 0 for object.
-    if (classfile.superClass !== 0) {
-      const superResolution = (
-        this.constantPool.get(classfile.superClass) as ConstantClass
-      ).resolve();
-      if (checkError(superResolution)) {
-        onError(superResolution);
-        return;
-      }
-      this.superClass = superResolution.result as ReferenceClassData;
-    }
-
-    // interfaces
-    classfile.interfaces.forEach(interfaceIndex => {
-      const interfaceResolution = (
-        this.constantPool.get(interfaceIndex) as ConstantClass
-      ).resolve();
-      if (checkError(interfaceResolution)) {
-        onError(interfaceResolution);
-        return;
-      }
-      this.interfaces.push(interfaceResolution.result as ReferenceClassData);
-    });
-
-    // attributes
-    this.attributes = attrInfo2Interface(
-      classfile.attributes,
-      this.constantPool
-    );
-
-    // fields
-    this.fields = {};
-    classfile.fields.forEach((field, index) => {
-      const fieldRef = Field.fromFieldInfo(
-        this,
-        field,
-        index,
-        this.constantPool
-      );
-      this.fields[fieldRef.getName() + fieldRef.getFieldDesc()] = fieldRef;
-    });
-
-    // methods
-    this.methods = {};
-    classfile.methods.forEach((methodInfo, index) => {
-      const methodAttributes: { [attributeName: string]: AttributeInfo[] } = {};
-      methodInfo.attributes.forEach(attr => {
-        const attrName = (
-          this.constantPool.get(attr.attributeNameIndex) as ConstantUtf8
-        ).get();
-        if (!methodAttributes[attrName]) {
-          methodAttributes[attrName] = [];
-        }
-        methodAttributes[attrName].push(attr);
-      });
-      const method = Method.fromInfo(
-        this,
-        methodInfo,
-        index,
-        this.constantPool
-      );
-
-      this.methods[method.getName() + method.getDescriptor()] = method;
-    });
-  }
-
-  checkReference(): this is ReferenceClassData {
-    return true;
-  }
-
-  initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
-    if (
-      this.status === CLASS_STATUS.INITIALIZED ||
-      this.status === CLASS_STATUS.INITIALIZING
-    ) {
-      // FIXME: check if current class is initializer
-      return { result: this };
-    }
-
-    const clsRes = this.loader.getClassRef('java/lang/Class');
-    if (checkError(clsRes)) {
-      onDefer && onDefer();
-      return clsRes;
-    }
-
-    if (!this.javaClassObject) {
-      this.getJavaObject();
-    }
-
-    // has static initializer
-    if (this.methods['<clinit>()V']) {
-      this.status = CLASS_STATUS.INITIALIZING;
-      onDefer && onDefer();
-      thread.invokeStackFrame(
-        new InternalStackFrame(
-          this,
-          this.methods['<clinit>()V'],
-          0,
-          [],
-          () => (this.status = CLASS_STATUS.INITIALIZED)
-        )
-      );
-      return { isDefer: true };
-    }
-
-    this.status = CLASS_STATUS.INITIALIZED;
-    return { result: this };
-  }
-
-  getDeclaredFields(): Field[] {
-    let result: Field[] = [];
-
-    for (const field of Object.values(this.fields)) {
-      result.push(field);
-    }
-
-    return result;
-  }
-
-  /**
-   * 5.4.3.3.2 Method resolution in superclass
-   * @param methodName
-   * @returns MethodRef, if any
-   */
-  private _resolveMethodSuper(methodName: string): Method | null {
-    // TODO: SKIPPED: If C declares exactly one method with the name specified by the method reference,
-    // and the declaration is a signature polymorphic method (§2.9.3), then method lookup succeeds.
-
-    // Otherwise, if C declares a method with the name and descriptor specified by the method reference, method lookup succeeds.
-    if (this.methods[methodName]) {
-      return this.methods[methodName];
-    }
-
-    // Otherwise, if C has a superclass, step 2 of method resolution is recursively invoked on the direct superclass of C.
-    const superClass = this.getSuperClass();
-    if (superClass === null) {
-      return null;
-    }
-    return superClass._resolveMethodSuper(methodName);
-  }
-
-  /**
-   * 5.4.3.3.2 Method resolution in superinterfaces
-   * @param methodName
-   * @returns MethodRef, if any
-   */
-  private _resolveMethodInterface(methodName: string): Method | null {
-    let abstractMethod = null;
-    for (const inter of this.interfaces) {
-      let method = inter.getMethod(methodName);
-
-      if (!method) {
-        method = (inter as ReferenceClassData)._resolveMethodInterface(
-          methodName
-        );
-      }
-
-      if (method && !method.checkPrivate() && !method.checkStatic()) {
-        if (method.checkAbstract()) {
-          abstractMethod = method;
-          continue;
-        }
-        return method;
-      }
-    }
-    if (abstractMethod !== null) {
-      return abstractMethod;
-    }
-    return null;
-  }
-
-  /**
-   * Resolves method reference from the current class.
-   * Returns exception if any.
-   * @param methodKey method name + method descriptor
-   * @param accessingClass class that is accessing the method
-   * @returns
-   */
-  resolveMethod(
-    methodKey: string,
-    accessingClass: ClassData
-  ): ImmediateResult<Method> {
-    // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
-    let result = this._resolveMethodSuper(methodKey);
-
-    if (result !== null) {
-      const method = result;
-      if (!method.checkAccess(accessingClass, this)) {
-        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
-      }
-      return { result };
-    }
-
-    // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
-    result = this._resolveMethodInterface(methodKey);
-    if (result !== null) {
-      if (!result.checkAccess(accessingClass, this)) {
-        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
-      }
-      return { result };
-    }
-    // If method lookup fails, method resolution throws a NoSuchMethodError
-    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
-  }
-
-  getConstant(constantIndex: number): Constant {
-    const constItem = this.constantPool.get(constantIndex);
-    return constItem;
-  }
-
-  getAccessFlags(): number {
-    return this.accessFlags;
-  }
-
-  getClassname(): string {
-    return this.thisClass;
-  }
-
-  getDescriptor(): string {
-    if (this.checkPrimitive()) {
-      const primitive = primitiveNameToType(this.thisClass);
-      if (!primitive) {
-        throw new Error('Invalid primitive class name');
-      }
-      return primitive;
-    }
-    return `L${this.thisClass};`;
-  }
-
   getInstanceFields(): {
     [fieldName: string]: Field;
   } {
@@ -614,7 +192,10 @@ export class ReferenceClassData extends ClassData {
     return this.interfaces;
   }
 
-  private _checkOverrides(overrideMethod: Method, parentMethod: Method) {
+  private _checkOverrides(
+    overrideMethod: Method,
+    parentMethod: Method
+  ): boolean {
     if (overrideMethod === parentMethod) {
       return true;
     }
@@ -804,6 +385,328 @@ export class ReferenceClassData extends ClassData {
     return superClass.getFieldRef(fieldName);
   }
 
+  /**
+   * 5.4.3.3.2 Method resolution in superclass
+   * @param methodName
+   * @returns MethodRef, if any
+   */
+  private _resolveMethodSuper(methodName: string): Method | null {
+    // TODO: SKIPPED: If C declares exactly one method with the name specified by the method reference,
+    // and the declaration is a signature polymorphic method (§2.9.3), then method lookup succeeds.
+
+    // Otherwise, if C declares a method with the name and descriptor specified by the method reference, method lookup succeeds.
+    if (this.methods[methodName]) {
+      return this.methods[methodName];
+    }
+
+    // Otherwise, if C has a superclass, step 2 of method resolution is recursively invoked on the direct superclass of C.
+    const superClass = this.getSuperClass();
+    if (superClass === null) {
+      return null;
+    }
+    return superClass._resolveMethodSuper(methodName);
+  }
+
+  /**
+   * 5.4.3.3.2 Method resolution in superinterfaces
+   * @param methodName
+   * @returns MethodRef, if any
+   */
+  private _resolveMethodInterface(methodName: string): Method | null {
+    let abstractMethod = null;
+    for (const inter of this.interfaces) {
+      let method = inter.getMethod(methodName);
+
+      if (!method) {
+        method = (inter as ReferenceClassData)._resolveMethodInterface(
+          methodName
+        );
+      }
+
+      if (method && !method.checkPrivate() && !method.checkStatic()) {
+        if (method.checkAbstract()) {
+          abstractMethod = method;
+          continue;
+        }
+        return method;
+      }
+    }
+    if (abstractMethod !== null) {
+      return abstractMethod;
+    }
+    return null;
+  }
+
+  /**
+   * Resolves method reference from the current class.
+   * Returns exception if any.
+   * @param methodKey method name + method descriptor
+   * @param accessingClass class that is accessing the method
+   * @returns
+   */
+  resolveMethod(
+    methodKey: string,
+    accessingClass: ClassData
+  ): ImmediateResult<Method> {
+    // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
+    let result = this._resolveMethodSuper(methodKey);
+
+    if (result !== null) {
+      const method = result;
+      if (!method.checkAccess(accessingClass, this)) {
+        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      }
+      return { result };
+    }
+
+    // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
+    result = this._resolveMethodInterface(methodKey);
+    if (result !== null) {
+      if (!result.checkAccess(accessingClass, this)) {
+        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      }
+      return { result };
+    }
+    // If method lookup fails, method resolution throws a NoSuchMethodError
+    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
+  }
+
+  getConstant(constantIndex: number): Constant {
+    const constItem = this.constantPool.get(constantIndex);
+    return constItem;
+  }
+
+  /**
+   * Getters
+   */
+  getLoader(): AbstractClassLoader {
+    return this.loader;
+  }
+
+  getPackageName(): string {
+    return this.packageName;
+  }
+
+  /**
+   * Initializes the class. If the class has a static initializer, it is invoked.
+   * @param thread used to invoke the static initializer
+   * @param onDefer callback to be called before invoking the static initializer.
+   */
+  initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
+    return { result: this };
+  }
+
+  getJavaObject(): JvmObject {
+    if (!this.javaClassObject) {
+      // We assume that java/lang/Class has been loaded at JVM initialization
+      const clsCls = (
+        this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassData>
+      ).result;
+
+      this.javaClassObject = new JvmObject(clsCls);
+      this.javaClassObject.putNativeField('classRef', this);
+      this.javaClassObject._putField(
+        'classLoader',
+        'Ljava/lang/ClassLoader;',
+        'java/lang/Class',
+        this.loader.getJavaObject()
+      );
+    }
+
+    return this.javaClassObject;
+  }
+
+  getAccessFlags(): number {
+    return this.accessFlags;
+  }
+
+  /**
+   *  Gets the classname for the current class, e.g. package/Class
+   */
+  getClassname(): string {
+    return this.thisClass;
+  }
+
+  /**
+   * Gets the descriptor for the current class, e.g. Lpackage/Class;
+   */
+  abstract getDescriptor(): string;
+
+  /**
+   * Checks if the current class can be cast to the specified class
+   * @param castTo classref of supertype
+   * @returns
+   */
+  abstract checkCast(castTo: ClassData): boolean;
+
+  instantiate(): JvmObject {
+    return new JvmObject(this);
+  }
+}
+
+export class PrimitiveClassData extends ClassData {
+  private primitiveType: string;
+  constructor(loader: AbstractClassLoader, primitiveName: string) {
+    super(
+      loader,
+      CLASS_FLAGS.ACC_ABSTRACT & CLASS_FLAGS.ACC_FINAL & CLASS_FLAGS.ACC_PUBLIC,
+      CLASS_TYPE.PRIMITIVE,
+      primitiveName
+    );
+
+    this.primitiveType = primitiveNameToType(primitiveName) as string;
+    this.status = CLASS_STATUS.INITIALIZED;
+  }
+
+  checkPrimitive(): this is PrimitiveClassData {
+    return true;
+  }
+
+  getDescriptor(): string {
+    return this.primitiveType;
+  }
+
+  checkCast(castTo: ClassData): boolean {
+    return this === castTo;
+  }
+}
+
+export class ReferenceClassData extends ClassData {
+  protected bootstrapMethods?: BootstrapMethodsAttribute;
+  private nestedHost: ReferenceClassData = this;
+  private nestedMembers: ReferenceClassData[] = [];
+  private anonymousInnerId: number = 0;
+
+  constructor(
+    classfile: ClassFile,
+    loader: AbstractClassLoader,
+    className: string,
+    onError: (error: ErrorResult) => void,
+    cpOverrides?: JvmArray
+  ) {
+    super(loader, classfile.accessFlags, CLASS_TYPE.REFERENCE, className);
+    this.loader = loader;
+
+    this.constantPool = new ConstantPool(
+      this,
+      classfile.constantPool,
+      cpOverrides
+    );
+
+    // get superclass
+    // superclass is 0 for object.
+    if (classfile.superClass !== 0) {
+      const superResolution = (
+        this.constantPool.get(classfile.superClass) as ConstantClass
+      ).resolve();
+      if (checkError(superResolution)) {
+        onError(superResolution);
+        return;
+      }
+      this.superClass = superResolution.result as ReferenceClassData;
+    }
+
+    // interfaces
+    classfile.interfaces.forEach(interfaceIndex => {
+      const interfaceResolution = (
+        this.constantPool.get(interfaceIndex) as ConstantClass
+      ).resolve();
+      if (checkError(interfaceResolution)) {
+        onError(interfaceResolution);
+        return;
+      }
+      this.interfaces.push(interfaceResolution.result as ReferenceClassData);
+    });
+
+    // attributes
+    this.attributes = attrInfo2Interface(
+      classfile.attributes,
+      this.constantPool
+    );
+
+    // fields
+    this.fields = {};
+    classfile.fields.forEach((field, index) => {
+      const fieldRef = Field.fromFieldInfo(
+        this,
+        field,
+        index,
+        this.constantPool
+      );
+      this.fields[fieldRef.getName() + fieldRef.getFieldDesc()] = fieldRef;
+    });
+
+    // methods
+    this.methods = {};
+    classfile.methods.forEach((methodInfo, index) => {
+      const methodAttributes: { [attributeName: string]: AttributeInfo[] } = {};
+      methodInfo.attributes.forEach(attr => {
+        const attrName = (
+          this.constantPool.get(attr.attributeNameIndex) as ConstantUtf8
+        ).get();
+        if (!methodAttributes[attrName]) {
+          methodAttributes[attrName] = [];
+        }
+        methodAttributes[attrName].push(attr);
+      });
+      const method = Method.fromInfo(
+        this,
+        methodInfo,
+        index,
+        this.constantPool
+      );
+
+      this.methods[method.getName() + method.getDescriptor()] = method;
+    });
+  }
+
+  checkReference(): this is ReferenceClassData {
+    return true;
+  }
+
+  initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
+    if (
+      this.status === CLASS_STATUS.INITIALIZED ||
+      this.status === CLASS_STATUS.INITIALIZING
+    ) {
+      // FIXME: check if current class is initializer
+      return { result: this };
+    }
+
+    const clsRes = this.loader.getClassRef('java/lang/Class');
+    if (checkError(clsRes)) {
+      onDefer && onDefer();
+      return clsRes;
+    }
+
+    if (!this.javaClassObject) {
+      this.getJavaObject();
+    }
+
+    // has static initializer
+    if (this.methods['<clinit>()V']) {
+      this.status = CLASS_STATUS.INITIALIZING;
+      onDefer && onDefer();
+      thread.invokeStackFrame(
+        new InternalStackFrame(
+          this,
+          this.methods['<clinit>()V'],
+          0,
+          [],
+          () => (this.status = CLASS_STATUS.INITIALIZED)
+        )
+      );
+      return { isDefer: true };
+    }
+
+    this.status = CLASS_STATUS.INITIALIZED;
+    return { result: this };
+  }
+
+  getDescriptor(): string {
+    return `L${this.thisClass};`;
+  }
+
   getBootstrapMethod(methodIndex: number) {
     if (!this.bootstrapMethods) {
       throw new Error('No bootstrap methods');
@@ -811,10 +714,6 @@ export class ReferenceClassData extends ClassData {
 
     return this.bootstrapMethods.bootstrapMethods[methodIndex];
   }
-
-  /**
-   * Setters
-   */
 
   /**
    * Checks if the current class can be cast to the specified class
@@ -846,6 +745,8 @@ export class ReferenceClassData extends ClassData {
     return new JvmObject(this);
   }
 
+  // #region used for temp indy hack
+
   getAnonymousInnerId(): number {
     return this.anonymousInnerId++;
   }
@@ -865,4 +766,6 @@ export class ReferenceClassData extends ClassData {
   getNestedHost(): ReferenceClassData {
     return this.nestedHost;
   }
+
+  // #endregion
 }

@@ -16,7 +16,7 @@ import {
   ConstantStringInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { ReferenceClassData } from '#types/class/ClassData';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import {
   Constant,
   ConstantClass,
@@ -39,11 +39,7 @@ import { JvmArray } from '#types/reference/Array';
 export class ConstantPool {
   private pool: Constant[];
 
-  constructor(
-    cls: ReferenceClassData,
-    infoArr: ConstantInfo[],
-    overrides?: JvmArray
-  ) {
+  constructor(cls: ClassData, infoArr: ConstantInfo[], overrides?: JvmArray) {
     const pool: Constant[] = [];
 
     function init(index: number) {

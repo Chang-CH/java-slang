@@ -318,6 +318,7 @@ export function runInvokevirtual(thread: Thread): void {
   const constant = thread
     .getClass()
     .getConstant(indexbyte) as ConstantMethodref; // TODO: handle method handle etc.
+
   invokeVirtual(thread, constant, () => thread.offsetPc(3));
 }
 

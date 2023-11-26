@@ -124,6 +124,7 @@ export default class JVM {
     mainThread._run();
     this._initialThread = mainThread;
     // #endregion
+    console.log('Thread initialized');
 
     // #region initialize system class
     const sInitMr = sysCls.getMethod('initializeSystemClass()V');
@@ -140,12 +141,8 @@ export default class JVM {
       )
     );
     mainThread._run();
+    console.log('System initialized');
     // #endregion
-
-    //   'source/Source',
-    //   'println(I)V',
-    //   (thread: NativeThread, locals: any[]) => console.log(locals[0])
-    // );
   }
 
   runClass(className: string) {
