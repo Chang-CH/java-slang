@@ -70,16 +70,22 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
   }
 
   getPrimitiveClassRef(className: string): PrimitiveClassData {
-    if (this.primitiveClasses[className]) {
-      return this.primitiveClasses[className];
-    }
     const internalName = primitiveTypeToName(className as JavaType);
     if (!internalName) {
       throw new Error(`Invalid primitive class name: ${className}`);
     }
 
+    if (this.primitiveClasses[internalName]) {
+      return this.primitiveClasses[internalName];
+    }
+
     const cls = new PrimitiveClassData(this, internalName);
     this.primitiveClasses[internalName] = cls;
+
+    if (internalName === 'char') {
+      console.log('CHAR PRIMITIVE LOADED');
+    }
+
     return cls;
   }
 

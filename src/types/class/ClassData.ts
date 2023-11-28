@@ -542,6 +542,10 @@ export abstract class ClassData {
   instantiate(): JvmObject {
     return new JvmObject(this);
   }
+
+  getAttribute(key: string) {
+    return this.attributes[key];
+  }
 }
 
 export class PrimitiveClassData extends ClassData {
@@ -658,6 +662,10 @@ export class ReferenceClassData extends ClassData {
 
       this.methods[method.getName() + method.getDescriptor()] = method;
     });
+
+    if (this.attributes['bootstrapMethods']) {
+      this.bootstrapMethods = this.attributes['bootstrapMethods']?.[0] as any;
+    }
   }
 
   checkReference(): this is ReferenceClassData {

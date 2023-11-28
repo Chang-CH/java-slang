@@ -322,6 +322,7 @@ export function runInvokevirtual(thread: Thread): void {
   invokeVirtual(thread, constant, () => thread.offsetPc(3));
 }
 
+// FIXME: should not do lookup, resolution is finished.
 export function runInvokespecial(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const constant = thread.getClass().getConstant(indexbyte) as

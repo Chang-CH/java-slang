@@ -2,12 +2,17 @@ import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
 import { Field } from '#types/class/Field';
 import { ArrayClassData } from '#types/class/ArrayClassData';
-import { ReferenceClassData } from '#types/class/ClassData';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { DeferResult, ErrorResult } from '#types/result';
 import { typeIndexScale } from '#utils/index';
 import assert from 'assert';
+import parseBin from '#utils/parseBinary';
+import {
+  ConstantClassInfo,
+  ConstantUtf8Info,
+} from '#jvm/external/ClassFile/types/constants';
 
 export const registerUnsafe = (jni: JNI) => {
   jni.registerNativeMethod(
@@ -336,6 +341,51 @@ export const registerUnsafe = (jni: JNI) => {
       const heap = thread.getJVM().getUnsafeHeap();
       heap.free(address);
       thread.returnStackFrame();
+    }
+  );
+
+  // sun/misc/Unsafe.defineAnonymousClass(Ljava/lang/Class;[B[Ljava/lang/Object;)Ljava/lang/Class;
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'defineAnonymousClass(Ljava/lang/Class;[B[Ljava/lang/Object;)Ljava/lang/Class;',
+    (thread: Thread, locals: any[]) => {
+      const unsafe = locals[0] as JvmObject;
+      const hostClassObj = locals[1] as JvmObject;
+      const data = locals[2] as JvmArray;
+      const cpPatches = locals[3] as JvmArray;
+
+      const bytecode = new DataView(new Uint8Array(data.getJsArray()).buffer);
+      const classfile = parseBin(bytecode);
+      // resolve classname
+      const clsInfo = classfile.constantPool[
+        classfile.thisClass
+      ] as ConstantClassInfo;
+      const clsName = classfile.constantPool[
+        clsInfo.nameIndex
+      ] as ConstantUtf8Info;
+      const lambdaName = clsName.value;
+      const hostClass = hostClassObj.getNativeField('classRef') as ClassData;
+
+      let error: ErrorResult | null = null;
+      const newClass = new ReferenceClassData(
+        classfile,
+        hostClass.getLoader(),
+        lambdaName,
+        e => (error = e),
+        cpPatches
+      );
+
+      if (error) {
+        thread.throwNewException(
+          (error as ErrorResult).exceptionCls,
+          (error as ErrorResult).msg
+        );
+        return;
+      }
+      console.log(newClass);
+
+      const clsObj = newClass.getJavaObject();
+      thread.returnStackFrame(clsObj);
     }
   );
 };

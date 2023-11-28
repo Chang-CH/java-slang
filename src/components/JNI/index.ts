@@ -308,6 +308,7 @@ export function registerNatives(jni: JNI) {
       ) as number;
 
       if (clsObj === null || jNameString === null || type === null) {
+        console.log(clsObj === null, jNameString === null, type === null);
         thread.throwNewException(
           'java/lang/IllegalArgumentException',
           'Invalid MemberName'
@@ -494,11 +495,18 @@ java/util/concurrent/atomic/AtomicLong.VMSupportsCS8()Z
 sun/misc/Signal.findSignal(Ljava/lang/String;)I 
 sun/misc/Signal.handle0(IJ)J 
 sun/io/Win32ErrorMode.setErrorMode(J)J 
+sun/io/Win32ErrorMode.setErrorMode(J)J 
 java/lang/Object.notifyAll()V 
 java/lang/invoke/MethodHandleNatives.registerNatives()V 
 java/lang/invoke/MethodHandleNatives.getConstant(I)I 
-sun/misc/Unsafe.getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; 
-java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object; 
 java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
+java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
+Class.getEnclosingMethod0() for reference class
+java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
+java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
+sun/misc/Unsafe.putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V 
+Class.getDeclaredClasses0() for inner class
+sun/misc/Unsafe.defineAnonymousClass(Ljava/lang/Class;[B[Ljava/lang/Object;)Ljava/lang/Class; 
+sun/misc/Unsafe.ensureClassInitialized(Ljava/lang/Class;)V 
    */
 }

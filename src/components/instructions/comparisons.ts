@@ -264,7 +264,6 @@ export function runIfAcmpne(thread: Thread): void {
   thread.offsetPc(2);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 !== value2) {
     thread.offsetPc(branchbyte - 3);
     return;
