@@ -214,12 +214,63 @@ function readConstantUtf8(
   offset += 2;
 
   const bytes = [];
-  for (let i = 0; i < length; i += 1) {
-    bytes.push(view.getUint8(offset));
-    offset += 1;
+
+  let u: number;
+  let v: number;
+  let w: number;
+  let x: number;
+  let y: number;
+  let z: number;
+
+  let i = 0;
+  while (i < length) {
+    x = view.getUint8(offset);
+
+    if (x <= 0x7f) {
+      bytes.push(x);
+      offset += 1;
+      i += 1;
+
+      continue;
+    }
+
+    y = view.getUint8(offset + 1);
+    if (x <= 0xdf) {
+      bytes.push(((x & 0x1f) << 6) + (y & 0x3f));
+      offset += 2;
+      i += 2;
+      continue;
+    }
+
+    z = view.getUint8(offset + 2);
+
+    if (x === 0xed) {
+      u = x;
+      v = y;
+      w = z;
+      x = view.getUint8(offset + 3);
+      y = view.getUint8(offset + 4);
+      z = view.getUint8(offset + 5);
+      if (u === 0xed && v >= 0xa0 && v <= 0xbf && w >= 0x80 && w <= 0xbf) {
+        bytes.push(
+          0x10000 +
+            ((v & 0x0f) << 16) +
+            ((w & 0x3f) << 10) +
+            ((y & 0x0f) << 6) +
+            (z & 0x3f)
+        );
+        offset += 6;
+        i += 6;
+        continue;
+      }
+    }
+
+    bytes.push(((x & 0xf) << 12) + ((y & 0x3f) << 6) + (z & 0x3f));
+    offset += 3;
+    i += 3;
   }
 
-  const value = bytes.map(char => String.fromCharCode(char)).join('');
+  const value = String.fromCharCode(...bytes);
 
   return {
     result: {
