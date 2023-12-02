@@ -25,15 +25,6 @@ export const registerJavaLangSystem = (jni: JNI) => {
       const destPos = locals[3];
       const length = locals[4];
 
-      console.log(
-        'Array copy with: ',
-        src.getJsArray(),
-        srcPos,
-        dest.getJsArray(),
-        destPos,
-        length
-      );
-
       if (src === null || dest === null) {
         thread.throwNewException(
           'java/lang/NullPointerException',
@@ -83,14 +74,6 @@ export const registerJavaLangSystem = (jni: JNI) => {
       }
 
       thread.returnStackFrame();
-      console.log(
-        'Array copy finish with: ',
-        src.getJsArray(),
-        srcPos,
-        dest.getJsArray(),
-        destPos,
-        length
-      );
     }
   );
 

@@ -284,20 +284,6 @@ function invokeVirtual(
   }
   const { toInvoke, objRef } = toInvokeRes.result;
 
-  if (
-    toInvoke.getName() === 'toLowerCase' &&
-    toInvoke.getDescriptor() === '()Ljava/lang/String;'
-  ) {
-    console.log('TOLOWERCASE: ', j2jsString(objRef));
-  }
-
-  if (
-    toInvoke.getName() === 'toLowerCase' &&
-    toInvoke.getDescriptor() === '(Ljava/util/Locale;)Ljava/lang/String;'
-  ) {
-    console.log('TOLOWERCASE LOCALE: ', args[0]);
-  }
-
   onFinish && onFinish();
 
   if (toInvoke.checkNative()) {
@@ -389,13 +375,6 @@ export function runInvokestatic(thread: Thread): void {
   if (!methodRef.checkStatic()) {
     thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
     return;
-  }
-
-  if (
-    methodRef.getName() === 'of' &&
-    methodRef.getDescriptor() === '(I)Ljava/lang/CharacterData;'
-  ) {
-    console.log('OF: ', args[0]);
   }
 
   thread.offsetPc(3);

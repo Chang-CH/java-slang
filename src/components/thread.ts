@@ -207,21 +207,6 @@ export default class Thread {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
 
-    if (
-      sf &&
-      sf.method.getName() === '<clinit>' &&
-      sf.class.getClassname() === 'java/lang/CharacterDataLatin1'
-    ) {
-      console.log(
-        'CharacterDataLatin1 INIT: ',
-        JSON.stringify(
-          // ((sf.class as any).fields['A[I'] as Field).getValue().getJsArray()
-          sf.locals[0].getJsArray()
-        )
-      );
-      console.log(sf.class);
-    }
-
     if (this.stackPointer < -1 || sf === undefined) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');

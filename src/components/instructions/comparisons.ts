@@ -266,17 +266,6 @@ export function runIfAcmpne(thread: Thread): void {
   thread.offsetPc(2);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-  if (value2 && value2.getNativeField && value2.getNativeField('classRef')) {
-    const clsRef = (value2 as JvmObject).getNativeField(
-      'classRef'
-    ) as ClassData;
-    let clsRef2 = null;
-    if (value1 && value1.getNativeField && value1.getNativeField('classRef')) {
-      clsRef2 = (value1 as JvmObject).getNativeField('classRef') as ClassData;
-      console.log('acmpne: ', clsRef.getClassname(), clsRef2.getClassname());
-    }
-    console.log('acmpne: ', clsRef.getClassname(), ' null');
-  }
   if (value1 !== value2) {
     thread.offsetPc(branchbyte - 3);
     return;
