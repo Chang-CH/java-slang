@@ -18,6 +18,7 @@ import * as stores from './instructions/stores';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { Code } from '#types/class/Attributes';
+import { JNI } from './JNI';
 
 const overrides: {
   [cls: string]: {
@@ -771,7 +772,7 @@ export class JavaStackFrame extends StackFrame {
 export class InternalStackFrame extends StackFrame {
   private callback: (ret: any, err?: any) => void;
   constructor(
-    cls: ReferenceClassData,
+    cls: ClassData,
     method: Method,
     pc: number,
     locals: any[],
@@ -802,20 +803,28 @@ export class InternalStackFrame extends StackFrame {
 }
 
 export class NativeStackFrame extends StackFrame {
-  private nativeMethod: (thread: Thread, locals: any[]) => void;
+  private jni: JNI;
   constructor(
     cls: ReferenceClassData,
     method: Method,
     pc: number,
     locals: any[],
-    nativeMethod: (thread: Thread, locals: any[]) => void
+    jni: JNI
   ) {
     super(cls, method, pc, locals);
-    this.nativeMethod = nativeMethod;
+    this.jni = jni;
   }
 
   run(thread: Thread): void {
-    this.nativeMethod(thread, this.locals);
+    const nativeMethod = this.jni.getNativeMethod(
+      this.class.getClassname(),
+      this.method.getName() + this.method.getDescriptor()
+    );
+
+    if (!nativeMethod) {
+      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+    }
+    nativeMethod(thread, this.locals);
   }
 
   public onReturn(thread: Thread, retn: any) {

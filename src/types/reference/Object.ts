@@ -1,7 +1,7 @@
 import Thread from '#jvm/components/thread';
+import { Result } from '#types/Result';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Field } from '#types/class/Field';
-import { Result } from '#types/result';
 
 export class JvmObject {
   public initStatus = false;

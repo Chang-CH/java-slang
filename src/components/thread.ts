@@ -1,8 +1,11 @@
 import JVM from '#jvm/index';
+import { checkError, checkSuccess } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
+import { Field } from '#types/class/Field';
 import { Method } from '#types/class/Method';
-import { checkError, checkSuccess } from '#types/result';
+import { JvmArray } from '#types/reference/Array';
+import { j2jsString } from '#utils/index';
 import { JvmObject } from '../types/reference/Object';
 import { AbstractThreadPool } from './ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
@@ -203,6 +206,22 @@ export default class Thread {
   returnStackFrame(ret?: any, err?: JvmObject): StackFrame {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
+
+    if (
+      sf &&
+      sf.method.getName() === '<clinit>' &&
+      sf.class.getClassname() === 'java/lang/CharacterDataLatin1'
+    ) {
+      console.log(
+        'CharacterDataLatin1 INIT: ',
+        JSON.stringify(
+          // ((sf.class as any).fields['A[I'] as Field).getValue().getJsArray()
+          sf.locals[0].getJsArray()
+        )
+      );
+      console.log(sf.class);
+    }
+
     if (this.stackPointer < -1 || sf === undefined) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       throw new Error('Stack Underflow');

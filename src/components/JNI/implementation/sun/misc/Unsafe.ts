@@ -1,11 +1,10 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
 import { Field } from '#types/class/Field';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { DeferResult, ErrorResult } from '#types/result';
 import { typeIndexScale } from '#utils/index';
 import assert from 'assert';
 import parseBin from '#utils/parseBinary';
@@ -13,6 +12,7 @@ import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
+import { ErrorResult } from '#types/Result';
 
 export const registerUnsafe = (jni: JNI) => {
   jni.registerNativeMethod(
@@ -344,7 +344,6 @@ export const registerUnsafe = (jni: JNI) => {
     }
   );
 
-  // sun/misc/Unsafe.defineAnonymousClass(Ljava/lang/Class;[B[Ljava/lang/Object;)Ljava/lang/Class;
   jni.registerNativeMethod(
     'sun/misc/Unsafe',
     'defineAnonymousClass(Ljava/lang/Class;[B[Ljava/lang/Object;)Ljava/lang/Class;',

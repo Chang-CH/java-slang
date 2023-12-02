@@ -7,6 +7,7 @@ import { JvmObject } from '#types/reference/Object';
 import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JavaType } from '#types/reference/Object';
 import type { JvmArray } from '#types/reference/Array';
+import { j2jsString } from '#utils/index';
 import {
   ConstantClass,
   ConstantFieldref,
@@ -14,13 +15,13 @@ import {
   ConstantInvokeDynamic,
   ConstantMethodref,
 } from '#types/class/Constants';
-import {
-  ImmediateResult,
-  Result,
-  checkError,
-  checkSuccess,
-} from '#types/result';
 import { NativeStackFrame, JavaStackFrame } from '../stackframe';
+import {
+  checkSuccess,
+  checkError,
+  Result,
+  ImmediateResult,
+} from '#types/Result';
 
 export function runGetstatic(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
@@ -283,27 +284,30 @@ function invokeVirtual(
   }
   const { toInvoke, objRef } = toInvokeRes.result;
 
+  if (
+    toInvoke.getName() === 'toLowerCase' &&
+    toInvoke.getDescriptor() === '()Ljava/lang/String;'
+  ) {
+    console.log('TOLOWERCASE: ', j2jsString(objRef));
+  }
+
+  if (
+    toInvoke.getName() === 'toLowerCase' &&
+    toInvoke.getDescriptor() === '(Ljava/util/Locale;)Ljava/lang/String;'
+  ) {
+    console.log('TOLOWERCASE LOCALE: ', args[0]);
+  }
+
   onFinish && onFinish();
 
   if (toInvoke.checkNative()) {
-    const nativeMethod = thread
-      .getJVM()
-      .getJNI()
-      .getNativeMethod(
-        toInvoke.getClass().getClassname(),
-        toInvoke.getName() + toInvoke.getDescriptor()
-      );
-    if (!nativeMethod) {
-      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
-      return;
-    }
     thread.invokeStackFrame(
       new NativeStackFrame(
         toInvoke.getClass(),
         toInvoke,
         0,
         [objRef, ...args],
-        nativeMethod
+        thread.getJVM().getJNI()
       )
     );
   } else {
@@ -322,7 +326,6 @@ export function runInvokevirtual(thread: Thread): void {
   invokeVirtual(thread, constant, () => thread.offsetPc(3));
 }
 
-// FIXME: should not do lookup, resolution is finished.
 export function runInvokespecial(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const constant = thread.getClass().getConstant(indexbyte) as
@@ -344,45 +347,25 @@ export function runInvokespecial(thread: Thread): void {
     return;
   }
 
-  // method lookup
-  const lookupResult = methodRef
-    .getClass()
-    .lookupMethod(methodRef.getName() + methodRef.getDescriptor(), methodRef);
-  if (checkError(lookupResult)) {
-    thread.throwNewException(lookupResult.exceptionCls, lookupResult.msg);
-    return;
-  }
-  const toInvoke = lookupResult.result;
-  if (toInvoke.checkAbstract()) {
-    thread.throwNewException('java/lang/NoSuchMethodError', '');
+  if (methodRef.checkAbstract()) {
+    thread.throwNewException('java/lang/AbstractMethodError', '');
     return;
   }
   thread.offsetPc(3);
 
   if (methodRef.checkNative()) {
-    const nativeMethod = thread
-      .getJVM()
-      .getJNI()
-      .getNativeMethod(
-        toInvoke.getClass().getClassname(),
-        toInvoke.getName() + toInvoke.getDescriptor()
-      );
-    if (!nativeMethod) {
-      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
-      return;
-    }
     thread.invokeStackFrame(
       new NativeStackFrame(
-        toInvoke.getClass(),
-        toInvoke,
+        methodRef.getClass(),
+        methodRef,
         0,
         [objRef, ...args],
-        nativeMethod
+        thread.getJVM().getJNI()
       )
     );
   } else {
     thread.invokeStackFrame(
-      new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args])
+      new JavaStackFrame(methodRef.getClass(), methodRef, 0, [objRef, ...args])
     );
   }
 }
@@ -408,23 +391,24 @@ export function runInvokestatic(thread: Thread): void {
     return;
   }
 
+  if (
+    methodRef.getName() === 'of' &&
+    methodRef.getDescriptor() === '(I)Ljava/lang/CharacterData;'
+  ) {
+    console.log('OF: ', args[0]);
+  }
+
   thread.offsetPc(3);
 
   if (methodRef.checkNative()) {
-    const nativeMethod = thread
-      .getJVM()
-      .getJNI()
-      .getNativeMethod(
-        classRef.getClassname(),
-        methodRef.getName() + methodRef.getDescriptor()
-      );
-    if (!nativeMethod) {
-      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
-      return;
-    }
-
     thread.invokeStackFrame(
-      new NativeStackFrame(classRef, methodRef, 0, args, nativeMethod)
+      new NativeStackFrame(
+        classRef,
+        methodRef,
+        0,
+        args,
+        thread.getJVM().getJNI()
+      )
     );
   } else {
     thread.invokeStackFrame(new JavaStackFrame(classRef, methodRef, 0, args));
@@ -461,25 +445,13 @@ export function runInvokeinterface(thread: Thread): void {
 
   if (toInvoke.checkNative()) {
     const methodCls = toInvoke.getClass();
-
-    const nativeMethod = thread
-      .getJVM()
-      .getJNI()
-      .getNativeMethod(
-        methodCls.getClassname(),
-        toInvoke.getName() + toInvoke.getDescriptor()
-      );
-    if (!nativeMethod) {
-      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
-      return;
-    }
     thread.invokeStackFrame(
       new NativeStackFrame(
         toInvoke.getClass(),
         toInvoke,
         0,
         [objRef, ...args],
-        nativeMethod
+        thread.getJVM().getJNI()
       )
     );
   } else {
@@ -498,14 +470,15 @@ export function runInvokedynamic(thread: Thread): void {
   const callsiteConstant = invoker.getConstant(index) as ConstantInvokeDynamic;
 
   // // #region Temporary lambda creation code
-  // const tempRes = callsiteConstant.tempResolve(thread);
-  // if (!checkSuccess(tempRes)) {
-  //   if (checkError(tempRes)) {
-  //     thread.throwNewException(tempRes.exceptionCls, tempRes.msg);
-  //     return;
-  //   }
-  //   return;
-  // }
+  const tempRes = callsiteConstant.resolve(thread);
+  if (!checkSuccess(tempRes)) {
+    if (checkError(tempRes)) {
+      thread.throwNewException(tempRes.exceptionCls, tempRes.msg);
+      return;
+    }
+    return;
+  }
+  console.log('INDY RES DONE');
   // const lambdaObj = tempRes.result;
   // thread.pushStack(lambdaObj);
   console.warn('INDY not implemented');

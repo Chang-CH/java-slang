@@ -1,14 +1,7 @@
 import { Field } from '#types/class/Field';
-import { ReferenceClassData } from '#types/class/ClassData';
+import { ArrayClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import {
-  ImmediateResult,
-  ErrorResult,
-  SuccessResult,
-  checkError,
-  checkSuccess,
-} from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
@@ -20,6 +13,12 @@ import {
   RoundRobinThreadPool,
 } from './components/ThreadPool';
 import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
+import {
+  checkError,
+  checkSuccess,
+  ImmediateResult,
+  SuccessResult,
+} from '#types/Result';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
@@ -180,12 +179,11 @@ export default class JVM {
     this.threadpool.run();
   }
 
-  private newCharArr(str: string): ImmediateResult<JvmArray> {
-    const cArrRes = this.bootstrapClassLoader.getClassRef('[C');
-    if (checkError(cArrRes)) {
-      return cArrRes;
-    }
-
+  private newCharArr(str: string): JvmArray {
+    // Assume char array loaded at init
+    const cArrRes = this.bootstrapClassLoader.getClassRef(
+      '[C'
+    ) as SuccessResult<ArrayClassData>;
     const cArrCls = cArrRes.result;
     const cArr = cArrCls.instantiate() as JvmArray;
     const jsArr = [];
@@ -193,38 +191,26 @@ export default class JVM {
       jsArr.push(str.charCodeAt(i));
     }
     cArr.initArray(str.length, jsArr);
-    return { result: cArr };
+    return cArr;
   }
 
-  private newString(str: string): ImmediateResult<JvmObject> {
+  newString(str: string): JvmObject {
     const charArr = this.newCharArr(str);
-
-    if (!checkSuccess(charArr)) {
-      return charArr;
-    }
-
-    const strRes = this.bootstrapClassLoader.getClassRef('java/lang/String');
-
-    if (checkError(strRes)) {
-      return strRes;
-    }
+    const strRes = this.bootstrapClassLoader.getClassRef(
+      'java/lang/String'
+    ) as SuccessResult<ReferenceClassData>;
     const strCls = strRes.result;
     const strObj = strCls.instantiate();
     const fieldRef = strCls.getFieldRef('value[C') as Field;
-    strObj.putField(fieldRef as Field, charArr.result);
-    return { result: strObj };
+    strObj.putField(fieldRef as Field, charArr);
+    return strObj;
   }
 
   getInternedString(str: string) {
     if (this.internedStrings[str]) {
       return this.internedStrings[str];
     }
-    const strRes = this.newString(str);
-    if (checkError(strRes)) {
-      throw new Error('String creation failed');
-    }
-
-    this.internedStrings[str] = strRes.result;
+    this.internedStrings[str] = this.newString(str);
     return this.internedStrings[str];
   }
 

@@ -10,19 +10,23 @@ import { Method } from './Method';
 import { JvmObject } from '../reference/Object';
 import { Constant, ConstantClass, ConstantUtf8 } from '#types/class/Constants';
 import { ConstantPool } from '#jvm/components/constant-pool';
-import {
-  ErrorResult,
-  ImmediateResult,
-  Result,
-  SuccessResult,
-  checkError,
-  checkSuccess,
-} from '#types/result';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { attrInfo2Interface, primitiveNameToType } from '#utils/index';
 import { JvmArray } from '#types/reference/Array';
-import { ArrayClassData } from './ArrayClassData';
-import { IAttribute, info2Attribute } from './Attributes';
+import {
+  BootstrapMethod,
+  BootstrapMethods,
+  IAttribute,
+  info2Attribute,
+} from './Attributes';
+import {
+  ImmediateResult,
+  checkError,
+  checkSuccess,
+  Result,
+  SuccessResult,
+  ErrorResult,
+} from '#types/Result';
 
 export enum CLASS_STATUS {
   PREPARED,
@@ -311,7 +315,8 @@ export abstract class ClassData {
     resolvedMethod: Method,
     checkOverride?: boolean,
     checkInterface?: boolean,
-    checkSigPoly?: boolean
+    checkSigPoly?: boolean,
+    acceptAbstract?: boolean
   ): ImmediateResult<Method> {
     let polySignature;
     if (checkSigPoly) {
@@ -332,7 +337,7 @@ export abstract class ClassData {
         return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
       }
 
-      if (methodRef.checkAbstract()) {
+      if (!acceptAbstract && methodRef.checkAbstract()) {
         return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
       }
       return { result: methodRef };
@@ -348,7 +353,11 @@ export abstract class ClassData {
     return this.methods[methodName] ?? null;
   }
 
-  getMethods(): { [methodName: string]: Method } {
+  /**
+   * Gets all methods declared in this class, including private methods.
+   * Excludes inherited methods.
+   */
+  getDeclaredMethods(): { [methodName: string]: Method } {
     return this.methods;
   }
 
@@ -425,6 +434,7 @@ export abstract class ClassData {
 
       if (method && !method.checkPrivate() && !method.checkStatic()) {
         if (method.checkAbstract()) {
+          // FIXME: multiple maximally specific methods
           abstractMethod = method;
           continue;
         }
@@ -546,6 +556,10 @@ export abstract class ClassData {
   getAttribute(key: string) {
     return this.attributes[key];
   }
+
+  getBootstrapMethod(methodIndex: number): BootstrapMethod | null {
+    return null;
+  }
 }
 
 export class PrimitiveClassData extends ClassData {
@@ -576,7 +590,7 @@ export class PrimitiveClassData extends ClassData {
 }
 
 export class ReferenceClassData extends ClassData {
-  protected bootstrapMethods?: BootstrapMethodsAttribute;
+  protected bootstrapMethods: Array<BootstrapMethod> = [];
   private nestedHost: ReferenceClassData = this;
   private nestedMembers: ReferenceClassData[] = [];
   private anonymousInnerId: number = 0;
@@ -663,8 +677,10 @@ export class ReferenceClassData extends ClassData {
       this.methods[method.getName() + method.getDescriptor()] = method;
     });
 
-    if (this.attributes['bootstrapMethods']) {
-      this.bootstrapMethods = this.attributes['bootstrapMethods']?.[0] as any;
+    if (this.attributes['BootstrapMethods']) {
+      this.bootstrapMethods = (
+        this.attributes['BootstrapMethods'][0] as BootstrapMethods
+      ).bootstrapMethods;
     }
   }
 
@@ -715,12 +731,8 @@ export class ReferenceClassData extends ClassData {
     return `L${this.thisClass};`;
   }
 
-  getBootstrapMethod(methodIndex: number) {
-    if (!this.bootstrapMethods) {
-      throw new Error('No bootstrap methods');
-    }
-
-    return this.bootstrapMethods.bootstrapMethods[methodIndex];
+  getBootstrapMethod(methodIndex: number): BootstrapMethod | null {
+    return this.bootstrapMethods[methodIndex] ?? null;
   }
 
   /**
@@ -776,4 +788,90 @@ export class ReferenceClassData extends ClassData {
   }
 
   // #endregion
+}
+
+export class ArrayClassData extends ClassData {
+  private componentClass?: ClassData;
+
+  constructor(
+    accessFlags: number,
+    thisClass: string,
+    loader: AbstractClassLoader,
+    componentClass: ClassData,
+    onError: (error: ErrorResult) => void
+  ) {
+    super(loader, accessFlags, CLASS_TYPE.ARRAY, thisClass);
+    this.packageName = 'java/lang';
+    this.componentClass = componentClass;
+
+    // #region load array superclasses/interfaces
+    const objRes = loader.getClassRef('java/lang/Object');
+    if (checkError(objRes)) {
+      onError(objRes);
+      return;
+    }
+    const cloneableRes = loader.getClassRef('java/lang/Cloneable');
+    if (checkError(cloneableRes)) {
+      onError(cloneableRes);
+      return;
+    }
+    const serialRes = loader.getClassRef('java/io/Serializable');
+    if (checkError(serialRes)) {
+      onError(serialRes);
+      return;
+    }
+    // #endregion
+    this.superClass = objRes.result as ReferenceClassData;
+    this.interfaces.push(cloneableRes.result as ReferenceClassData);
+    this.interfaces.push(serialRes.result as ReferenceClassData);
+  }
+
+  getDescriptor(): string {
+    return this.getClassname();
+  }
+
+  getComponentClass(): ClassData {
+    if (this.componentClass === undefined) {
+      throw new Error('Array item class not set');
+    }
+    return this.componentClass;
+  }
+
+  instantiate(): JvmArray {
+    return new JvmArray(this);
+  }
+
+  checkArray(): this is ArrayClassData {
+    return true;
+  }
+
+  checkCast(castTo: ClassData): boolean {
+    if (this === castTo) {
+      return true;
+    }
+
+    // Not an array class
+    if (!castTo.checkArray()) {
+      // is a class
+      if (!castTo.checkInterface()) {
+        // If T is a class type, then T must be Object.
+        // array superclass is Object.
+        return this.superClass === castTo;
+      }
+
+      // is an interface
+      for (let i = 0; i < this.interfaces.length; i++) {
+        let inter = this.interfaces[i];
+        // If T is an interface type, then T must be one of the interfaces implemented by arrays
+        if (inter === castTo) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // TC and SC are reference types, and type SC can be cast to TC by recursive application of these rules.
+    // Primitive classes are loaded as well anyways, we can use the same logic.
+    return this.getComponentClass().checkCast(castTo.getComponentClass());
+  }
 }

@@ -4,9 +4,7 @@ import {
   BootstrapMethodsAttribute,
   CodeAttribute,
   ConstantValueAttribute,
-  DeprecatedAttribute,
   EnclosingMethodAttribute,
-  ExceptionHandler,
   ExceptionsAttribute,
   InnerClassesAttribute,
   LineNumberTableAttribute,
@@ -17,9 +15,7 @@ import {
   SourceFileAttribute,
   StackMapFrame,
   StackMapTableAttribute,
-  SyntheticAttribute,
 } from '#jvm/external/ClassFile/types/attributes';
-import { checkError, checkSuccess } from '#types/result';
 import {
   Constant,
   ConstantClass,

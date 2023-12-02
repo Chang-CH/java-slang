@@ -2,8 +2,9 @@ import { JNI } from '#jvm/components/JNI';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
+import { checkSuccess, checkError } from '#types/Result';
+import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
-import { checkSuccess, checkError } from '#types/result';
 
 export const registerJavaSecurityAccessController = (jni: JNI) => {
   jni.registerNativeMethod(
@@ -21,7 +22,7 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
         thread.throwNewException(methodRes.exceptionCls, methodRes.msg);
         return null;
       }
-      const methodRef = methodRes.result;
+      const methodRef = methodRes.result as Method;
       thread.invokeStackFrame(
         new InternalStackFrame(
           methodRef.getClass(),

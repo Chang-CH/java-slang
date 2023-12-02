@@ -1,6 +1,6 @@
+import { ImmediateResult } from '#types/Result';
 import { ClassData, PrimitiveClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
-import { ImmediateResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import AbstractClassLoader from './AbstractClassLoader';
 

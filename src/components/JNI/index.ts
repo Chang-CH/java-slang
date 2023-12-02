@@ -15,10 +15,8 @@ import { registerJavaLangThread } from './implementation/java/lang/Thread';
 import { registerJavaSecurityAccessController } from './implementation/java/security/AccessController';
 import { registerSource } from './implementation/source';
 import { registerUnsafe } from './implementation/sun/misc/Unsafe';
-import { checkSuccess, checkError } from '#types/result';
-import { Method } from '#types/class/Method';
-import { REFERENCE_KIND } from '#jvm/external/ClassFile/types/constants';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ArrayClassData } from '#types/class/ClassData';
+import { checkSuccess, checkError } from '#types/Result';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -93,21 +91,14 @@ export class JNI {
           };
       }
     }
+    console.log('Native method ', methodName);
     return this.classes[className].methods[methodName];
   }
 }
 
 export function registerNatives(jni: JNI) {
   /**
-   * From Doppio:
-   * From JDK documentation:
-   *   Returns the class of the method realFramesToSkip frames up the stack
-   *   (zero-based), ignoring frames associated with
-   *   java.lang.reflect.Method.invoke() and its implementation. The first
-   *   frame is that associated with this method, so getCallerClass(0) returns
-   *   the Class object for sun.reflect.Reflection. Frames associated with
-   *   java.lang.reflect.Method.invoke() and its implementation are completely
-   *   ignored and do not count toward the number of "real" frames skipped.
+   * From Doppio
    */
   function getCallerClass(
     thread: Thread,
@@ -160,7 +151,6 @@ export function registerNatives(jni: JNI) {
   registerJavaLangObject(jni);
   registerJavaLangFloat(jni);
   registerJavaLangDouble(jni);
-
   registerSource(jni);
 
   jni.registerNativeMethod(
@@ -280,6 +270,19 @@ export function registerNatives(jni: JNI) {
     MN_REFERENCE_KIND_MASK = 0x0f000000 >> MN_REFERENCE_KIND_SHIFT,
   }
 
+  enum MethodHandleReferenceKind {
+    REF_getField = 1,
+    REF_getStatic = 2,
+    REF_putField = 3,
+    REF_putStatic = 4,
+    REF_invokeVirtual = 5,
+    REF_invokeStatic = 6,
+    REF_invokeSpecial = 7,
+    REF_newInvokeSpecial = 8,
+    REF_invokeInterface = 9,
+  }
+
+  // see: https://github.com/AdoptOpenJDK/openjdk-jdk11/blob/master/src/hotspot/share/prims/methodHandles.cpp#L711
   jni.registerNativeMethod(
     'java/lang/invoke/MethodHandleNatives',
     'resolve(Ljava/lang/invoke/MemberName;Ljava/lang/Class;)Ljava/lang/invoke/MemberName;',
@@ -323,6 +326,8 @@ export function registerNatives(jni: JNI) {
         flags &
         (MemberNameFlags.MN_IS_CONSTRUCTOR | MemberNameFlags.MN_IS_METHOD)
       ) {
+        console.log('resolving method');
+
         const rtype = (
           (
             type._getField(
@@ -345,12 +350,15 @@ export function registerNatives(jni: JNI) {
           );
         const methodDesc = `(${ptypes.join('')})${rtype}`;
 
+        console.log('resolving: ', methodName + methodDesc);
+
         // method resolution
         const lookupRes = clsRef.lookupMethod(
           methodName + methodDesc,
           null as any,
           false,
           false,
+          true,
           true
         );
         if (checkError(lookupRes)) {
@@ -360,10 +368,11 @@ export function registerNatives(jni: JNI) {
           );
           return;
         }
+        const method = lookupRes.result;
 
-        const methodRef = lookupRes.result;
+        console.log('resolution done: ', methodName + methodDesc);
 
-        const methodFlags = methodRef.getAccessFlags();
+        const methodFlags = method.getAccessFlags();
         console.warn(
           'MethodHandle resolution: CALLER_SENSITIVE not implemented'
         ); // FIXME: check method caller sensitive and |= caller sensitive flag.
@@ -375,14 +384,17 @@ export function registerNatives(jni: JNI) {
           methodFlags | flags
         );
 
-        memberName.putNativeField('bridgeMethod', methodRef.getBridgeMethod());
-
+        memberName.putNativeField('method', method);
+        console.log(
+          'method resolve(Ljava/lang/invoke/MemberName;Ljava/lang/Class;)Ljava/lang/invoke/MemberName; FINISHED'
+        );
         thread.returnStackFrame(memberName);
         return;
       } else if (flags & MemberNameFlags.MN_IS_FIELD) {
         // field resolution
         throw new Error('Field resolution not implemented');
       } else {
+        console.log('Unknown member name');
         thread.throwNewException(
           'java/lang/LinkageError',
           `Could not resolve member name`
@@ -457,7 +469,120 @@ export function registerNatives(jni: JNI) {
     }
   );
 
-  // java/lang/reflect/Array.newArray(Ljava/lang/Class;I)Ljava/lang/Object;
+  jni.registerNativeMethod(
+    'java/lang/invoke/MethodHandleNatives',
+    'init(Ljava/lang/invoke/MemberName;Ljava/lang/Object;)V',
+    (thread: Thread, locals: any[]) => {
+      const ref = locals[1] as JvmObject;
+      const memberName = locals[0] as JvmObject;
+      const refClassname = ref.getClass().getClassname();
+
+      if (refClassname === 'java/lang/reflect/Field') {
+        throw new Error('Not implemented');
+      } else if (refClassname === 'java/lang/reflect/Method') {
+        const clazz = ref._getField(
+          'clazz',
+          'Ljava/lang/Class;',
+          'java/lang/reflect/Method'
+        );
+        const classData = clazz.getNativeField(
+          'classRef'
+        ) as ReferenceClassData;
+        const methodSlot = ref._getField(
+          'slot',
+          'I',
+          'java/lang/reflect/Method'
+        ) as number;
+        const method = classData.getMethodFromSlot(methodSlot);
+        if (!method) {
+          console.error(
+            'init(Ljava/lang/invoke/MemberName;Ljava/lang/Object;)V: Method not found'
+          );
+          thread.returnStackFrame();
+          return;
+        }
+
+        let flags = method.getAccessFlags() | MemberNameFlags.MN_IS_METHOD;
+        if (method.checkStatic()) {
+          flags |=
+            MethodHandleReferenceKind.REF_invokeStatic <<
+            MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
+        } else if (classData.checkInterface()) {
+          flags |=
+            MethodHandleReferenceKind.REF_invokeInterface <<
+            MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
+        } else {
+          flags |=
+            MethodHandleReferenceKind.REF_invokeVirtual <<
+            MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
+        }
+        // constructor should be handled separately
+        // check and |= callersensitive here in the future
+
+        memberName._putField(
+          'flags',
+          'I',
+          'java/lang/invoke/MemberName',
+          flags
+        );
+        memberName._putField(
+          'clazz',
+          'Ljava/lang/Class;',
+          'java/lang/invoke/MemberName',
+          clazz
+        );
+        memberName.putNativeField('method', method);
+        thread.returnStackFrame();
+        return;
+        // MemberNameFlags
+      } else if (refClassname === 'java/lang/reflect/Constructor') {
+        const clazz = ref._getField(
+          'clazz',
+          'Ljava/lang/Class;',
+          'java/lang/reflect/Constructor'
+        );
+        const classData = clazz.getNativeField(
+          'classRef'
+        ) as ReferenceClassData;
+        const methodSlot = ref._getField(
+          'slot',
+          'I',
+          'java/lang/reflect/Constructor'
+        ) as number;
+        const method = classData.getMethodFromSlot(methodSlot);
+        if (!method) {
+          thread.returnStackFrame();
+          return;
+        }
+        const flags =
+          method.getAccessFlags() |
+          MemberNameFlags.MN_IS_CONSTRUCTOR |
+          (MethodHandleReferenceKind.REF_invokeSpecial <<
+            MemberNameFlags.MN_REFERENCE_KIND_SHIFT);
+        memberName._putField(
+          'flags',
+          'I',
+          'java/lang/invoke/MemberName',
+          flags
+        );
+        memberName._putField(
+          'clazz',
+          'Ljava/lang/Class;',
+          'java/lang/invoke/MemberName',
+          clazz
+        );
+        memberName.putNativeField('methodRef', method);
+        thread.returnStackFrame();
+        return;
+      }
+
+      thread.throwNewException(
+        'java/lang/InternalError',
+        'init: Invalid target.'
+      );
+    }
+  );
+
   jni.registerNativeMethod(
     'java/lang/reflect/Array',
     'newArray(Ljava/lang/Class;I)Ljava/lang/Object;',
@@ -471,6 +596,9 @@ export function registerNatives(jni: JNI) {
 
       const arrClsRes = clsRef.getLoader().getClassRef(clsName);
       if (checkError(arrClsRes)) {
+        console.error(
+          'init(Ljava/lang/invoke/MemberName;Ljava/lang/Object;)V: Method not found'
+        );
         thread.throwNewException(
           'java/lang/ClassNotFoundException',
           arrClsRes.msg
@@ -484,14 +612,35 @@ export function registerNatives(jni: JNI) {
     }
   );
 
+  // canonicalize0(Ljava/lang/String;)Ljava/lang/String;
+  jni.registerNativeMethod(
+    'java/io/UnixFileSystem',
+    'canonicalize0(Ljava/lang/String;)Ljava/lang/String;',
+    (thread: Thread, locals: any[]) => {
+      const pathStr = j2jsString(locals[1] as JvmObject);
+
+      console.log(
+        'canonicalize0(Ljava/lang/String;)Ljava/lang/String;: ',
+        pathStr
+      );
+
+      thread.returnStackFrame(thread.getJVM().newString(pathStr));
+    }
+  );
+
   // java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object;
 
   /**
 java/security/AccessController.getStackAccessControlContext()Ljava/security/AccessControlContext; 
 java/io/FileInputStream.initIDs()V 
 java/io/FileDescriptor.initIDs()V 
+java/io/FileDescriptor.set(I)J 
+java/io/FileDescriptor.set(I)J 
+java/io/FileDescriptor.set(I)J 
 java/io/FileOutputStream.initIDs()V 
 java/util/concurrent/atomic/AtomicLong.VMSupportsCS8()Z 
+sun/misc/Signal.findSignal(Ljava/lang/String;)I 
+sun/misc/Signal.handle0(IJ)J 
 sun/misc/Signal.findSignal(Ljava/lang/String;)I 
 sun/misc/Signal.handle0(IJ)J 
 sun/io/Win32ErrorMode.setErrorMode(J)J 
@@ -499,14 +648,18 @@ sun/io/Win32ErrorMode.setErrorMode(J)J
 java/lang/Object.notifyAll()V 
 java/lang/invoke/MethodHandleNatives.registerNatives()V 
 java/lang/invoke/MethodHandleNatives.getConstant(I)I 
-java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
-java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
 Class.getEnclosingMethod0() for reference class
 java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
 java/lang/Class.getDeclaringClass0()Ljava/lang/Class; 
+Class.getEnclosingMethod0() for reference class
 sun/misc/Unsafe.putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V 
-Class.getDeclaredClasses0() for inner class
-sun/misc/Unsafe.defineAnonymousClass(Ljava/lang/Class;[B[Ljava/lang/Object;)Ljava/lang/Class; 
-sun/misc/Unsafe.ensureClassInitialized(Ljava/lang/Class;)V 
+java/lang/ClassLoader.registerNatives()V 
+java/io/WinNTFileSystem.initIDs()V 
+java/io/WinNTFileSystem.getBooleanAttributes(Ljava/io/File;)I 
+java/io/WinNTFileSystem.list(Ljava/io/File;)[Ljava/lang/String; 
+java/security/AccessController.getStackAccessControlContext()Ljava/security/AccessControlContext; 
+sun/misc/URLClassPath.getLookupCacheURLs(Ljava/lang/ClassLoader;)[Ljava/net/URL; 
+java/io/WinNTFileSystem.canonicalize0(Ljava/lang/String;)Ljava/lang/String; 
+java/lang/System.currentTimeMillis()J 
    */
 }

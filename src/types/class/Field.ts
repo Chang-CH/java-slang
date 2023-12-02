@@ -1,14 +1,13 @@
-import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import { JvmObject } from '../reference/Object';
-import { ImmediateResult, Result, checkError } from '../result';
 import Thread from '#jvm/components/thread';
 import { IAttribute } from './Attributes';
 import { ConstantPool } from '#jvm/components/constant-pool';
 import { attrInfo2Interface } from '#utils/index';
+import { ImmediateResult, checkError, Result } from '#types/Result';
 
 export class Field {
   private cls: ReferenceClassData;

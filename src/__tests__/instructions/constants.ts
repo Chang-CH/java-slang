@@ -13,9 +13,9 @@ import { TestClassLoader } from '#jvm/__tests__/__utils__/test-utility';
 import AbstractSystem from '#utils/AbstractSystem';
 import { Method } from '#types/class/Method';
 import { ConstantClass, ConstantString } from '#types/class/Constants';
-import { SuccessResult } from '#types/result';
 import { setupTest } from '../__utils__/test-utility';
 import { JavaStackFrame } from '#jvm/components/stackframe';
+import { SuccessResult } from '#types/Result';
 
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;

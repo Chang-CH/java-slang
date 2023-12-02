@@ -5,28 +5,23 @@ import {
   parseMethodDescriptor,
 } from '#utils/index';
 import {
-  AttributeInfo,
-  CodeAttribute,
-  ExceptionHandler,
-} from '#jvm/external/ClassFile/types/attributes';
-import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { ArrayClassData } from './ArrayClassData';
+import { ArrayClassData } from './ClassData';
 import { ClassData, ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JvmObject } from '../reference/Object';
-import {
-  ErrorResult,
-  ImmediateResult,
-  checkError,
-  checkSuccess,
-} from '../result';
 import Thread from '#jvm/components/thread';
 import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
 import { ConstantPool } from '#jvm/components/constant-pool';
-import { Code, IAttribute, info2Attribute } from './Attributes';
+import { Code, IAttribute } from './Attributes';
+import {
+  ImmediateResult,
+  checkError,
+  ErrorResult,
+  checkSuccess,
+} from '#types/Result';
 
 export interface MethodHandler {
   startPc: number;
@@ -402,18 +397,13 @@ export class Method {
       }
 
       if (this.checkNative()) {
-        const nativeMethod = thread
-          .getJVM()
-          .getJNI()
-          .getNativeMethod(
-            this.cls.getClassname(),
-            this.name + this.descriptor
-          );
-        if (!nativeMethod) {
-          thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
-          return;
-        }
-        sf = new NativeStackFrame(this.cls, this, 0, locals, nativeMethod);
+        sf = new NativeStackFrame(
+          this.cls,
+          this,
+          0,
+          locals,
+          thread.getJVM().getJNI()
+        );
       } else {
         sf = new JavaStackFrame(this.cls, this, 0, locals);
       }

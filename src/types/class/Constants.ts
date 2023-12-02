@@ -8,20 +8,26 @@ import * as info from '#jvm/external/ClassFile/types/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { Field } from '#types/class/Field';
 import { Method } from '#types/class/Method';
-import { ClassData, ReferenceClassData } from '#types/class/ClassData';
+import {
+  ArrayClassData,
+  ClassData,
+  ReferenceClassData,
+} from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import {
-  Result,
-  SuccessResult,
-  ErrorResult,
-  ImmediateResult,
-  checkError,
-  checkSuccess,
-} from '#types/result';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
+import {
+  Result,
+  checkError,
+  checkSuccess,
+  ErrorResult,
+  ImmediateResult,
+  SuccessResult,
+  checkDefer,
+} from '#types/Result';
+import { BootstrapMethod } from './Attributes';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;
@@ -377,11 +383,12 @@ export class ConstantClass extends Constant {
 // #endregion
 
 // #region name and type dependency
-
+// TODO:
 export class ConstantInvokeDynamic extends Constant {
   private bootstrapMethodAttrIndex: number;
   private nameAndType: ConstantNameAndType;
   private methodTypeObj?: JvmObject;
+  private methodName?: JvmObject;
   private result?: Result<JvmObject>;
 
   constructor(
@@ -405,142 +412,140 @@ export class ConstantInvokeDynamic extends Constant {
 
   public constructCso(thread: Thread) {}
 
-  public resolve(thread: Thread): Result<any> {
-    throw new Error('ConstantInvokeDynamic: resolve Method not implemented.');
-    // // Get MethodType from NameAndType
-    // if (!this.methodTypeObj) {
-    //   // resolve nameAndType
-    //   const nameAndTypeRes = this.nameAndType.get();
-    //   createMethodType(
-    //     thread,
-    //     this.cls.getLoader(),
-    //     nameAndTypeRes.descriptor,
-    //     mt => {
-    //       this.methodTypeObj = mt;
-    //     }
-    //   );
+  public resolve(thread: Thread): Result<JvmObject> {
+    if (this.result) {
+      return this.result;
+    }
 
-    //   return {isDefer: true};
-    // }
+    // Get MethodType from NameAndType
+    if (!this.methodTypeObj) {
+      // resolve nameAndType
+      const nameAndTypeRes = this.nameAndType.get();
+      this.methodName = thread.getJVM().getInternedString(nameAndTypeRes.name);
 
-    // const loader = this.cls.getLoader();
-    // // boostrap method is instance of java.lang.invoke.MethodHandle
-    // // #region bootstrap method
-    // const bootstrapMethod = this.cls.getBootstrapMethod(
-    //   this.bootstrapMethodAttrIndex
-    // );
-    // const bootstrapMhConst = this.cls.getConstant(
-    //   bootstrapMethod.bootstrapMethodRef
-    // ) as ConstantMethodHandle;
+      createMethodType(
+        thread,
+        this.cls.getLoader(),
+        nameAndTypeRes.descriptor,
+        mt => {
+          this.methodTypeObj = mt;
+        }
+      );
 
-    // const mhRes = bootstrapMhConst.resolve(thread);
-    // if (!checkSuccess(mhRes)) {
-    //   return mhRes;
-    // }
-    // const bootstrapMhn = bootstrapMhConst.get();
-    // const bootstrapArgs = bootstrapMethod.bootstrapArguments.map(index => {
-    //   const constant = this.cls.getConstant(index);
-    //   constant.resolve();
-    //   // FIXME: should take ldc logic -- classref resolve to class object
-    //   return constant;
-    // });
-    // // #endregion
+      return { isDefer: true };
+    }
+    const loader = this.cls.getLoader();
 
-    // // #region get arguments
-    // const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
-    // if (checkError(objArrRes)) {
-    //   return {exceptionCls: 'java/lang/ClassNotFoundException', msg:''};
-    // }
-    // const arrCls = objArrRes.result as ArrayClassRef;
-    // const argsArr = arrCls.instantiate();
-    // argsArr.initialize(bootstrapArgs.length, bootstrapArgs);
+    // #region bootstrap method
+    const bootstrapMethod = (this.cls as ReferenceClassData).getBootstrapMethod(
+      this.bootstrapMethodAttrIndex
+    ) as BootstrapMethod;
 
-    // const appendixArr = arrCls.instantiate();
-    // appendixArr.initialize(1);
-    // // #endregion
+    // resolve bootstrap method handle
+    const bootstrapMhConst = bootstrapMethod.bootstrapMethodRef;
+    const mhRes = bootstrapMhConst.resolve(thread);
+    if (!checkSuccess(mhRes)) {
+      if (checkError(mhRes)) {
+        this.result = mhRes;
+      }
+      return mhRes;
+    }
+    const bootstrapMhn = bootstrapMhConst.get();
 
-    // throw new Error('not implemented');
-    // // #region run bootstrap method
+    // resolve args
+    const bootstrapArgs = bootstrapMethod.bootstrapArguments;
+    const resolvedArgs = [];
+    let shouldDefer = false;
+    for (const constant of bootstrapArgs) {
+      const constRes = constant.resolve(thread);
+      if (checkDefer(constRes)) {
+        shouldDefer = true;
+      }
+      if (checkError(constRes)) {
+        this.result = constRes;
+        return constRes;
+      }
+      if (checkSuccess(constRes)) {
+        resolvedArgs.push(constRes.result);
+      }
+    }
+    if (shouldDefer) {
+      return { isDefer: true };
+    }
+    // #endregion
 
-    // /**
-    //  * doppio logic
-    //  *
-    //  * const mhnRes = loader.getClassRef('java/lang/invoke/MethodHandleNatives');
-    //  * if (!mhnRes.result || mhnRes.error) {
-    //  *   return {exceptionCls: 'java/lang/ClassNotFoundException', msg:''};
-    //  * }
-    //  * const mhn = mhnRes.result as ClassRef;
-    //  * // TODO: check if we need to initialize
-    //  * const result = mhn.initialize(thread);
-    //  * if (!checkSuccess(result)) {
-    //  *   return result;
-    //  * }
-    //  *
-    //  * const method = mhn.getMethod(
-    //  *   'java/lang/invoke/MethodHandleNatives/linkCallSite(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
-    //  * );
-    //  */
+    // #region get arguments
+    const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
+    if (checkError(objArrRes)) {
+      return { exceptionCls: 'java/lang/ClassNotFoundException', msg: '' };
+    }
+    const arrCls = objArrRes.result as ArrayClassData;
+    const argsArr = arrCls.instantiate();
+    // TODO: Autoboxing?
+    argsArr.initArray(bootstrapArgs.length, resolvedArgs);
 
-    // // param #1 Ljava/lang/invoke/MethodHandles$Lookup: represents the lookup context
-    // // TODO: create lookup context new Lookup(Class<?> lookupClass)
+    const appendixArr = arrCls.instantiate();
+    appendixArr.initArray(1);
+    // #endregion
 
-    // const methodSig = this.nameAndType.get();
-    // // param #2 Ljava/lang/String methodSignature.name: method name in the call site
-    // const stringName = initString(loader, methodSig.name).result as JvmObject;
-    // // param #3 Ljava/lang/invoke/MethodType methodSignature.type: method type in the call site
-    // // TODO: convert descriptor to methodType
-    // const dySignature = methodSig.descriptor;
+    // #region run bootstrap method
+    console.log('RUNNING LINK CALL SITE');
 
-    // // param #4+: bootstrapArgs additional arguments passed to the bootstrap method
-    // // For lambdas:
-    // // param #4 Ljava/lang/invoke/MethodType: erased descriptor of the lambda
-    // // param #5 Ljava/lang/invoke/MethodHandle: the actual lambda logic. a static method in the current class.
-    // // param #6 Ljava/lang/invoke/MethodType: descriptor of the lambda
+    const mhnRes = loader.getClassRef('java/lang/invoke/MethodHandleNatives');
+    if (checkError(mhnRes)) {
+      return { exceptionCls: 'java/lang/ClassNotFoundException', msg: '' };
+    }
+    const mhn = mhnRes.result as ClassData;
+    const mhnInitRes = mhn.initialize(thread);
+    if (!checkSuccess(mhnInitRes)) {
+      return mhnInitRes;
+    }
 
-    // const methodNameStrRes = initString(
-    //   loader,
-    //   methodSig.name + methodSig.descriptor
-    // );
-    // if (!methodNameStrRes.result || methodNameStrRes.error) {
-    //   return {exceptionCls: 'java/lang/ClassNotFoundException', msg:''};
-    // }
-    // const methodNameStr = methodNameStrRes.result as JvmObject;
-    // // FIXME: convert name and type to methodType
-    // const methodType = methodSig;
+    const linkCssMethod = mhn.getMethod(
+      'linkCallSite(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
+    );
+    if (!linkCssMethod) {
+      this.result = { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
+      return this.result;
+    }
 
-    // // TODO: delete returned value
-    // // TODO: callback on popped stack frame
-    // thread.invokeSf(method?.getClass() as ClassRef, method as MethodRef, 0, [
-    //   this.cls.getJavaObject(),
-    //   bootstrapMhn,
-    //   methodNameStr,
-    //   methodType,
-    //   argsArr,
-    //   appendixArr,
-    // ]);
-    // // #endregion
-
-    // /**
-    //  *   * Do what all OpenJDK-based JVMs do: Call
-    //  * MethodHandleNatives.linkCallSite with:
-    //  * - The class w/ the invokedynamic instruction `this.cls.getJavaObject()`
-    //  * - The bootstrap method `bootstrapMhn`
-    //  * - The name string from the nameAndTypeInfo `methodNameStr`
-    //  * - The methodType object from the nameAndTypeInfo `methodType`
-    //  * - The static arguments from the bootstrap method. `argsArr`
-    //  * - A 1-length appendix box. `appendixArr`
-    //  *
-    //  * On finish:
-    //  * returns a MemberName object, which contains:
-    //  * - The class containing the invokedynamic instruction
-    //  * - method to be run
-    //  */
-    // console.log('indy bootstrap: ', bootstrapMethod);
-    // console.log('indy TD: ', methodSig);
-    // // The result of call site specifier resolution is a tuple consisting of:
-    // // the reference to an instance of java.lang.invoke.MethodHandle,
-    // // the reference to an instance of java.lang.invoke.MethodType,
-    // // the references to instances of Class, java.lang.invoke.MethodHandle, java.lang.invoke.MethodType, and String.
+    /**
+     *   * Do what all OpenJDK-based JVMs do: Call
+     * MethodHandleNatives.linkCallSite with:
+     * - The class w/ the invokedynamic instruction `this.cls.getJavaObject()`
+     * - The bootstrap method `bootstrapMhn`
+     * - The name string from the nameAndTypeInfo `methodNameStr`
+     * - The methodType object from the nameAndTypeInfo `methodType`
+     * - The static arguments from the bootstrap method. `argsArr`
+     * - A 1-length appendix box. `appendixArr`
+     *
+     * On finish:
+     * returns a MemberName object, which contains:
+     * - The class containing the invokedynamic instruction
+     * - method to be run
+     */
+    this.cls.getJavaObject(),
+      thread.invokeStackFrame(
+        new InternalStackFrame(
+          mhn,
+          linkCssMethod,
+          0,
+          [
+            this.cls.getJavaObject(),
+            bootstrapMhn,
+            this.methodName,
+            this.methodTypeObj,
+            argsArr,
+            appendixArr,
+          ],
+          css => {
+            console.log('LINK CSS FINISH. ', css);
+            this.result = { result: css };
+          }
+        )
+      );
+    return { isDefer: true };
+    // #endregion
   }
 
   public tempResolve(thread: Thread): Result<JvmObject> {
@@ -553,10 +558,12 @@ export class ConstantInvokeDynamic extends Constant {
     const bootstrapMethod = this.cls.getBootstrapMethod(
       this.bootstrapMethodAttrIndex
     );
-    const bootstrapMhConst = this.cls.getConstant(
-      bootstrapMethod.bootstrapMethodRef
-    ) as ConstantMethodHandle;
+    if (!bootstrapMethod) {
+      throw new Error('Bootstrap method not found');
+    }
 
+    console.log('BOOTSTRAP METHOD: ', bootstrapMethod);
+    const bootstrapMhConst = bootstrapMethod.bootstrapMethodRef;
     const constref = bootstrapMhConst.tempGetReference();
     const refres = constref.resolve();
     if (!checkSuccess<Field | Method>(refres)) {
@@ -568,8 +575,8 @@ export class ConstantInvokeDynamic extends Constant {
     const res = refres.result;
 
     const bsArgIdx = bootstrapMethod.bootstrapArguments;
-    const argConst = this.cls.getConstant(bsArgIdx[0]) as ConstantMethodType;
-    const mhConst = this.cls.getConstant(bsArgIdx[1]) as ConstantMethodHandle;
+    const argConst = bsArgIdx[0] as ConstantMethodType;
+    const mhConst = bsArgIdx[1] as ConstantMethodHandle;
     const invokeRes = mhConst.tempGetReference().resolve();
     if (!checkSuccess<Field | Method>(invokeRes)) {
       if (checkError(invokeRes)) {
@@ -1008,7 +1015,10 @@ export class ConstantMethodHandle extends Constant {
   }
 
   public get(): JvmObject {
-    throw new Error('Method not implemented.');
+    if (this.result && checkSuccess(this.result)) {
+      return this.result.result;
+    }
+    throw new Error('methodhandle not resolved!');
   }
 
   public resolve(thread: Thread): Result<JvmObject> {

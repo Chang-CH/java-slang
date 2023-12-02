@@ -3,13 +3,13 @@ import { primitiveNameToType } from '#utils/index';
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
 import { Field } from '#types/class/Field';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { ErrorResult, checkError, checkSuccess } from '#types/result';
 import { j2jsString } from '#utils/index';
 import { Method } from '#types/class/Method';
+import { checkError, checkSuccess, ErrorResult } from '#types/Result';
 
 export const registerJavaLangClass = (jni: JNI) => {
   const clsName = 'java/lang/Class';
@@ -176,6 +176,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const callerClassObj = locals[3] as JvmObject;
 
       const name = j2jsString(nameJStr).replaceAll('.', '/');
+      console.log('forname0 w/ ', j2jsString(nameJStr));
 
       let loader: AbstractClassLoader;
       if (loaderObj) {
@@ -232,7 +233,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const clsRef = clsObj.getNativeField('classRef') as ClassData;
       const methods: JvmObject[] = [];
       let error: ErrorResult | null = null;
-      Object.entries(clsRef.getMethods()).forEach(([key, value]) => {
+      Object.entries(clsRef.getDeclaredMethods()).forEach(([key, value]) => {
         if (!key.startsWith('<init>') || (publicOnly && !value.checkPublic())) {
           return;
         }
@@ -275,7 +276,7 @@ export const registerJavaLangClass = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
       const classRef = clsObj.getNativeField('classRef') as ClassData;
-      const methods = classRef.getMethods();
+      const methods = classRef.getDeclaredMethods();
       const publicOnly = locals[1] === 1;
 
       const mArrRes = classRef
@@ -291,6 +292,10 @@ export const registerJavaLangClass = (jni: JNI) => {
       const jsMethodArr = [];
       for (const [name, method] of Object.entries(methods)) {
         if (publicOnly && !method.checkPublic()) {
+          continue;
+        }
+
+        if (name.startsWith('<init>')) {
           continue;
         }
 

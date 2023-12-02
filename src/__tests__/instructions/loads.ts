@@ -1,15 +1,13 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
-
 import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/JNI';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { SuccessResult } from '#types/result';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
+import { SuccessResult } from '#types/Result';
 
 let thread: Thread;
 let threadClass: ReferenceClassData;

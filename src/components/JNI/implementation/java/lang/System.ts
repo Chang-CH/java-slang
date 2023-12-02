@@ -1,11 +1,10 @@
 import { JNI } from '#jvm/components/JNI';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
+import { SuccessResult } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { SuccessResult } from '#types/result';
-
 export const registerJavaLangSystem = (jni: JNI) => {
   jni.registerNativeMethod(
     'java/lang/System',
@@ -25,6 +24,15 @@ export const registerJavaLangSystem = (jni: JNI) => {
       const dest = locals[2] as JvmArray;
       const destPos = locals[3];
       const length = locals[4];
+
+      console.log(
+        'Array copy with: ',
+        src.getJsArray(),
+        srcPos,
+        dest.getJsArray(),
+        destPos,
+        length
+      );
 
       if (src === null || dest === null) {
         thread.throwNewException(
@@ -75,6 +83,14 @@ export const registerJavaLangSystem = (jni: JNI) => {
       }
 
       thread.returnStackFrame();
+      console.log(
+        'Array copy finish with: ',
+        src.getJsArray(),
+        srcPos,
+        dest.getJsArray(),
+        destPos,
+        length
+      );
     }
   );
 

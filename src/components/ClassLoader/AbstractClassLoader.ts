@@ -9,14 +9,14 @@ import {
   ReferenceClassData,
 } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
+import AbstractSystem from '#utils/AbstractSystem';
+import { ArrayClassData } from '#types/class/ClassData';
 import {
   ErrorResult,
   ImmediateResult,
   checkError,
   checkSuccess,
-} from '#types/result';
-import AbstractSystem from '#utils/AbstractSystem';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+} from '#types/Result';
 
 export default abstract class AbstractClassLoader {
   protected nativeSystem: AbstractSystem;

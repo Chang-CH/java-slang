@@ -1,9 +1,9 @@
 import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ImmediateResult, ErrorResult } from '#types/Result';
+import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, PrimitiveClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
-import { ErrorResult, ImmediateResult } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import { primitiveTypeToName } from '#utils/index';
 import AbstractClassLoader from './AbstractClassLoader';
@@ -81,11 +81,6 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
 
     const cls = new PrimitiveClassData(this, internalName);
     this.primitiveClasses[internalName] = cls;
-
-    if (internalName === 'char') {
-      console.log('CHAR PRIMITIVE LOADED');
-    }
-
     return cls;
   }
 

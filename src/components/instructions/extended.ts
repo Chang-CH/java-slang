@@ -4,7 +4,8 @@ import { asFloat, asDouble } from '#utils/index';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ConstantClass } from '#types/class/Constants';
-import { checkSuccess, checkError } from '#types/result';
+import { checkSuccess, checkError } from '#types/Result';
+import { ArrayClassData } from '#types/class/ClassData';
 
 export function runWide(thread: Thread): void {
   thread.offsetPc(1);
@@ -91,7 +92,7 @@ export function runMultianewarray(thread: Thread): void {
     return;
   }
 
-  const arrayCls = clsRes.result;
+  const arrayCls = clsRes.result as ArrayClassData;
   const res = arrayCls.instantiate() as JvmArray;
   res.initArray(dimArray[0]);
 

@@ -14,7 +14,7 @@ import {
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
 import { Method, MethodHandler } from '#types/class/Method';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ArrayClassData } from '#types/class/ClassData';
 import {
   CLASS_STATUS,
   ClassData,
@@ -23,7 +23,6 @@ import {
 } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
-import { ImmediateResult, checkError, checkSuccess } from '#types/result';
 import AbstractSystem from '#utils/AbstractSystem';
 import { JNI } from '#jvm/components/JNI';
 import Thread, { ThreadStatus } from '#jvm/components/thread';
@@ -34,6 +33,7 @@ import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader
 import { Field } from '#types/class/Field';
 import { JvmArray } from '#types/reference/Array';
 import { primitiveTypeToName } from '#utils/index';
+import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
 
 export class TestClassLoader extends AbstractClassLoader {
   getJavaObject(): JvmObject | null {
@@ -95,53 +95,6 @@ export class TestClassLoader extends AbstractClassLoader {
 
   loadTestClassRef(className: string, ref: ClassData) {
     this.loadedClasses[className] = ref;
-  }
-
-  private linkMethod2(
-    constantPool: ConstantInfo[],
-    method: MethodInfo
-  ): ImmediateResult<{
-    method: MethodInfo;
-    exceptionHandlers: MethodHandler[];
-    code: CodeAttribute | null;
-  }> {
-    // get code attribute
-    let code: CodeAttribute | null = null;
-    for (const attr of method.attributes) {
-      const attrname = (
-        constantPool[attr.attributeNameIndex] as ConstantUtf8Info
-      ).value;
-      if (attrname === 'Code') {
-        code = attr as CodeAttribute;
-      }
-    }
-
-    const handlderTable: MethodHandler[] = [];
-    if (code) {
-      for (const handler of code.exceptionTable) {
-        const catchType = handler.catchType;
-        const ctRes = this.getClassRef(catchType as unknown as string);
-        if (checkError(ctRes)) {
-          return { exceptionCls: 'java/lang/NoClassDefFoundError', msg: '' };
-        }
-        const clsRef = ctRes.result;
-
-        handlderTable.push({
-          startPc: handler.startPc,
-          endPc: handler.endPc,
-          handlerPc: handler.handlerPc,
-          catchType: clsRef as ReferenceClassData,
-        });
-      }
-    }
-
-    return {
-      result: {
-        method,
-        exceptionHandlers: handlderTable,
-        code,
-      },
-    };
   }
 
   createClass(options: {
@@ -563,7 +516,6 @@ export const setupTest = () => {
   });
 
   const code = new DataView(new ArrayBuffer(100));
-  let methodIdx = 0;
   const testClass = testLoader.createClass({
     className: 'Test',
     constants: [
@@ -592,7 +544,6 @@ export const setupTest = () => {
         nameIndex: cPool.length - 2,
       }),
       cPool => {
-        methodIdx = cPool.length;
         return {
           tag: CONSTANT_TAG.Methodref,
           classIndex: cPool.length - 1,

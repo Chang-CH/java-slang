@@ -15,7 +15,7 @@ import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ArrayClassData } from '#types/class/ClassData';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 
 let thread: Thread;

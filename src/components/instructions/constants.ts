@@ -6,7 +6,7 @@ import {
   ConstantMethodHandle,
 } from '#types/class/Constants';
 import { ReferenceClassData } from '#types/class/ClassData';
-import { checkSuccess, checkError } from '#types/result';
+import { checkSuccess, checkError } from '#types/Result';
 
 export function runNop(thread: Thread): void {
   thread.offsetPc(1);

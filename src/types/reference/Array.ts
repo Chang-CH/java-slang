@@ -1,8 +1,8 @@
 import Thread from '#jvm/components/thread';
 import { JavaType } from './Object';
-import { Result } from '#types/result';
 import { JvmObject } from './Object';
-import { ArrayClassData } from '#types/class/ArrayClassData';
+import { ArrayClassData } from '#types/class/ClassData';
+import { Result } from '#types/Result';
 
 export class JvmArray extends JvmObject {
   private primitiveType: ArrayPrimitiveType | null;
