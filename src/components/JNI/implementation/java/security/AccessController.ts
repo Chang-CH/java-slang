@@ -7,39 +7,46 @@ import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';
 
 export const registerJavaSecurityAccessController = (jni: JNI) => {
+  const doPrivileged = (thread: Thread, locals: any[]) => {
+    const action = locals[0] as JvmObject;
+    const actionCls = action.getClass();
+    const methodRes = actionCls.resolveMethod(
+      'run()Ljava/lang/Object;',
+      thread.getClass()
+    );
+
+    if (!checkSuccess(methodRes)) {
+      thread.throwNewException(methodRes.exceptionCls, methodRes.msg);
+      return null;
+    }
+    const methodRef = methodRes.result as Method;
+    thread.invokeStackFrame(
+      new InternalStackFrame(
+        methodRef.getClass(),
+        methodRef,
+        0,
+        [action],
+        (ret: JvmObject) => {
+          console.debug(
+            'RUN doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;',
+            { ...ret, cls: null }
+          );
+          thread.returnStackFrame();
+          thread.returnStackFrame(ret);
+        }
+      )
+    );
+  };
+
+  jni.registerNativeMethod(
+    'java/security/AccessController',
+    'doPrivileged(Ljava/security/PrivilegedExceptionAction;Ljava/security/AccessControlContext;)Ljava/lang/Object;',
+    doPrivileged
+  );
   jni.registerNativeMethod(
     'java/security/AccessController',
     'doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;',
-    (thread: Thread, locals: any[]) => {
-      const action = locals[0] as JvmObject;
-      const actionCls = action.getClass();
-      const methodRes = actionCls.resolveMethod(
-        'run()Ljava/lang/Object;',
-        thread.getClass()
-      );
-
-      if (!checkSuccess(methodRes)) {
-        thread.throwNewException(methodRes.exceptionCls, methodRes.msg);
-        return null;
-      }
-      const methodRef = methodRes.result as Method;
-      thread.invokeStackFrame(
-        new InternalStackFrame(
-          methodRef.getClass(),
-          methodRef,
-          0,
-          [action],
-          (ret: JvmObject) => {
-            console.debug(
-              'RUN doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;',
-              { ...ret, cls: null }
-            );
-            thread.returnStackFrame();
-            thread.returnStackFrame(ret);
-          }
-        )
-      );
-    }
+    doPrivileged
   );
 
   jni.registerNativeMethod(

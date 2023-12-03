@@ -1,5 +1,9 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import { parseFieldDescriptor, parseMethodDescriptor } from '#utils/index';
+import {
+  js2jString,
+  parseFieldDescriptor,
+  parseMethodDescriptor,
+} from '#utils/index';
 import Thread from '#jvm/components/thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
@@ -268,13 +272,13 @@ export class ConstantString extends Constant {
     return c.getTag() === CONSTANT_TAG.String;
   }
 
-  public resolve(thread: Thread): Result<JvmObject> {
+  public resolve(loader: AbstractClassLoader): Result<JvmObject> {
     if (this.result) {
       return this.result;
     }
 
     const strVal = this.str.get();
-    this.result = { result: thread.getJVM().getInternedString(strVal) };
+    this.result = { result: js2jString(loader, strVal) };
     return this.result;
   }
 

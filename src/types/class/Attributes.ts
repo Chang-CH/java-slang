@@ -371,6 +371,7 @@ export interface BootstrapMethod {
     | ConstantMethodType
   >;
 }
+
 export interface StackMapTable extends IAttribute {
   entries: Array<StackMapFrame>;
 }

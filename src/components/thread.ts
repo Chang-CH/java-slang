@@ -239,6 +239,17 @@ export default class Thread {
   }
 
   invokeStackFrame(sf: StackFrame) {
+    if (
+      sf.method.getName() === 'parseSig' &&
+      sf.method.getDescriptor() ===
+        '(Ljava/lang/String;[IILjava/lang/ClassLoader;)Ljava/lang/Class;'
+    ) {
+      console.log(
+        'parseSig: ',
+        j2jsString(sf.locals[0]),
+        (sf.locals[1] as JvmArray).getJsArray()
+      );
+    }
     this.stack.push(sf);
     this.stackPointer += 1;
   }
@@ -300,20 +311,18 @@ export default class Thread {
       return;
     }
 
-    // TODO: initialize exception object with msg
-
-    console.error(
-      'throwing exception ',
-      exceptionCls.getClassname(),
-      msg,
-      this.getMethod().getName(),
-      this.getPC()
-    );
     this.throwException(exceptionCls.instantiate());
   }
 
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
+
+    console.error(
+      'throwing exception ',
+      exceptionCls.getClassname(),
+      this.getMethod().getName(),
+      this.getPC()
+    );
 
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {

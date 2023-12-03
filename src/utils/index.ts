@@ -1,8 +1,16 @@
+import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { ConstantPool } from '#jvm/components/constant-pool';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
+import { SuccessResult } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';
-import { ClassData, ReferenceClassData } from '#types/class/ClassData';
+import {
+  ArrayClassData,
+  ClassData,
+  ReferenceClassData,
+} from '#types/class/ClassData';
 import { ConstantUtf8 } from '#types/class/Constants';
+import { Field } from '#types/class/Field';
+import { JvmArray } from '#types/reference/Array';
 import { JavaType, JvmObject } from '#types/reference/Object';
 
 /**
@@ -14,6 +22,37 @@ export const j2jsString = (str: JvmObject) => {
     ...str._getField('value', '[C', 'java/lang/String').getJsArray()
   );
 };
+
+function newCharArr(loader: AbstractClassLoader, str: string): JvmArray {
+  // Assume char array loaded at init
+  const cArrRes = loader.getClassRef('[C') as SuccessResult<ArrayClassData>;
+  const cArrCls = cArrRes.result;
+  const cArr = cArrCls.instantiate() as JvmArray;
+  const jsArr = [];
+  for (let i = 0; i < str.length; i++) {
+    jsArr.push(str.charCodeAt(i));
+  }
+  cArr.initArray(str.length, jsArr);
+  return cArr;
+}
+
+/**
+ * Converts a JS string to a Java String. Assumes java/lang/String and [C is loaded.
+ */
+export function js2jString(
+  loader: AbstractClassLoader,
+  str: string
+): JvmObject {
+  const charArr = newCharArr(loader, str);
+  const strRes = loader.getClassRef(
+    'java/lang/String'
+  ) as SuccessResult<ReferenceClassData>;
+  const strCls = strRes.result;
+  const strObj = strCls.instantiate();
+  const fieldRef = strCls.getFieldRef('value[C') as Field;
+  strObj.putField(fieldRef as Field, charArr);
+  return strObj;
+}
 
 /**
  * Returns the number of bytes that a primitive or reference takes up in memory.

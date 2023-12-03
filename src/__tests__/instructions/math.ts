@@ -532,8 +532,8 @@ describe('Isub', () => {
 
 describe('Lsub', () => {
   test('LSUB: long subtraction', () => {
-    thread.pushStack(2n);
-    thread.pushStack(1n);
+    thread.pushStack64(2n);
+    thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LSUB);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -544,8 +544,8 @@ describe('Lsub', () => {
   });
 
   test('LSUB: long subtraction overflows', () => {
-    thread.pushStack(MAX_LONG);
-    thread.pushStack(-1n);
+    thread.pushStack64(MAX_LONG);
+    thread.pushStack64(-1n);
     code.setUint8(0, OPCODE.LSUB);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -556,8 +556,8 @@ describe('Lsub', () => {
   });
 
   test('LSUB: long subtraction underflows', () => {
-    thread.pushStack(MIN_LONG);
-    thread.pushStack(1n);
+    thread.pushStack64(MIN_LONG);
+    thread.pushStack64(1n);
     code.setUint8(0, OPCODE.LSUB);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();

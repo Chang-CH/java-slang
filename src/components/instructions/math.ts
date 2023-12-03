@@ -52,8 +52,8 @@ export function runIsub(thread: Thread): void {
 
 export function runLsub(thread: Thread): void {
   thread.offsetPc(1);
-  const value2: bigint = thread.popStack();
-  const value1: bigint = thread.popStack();
+  const value2: bigint = thread.popStack64();
+  const value1: bigint = thread.popStack64();
   thread.pushStack64(BigInt.asIntN(64, value1 - value2));
 }
 

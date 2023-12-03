@@ -19,6 +19,7 @@ import {
   ImmediateResult,
   SuccessResult,
 } from '#types/Result';
+import { js2jString } from './utils';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;
@@ -179,38 +180,11 @@ export default class JVM {
     this.threadpool.run();
   }
 
-  private newCharArr(str: string): JvmArray {
-    // Assume char array loaded at init
-    const cArrRes = this.bootstrapClassLoader.getClassRef(
-      '[C'
-    ) as SuccessResult<ArrayClassData>;
-    const cArrCls = cArrRes.result;
-    const cArr = cArrCls.instantiate() as JvmArray;
-    const jsArr = [];
-    for (let i = 0; i < str.length; i++) {
-      jsArr.push(str.charCodeAt(i));
-    }
-    cArr.initArray(str.length, jsArr);
-    return cArr;
-  }
-
-  newString(str: string): JvmObject {
-    const charArr = this.newCharArr(str);
-    const strRes = this.bootstrapClassLoader.getClassRef(
-      'java/lang/String'
-    ) as SuccessResult<ReferenceClassData>;
-    const strCls = strRes.result;
-    const strObj = strCls.instantiate();
-    const fieldRef = strCls.getFieldRef('value[C') as Field;
-    strObj.putField(fieldRef as Field, charArr);
-    return strObj;
-  }
-
   getInternedString(str: string) {
     if (this.internedStrings[str]) {
       return this.internedStrings[str];
     }
-    this.internedStrings[str] = this.newString(str);
+    this.internedStrings[str] = js2jString(this.bootstrapClassLoader, str);
     return this.internedStrings[str];
   }
 

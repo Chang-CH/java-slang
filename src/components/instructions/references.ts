@@ -241,6 +241,10 @@ function lookupMethod(
   if (checkCastTo && !objRef.getClass().checkCast(checkCastTo)) {
     return { exceptionCls: 'java/lang/IncompatibleClassChangeError', msg: '' };
   }
+
+  if (!objRef.getClass) {
+    console.log(objRef);
+  }
   const runtimeClassRef = objRef.getClass();
 
   // method lookup

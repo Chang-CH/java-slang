@@ -17,6 +17,7 @@ import { registerSource } from './implementation/source';
 import { registerUnsafe } from './implementation/sun/misc/Unsafe';
 import { ArrayClassData } from '#types/class/ClassData';
 import { checkSuccess, checkError } from '#types/Result';
+import AbstractClassLoader from '../ClassLoader/AbstractClassLoader';
 export class JNI {
   private classes: {
     [className: string]: {
@@ -612,7 +613,6 @@ export function registerNatives(jni: JNI) {
     }
   );
 
-  // canonicalize0(Ljava/lang/String;)Ljava/lang/String;
   jni.registerNativeMethod(
     'java/io/UnixFileSystem',
     'canonicalize0(Ljava/lang/String;)Ljava/lang/String;',
@@ -628,7 +628,75 @@ export function registerNatives(jni: JNI) {
     }
   );
 
-  // java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object;
+  // sun/misc/Perf.createLong(Ljava/lang/String;IIJ)Ljava/nio/ByteBuffer;
+  jni.registerNativeMethod(
+    'sun/misc/Perf',
+    'createLong(Ljava/lang/String;IIJ)Ljava/nio/ByteBuffer;',
+    (thread: Thread, locals: any[]) => {
+      const value = locals[4] as bigint;
+
+      const bbRes = thread
+        .getMethod()
+        .getClass()
+        .getLoader()
+        .getClassRef('java/nio/DirectByteBuffer');
+      if (checkError(bbRes)) {
+        thread.throwNewException(bbRes.exceptionCls, bbRes.msg);
+        return;
+      }
+
+      const bbCls = bbRes.result as ReferenceClassData;
+      const heap = thread.getJVM().getUnsafeHeap();
+      const addr = heap.allocate(BigInt(8));
+      const buff = bbCls.instantiate();
+
+      const bbInit = bbCls.getMethod('<init>(JI)V');
+      if (!bbInit) {
+        thread.throwNewException('java/lang/NoSuchMethodError', '<init>(JI)V');
+        return;
+      }
+
+      thread.invokeStackFrame(
+        new InternalStackFrame(
+          bbCls,
+          bbInit,
+          0,
+          [buff, addr, addr, 8], // Longs occupy 2 indexes
+          (ret: JvmObject, err?: any) => {
+            if (err) {
+              thread.throwNewException(err.exceptionCls, err.msg);
+              return;
+            }
+            heap.get(addr).setBigInt64(0, value);
+            thread.returnStackFrame(buff);
+          }
+        )
+      );
+    }
+  );
+  // java/lang/ClassLoader.findLoadedClass0(Ljava/lang/String;)Ljava/lang/Class;
+  jni.registerNativeMethod(
+    'java/lang/ClassLoader',
+    'findLoadedClass0(Ljava/lang/String;)Ljava/lang/Class;',
+    (thread: Thread, locals: any[]) => {
+      const className = j2jsString(locals[1] as JvmObject).replaceAll('.', '/');
+      const loader: AbstractClassLoader =
+        (locals[0] as JvmObject).getNativeField('$loader') ??
+        thread.getJVM().getBootstrapClassLoader();
+
+      console.log('findLoadedClass0: ', className);
+
+      const res = loader.getClassRef(className);
+
+      if (checkError(res)) {
+        thread.throwNewException(res.exceptionCls, res.msg);
+        return;
+      }
+      const cls = res.result;
+
+      thread.returnStackFrame(cls.getJavaObject());
+    }
+  );
 
   /**
 java/security/AccessController.getStackAccessControlContext()Ljava/security/AccessControlContext; 

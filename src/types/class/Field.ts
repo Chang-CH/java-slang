@@ -1,13 +1,18 @@
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { ReferenceClassData } from './ClassData';
-import { ConstantUtf8 } from './Constants';
+import { ConstantString, ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
-import { IAttribute } from './Attributes';
+import { ConstantValue, IAttribute } from './Attributes';
 import { ConstantPool } from '#jvm/components/constant-pool';
 import { attrInfo2Interface } from '#utils/index';
-import { ImmediateResult, checkError, Result } from '#types/Result';
+import {
+  ImmediateResult,
+  checkError,
+  Result,
+  checkSuccess,
+} from '#types/Result';
 
 export class Field {
   private cls: ReferenceClassData;
@@ -52,6 +57,18 @@ export class Field {
       default:
         this.value = null;
         break;
+    }
+
+    if (this.checkStatic() && this.attributes['ConstantValue']) {
+      const constantValue = (
+        this.attributes['ConstantValue'][0] as ConstantValue
+      ).constantvalue.resolve(cls.getLoader());
+      if (!checkSuccess(constantValue)) {
+        return;
+      }
+
+      this.value = constantValue.result;
+      return;
     }
   }
 
@@ -173,7 +190,7 @@ export class Field {
     this.value = value;
   }
 
-  cloneField() {
+  cloneField(thread: Thread) {
     const field = new Field(
       this.cls,
       this.fieldName,
