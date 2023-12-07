@@ -62,7 +62,7 @@ export class Field {
     if (this.checkStatic() && this.attributes['ConstantValue']) {
       const constantValue = (
         this.attributes['ConstantValue'][0] as ConstantValue
-      ).constantvalue.resolve(cls.getLoader());
+      ).constantvalue.resolve(null as any, cls.getLoader()); // String resolution does not need thread
       if (!checkSuccess(constantValue)) {
         return;
       }
@@ -95,6 +95,10 @@ export class Field {
 
   static checkField(obj: any): obj is Field {
     return obj.fieldName !== undefined;
+  }
+
+  getAccessFlags() {
+    return this.accessFlags;
   }
 
   getSlot() {
@@ -190,7 +194,7 @@ export class Field {
     this.value = value;
   }
 
-  cloneField(thread: Thread) {
+  cloneField() {
     const field = new Field(
       this.cls,
       this.fieldName,

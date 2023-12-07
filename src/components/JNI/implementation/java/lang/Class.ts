@@ -143,7 +143,9 @@ export const registerJavaLangClass = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const clsObj = locals[0] as JvmObject;
       const clsRef = clsObj.getNativeField('classRef') as ClassData;
-      const name = clsRef.getClassname();
+      // Replace slashes with ., Class splits by . to get simple name
+      const name = clsRef.getClassname().replaceAll('/', '.');
+      console.log('getName0: ', name);
       const strRes = thread.getJVM().getInternedString(name);
       thread.returnStackFrame(strRes);
     }
@@ -319,7 +321,7 @@ export const registerJavaLangClass = (jni: JNI) => {
       const clsRef = clsObj.getNativeField('classRef') as ClassData;
       const clsObj2 = locals[1] as JvmObject;
       const clsRef2 = clsObj2.getNativeField('classRef') as ClassData;
-      thread.returnStackFrame(clsRef2.checkCast(clsRef));
+      thread.returnStackFrame(clsRef2.checkCast(clsRef) ? 1 : 0);
     }
   );
 

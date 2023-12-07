@@ -202,7 +202,7 @@ function invokeInit(
   thread: Thread,
   constant: ConstantMethodref | ConstantInterfaceMethodref
 ): Result<{ classRef: ReferenceClassData; methodRef: Method; args: any[] }> {
-  const methodRes = constant.resolve();
+  const methodRes = constant.resolve(thread);
   if (!checkSuccess(methodRes)) {
     if (checkError(methodRes)) {
       return methodRes;

@@ -431,7 +431,7 @@ export class TestJVM extends JVM {
     }
     const strCls = strRes.result;
     const strObj = strCls.instantiate();
-    const fieldRef = strCls.getFieldRef('value[C') as Field;
+    const fieldRef = strCls.lookupField('value[C') as Field;
     strObj.putField(fieldRef as Field, charArr.result);
     return { result: strObj };
   }

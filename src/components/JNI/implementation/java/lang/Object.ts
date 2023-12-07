@@ -1,5 +1,6 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
+import { JvmObject } from '#types/reference/Object';
 
 export const registerJavaLangObject = (jni: JNI) => {
   jni.registerNativeMethod(
@@ -23,7 +24,7 @@ export const registerJavaLangObject = (jni: JNI) => {
     'java/lang/Object',
     'clone()Ljava/lang/Object;',
     (thread: Thread, locals: any[]) => {
-      const obj = locals[0];
+      const obj = locals[0] as JvmObject;
       const clone = obj.clone();
       thread.returnStackFrame(clone);
     }

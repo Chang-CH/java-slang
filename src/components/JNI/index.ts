@@ -2,7 +2,7 @@ import { ReferenceClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { autoBox, autoUnbox, j2jsString } from '#utils/index';
+import { autoBox, autoUnbox, j2jsString, js2jString } from '#utils/index';
 import { parseFieldDescriptor } from '#utils/index';
 import { InternalStackFrame, StackFrame } from '../stackframe';
 import Thread from '../thread';
@@ -95,6 +95,18 @@ export class JNI {
     console.log('Native method ', methodName);
     return this.classes[className].methods[methodName];
   }
+}
+
+export enum MethodHandleReferenceKind {
+  REF_getField = 1,
+  REF_getStatic = 2,
+  REF_putField = 3,
+  REF_putStatic = 4,
+  REF_invokeVirtual = 5,
+  REF_invokeStatic = 6,
+  REF_invokeSpecial = 7,
+  REF_newInvokeSpecial = 8,
+  REF_invokeInterface = 9,
 }
 
 export function registerNatives(jni: JNI) {
@@ -271,18 +283,6 @@ export function registerNatives(jni: JNI) {
     MN_REFERENCE_KIND_MASK = 0x0f000000 >> MN_REFERENCE_KIND_SHIFT,
   }
 
-  enum MethodHandleReferenceKind {
-    REF_getField = 1,
-    REF_getStatic = 2,
-    REF_putField = 3,
-    REF_putStatic = 4,
-    REF_invokeVirtual = 5,
-    REF_invokeStatic = 6,
-    REF_invokeSpecial = 7,
-    REF_newInvokeSpecial = 8,
-    REF_invokeInterface = 9,
-  }
-
   // see: https://github.com/AdoptOpenJDK/openjdk-jdk11/blob/master/src/hotspot/share/prims/methodHandles.cpp#L711
   jni.registerNativeMethod(
     'java/lang/invoke/MethodHandleNatives',
@@ -321,14 +321,12 @@ export function registerNatives(jni: JNI) {
       }
 
       const clsRef = clsObj.getNativeField('classRef') as ReferenceClassData;
-      const methodName = j2jsString(jNameString);
+      const name = j2jsString(jNameString);
 
       if (
         flags &
         (MemberNameFlags.MN_IS_CONSTRUCTOR | MemberNameFlags.MN_IS_METHOD)
       ) {
-        console.log('resolving method');
-
         const rtype = (
           (
             type._getField(
@@ -351,11 +349,11 @@ export function registerNatives(jni: JNI) {
           );
         const methodDesc = `(${ptypes.join('')})${rtype}`;
 
-        console.log('resolving: ', methodName + methodDesc);
+        console.log('resolving: ', name, methodDesc, clsRef);
 
         // method resolution
         const lookupRes = clsRef.lookupMethod(
-          methodName + methodDesc,
+          name + methodDesc,
           null as any,
           false,
           false,
@@ -371,8 +369,6 @@ export function registerNatives(jni: JNI) {
         }
         const method = lookupRes.result;
 
-        console.log('resolution done: ', methodName + methodDesc);
-
         const methodFlags = method.getAccessFlags();
         console.warn(
           'MethodHandle resolution: CALLER_SENSITIVE not implemented'
@@ -386,14 +382,31 @@ export function registerNatives(jni: JNI) {
         );
 
         memberName.putNativeField('method', method);
-        console.log(
-          'method resolve(Ljava/lang/invoke/MemberName;Ljava/lang/Class;)Ljava/lang/invoke/MemberName; FINISHED'
-        );
         thread.returnStackFrame(memberName);
         return;
       } else if (flags & MemberNameFlags.MN_IS_FIELD) {
-        // field resolution
-        throw new Error('Field resolution not implemented');
+        const descriptor = (
+          type.getNativeField('classRef') as ReferenceClassData
+        ).getDescriptor();
+        const field = clsRef.lookupField(name + descriptor);
+        console.log('Lookup field: ', name, descriptor);
+        if (field === null) {
+          thread.throwNewException(
+            'java/lang/NoSuchFieldError',
+            `Invalid field ${name}`
+          );
+          return;
+        }
+        const fieldflags = field.getAccessFlags();
+        memberName._putField(
+          'flags',
+          'I',
+          'java/lang/invoke/MemberName',
+          fieldflags | flags
+        );
+        memberName.putNativeField('field', field);
+        thread.returnStackFrame(memberName);
+        return;
       } else {
         console.log('Unknown member name');
         thread.throwNewException(
@@ -619,12 +632,9 @@ export function registerNatives(jni: JNI) {
     (thread: Thread, locals: any[]) => {
       const pathStr = j2jsString(locals[1] as JvmObject);
 
-      console.log(
-        'canonicalize0(Ljava/lang/String;)Ljava/lang/String;: ',
-        pathStr
+      thread.returnStackFrame(
+        js2jString(thread.getClass().getLoader(), pathStr)
       );
-
-      thread.returnStackFrame(thread.getJVM().newString(pathStr));
     }
   );
 

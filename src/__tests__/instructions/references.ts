@@ -3088,7 +3088,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    testClass.getFieldRef('staticFieldI')?.putValue(5);
+    testClass.lookupField('staticFieldI')?.putValue(5);
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
@@ -3160,7 +3160,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    testClass.getFieldRef('staticFieldJ')?.putValue(5n);
+    testClass.lookupField('staticFieldJ')?.putValue(5n);
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
@@ -3237,7 +3237,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.getFieldRef('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(5n);
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
@@ -3313,7 +3313,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.getFieldRef('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(5n);
 
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
@@ -3396,7 +3396,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.getFieldRef('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(5n);
 
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
@@ -3629,7 +3629,7 @@ describe('Putstatic', () => {
     );
     thread.pushStack(5);
     thread.runFor(1);
-    expect(testClass.getFieldRef('staticFieldI')?.getValue()).toBe(5);
+    expect(testClass.lookupField('staticFieldI')?.getValue()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('PUTSTATIC: Puts static long', () => {
@@ -3701,7 +3701,7 @@ describe('Putstatic', () => {
     );
     thread.pushStack64(5n);
     thread.runFor(1);
-    expect(testClass.getFieldRef('staticFieldJ')?.getValue() === 5n).toBe(true);
+    expect(testClass.lookupField('staticFieldJ')?.getValue() === 5n).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('PUTSTATIC: Puts inherited static long', () => {
@@ -3777,7 +3777,7 @@ describe('Putstatic', () => {
     );
     thread.pushStack64(5n);
     thread.runFor(1);
-    expect(superClass.getFieldRef('staticFieldJ')?.getValue() === 5n).toBe(
+    expect(superClass.lookupField('staticFieldJ')?.getValue() === 5n).toBe(
       true
     );
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -3846,7 +3846,7 @@ describe('Putstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.getFieldRef('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(5n);
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
@@ -3929,7 +3929,7 @@ describe('Putstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.getFieldRef('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(5n);
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
@@ -4085,7 +4085,7 @@ describe('Putstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.getFieldRef('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(5n);
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
@@ -4171,7 +4171,7 @@ describe('Putstatic', () => {
     thread.pushStack(5);
     thread.runFor(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
-    expect(mainClass.getFieldRef('staticFieldI')?.getValue()).toBe(5);
+    expect(mainClass.lookupField('staticFieldI')?.getValue()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('PUTSTATIC: final static int from child init throws IllegalAccessError', () => {
@@ -4326,7 +4326,7 @@ describe('Putstatic', () => {
     );
     thread.pushStack(1.3);
     thread.runFor(1);
-    expect(testClass.getFieldRef('staticFieldF')?.getValue()).toBe(
+    expect(testClass.lookupField('staticFieldF')?.getValue()).toBe(
       Math.fround(1.3)
     );
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
@@ -4399,7 +4399,7 @@ describe('Putstatic', () => {
     );
     thread.pushStack(3);
     thread.runFor(1);
-    expect(testClass.getFieldRef('staticFieldZ')?.getValue()).toBe(1);
+    expect(testClass.lookupField('staticFieldZ')?.getValue()).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
 });

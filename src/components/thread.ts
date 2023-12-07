@@ -203,7 +203,7 @@ export default class Thread {
     return value;
   }
 
-  returnStackFrame(ret?: any, err?: JvmObject): StackFrame {
+  private _returnSF(ret?: any, err?: JvmObject, isWide?: boolean) {
     const sf = this.stack.pop();
     this.stackPointer -= 1;
 
@@ -217,38 +217,74 @@ export default class Thread {
       return sf;
     }
 
-    sf.onReturn(this, ret);
+    console.debug(
+      sf.class.getClassname() +
+        '.' +
+        sf.method.getName() +
+        sf.method.getDescriptor() +
+        ' return: ' +
+        (ret === null
+          ? 'null'
+          : ret?.getClass
+          ? (ret?.getClass() as ReferenceClassData).getClassname()
+          : ret)
+    );
+
+    isWide ? sf.onReturn64(this, ret) : sf.onReturn(this, ret);
     return sf;
   }
 
+  returnStackFrame(ret?: any, err?: JvmObject): StackFrame {
+    return this._returnSF(ret, err, false);
+  }
+
   returnStackFrame64(ret?: any, err?: JvmObject): StackFrame {
-    const sf = this.stack.pop();
-    this.stackPointer -= 1;
-    if (this.stackPointer < -1 || sf === undefined) {
-      this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
-      throw new Error('Stack Underflow');
-    }
-
-    if (err) {
-      sf.onError(this, err);
-      return sf;
-    }
-
-    sf.onReturn64(this, ret);
-    return sf;
+    return this._returnSF(ret, err, true);
   }
 
   invokeStackFrame(sf: StackFrame) {
     if (
-      sf.method.getName() === 'parseSig' &&
-      sf.method.getDescriptor() ===
-        '(Ljava/lang/String;[IILjava/lang/ClassLoader;)Ljava/lang/Class;'
+      sf.method.getName() === 'emitPushArguments' &&
+      sf.method.getDescriptor() === '(Ljava/lang/invoke/LambdaForm$Name;)V' &&
+      sf.locals[1] &&
+      (sf.locals[1] as JvmObject)._getField(
+        'arguments',
+        '[Ljava/lang/Object;',
+        'java/lang/invoke/LambdaForm$Name'
+      )
     ) {
       console.log(
-        'parseSig: ',
-        j2jsString(sf.locals[0]),
-        (sf.locals[1] as JvmArray).getJsArray()
+        'emitPushArguments arguments: ',
+        (sf.locals[1] as JvmObject)
+          ._getField(
+            'arguments',
+            '[Ljava/lang/Object;',
+            'java/lang/invoke/LambdaForm$Name'
+          )
+          .getJsArray()
       );
+    }
+    console.debug(
+      ''.padEnd(this.stackPointer + 2, '#') +
+        sf.class.getClassname() +
+        '.' +
+        sf.method.getName() +
+        sf.method.getDescriptor() +
+        ': [' +
+        sf.locals
+          .map(v => {
+            return v === null
+              ? 'null'
+              : v?.getClass
+              ? (v?.getClass() as ReferenceClassData).getClassname()
+              : v;
+          })
+          .join(', ') +
+        ']'
+    );
+
+    if (sf.method.getName() === 'emitImplicitConversion') {
+      console.log('emitImplicitConversion: ', sf.locals[1]);
     }
     this.stack.push(sf);
     this.stackPointer += 1;

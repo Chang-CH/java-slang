@@ -49,7 +49,7 @@ export function js2jString(
   ) as SuccessResult<ReferenceClassData>;
   const strCls = strRes.result;
   const strObj = strCls.instantiate();
-  const fieldRef = strCls.getFieldRef('value[C') as Field;
+  const fieldRef = strCls.lookupField('value[C') as Field;
   strObj.putField(fieldRef as Field, charArr);
   return strObj;
 }

@@ -32,6 +32,7 @@ import {
   checkDefer,
 } from '#types/Result';
 import { BootstrapMethod } from './Attributes';
+import { MethodHandleReferenceKind } from '#jvm/components/JNI';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;
@@ -43,7 +44,11 @@ export abstract class Constant {
     this.tag = tag;
   }
 
-  public resolve(...args: any[]): Result<any> {
+  public resolve(
+    thread?: Thread,
+    loader?: AbstractClassLoader,
+    ...args: any[]
+  ): Result<any> {
     return { result: this.get() };
   }
 
@@ -272,7 +277,10 @@ export class ConstantString extends Constant {
     return c.getTag() === CONSTANT_TAG.String;
   }
 
-  public resolve(loader: AbstractClassLoader): Result<JvmObject> {
+  public resolve(
+    thread: Thread,
+    loader: AbstractClassLoader
+  ): Result<JvmObject> {
     if (this.result) {
       return this.result;
     }
@@ -461,7 +469,7 @@ export class ConstantInvokeDynamic extends Constant {
     const resolvedArgs = [];
     let shouldDefer = false;
     for (const constant of bootstrapArgs) {
-      const constRes = constant.resolve(thread);
+      const constRes = constant.resolve(thread, loader);
       if (checkDefer(constRes)) {
         shouldDefer = true;
       }
@@ -569,7 +577,7 @@ export class ConstantInvokeDynamic extends Constant {
     console.log('BOOTSTRAP METHOD: ', bootstrapMethod);
     const bootstrapMhConst = bootstrapMethod.bootstrapMethodRef;
     const constref = bootstrapMhConst.tempGetReference();
-    const refres = constref.resolve();
+    const refres = constref.resolve(thread);
     if (!checkSuccess<Field | Method>(refres)) {
       if (checkError(refres)) {
         return refres;
@@ -581,7 +589,7 @@ export class ConstantInvokeDynamic extends Constant {
     const bsArgIdx = bootstrapMethod.bootstrapArguments;
     const argConst = bsArgIdx[0] as ConstantMethodType;
     const mhConst = bsArgIdx[1] as ConstantMethodHandle;
-    const invokeRes = mhConst.tempGetReference().resolve();
+    const invokeRes = mhConst.tempGetReference().resolve(thread);
     if (!checkSuccess<Field | Method>(invokeRes)) {
       if (checkError(invokeRes)) {
         return invokeRes;
@@ -855,7 +863,7 @@ export class ConstantFieldref extends Constant {
     }
     const fieldClass = clsRes.result;
     const { name, descriptor } = this.nameAndTypeConstant.get();
-    const fieldRef = fieldClass.getFieldRef(name + descriptor);
+    const fieldRef = fieldClass.lookupField(name + descriptor);
 
     if (fieldRef === null) {
       this.result = { exceptionCls: 'java/lang/NoSuchFieldError', msg: '' };
@@ -871,6 +879,8 @@ export class ConstantMethodref extends Constant {
   private classConstant: ConstantClass;
   private nameAndTypeConstant: ConstantNameAndType;
   private result?: Result<Method>;
+  private appendix?: any;
+  private memberName?: JvmObject;
 
   constructor(
     cls: ClassData,
@@ -890,7 +900,7 @@ export class ConstantMethodref extends Constant {
     return c.getTag() === CONSTANT_TAG.Methodref;
   }
 
-  public resolve(): Result<Method> {
+  public resolve(thread: Thread): Result<Method> {
     // 5.4.3 if initial attempt to resolve a symbolic reference fails
     // then subsequent attempts to resolve the reference always fail with the same error
     if (this.result) {
@@ -924,8 +934,149 @@ export class ConstantMethodref extends Constant {
     }
 
     const nt = this.nameAndTypeConstant.get();
-    // TODO: not implemented: signature poly
-    this.result = symbolClass.resolveMethod(nt.name + nt.descriptor, this.cls);
+    const resolutionResult = symbolClass.resolveMethod(
+      nt.name + nt.descriptor,
+      this.cls
+    );
+
+    if (
+      checkError(resolutionResult) &&
+      resolutionResult.exceptionCls === 'java/lang/NoSuchMethodError'
+    ) {
+      // Check signature polymorphic methods
+      const polyResolutionResult = symbolClass.resolveMethod(
+        nt.name + '([Ljava/lang/Object;)Ljava/lang/Object;',
+        this.cls
+      );
+
+      if (
+        checkError(polyResolutionResult) ||
+        !polyResolutionResult.result.isSignaturePolymorphic()
+      ) {
+        this.result = resolutionResult;
+        return this.result;
+      }
+
+      const polyMethod = polyResolutionResult.result;
+      const loader = this.cls.getLoader();
+
+      const mhnResolution = loader.getClassRef(
+        'java/lang/invoke/MethodHandleNatives'
+      );
+      if (checkError(mhnResolution)) {
+        this.result = mhnResolution;
+        return this.result;
+      }
+      const objArrResolution = loader.getClassRef('[Ljava/lang/Object;');
+      if (checkError(objArrResolution)) {
+        this.result = objArrResolution;
+        return this.result;
+      }
+
+      const mhn = mhnResolution.result;
+      const objArrCls = objArrResolution.result as ArrayClassData;
+      const ptypes = objArrCls.instantiate();
+      const appendix = objArrCls.instantiate();
+      appendix.initArray(1);
+      const mhnInitResult = mhn.initialize(thread);
+      if (!checkSuccess(mhnInitResult)) {
+        if (checkError(mhnInitResult)) {
+          this.result = mhnInitResult;
+          return this.result;
+        }
+        return { isDefer: true };
+      }
+      const findMHType = mhn.getMethod(
+        'findMethodHandleType(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;'
+      );
+      if (!findMHType) {
+        this.result = {
+          exceptionCls: 'java/lang/NoSuchMethodError',
+          msg: 'findMethodHandleType(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;',
+        };
+        return this.result;
+      }
+      const descriptorClasses = parseMethodDescriptor(nt.descriptor);
+      let argResolutionError: ErrorResult | null = null;
+      const argsCls = descriptorClasses.args.map(arg => {
+        if (arg.type === JavaType.reference || arg.type === JavaType.array) {
+          const loadResult = loader.getClassRef(arg.referenceCls as string);
+          if (checkError(loadResult)) {
+            argResolutionError = loadResult;
+            return null;
+          }
+          return loadResult.result;
+        }
+        return loader.getPrimitiveClassRef(arg.type);
+      });
+      if (argResolutionError) {
+        this.result = argResolutionError;
+        return this.result;
+      }
+      let rtype;
+      if (descriptorClasses.ret.referenceCls) {
+        const loadResult = loader.getClassRef(
+          descriptorClasses.ret.referenceCls as string
+        );
+        if (checkError(loadResult)) {
+          this.result = loadResult;
+          return this.result;
+        }
+      } else {
+        rtype = loader.getPrimitiveClassRef(descriptorClasses.ret.type);
+      }
+
+      ptypes.initArray(argsCls.length, argsCls);
+      thread.invokeStackFrame(
+        new InternalStackFrame(
+          mhn,
+          findMHType,
+          0,
+          [rtype, ptypes],
+          (mt, err) => {
+            if (err) {
+              return;
+            }
+            const linkMethod = mhn.getMethod(
+              'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
+            );
+            if (!linkMethod) {
+              this.result = {
+                exceptionCls: 'java/lang/NoSuchMethodError',
+                msg: 'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;',
+              };
+              return;
+            }
+            thread.invokeStackFrame(
+              new InternalStackFrame(
+                mhn,
+                linkMethod,
+                0,
+                [
+                  this.cls.getJavaObject(),
+                  MethodHandleReferenceKind.REF_invokeVirtual,
+                  symbolClass.getJavaObject(),
+                  thread.getJVM().getInternedString(nt.name),
+                  mt,
+                  ptypes,
+                  appendix,
+                ],
+                (mn, err) => {
+                  if (err) {
+                    return;
+                  }
+                  this.appendix = appendix.get(0);
+                  this.memberName = mn;
+                  this.result = { result: polyMethod };
+                }
+              )
+            );
+          }
+        )
+      );
+    }
+
+    this.result = resolutionResult;
     return this.result;
   }
 }
@@ -1031,7 +1182,7 @@ export class ConstantMethodHandle extends Constant {
     }
 
     // #region Step 1: resolve field/method
-    const refRes = this.reference.resolve();
+    const refRes = this.reference.resolve(thread);
     if (!checkSuccess<Field | Method>(refRes)) {
       if (checkError(refRes)) {
         this.result = refRes;

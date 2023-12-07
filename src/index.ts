@@ -28,6 +28,8 @@ export default class JVM {
   private jni: JNI;
   private threadpool: AbstractThreadPool;
 
+  private isInitialized = false;
+
   cachedClasses: { [key: string]: ReferenceClassData } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
   private unsafeHeap: UnsafeHeap = new UnsafeHeap();
@@ -106,8 +108,8 @@ export default class JVM {
     // #endregion
 
     // #region initialize Thread class
-    const tgfr = threadCls.getFieldRef('groupLjava/lang/ThreadGroup;');
-    const pFr = threadCls.getFieldRef('priorityI');
+    const tgfr = threadCls.lookupField('groupLjava/lang/ThreadGroup;');
+    const pFr = threadCls.lookupField('priorityI');
     if (!tgfr || !pFr) {
       throw new Error('Initial thread fields not found');
     }
@@ -124,7 +126,6 @@ export default class JVM {
     mainThread._run();
     this._initialThread = mainThread;
     // #endregion
-    console.log('Thread initialized');
 
     // #region initialize system class
     const sInitMr = sysCls.getMethod('initializeSystemClass()V');
@@ -141,7 +142,7 @@ export default class JVM {
       )
     );
     mainThread._run();
-    console.log('System initialized');
+    this.isInitialized = true;
     // #endregion
   }
 
@@ -202,5 +203,9 @@ export default class JVM {
 
   getJNI() {
     return this.jni;
+  }
+
+  checkInitialized() {
+    return this.isInitialized;
   }
 }

@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { ClassData } from '#types/class/ClassData';
+import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 import { asDouble, asFloat } from '#utils/index';
 
@@ -266,6 +266,11 @@ export function runIfAcmpne(thread: Thread): void {
   thread.offsetPc(2);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
+
+  if (thread.getMethod().getName() === 'emitImplicitConversion') {
+    console.log('ifacmpne: ', value1, 'value2: ', value2);
+  }
+
   if (value1 !== value2) {
     thread.offsetPc(branchbyte - 3);
     return;

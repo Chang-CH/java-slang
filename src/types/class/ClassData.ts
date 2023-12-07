@@ -371,14 +371,14 @@ export abstract class ClassData {
     return null;
   }
 
-  getFieldRef(fieldName: string): Field | null {
+  lookupField(fieldName: string): Field | null {
     if (this.fields[fieldName]) {
       return this.fields[fieldName];
     }
 
     for (let i = 0; i < this.interfaces.length; i++) {
       let interfaceCls = this.interfaces[i];
-      const field = interfaceCls.getFieldRef(fieldName);
+      const field = interfaceCls.lookupField(fieldName);
 
       if (field) {
         return field;
@@ -391,7 +391,7 @@ export abstract class ClassData {
       return null;
     }
 
-    return superClass.getFieldRef(fieldName);
+    return superClass.lookupField(fieldName);
   }
 
   /**

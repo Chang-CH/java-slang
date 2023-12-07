@@ -74,14 +74,16 @@ const runInstruction = (thread: Thread, method: Method) => {
   const opcode = (method._getCode() as Code).code.getUint8(thread.getPC());
 
   let result;
-  console.debug(
-    ''.padEnd(thread.getFrames().length, '#') +
-      `${method.getClass().getClassname()}.${
-        method.getName() + method.getDescriptor()
-      }:${OPCODE[opcode]}#${thread.getPC()}, stack: ${
-        thread.peekStackFrame().operandStack
-      }`
-  );
+  if (thread.getJVM().checkInitialized()) {
+    console.debug(
+      ''.padEnd(thread.getFrames().length, '#') +
+        `${method.getClass().getClassname()}.${
+          method.getName() + method.getDescriptor()
+        }:${OPCODE[opcode]}#${thread.getPC()}, stack: ${
+          thread.peekStackFrame().operandStack
+        }`
+    );
+  }
   switch (opcode) {
     case OPCODE.NOP:
       result = constants.runNop(thread);
@@ -761,6 +763,14 @@ export class JavaStackFrame extends StackFrame {
   run(thread: Thread): void {
     if (checkOverride(thread, this.method)) {
       return;
+    }
+
+    if (
+      thread.getPC() === 316 &&
+      this.method.getName() === 'makePreparedFieldLambdaForm' &&
+      this.method.getDescriptor() === '(BZI)Ljava/lang/invoke/LambdaForm;'
+    ) {
+      console.log('break');
     }
     runInstruction(thread, this.method);
   }

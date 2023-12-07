@@ -89,6 +89,15 @@ export class Method {
     return obj.code !== undefined;
   }
 
+  isSignaturePolymorphic() {
+    return (
+      this.cls.getClassname() === 'java/lang/invoke/MethodHandle' &&
+      this.descriptor === '([Ljava/lang/Object;)Ljava/lang/Object;' &&
+      this.checkVarargs() &&
+      this.checkNative()
+    );
+  }
+
   /**
    * Gets the reflected java object for this method.
    */
