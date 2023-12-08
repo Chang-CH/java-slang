@@ -217,6 +217,34 @@ export default class Thread {
       return sf;
     }
 
+    if (
+      sf.class.getClassname() === 'java/lang/invoke/LambdaForm$NamedFunction' &&
+      sf.method.getName() === 'methodType' &&
+      sf.method.getDescriptor() === '()Ljava/lang/invoke/MethodType;'
+    ) {
+      try {
+        console.log(
+          'LambdaForm$NamedFunction::methodType return: ',
+          (
+            (ret as JvmObject)._getField(
+              'ptypes',
+              '[Ljava/lang/Class;',
+              'java/lang/invoke/MethodType'
+            ) as JvmArray
+          )
+            .getJsArray()
+            .map(
+              (v: JvmObject) =>
+                `Class<${(
+                  v.getNativeField('classRef') as ClassData
+                ).getClassname()}>`
+            )
+        );
+      } catch (e) {
+        console.log('LambdaForm$NamedFunction::methodType return issue');
+      }
+    }
+
     console.debug(
       sf.class.getClassname() +
         '.' +
@@ -244,8 +272,22 @@ export default class Thread {
 
   invokeStackFrame(sf: StackFrame) {
     if (
-      sf.method.getName() === 'emitPushArguments' &&
-      sf.method.getDescriptor() === '(Ljava/lang/invoke/LambdaForm$Name;)V' &&
+      sf.method.getName() === '<clinit>' &&
+      sf.method.getClass().getClassname() ===
+        'java/lang/invoke/BoundMethodHandle$Species_L'
+    ) {
+      console.log('species_L clinit');
+    }
+
+    if (sf.method.getName() === 'parameterType') {
+      console.log('parameterType getIndex');
+    }
+
+    // TODO:
+    if (
+      sf.method.getName() === 'emitPushArgument' &&
+      sf.method.getDescriptor() === '(Ljava/lang/invoke/LambdaForm$Name;I)V' &&
+      sf.locals[2] === 2 &&
       sf.locals[1] &&
       (sf.locals[1] as JvmObject)._getField(
         'arguments',
@@ -254,7 +296,7 @@ export default class Thread {
       )
     ) {
       console.log(
-        'emitPushArguments arguments: ',
+        'emitPushArguments arguments 2: ',
         (sf.locals[1] as JvmObject)
           ._getField(
             'arguments',
@@ -264,6 +306,7 @@ export default class Thread {
           .getJsArray()
       );
     }
+
     console.debug(
       ''.padEnd(this.stackPointer + 2, '#') +
         sf.class.getClassname() +
@@ -282,10 +325,6 @@ export default class Thread {
           .join(', ') +
         ']'
     );
-
-    if (sf.method.getName() === 'emitImplicitConversion') {
-      console.log('emitImplicitConversion: ', sf.locals[1]);
-    }
     this.stack.push(sf);
     this.stackPointer += 1;
   }
@@ -352,6 +391,15 @@ export default class Thread {
 
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
+    console.log(
+      this.stack.map(
+        frame =>
+          frame.class.getClassname() +
+          '.' +
+          frame.method.getName() +
+          frame.method.getDescriptor()
+      )
+    );
 
     console.error(
       'throwing exception ',
