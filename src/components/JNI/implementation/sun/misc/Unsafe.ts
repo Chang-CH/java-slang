@@ -3,8 +3,8 @@ import Thread from '#jvm/components/thread';
 import { Field } from '#types/class/Field';
 import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
-import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmArray } from '#types/reference/Array';
+import type { JvmObject } from '#types/reference/Object';
 import { typeIndexScale } from '#utils/index';
 import assert from 'assert';
 import parseBin from '#utils/parseBinary';
@@ -196,12 +196,6 @@ export const registerUnsafe = (jni: JNI) => {
       const scale = typeIndexScale(
         (clsRef as ArrayClassData).getComponentClass()
       );
-      console.log(
-        'ArrayIndexScale: ',
-        scale,
-        ' cls: ',
-        clsRef.getComponentClass().getClassname()
-      );
       thread.returnStackFrame(scale);
     }
   );
@@ -300,6 +294,30 @@ export const registerUnsafe = (jni: JNI) => {
     getFromVMIndex
   );
 
+  const setFromVMIndex = (thread: Thread, locals: any[]) => {
+    const unsafe = locals[0] as JvmObject;
+    const obj = locals[1] as JvmObject;
+    const offset = locals[2] as bigint;
+
+    const fi = getFieldInfo(thread, unsafe, obj, offset);
+    const objBase = fi[0];
+    const ref = fi[1];
+    if (typeof ref === 'number') {
+      // array type
+      objBase[ref] = locals[3];
+      thread.returnStackFrame();
+      return;
+    }
+    (ref as Field).putValue(locals[3]);
+    thread.returnStackFrame();
+  };
+
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V',
+    setFromVMIndex
+  );
+
   jni.registerNativeMethod(
     'sun/misc/Unsafe',
     'allocateMemory(J)J',
@@ -381,7 +399,6 @@ export const registerUnsafe = (jni: JNI) => {
         );
         return;
       }
-      console.log(newClass);
 
       const clsObj = newClass.getJavaObject();
       thread.returnStackFrame(clsObj);

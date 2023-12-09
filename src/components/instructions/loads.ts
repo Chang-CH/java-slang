@@ -1,4 +1,4 @@
-import { JvmArray } from '#types/reference/Array';
+import type { JvmArray } from '#types/reference/Array';
 import Thread from '#jvm/components/thread';
 
 export function runIload(thread: Thread): void {

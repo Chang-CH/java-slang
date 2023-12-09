@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { JvmArray } from '#types/reference/Array';
+import type { JvmArray } from '#types/reference/Array';
 import { asDouble, asFloat } from '#utils/index';
 
 export function runIstore(thread: Thread): void {

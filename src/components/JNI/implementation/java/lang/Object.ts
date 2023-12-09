@@ -1,6 +1,6 @@
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 
 export const registerJavaLangObject = (jni: JNI) => {
   jni.registerNativeMethod(

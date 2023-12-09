@@ -10,7 +10,7 @@ import {
 } from '#types/class/ClassData';
 import { ConstantUtf8 } from '#types/class/Constants';
 import { Field } from '#types/class/Field';
-import { JvmArray } from '#types/reference/Array';
+import type { JvmArray } from '#types/reference/Array';
 import { JavaType, JvmObject } from '#types/reference/Object';
 
 /**

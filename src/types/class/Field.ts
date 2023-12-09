@@ -1,8 +1,8 @@
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
 import { ReferenceClassData } from './ClassData';
-import { ConstantString, ConstantUtf8 } from './Constants';
+import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
-import { JvmObject } from '../reference/Object';
+import type { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
 import { ConstantValue, IAttribute } from './Attributes';
 import { ConstantPool } from '#jvm/components/constant-pool';

@@ -1,7 +1,7 @@
 import { ReferenceClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
-import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmArray } from '#types/reference/Array';
+import type { JvmObject } from '#types/reference/Object';
 import { autoBox, autoUnbox, j2jsString, js2jString } from '#utils/index';
 import { parseFieldDescriptor } from '#utils/index';
 import { InternalStackFrame, StackFrame } from '../stackframe';
@@ -312,7 +312,6 @@ export function registerNatives(jni: JNI) {
       ) as number;
 
       if (clsObj === null || jNameString === null || type === null) {
-        console.log(clsObj === null, jNameString === null, type === null);
         thread.throwNewException(
           'java/lang/IllegalArgumentException',
           'Invalid MemberName'
@@ -349,8 +348,6 @@ export function registerNatives(jni: JNI) {
           );
         const methodDesc = `(${ptypes.join('')})${rtype}`;
 
-        console.log('resolving: ', name, methodDesc, clsRef);
-
         // method resolution
         const lookupRes = clsRef.lookupMethod(
           name + methodDesc,
@@ -360,7 +357,14 @@ export function registerNatives(jni: JNI) {
           true,
           true
         );
+
         if (checkError(lookupRes)) {
+          console.log(
+            'failed resolution::: ',
+            clsRef.getClassname(),
+            '@',
+            name + methodDesc
+          );
           thread.throwNewException(
             'java/lang/NoSuchMethodError',
             `Invalid method ${methodDesc}`

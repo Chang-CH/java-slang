@@ -1,6 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { JavaType } from './Object';
-import { JvmObject } from './Object';
+import { JavaType, JvmObject } from './Object';
 import { ArrayClassData } from '#types/class/ClassData';
 import { Result } from '#types/Result';
 
@@ -109,9 +108,19 @@ export class JvmArray extends JvmObject {
   }
 
   clone(): JvmArray {
-    const clone = new JvmArray(this.getClass() as ArrayClassData);
-    clone.length = this.length;
-    clone.array = [...this.array]; // shallow copy
+    const clone = this.cls.instantiate() as JvmArray;
+    clone.initArray(this.length, [...this.array]); // shallow copy
+
+    for (const [key, field] of Object.entries(this.fields)) {
+      clone.fields[key].putValue(field.getValue());
+    }
+
+    for (const [key, value] of Object.entries(this.nativeFields)) {
+      clone.nativeFields[key] = value;
+    }
+
+    clone.initStatus = this.initStatus;
+
     return clone;
   }
 }

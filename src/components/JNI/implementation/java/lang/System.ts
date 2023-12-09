@@ -3,8 +3,8 @@ import { InternalStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
 import { SuccessResult } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
-import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmArray } from '#types/reference/Array';
+import type { JvmObject } from '#types/reference/Object';
 export const registerJavaLangSystem = (jni: JNI) => {
   jni.registerNativeMethod(
     'java/lang/System',
@@ -61,15 +61,18 @@ export const registerJavaLangSystem = (jni: JNI) => {
       const srcCls = src.getClass();
       const destCls = dest.getClass();
 
+      // copy src data
+      const data = [...src.getJsArray()];
+
       if (srcCls.checkCast(destCls)) {
         // safe to copy
         for (let i = 0; i < length; i++) {
-          dest.set(destPos + i, src.get(i + srcPos));
+          dest.set(destPos + i, data[i + srcPos]);
         }
       } else {
         // FIXME: we should check if the types are actually compatible
         for (let i = 0; i < length; i++) {
-          dest.set(destPos + i, src.get(i + srcPos));
+          dest.set(destPos + i, data[i + srcPos]);
         }
       }
 

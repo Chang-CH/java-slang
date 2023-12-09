@@ -1,3 +1,4 @@
+import { InternalStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
 import { Result } from '#types/Result';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
@@ -119,10 +120,6 @@ export class JvmObject {
 
   getFieldFromVMIndex(index: number): Field {
     // TODO: check if VM index includes static fields
-    // console.log(
-    //   'getFieldFromVMIndex ',
-    //   this.fieldArr.map(f => [f.name, f.ref.getSlot()])
-    // );
     const res = this.fieldArr.filter(f => {
       const slot = f.ref.getSlot();
       return slot === index;
@@ -141,7 +138,7 @@ export class JvmObject {
   }
 
   clone(): JvmObject {
-    const clone = new JvmObject(this.cls);
+    const clone = this.cls.instantiate();
 
     for (const [key, field] of Object.entries(this.fields)) {
       clone.fields[key].putValue(field.getValue());

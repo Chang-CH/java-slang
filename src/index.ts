@@ -1,7 +1,5 @@
-import { Field } from '#types/class/Field';
-import { ArrayClassData, ReferenceClassData } from '#types/class/ClassData';
-import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
+import { ReferenceClassData } from '#types/class/ClassData';
+import type { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
@@ -12,13 +10,8 @@ import {
   AbstractThreadPool,
   RoundRobinThreadPool,
 } from './components/ThreadPool';
-import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
-import {
-  checkError,
-  checkSuccess,
-  ImmediateResult,
-  SuccessResult,
-} from '#types/Result';
+import { InternalStackFrame } from './components/stackframe';
+import { checkError, checkSuccess } from '#types/Result';
 import { js2jString } from './utils';
 
 export default class JVM {
@@ -174,7 +167,9 @@ export default class JVM {
       throw new Error('Main method not found');
     }
     const mainThread = this._initialThread as Thread;
-    mainThread.invokeStackFrame(new JavaStackFrame(mainCls, mainMethod, 0, []));
+    mainThread.invokeStackFrame(
+      new InternalStackFrame(mainCls, mainMethod, 0, [], () => {})
+    );
     mainCls.initialize(mainThread);
     mainThread.setStatus(ThreadStatus.RUNNABLE);
     this.threadpool.addThread(mainThread);

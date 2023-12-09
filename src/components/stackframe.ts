@@ -1,6 +1,6 @@
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
 import Thread from './thread';
 
@@ -16,7 +16,6 @@ import * as references from './instructions/references';
 import * as stack from './instructions/stack';
 import * as stores from './instructions/stores';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { Code } from '#types/class/Attributes';
 import { JNI } from './JNI';
 
@@ -74,7 +73,7 @@ const runInstruction = (thread: Thread, method: Method) => {
   const opcode = (method._getCode() as Code).code.getUint8(thread.getPC());
 
   let result;
-  if (thread.getJVM().checkInitialized()) {
+  if (thread.getJVM().checkInitialized() || true) {
     console.debug(
       ''.padEnd(thread.getFrames().length, '#') +
         `${method.getClass().getClassname()}.${
@@ -715,27 +714,43 @@ export abstract class StackFrame {
   public method: Method;
   public pc: number;
   public locals: any[];
+  protected returnOffset: number;
 
-  constructor(cls: ClassData, method: Method, pc: number, locals: any[]) {
+  constructor(
+    cls: ClassData,
+    method: Method,
+    pc: number,
+    locals: any[],
+    returnOffset: number = 0
+  ) {
     this.operandStack = [];
     this.maxStack = method.getMaxStack();
     this.class = cls;
     this.method = method;
     this.pc = pc;
     this.locals = locals;
+    this.returnOffset = returnOffset;
   }
 
   /**
    * Behaviour when a method returns. Stackframe is already popped.
    * Responsible for pushing return value to operand stack of stackframe below it.
    */
-  abstract onReturn(thread: Thread, retn: any): void;
+  public onReturn(thread: Thread, retn: any) {
+    if (retn !== undefined) {
+      thread.pushStack(retn);
+    }
+    thread.offsetPc(this.returnOffset);
+  }
 
   /**
    * Behaviour when a method returns with a 64 bit value. Stackframe is already popped.
    * Responsible for pushing return value to operand stack of stackframe below it.
    */
-  abstract onReturn64(thread: Thread, retn: any): void;
+  public onReturn64(thread: Thread, retn: any) {
+    thread.pushStack64(retn);
+    thread.offsetPc(this.returnOffset);
+  }
 
   /**
    * Runs stackframe for a single quantum.
@@ -747,31 +762,18 @@ export abstract class StackFrame {
    * Does not prevent exception from being thrown in stackframe below it.
    */
   onError(thread: Thread, err: JvmObject) {}
+
+  checkNative(): this is NativeStackFrame {
+    return false;
+  }
 }
 
 export class JavaStackFrame extends StackFrame {
-  public onReturn(thread: Thread, retn: any) {
-    if (retn !== undefined) {
-      thread.pushStack(retn);
-    }
-  }
-
-  public onReturn64(thread: Thread, retn: any) {
-    thread.pushStack64(retn);
-  }
-
   run(thread: Thread): void {
     if (checkOverride(thread, this.method)) {
       return;
     }
 
-    if (
-      thread.getPC() === 316 &&
-      this.method.getName() === 'makePreparedFieldLambdaForm' &&
-      this.method.getDescriptor() === '(BZI)Ljava/lang/invoke/LambdaForm;'
-    ) {
-      console.log('break');
-    }
     runInstruction(thread, this.method);
   }
 }
@@ -801,7 +803,7 @@ export class InternalStackFrame extends StackFrame {
   }
 
   onError(thread: Thread, err: JvmObject): void {
-    this.callback(null, err);
+    this.callback(undefined, err);
   }
 
   run(thread: Thread): void {
@@ -819,9 +821,10 @@ export class NativeStackFrame extends StackFrame {
     method: Method,
     pc: number,
     locals: any[],
+    returnOffset: number,
     jni: JNI
   ) {
-    super(cls, method, pc, locals);
+    super(cls, method, pc, locals, returnOffset);
     this.jni = jni;
   }
 
@@ -837,15 +840,7 @@ export class NativeStackFrame extends StackFrame {
     nativeMethod(thread, this.locals);
   }
 
-  public onReturn(thread: Thread, retn: any) {
-    if (retn !== undefined) {
-      thread.pushStack(retn);
-    }
-  }
-
-  public onReturn64(thread: Thread, retn: any) {
-    if (retn !== undefined) {
-      thread.pushStack64(retn);
-    }
+  checkNative(): this is NativeStackFrame {
+    return true;
   }
 }

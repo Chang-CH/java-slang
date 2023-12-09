@@ -3,7 +3,7 @@ import { ImmediateResult, ErrorResult } from '#types/Result';
 import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, PrimitiveClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import { primitiveTypeToName } from '#utils/index';
 import AbstractClassLoader from './AbstractClassLoader';

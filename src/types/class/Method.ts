@@ -11,7 +11,7 @@ import {
 import { ArrayClassData } from './ClassData';
 import { ClassData, ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
-import { JvmObject } from '../reference/Object';
+import type { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
 import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
 import { ConstantPool } from '#jvm/components/constant-pool';
@@ -387,7 +387,7 @@ export class Method {
   }
 
   getBridgeMethod() {
-    return (thread: Thread) => {
+    return (thread: Thread, returnOffset: number) => {
       let sf;
 
       const args = this.getArgs(thread);
@@ -411,10 +411,11 @@ export class Method {
           this,
           0,
           locals,
+          returnOffset,
           thread.getJVM().getJNI()
         );
       } else {
-        sf = new JavaStackFrame(this.cls, this, 0, locals);
+        sf = new JavaStackFrame(this.cls, this, 0, locals, returnOffset);
       }
       thread.invokeStackFrame(sf);
     };

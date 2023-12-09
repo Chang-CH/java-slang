@@ -8,7 +8,7 @@ import {
   PrimitiveClassData,
   ReferenceClassData,
 } from '#types/class/ClassData';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import { ArrayClassData } from '#types/class/ClassData';
 import {

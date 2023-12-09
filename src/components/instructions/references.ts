@@ -3,11 +3,10 @@ import Thread from '#jvm/components/thread';
 import { parseMethodDescriptor, asDouble, asFloat } from '#utils/index';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JavaType } from '#types/reference/Object';
 import type { JvmArray } from '#types/reference/Array';
-import { j2jsString } from '#utils/index';
 import {
   ConstantClass,
   ConstantFieldref,
@@ -242,9 +241,6 @@ function lookupMethod(
     return { exceptionCls: 'java/lang/IncompatibleClassChangeError', msg: '' };
   }
 
-  if (!objRef.getClass) {
-    console.log(objRef);
-  }
   const runtimeClassRef = objRef.getClass();
 
   // method lookup
@@ -264,11 +260,18 @@ function lookupMethod(
 
   return { result: { toInvoke, objRef } };
 }
+function invokePoly(
+  thread: Thread,
+  constant: ConstantMethodref | ConstantInterfaceMethodref,
+  returnOffset: number
+): void {
+  throw new Error('Method not implemented.');
+}
 
 function invokeVirtual(
   thread: Thread,
   constant: ConstantMethodref | ConstantInterfaceMethodref,
-  onFinish?: () => void
+  returnOffset: number
 ): void {
   const resolutionRes = invokeInit(thread, constant);
   if (!checkSuccess(resolutionRes)) {
@@ -288,7 +291,10 @@ function invokeVirtual(
   }
   const { toInvoke, objRef } = toInvokeRes.result;
 
-  onFinish && onFinish();
+  if (toInvoke.isSignaturePolymorphic()) {
+    invokePoly(thread, constant, returnOffset);
+    return;
+  }
 
   if (toInvoke.checkNative()) {
     thread.invokeStackFrame(
@@ -297,12 +303,19 @@ function invokeVirtual(
         toInvoke,
         0,
         [objRef, ...args],
+        returnOffset,
         thread.getJVM().getJNI()
       )
     );
   } else {
     thread.invokeStackFrame(
-      new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args])
+      new JavaStackFrame(
+        toInvoke.getClass(),
+        toInvoke,
+        0,
+        [objRef, ...args],
+        returnOffset
+      )
     );
   }
 }
@@ -313,7 +326,7 @@ export function runInvokevirtual(thread: Thread): void {
     .getClass()
     .getConstant(indexbyte) as ConstantMethodref; // TODO: handle method handle etc.
 
-  invokeVirtual(thread, constant, () => thread.offsetPc(3));
+  invokeVirtual(thread, constant, 3);
 }
 
 export function runInvokespecial(thread: Thread): void {
@@ -341,7 +354,6 @@ export function runInvokespecial(thread: Thread): void {
     thread.throwNewException('java/lang/AbstractMethodError', '');
     return;
   }
-  thread.offsetPc(3);
 
   if (methodRef.checkNative()) {
     thread.invokeStackFrame(
@@ -350,12 +362,19 @@ export function runInvokespecial(thread: Thread): void {
         methodRef,
         0,
         [objRef, ...args],
+        3,
         thread.getJVM().getJNI()
       )
     );
   } else {
     thread.invokeStackFrame(
-      new JavaStackFrame(methodRef.getClass(), methodRef, 0, [objRef, ...args])
+      new JavaStackFrame(
+        methodRef.getClass(),
+        methodRef,
+        0,
+        [objRef, ...args],
+        3
+      )
     );
   }
 }
@@ -381,8 +400,6 @@ export function runInvokestatic(thread: Thread): void {
     return;
   }
 
-  thread.offsetPc(3);
-
   if (methodRef.checkNative()) {
     thread.invokeStackFrame(
       new NativeStackFrame(
@@ -390,11 +407,14 @@ export function runInvokestatic(thread: Thread): void {
         methodRef,
         0,
         args,
+        3,
         thread.getJVM().getJNI()
       )
     );
   } else {
-    thread.invokeStackFrame(new JavaStackFrame(classRef, methodRef, 0, args));
+    thread.invokeStackFrame(
+      new JavaStackFrame(classRef, methodRef, 0, args, 3)
+    );
   }
 }
 
@@ -424,8 +444,6 @@ export function runInvokeinterface(thread: Thread): void {
   }
   const { toInvoke, objRef } = toInvokeRes.result;
 
-  thread.offsetPc(5);
-
   if (toInvoke.checkNative()) {
     const methodCls = toInvoke.getClass();
     thread.invokeStackFrame(
@@ -434,12 +452,13 @@ export function runInvokeinterface(thread: Thread): void {
         toInvoke,
         0,
         [objRef, ...args],
+        5,
         thread.getJVM().getJNI()
       )
     );
   } else {
     thread.invokeStackFrame(
-      new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args])
+      new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, [objRef, ...args], 5)
     );
   }
 }

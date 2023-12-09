@@ -1,8 +1,8 @@
 import Thread from '#jvm/components/thread';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { asFloat, asDouble } from '#utils/index';
-import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmArray } from '#types/reference/Array';
+import type { JvmObject } from '#types/reference/Object';
 import { ConstantClass } from '#types/class/Constants';
 import { checkSuccess, checkError } from '#types/Result';
 import { ArrayClassData } from '#types/class/ClassData';

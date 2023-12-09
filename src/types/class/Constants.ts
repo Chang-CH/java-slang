@@ -18,8 +18,8 @@ import {
   ReferenceClassData,
 } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
-import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmArray } from '#types/reference/Array';
+import type { JvmObject } from '#types/reference/Object';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import {
@@ -1025,8 +1025,41 @@ export class ConstantMethodref extends Constant {
       } else {
         rtype = loader.getPrimitiveClassRef(descriptorClasses.ret.type);
       }
-
       ptypes.initArray(argsCls.length, argsCls);
+
+      const linkMethod = mhn.getMethod(
+        'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
+      );
+      if (!linkMethod) {
+        this.result = {
+          exceptionCls: 'java/lang/NoSuchMethodError',
+          msg: 'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;',
+        };
+        return this.result;
+      }
+      const linkFrame = new InternalStackFrame(
+        mhn,
+        linkMethod,
+        0,
+        [
+          this.cls.getJavaObject(),
+          MethodHandleReferenceKind.REF_invokeVirtual,
+          symbolClass.getJavaObject(),
+          thread.getJVM().getInternedString(nt.name),
+          null, // findMHType returns the method type here later
+          ptypes,
+          appendix,
+        ],
+        (mn, err) => {
+          if (err) {
+            return;
+          }
+          this.appendix = appendix.get(0);
+          this.memberName = mn;
+          this.result = { result: polyMethod };
+        }
+      );
+      thread.invokeStackFrame(linkFrame);
       thread.invokeStackFrame(
         new InternalStackFrame(
           mhn,
@@ -1037,45 +1070,13 @@ export class ConstantMethodref extends Constant {
             if (err) {
               return;
             }
-            const linkMethod = mhn.getMethod(
-              'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
-            );
-            if (!linkMethod) {
-              this.result = {
-                exceptionCls: 'java/lang/NoSuchMethodError',
-                msg: 'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;',
-              };
-              return;
-            }
-            thread.invokeStackFrame(
-              new InternalStackFrame(
-                mhn,
-                linkMethod,
-                0,
-                [
-                  this.cls.getJavaObject(),
-                  MethodHandleReferenceKind.REF_invokeVirtual,
-                  symbolClass.getJavaObject(),
-                  thread.getJVM().getInternedString(nt.name),
-                  mt,
-                  ptypes,
-                  appendix,
-                ],
-                (mn, err) => {
-                  if (err) {
-                    return;
-                  }
-                  this.appendix = appendix.get(0);
-                  this.memberName = mn;
-                  this.result = { result: polyMethod };
-                }
-              )
-            );
+            linkFrame.locals[4] = mt;
           }
         )
       );
-    }
 
+      return { isDefer: true };
+    }
     this.result = resolutionResult;
     return this.result;
   }

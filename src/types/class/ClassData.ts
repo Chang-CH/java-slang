@@ -1,10 +1,7 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import Thread from '#jvm/components/thread';
 import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
-import {
-  BootstrapMethodsAttribute,
-  AttributeInfo,
-} from '#jvm/external/ClassFile/types/attributes';
+import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { Field } from './Field';
 import { Method } from './Method';
 import { JvmObject } from '../reference/Object';
@@ -13,12 +10,7 @@ import { ConstantPool } from '#jvm/components/constant-pool';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { attrInfo2Interface, primitiveNameToType } from '#utils/index';
 import { JvmArray } from '#types/reference/Array';
-import {
-  BootstrapMethod,
-  BootstrapMethods,
-  IAttribute,
-  info2Attribute,
-} from './Attributes';
+import { BootstrapMethod, BootstrapMethods, IAttribute } from './Attributes';
 import {
   ImmediateResult,
   checkError,
@@ -513,7 +505,7 @@ export abstract class ClassData {
         this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassData>
       ).result;
 
-      this.javaClassObject = new JvmObject(clsCls);
+      this.javaClassObject = clsCls.instantiate();
       this.javaClassObject.putNativeField('classRef', this);
       this.javaClassObject._putField(
         'classLoader',
@@ -697,12 +689,6 @@ export class ReferenceClassData extends ClassData {
       return { result: this };
     }
 
-    const clsRes = this.loader.getClassRef('java/lang/Class');
-    if (checkError(clsRes)) {
-      onDefer && onDefer();
-      return clsRes;
-    }
-
     if (!this.javaClassObject) {
       this.getJavaObject();
     }
@@ -759,10 +745,6 @@ export class ReferenceClassData extends ClassData {
     }
 
     return superClass.checkCast(castTo);
-  }
-
-  instantiate(): JvmObject {
-    return new JvmObject(this);
   }
 
   // #region used for temp indy hack

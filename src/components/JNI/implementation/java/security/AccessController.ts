@@ -4,7 +4,7 @@ import { JavaStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
 import { checkSuccess, checkError } from '#types/Result';
 import { Method } from '#types/class/Method';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 
 export const registerJavaSecurityAccessController = (jni: JNI) => {
   const doPrivileged = (thread: Thread, locals: any[]) => {
@@ -91,9 +91,10 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
         return;
       }
 
-      thread.returnStackFrame();
       thread.invokeStackFrame(
-        new JavaStackFrame(runtimeCls, method, 0, [action])
+        new InternalStackFrame(runtimeCls, method, 0, [action], ret => {
+          thread.returnStackFrame(ret);
+        })
       );
     }
   );

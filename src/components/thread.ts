@@ -2,11 +2,9 @@ import JVM from '#jvm/index';
 import { checkError, checkSuccess } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
-import { Field } from '#types/class/Field';
 import { Method } from '#types/class/Method';
-import { JvmArray } from '#types/reference/Array';
-import { j2jsString } from '#utils/index';
-import { JvmObject } from '../types/reference/Object';
+import type { JvmArray } from '#types/reference/Array';
+import type { JvmObject } from '../types/reference/Object';
 import { AbstractThreadPool } from './ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
 
@@ -139,6 +137,13 @@ export default class Thread {
   }
 
   offsetPc(pc: number) {
+    const sf = this.stack[this.stackPointer];
+
+    // no more stackframes or native method
+    if (!sf || sf.checkNative()) {
+      return;
+    }
+
     this.stack[this.stackPointer].pc += pc;
   }
 
@@ -217,34 +222,6 @@ export default class Thread {
       return sf;
     }
 
-    if (
-      sf.class.getClassname() === 'java/lang/invoke/LambdaForm$NamedFunction' &&
-      sf.method.getName() === 'methodType' &&
-      sf.method.getDescriptor() === '()Ljava/lang/invoke/MethodType;'
-    ) {
-      try {
-        console.log(
-          'LambdaForm$NamedFunction::methodType return: ',
-          (
-            (ret as JvmObject)._getField(
-              'ptypes',
-              '[Ljava/lang/Class;',
-              'java/lang/invoke/MethodType'
-            ) as JvmArray
-          )
-            .getJsArray()
-            .map(
-              (v: JvmObject) =>
-                `Class<${(
-                  v.getNativeField('classRef') as ClassData
-                ).getClassname()}>`
-            )
-        );
-      } catch (e) {
-        console.log('LambdaForm$NamedFunction::methodType return issue');
-      }
-    }
-
     console.debug(
       sf.class.getClassname() +
         '.' +
@@ -271,42 +248,6 @@ export default class Thread {
   }
 
   invokeStackFrame(sf: StackFrame) {
-    if (
-      sf.method.getName() === '<clinit>' &&
-      sf.method.getClass().getClassname() ===
-        'java/lang/invoke/BoundMethodHandle$Species_L'
-    ) {
-      console.log('species_L clinit');
-    }
-
-    if (sf.method.getName() === 'parameterType') {
-      console.log('parameterType getIndex');
-    }
-
-    // TODO:
-    if (
-      sf.method.getName() === 'emitPushArgument' &&
-      sf.method.getDescriptor() === '(Ljava/lang/invoke/LambdaForm$Name;I)V' &&
-      sf.locals[2] === 2 &&
-      sf.locals[1] &&
-      (sf.locals[1] as JvmObject)._getField(
-        'arguments',
-        '[Ljava/lang/Object;',
-        'java/lang/invoke/LambdaForm$Name'
-      )
-    ) {
-      console.log(
-        'emitPushArguments arguments 2: ',
-        (sf.locals[1] as JvmObject)
-          ._getField(
-            'arguments',
-            '[Ljava/lang/Object;',
-            'java/lang/invoke/LambdaForm$Name'
-          )
-          .getJsArray()
-      );
-    }
-
     console.debug(
       ''.padEnd(this.stackPointer + 2, '#') +
         sf.class.getClassname() +
@@ -329,6 +270,10 @@ export default class Thread {
     this.stackPointer += 1;
   }
 
+  /**
+   * Creates an InternalStackFrame and pushes it onto the stack.
+   * Workaround for circular dependencies in JvmObject
+   */
   _invokeInternal(
     cls: ReferenceClassData,
     method: Method,
@@ -415,7 +360,6 @@ export default class Thread {
       // Native methods cannot handle exceptions
       if (method.checkNative()) {
         this.returnStackFrame(null, exception);
-        this.stackPointer -= 1;
         continue;
       }
 
@@ -443,12 +387,19 @@ export default class Thread {
           pc < handler.endPc &&
           (handlerCls === null || exceptionCls.checkCast(handlerCls))
         ) {
+          console.log(
+            'EXCEPTION CAUGHT: @',
+            method.getClass().getClassname(),
+            ' FOR: ',
+            exceptionCls.getClassname()
+          );
           // clear the operand stack and push exception
           this.stack[this.stackPointer].operandStack = [exception];
           this.setPc(handler.handlerPc);
           return;
         }
       }
+
       this.returnStackFrame(null, exception);
     }
 

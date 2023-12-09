@@ -2,13 +2,10 @@ import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader
 import { primitiveNameToType } from '#utils/index';
 import { JNI } from '#jvm/components/JNI';
 import Thread from '#jvm/components/thread';
-import { Field } from '#types/class/Field';
 import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
-import { JvmArray } from '#types/reference/Array';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
-import { Method } from '#types/class/Method';
 import { checkError, checkSuccess, ErrorResult } from '#types/Result';
 
 export const registerJavaLangClass = (jni: JNI) => {
@@ -373,6 +370,22 @@ export const registerJavaLangClass = (jni: JNI) => {
       const innerclasses: any[] = [];
       clsArr.initArray(innerclasses.length, innerclasses);
       thread.returnStackFrame(clsArr);
+    }
+  );
+
+  // java/lang/Class.isInstance(Ljava/lang/Object;)Z
+  jni.registerNativeMethod(
+    clsName,
+    'isInstance(Ljava/lang/Object;)Z',
+    (thread: Thread, locals: any[]) => {
+      const jThis = locals[0] as JvmObject;
+      const thisCls = jThis.getNativeField('classRef') as ClassData;
+      const obj = locals[1] as JvmObject | null;
+      if (obj === null) {
+        thread.returnStackFrame(0);
+        return;
+      }
+      thread.returnStackFrame(obj.getClass().checkCast(thisCls) ? 1 : 0);
     }
   );
 };

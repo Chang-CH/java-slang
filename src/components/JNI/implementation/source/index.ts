@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { JvmObject } from '#types/reference/Object';
+import type { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
 import { JNI } from '../..';
 
@@ -8,7 +8,8 @@ export const registerSource = (jni: JNI) => {
     'Source',
     'display(I)V',
     (thread: Thread, locals: any[]) => {
-      console.log(locals[0]);
+      const system = thread.getJVM().getSystem();
+      system.stdout(locals[0]);
       thread.returnStackFrame();
     }
   );
@@ -18,7 +19,8 @@ export const registerSource = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const strObj = locals[0] as JvmObject;
       const str = j2jsString(strObj);
-      console.log(str);
+      const system = thread.getJVM().getSystem();
+      system.stdout(str);
       thread.returnStackFrame();
     }
   );
@@ -29,8 +31,9 @@ export const registerSource = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const strObj = locals[0] as JvmObject;
       const str = j2jsString(strObj);
-      console.log('\x1b[31m' + 'SOURCE SHOULD BE GLOBAL' + '\x1b[0m');
-      console.log(str);
+      const system = thread.getJVM().getSystem();
+      system.stdout('SOURCE SHOULD BE GLOBAL');
+      system.stdout(str);
       thread.returnStackFrame();
     }
   );

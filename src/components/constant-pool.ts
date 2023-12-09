@@ -34,7 +34,7 @@ import {
   ConstantString,
   ConstantUtf8,
 } from '#types/class/Constants';
-import { JvmArray } from '#types/reference/Array';
+import type { JvmArray } from '#types/reference/Array';
 
 export class ConstantPool {
   private pool: Constant[];
