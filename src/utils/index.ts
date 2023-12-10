@@ -1,5 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { ConstantPool } from '#jvm/components/constant-pool';
+import Thread from '#jvm/components/thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { SuccessResult } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';
@@ -152,6 +153,51 @@ export function parseMethodDescriptor(desc: string) {
     args: argTypes,
     ret: { type: retType.type, referenceCls: retType.referenceCls },
   };
+}
+
+export function getArgs(
+  thread: Thread,
+  descriptor: string,
+  isNative: boolean
+): any[] {
+  // We should memoize parsing in the future.
+  const methodDesc = parseMethodDescriptor(descriptor);
+  const args = [];
+  for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    switch (methodDesc.args[i].type) {
+      case 'V':
+        break; // should not happen
+      case 'B':
+      case 'C':
+      case 'I':
+      case 'S':
+      case 'Z':
+        args.push(thread.popStack());
+        break;
+      case 'D':
+        const double = asDouble(thread.popStack64());
+        args.push(double);
+        if (!isNative) {
+          args.push(double);
+        }
+        break;
+      case 'F':
+        args.push(asFloat(thread.popStack()));
+        break;
+      case 'J':
+        const long = asDouble(thread.popStack64());
+        args.push(long);
+        if (!isNative) {
+          args.push(long);
+        }
+        break;
+      case '[':
+      default: // references + arrays
+        args.push(thread.popStack());
+    }
+  }
+
+  return args.reverse();
 }
 
 export function getField(ref: any, fieldName: string, type: JavaType) {

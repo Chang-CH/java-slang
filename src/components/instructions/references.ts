@@ -1,6 +1,11 @@
 import Thread from '#jvm/components/thread';
 
-import { parseMethodDescriptor, asDouble, asFloat } from '#utils/index';
+import {
+  parseMethodDescriptor,
+  asDouble,
+  asFloat,
+  getArgs,
+} from '#utils/index';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import type { JvmObject } from '#types/reference/Object';
@@ -241,8 +246,13 @@ function lookupMethod(
     return { exceptionCls: 'java/lang/IncompatibleClassChangeError', msg: '' };
   }
 
-  const runtimeClassRef = objRef.getClass();
+  try {
+    const runtimeClassRef = objRef.getClass();
+  } catch (e) {
+    console.log(objRef);
+  }
 
+  const runtimeClassRef = objRef.getClass();
   // method lookup
   const lookupResult = runtimeClassRef.lookupMethod(
     methodRef.getName() + methodRef.getDescriptor(),
@@ -265,7 +275,34 @@ function invokePoly(
   constant: ConstantMethodref | ConstantInterfaceMethodref,
   returnOffset: number
 ): void {
-  throw new Error('Method not implemented.');
+  const { appendix, memberName, originalDescriptor } =
+    constant.getPolymorphic();
+  const vmtarget = memberName.getNativeField('vmtarget') as Method;
+  // TODO: getargs from membername method or polymethod?
+  let args = getArgs(thread, originalDescriptor, vmtarget.checkNative());
+  args = [thread.popStack(), ...args];
+  const mh = thread.popStack() as JvmObject;
+  if (mh === null) {
+    thread.throwNewException('java/lang/NullPointerException', '');
+    return;
+  }
+  args = [mh, ...args];
+  if (appendix !== null) {
+    args.push(appendix);
+  }
+
+  thread.invokeStackFrame(
+    vmtarget.checkNative()
+      ? new NativeStackFrame(
+          vmtarget.getClass(),
+          vmtarget,
+          0,
+          args,
+          returnOffset,
+          thread.getJVM().getJNI()
+        )
+      : new JavaStackFrame(vmtarget.getClass(), vmtarget, 0, args, returnOffset)
+  );
 }
 
 function invokeVirtual(
@@ -283,6 +320,11 @@ function invokeVirtual(
   }
   const { methodRef, args } = resolutionRes.result;
 
+  if (methodRef.isSignaturePolymorphic()) {
+    invokePoly(thread, constant, returnOffset);
+    return;
+  }
+
   // method lookup
   const toInvokeRes = lookupMethod(thread, methodRef, false);
   if (checkError(toInvokeRes)) {
@@ -290,11 +332,6 @@ function invokeVirtual(
     return;
   }
   const { toInvoke, objRef } = toInvokeRes.result;
-
-  if (toInvoke.isSignaturePolymorphic()) {
-    invokePoly(thread, constant, returnOffset);
-    return;
-  }
 
   if (toInvoke.checkNative()) {
     thread.invokeStackFrame(

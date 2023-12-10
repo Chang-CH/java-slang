@@ -2,6 +2,7 @@ import {
   asDouble,
   asFloat,
   attrInfo2Interface,
+  getArgs,
   parseMethodDescriptor,
 } from '#utils/index';
 import {
@@ -344,46 +345,12 @@ export class Method {
     return this.accessFlags;
   }
 
+  /**
+   * Pops and returns the arguments of this method from the stack.
+   * Wide primitives occupy 2 indexes for non native methods.
+   */
   getArgs(thread: Thread): any[] {
-    // We should memoize parsing in the future.
-    const methodDesc = parseMethodDescriptor(this.descriptor);
-    const isNative = this.checkNative();
-    const args = [];
-    for (let i = methodDesc.args.length - 1; i >= 0; i--) {
-      switch (methodDesc.args[i].type) {
-        case 'V':
-          break; // should not happen
-        case 'B':
-        case 'C':
-        case 'I':
-        case 'S':
-        case 'Z':
-          args.push(thread.popStack());
-          break;
-        case 'D':
-          const double = asDouble(thread.popStack64());
-          args.push(double);
-          if (!isNative) {
-            args.push(double);
-          }
-          break;
-        case 'F':
-          args.push(asFloat(thread.popStack()));
-          break;
-        case 'J':
-          const long = asDouble(thread.popStack64());
-          args.push(long);
-          if (!isNative) {
-            args.push(long);
-          }
-          break;
-        case '[':
-        default: // references + arrays
-          args.push(thread.popStack());
-      }
-    }
-
-    return args.reverse();
+    return getArgs(thread, this.descriptor, this.checkNative());
   }
 
   getBridgeMethod() {

@@ -385,7 +385,7 @@ export function registerNatives(jni: JNI) {
           methodFlags | flags
         );
 
-        memberName.putNativeField('method', method);
+        memberName.putNativeField('vmtarget', method);
         thread.returnStackFrame(memberName);
         return;
       } else if (flags & MemberNameFlags.MN_IS_FIELD) {
@@ -549,7 +549,7 @@ export function registerNatives(jni: JNI) {
           'java/lang/invoke/MemberName',
           clazz
         );
-        memberName.putNativeField('method', method);
+        memberName.putNativeField('vmtarget', method);
         thread.returnStackFrame();
         return;
         // MemberNameFlags
@@ -589,7 +589,7 @@ export function registerNatives(jni: JNI) {
           'java/lang/invoke/MemberName',
           clazz
         );
-        memberName.putNativeField('methodRef', method);
+        memberName.putNativeField('vmtarget', method);
         thread.returnStackFrame();
         return;
       }

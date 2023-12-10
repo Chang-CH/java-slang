@@ -875,6 +875,138 @@ export class ConstantFieldref extends Constant {
   }
 }
 
+function resolveSignaturePolymorphic(
+  symbolClass: ClassData,
+  selfClass: ClassData,
+  name: string,
+  descriptor: string,
+  thread: Thread,
+  onError: (err?: ErrorResult) => void,
+  onSuccess: (
+    appendix: JvmObject,
+    memberName: JvmObject,
+    method: Method
+  ) => void
+) {
+  // Check signature polymorphic methods
+  const polyResolutionResult = symbolClass.resolveMethod(
+    name + '([Ljava/lang/Object;)Ljava/lang/Object;',
+    selfClass
+  );
+
+  if (
+    checkError(polyResolutionResult) ||
+    !polyResolutionResult.result.isSignaturePolymorphic()
+  ) {
+    return onError();
+  }
+
+  const polyMethod = polyResolutionResult.result;
+  const loader = selfClass.getLoader();
+
+  const mhnResolution = loader.getClassRef(
+    'java/lang/invoke/MethodHandleNatives'
+  );
+  if (checkError(mhnResolution)) {
+    return onError(mhnResolution);
+  }
+  const objArrResolution = loader.getClassRef('[Ljava/lang/Object;');
+  if (checkError(objArrResolution)) {
+    return onError(objArrResolution);
+  }
+
+  const mhn = mhnResolution.result;
+  const objArrCls = objArrResolution.result as ArrayClassData;
+  const ptypes = objArrCls.instantiate();
+  const appendix = objArrCls.instantiate();
+  appendix.initArray(1);
+  const mhnInitResult = mhn.initialize(thread);
+  if (!checkSuccess(mhnInitResult)) {
+    if (checkError(mhnInitResult)) {
+      return onError(mhnInitResult);
+    }
+    return;
+  }
+  const findMHType = mhn.getMethod(
+    'findMethodHandleType(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;'
+  );
+  if (!findMHType) {
+    return onError({
+      exceptionCls: 'java/lang/NoSuchMethodError',
+      msg: 'findMethodHandleType(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;',
+    });
+  }
+  const descriptorClasses = parseMethodDescriptor(descriptor);
+  let argResolutionError: ErrorResult | null = null;
+  const argsCls = descriptorClasses.args.map(arg => {
+    if (arg.type === JavaType.reference || arg.type === JavaType.array) {
+      const loadResult = loader.getClassRef(arg.referenceCls as string);
+      if (checkError(loadResult)) {
+        argResolutionError = loadResult;
+        return null;
+      }
+      return loadResult.result;
+    }
+    return loader.getPrimitiveClassRef(arg.type);
+  });
+  if (argResolutionError) {
+    return onError(argResolutionError);
+  }
+  let rtype: JvmObject;
+  if (descriptorClasses.ret.referenceCls) {
+    const loadResult = loader.getClassRef(
+      descriptorClasses.ret.referenceCls as string
+    );
+    if (checkError(loadResult)) {
+      return onError(loadResult);
+    }
+    rtype = loadResult.result.getJavaObject();
+  } else {
+    rtype = loader
+      .getPrimitiveClassRef(descriptorClasses.ret.type)
+      .getJavaObject();
+  }
+  ptypes.initArray(argsCls.length, argsCls);
+
+  const linkMethod = mhn.getMethod(
+    'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
+  );
+  if (!linkMethod) {
+    return onError({
+      exceptionCls: 'java/lang/NoSuchMethodError',
+      msg: 'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;',
+    });
+  }
+  const linkFrame = new InternalStackFrame(
+    mhn,
+    linkMethod,
+    0,
+    [
+      selfClass.getJavaObject(),
+      MethodHandleReferenceKind.REF_invokeVirtual,
+      symbolClass.getJavaObject(),
+      thread.getJVM().getInternedString(name),
+      null, // findMHType sets this to the method type later
+      appendix,
+    ],
+    (mn, err) => {
+      if (err) {
+        return;
+      }
+      onSuccess(appendix.get(0), mn, polyMethod);
+    }
+  );
+  thread.invokeStackFrame(linkFrame);
+  thread.invokeStackFrame(
+    new InternalStackFrame(mhn, findMHType, 0, [rtype, ptypes], (mt, err) => {
+      if (err) {
+        return;
+      }
+      linkFrame.locals[4] = mt;
+    })
+  );
+}
+
 export class ConstantMethodref extends Constant {
   private classConstant: ConstantClass;
   private nameAndTypeConstant: ConstantNameAndType;
@@ -943,142 +1075,51 @@ export class ConstantMethodref extends Constant {
       checkError(resolutionResult) &&
       resolutionResult.exceptionCls === 'java/lang/NoSuchMethodError'
     ) {
-      // Check signature polymorphic methods
-      const polyResolutionResult = symbolClass.resolveMethod(
-        nt.name + '([Ljava/lang/Object;)Ljava/lang/Object;',
-        this.cls
-      );
-
-      if (
-        checkError(polyResolutionResult) ||
-        !polyResolutionResult.result.isSignaturePolymorphic()
-      ) {
-        this.result = resolutionResult;
-        return this.result;
-      }
-
-      const polyMethod = polyResolutionResult.result;
-      const loader = this.cls.getLoader();
-
-      const mhnResolution = loader.getClassRef(
-        'java/lang/invoke/MethodHandleNatives'
-      );
-      if (checkError(mhnResolution)) {
-        this.result = mhnResolution;
-        return this.result;
-      }
-      const objArrResolution = loader.getClassRef('[Ljava/lang/Object;');
-      if (checkError(objArrResolution)) {
-        this.result = objArrResolution;
-        return this.result;
-      }
-
-      const mhn = mhnResolution.result;
-      const objArrCls = objArrResolution.result as ArrayClassData;
-      const ptypes = objArrCls.instantiate();
-      const appendix = objArrCls.instantiate();
-      appendix.initArray(1);
-      const mhnInitResult = mhn.initialize(thread);
-      if (!checkSuccess(mhnInitResult)) {
-        if (checkError(mhnInitResult)) {
-          this.result = mhnInitResult;
-          return this.result;
+      const onSuccess = (
+        appendix: JvmObject,
+        memberName: JvmObject,
+        method: Method
+      ) => {
+        this.appendix = appendix;
+        this.memberName = memberName;
+        this.result = { result: method };
+      };
+      const onError = (err?: ErrorResult) => {
+        if (!err) {
+          this.result = resolutionResult;
         }
-        return { isDefer: true };
-      }
-      const findMHType = mhn.getMethod(
-        'findMethodHandleType(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;'
+        this.result = err;
+      };
+      resolveSignaturePolymorphic(
+        symbolClass,
+        this.cls,
+        nt.name,
+        nt.descriptor,
+        thread,
+        onError,
+        onSuccess
       );
-      if (!findMHType) {
-        this.result = {
-          exceptionCls: 'java/lang/NoSuchMethodError',
-          msg: 'findMethodHandleType(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;',
-        };
+      if (this.result) {
         return this.result;
       }
-      const descriptorClasses = parseMethodDescriptor(nt.descriptor);
-      let argResolutionError: ErrorResult | null = null;
-      const argsCls = descriptorClasses.args.map(arg => {
-        if (arg.type === JavaType.reference || arg.type === JavaType.array) {
-          const loadResult = loader.getClassRef(arg.referenceCls as string);
-          if (checkError(loadResult)) {
-            argResolutionError = loadResult;
-            return null;
-          }
-          return loadResult.result;
-        }
-        return loader.getPrimitiveClassRef(arg.type);
-      });
-      if (argResolutionError) {
-        this.result = argResolutionError;
-        return this.result;
-      }
-      let rtype;
-      if (descriptorClasses.ret.referenceCls) {
-        const loadResult = loader.getClassRef(
-          descriptorClasses.ret.referenceCls as string
-        );
-        if (checkError(loadResult)) {
-          this.result = loadResult;
-          return this.result;
-        }
-      } else {
-        rtype = loader.getPrimitiveClassRef(descriptorClasses.ret.type);
-      }
-      ptypes.initArray(argsCls.length, argsCls);
-
-      const linkMethod = mhn.getMethod(
-        'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;'
-      );
-      if (!linkMethod) {
-        this.result = {
-          exceptionCls: 'java/lang/NoSuchMethodError',
-          msg: 'linkMethod(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;',
-        };
-        return this.result;
-      }
-      const linkFrame = new InternalStackFrame(
-        mhn,
-        linkMethod,
-        0,
-        [
-          this.cls.getJavaObject(),
-          MethodHandleReferenceKind.REF_invokeVirtual,
-          symbolClass.getJavaObject(),
-          thread.getJVM().getInternedString(nt.name),
-          null, // findMHType returns the method type here later
-          ptypes,
-          appendix,
-        ],
-        (mn, err) => {
-          if (err) {
-            return;
-          }
-          this.appendix = appendix.get(0);
-          this.memberName = mn;
-          this.result = { result: polyMethod };
-        }
-      );
-      thread.invokeStackFrame(linkFrame);
-      thread.invokeStackFrame(
-        new InternalStackFrame(
-          mhn,
-          findMHType,
-          0,
-          [rtype, ptypes],
-          (mt, err) => {
-            if (err) {
-              return;
-            }
-            linkFrame.locals[4] = mt;
-          }
-        )
-      );
-
       return { isDefer: true };
     }
+
     this.result = resolutionResult;
     return this.result;
+  }
+
+  public getPolymorphic() {
+    if (!this.memberName || !this.result || !checkSuccess(this.result)) {
+      throw new Error('Not resolved');
+    }
+
+    return {
+      appendix: this.appendix,
+      memberName: this.memberName,
+      method: this.result.result,
+      originalDescriptor: this.nameAndTypeConstant.get().descriptor,
+    };
   }
 }
 
@@ -1086,6 +1127,8 @@ export class ConstantInterfaceMethodref extends Constant {
   private classConstant: ConstantClass;
   private nameAndTypeConstant: ConstantNameAndType;
   private result?: Result<Method>;
+  private appendix?: any;
+  private memberName?: JvmObject;
 
   constructor(
     cls: ClassData,
@@ -1105,7 +1148,7 @@ export class ConstantInterfaceMethodref extends Constant {
     return c.getTag() === CONSTANT_TAG.InterfaceMethodref;
   }
 
-  public resolve(): Result<Method> {
+  public resolve(thread: Thread): Result<Method> {
     // 5.4.3 if initial attempt to resolve a symbolic reference fails
     // then subsequent attempts to resolve the reference always fail with the same error
     if (this.result) {
@@ -1139,8 +1182,60 @@ export class ConstantInterfaceMethodref extends Constant {
     }
 
     const nt = this.nameAndTypeConstant.get();
-    this.result = symbolClass.resolveMethod(nt.name + nt.descriptor, this.cls);
+    const resolutionResult = symbolClass.resolveMethod(
+      nt.name + nt.descriptor,
+      this.cls
+    );
+
+    if (
+      checkError(resolutionResult) &&
+      resolutionResult.exceptionCls === 'java/lang/NoSuchMethodError'
+    ) {
+      const onSuccess = (
+        appendix: JvmObject,
+        memberName: JvmObject,
+        method: Method
+      ) => {
+        this.appendix = appendix;
+        this.memberName = memberName;
+        this.result = { result: method };
+      };
+      const onError = (err?: ErrorResult) => {
+        if (!err) {
+          this.result = resolutionResult;
+        }
+        this.result = err;
+      };
+      resolveSignaturePolymorphic(
+        symbolClass,
+        this.cls,
+        nt.name,
+        nt.descriptor,
+        thread,
+        onError,
+        onSuccess
+      );
+      if (this.result) {
+        return this.result;
+      }
+      return { isDefer: true };
+    }
+
+    this.result = resolutionResult;
     return this.result;
+  }
+
+  public getPolymorphic() {
+    if (!this.memberName || !this.result || !checkSuccess(this.result)) {
+      throw new Error('Not resolved');
+    }
+
+    return {
+      appendix: this.appendix,
+      memberName: this.memberName,
+      method: this.result.result,
+      originalDescriptor: this.nameAndTypeConstant.get().descriptor,
+    };
   }
 }
 

@@ -191,6 +191,9 @@ export class Field {
   }
 
   putValue(value: any) {
+    if (value === undefined) {
+      throw new Error('putValue: value is undefined');
+    }
     this.value = value;
   }
 
