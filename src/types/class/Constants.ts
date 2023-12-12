@@ -883,9 +883,9 @@ function resolveSignaturePolymorphic(
   thread: Thread,
   onError: (err?: ErrorResult) => void,
   onSuccess: (
-    appendix: JvmObject,
-    memberName: JvmObject,
-    method: Method
+    method: Method,
+    appendix?: JvmObject,
+    memberName?: JvmObject
   ) => void
 ) {
   // Check signature polymorphic methods
@@ -896,12 +896,18 @@ function resolveSignaturePolymorphic(
 
   if (
     checkError(polyResolutionResult) ||
-    !polyResolutionResult.result.isSignaturePolymorphic()
+    !polyResolutionResult.result.checkSignaturePolymorphic()
   ) {
     return onError();
   }
 
   const polyMethod = polyResolutionResult.result;
+  const polyName = polyMethod.getName();
+  // invokebasic
+  if (polyName !== 'invoke' && polyName !== 'invokeExact') {
+    onSuccess(polyMethod);
+    return;
+  }
   const loader = selfClass.getLoader();
 
   const mhnResolution = loader.getClassRef(
@@ -993,7 +999,7 @@ function resolveSignaturePolymorphic(
       if (err) {
         return;
       }
-      onSuccess(appendix.get(0), mn, polyMethod);
+      onSuccess(polyMethod, appendix.get(0), mn);
     }
   );
   thread.invokeStackFrame(linkFrame);
@@ -1076,9 +1082,9 @@ export class ConstantMethodref extends Constant {
       resolutionResult.exceptionCls === 'java/lang/NoSuchMethodError'
     ) {
       const onSuccess = (
-        appendix: JvmObject,
-        memberName: JvmObject,
-        method: Method
+        method: Method,
+        appendix?: JvmObject,
+        memberName?: JvmObject
       ) => {
         this.appendix = appendix;
         this.memberName = memberName;
@@ -1110,7 +1116,7 @@ export class ConstantMethodref extends Constant {
   }
 
   public getPolymorphic() {
-    if (!this.memberName || !this.result || !checkSuccess(this.result)) {
+    if (!this.result || !checkSuccess(this.result)) {
       throw new Error('Not resolved');
     }
 
@@ -1192,9 +1198,9 @@ export class ConstantInterfaceMethodref extends Constant {
       resolutionResult.exceptionCls === 'java/lang/NoSuchMethodError'
     ) {
       const onSuccess = (
-        appendix: JvmObject,
-        memberName: JvmObject,
-        method: Method
+        method: Method,
+        appendix?: JvmObject,
+        memberName?: JvmObject
       ) => {
         this.appendix = appendix;
         this.memberName = memberName;

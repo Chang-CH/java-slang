@@ -90,7 +90,7 @@ export class Method {
     return obj.code !== undefined;
   }
 
-  isSignaturePolymorphic() {
+  checkSignaturePolymorphic() {
     return (
       this.cls.getClassname() === 'java/lang/invoke/MethodHandle' &&
       this.descriptor === '([Ljava/lang/Object;)Ljava/lang/Object;' &&

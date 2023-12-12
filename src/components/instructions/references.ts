@@ -1,11 +1,6 @@
 import Thread from '#jvm/components/thread';
 
-import {
-  parseMethodDescriptor,
-  asDouble,
-  asFloat,
-  getArgs,
-} from '#utils/index';
+import { asDouble, asFloat, getArgs } from '#utils/index';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import type { JvmObject } from '#types/reference/Object';
@@ -205,28 +200,57 @@ export function runPutfield(thread: Thread): void {
 function invokeInit(
   thread: Thread,
   constant: ConstantMethodref | ConstantInterfaceMethodref
-): Result<{ classRef: ReferenceClassData; methodRef: Method; args: any[] }> {
+): Result<{ methodRef: Method; args: any[]; polyMethod?: Method }> {
   const methodRes = constant.resolve(thread);
   if (!checkSuccess(methodRes)) {
-    if (checkError(methodRes)) {
-      return methodRes;
-    }
-    return { isDefer: true };
+    return methodRes;
   }
   const methodRef = methodRes.result;
 
   const classRef = methodRef.getClass();
   const initRes = classRef.initialize(thread);
   if (!checkSuccess(initRes)) {
-    if (checkError(initRes)) {
-      return initRes;
-    }
-    return { isDefer: true };
+    return initRes;
   }
 
-  const args = methodRef.getArgs(thread);
+  if (methodRef.checkSignaturePolymorphic()) {
+    const { appendix, memberName, originalDescriptor } =
+      constant.getPolymorphic();
 
-  return { result: { classRef, methodRef, args } };
+    let target: Method;
+    let args: any[] = [];
+    if (methodRef.getName() === 'invokeBasic') {
+      // invokeBasic
+      target = methodRef;
+      args = getArgs(thread, originalDescriptor, target.checkNative());
+    } else {
+      // invoke/invokeExact
+      if (
+        !memberName ||
+        (methodRef.getName() !== 'invokeExact' &&
+          methodRef.getName() !== 'invoke')
+      ) {
+        return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
+      }
+      target = memberName.getNativeField('vmtarget') as Method;
+      args = getArgs(thread, originalDescriptor, target.checkNative());
+      if (appendix !== null) {
+        args.push(appendix);
+      }
+    }
+    const mh = thread.popStack() as JvmObject;
+    if (mh === null) {
+      return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
+    }
+    args = [mh, ...args];
+
+    return {
+      result: { methodRef: target, args, polyMethod: methodRef },
+    };
+  } else {
+    const args = methodRef.getArgs(thread);
+    return { result: { methodRef, args } };
+  }
 }
 
 // looks up method for invokevirtual/invokeinterface.
@@ -270,38 +294,41 @@ function lookupMethod(
 
   return { result: { toInvoke, objRef } };
 }
+
 function invokePoly(
   thread: Thread,
-  constant: ConstantMethodref | ConstantInterfaceMethodref,
+  polyMethod: Method,
+  vmtarget: Method,
+  args: any[],
   returnOffset: number
 ): void {
-  const { appendix, memberName, originalDescriptor } =
-    constant.getPolymorphic();
-  const vmtarget = memberName.getNativeField('vmtarget') as Method;
-  // TODO: getargs from membername method or polymethod?
-  let args = getArgs(thread, originalDescriptor, vmtarget.checkNative());
-  args = [thread.popStack(), ...args];
-  const mh = thread.popStack() as JvmObject;
-  if (mh === null) {
-    thread.throwNewException('java/lang/NullPointerException', '');
-    return;
-  }
-  args = [mh, ...args];
-  if (appendix !== null) {
-    args.push(appendix);
+  let toInvoke = vmtarget;
+  if (polyMethod.getName() === 'invokeBasic') {
+    const mh = args[0] as JvmObject;
+    const lambdaForm = mh._getField(
+      'form',
+      'Ljava/lang/invoke/LambdaForm;',
+      'java/lang/invoke/MethodHandle'
+    );
+    const memberName = lambdaForm._getField(
+      'vmentry',
+      'Ljava/lang/invoke/MemberName;',
+      'java/lang/invoke/LambdaForm'
+    );
+    toInvoke = memberName.getNativeField('vmtarget') as Method;
   }
 
   thread.invokeStackFrame(
-    vmtarget.checkNative()
+    toInvoke.checkNative()
       ? new NativeStackFrame(
-          vmtarget.getClass(),
-          vmtarget,
+          toInvoke.getClass(),
+          toInvoke,
           0,
           args,
           returnOffset,
           thread.getJVM().getJNI()
         )
-      : new JavaStackFrame(vmtarget.getClass(), vmtarget, 0, args, returnOffset)
+      : new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, args, returnOffset)
   );
 }
 
@@ -318,10 +345,10 @@ function invokeVirtual(
     }
     return;
   }
-  const { methodRef, args } = resolutionRes.result;
+  const { methodRef, args, polyMethod } = resolutionRes.result;
 
-  if (methodRef.isSignaturePolymorphic()) {
-    invokePoly(thread, constant, returnOffset);
+  if (polyMethod) {
+    invokePoly(thread, polyMethod, methodRef, args, returnOffset);
     return;
   }
 
@@ -430,7 +457,7 @@ export function runInvokestatic(thread: Thread): void {
     }
     return;
   }
-  const { classRef, methodRef, args } = resolutionRes.result;
+  const { methodRef, args } = resolutionRes.result;
 
   if (!methodRef.checkStatic()) {
     thread.throwNewException('java/lang/IncompatibleClassChangeError', '');
@@ -440,7 +467,7 @@ export function runInvokestatic(thread: Thread): void {
   if (methodRef.checkNative()) {
     thread.invokeStackFrame(
       new NativeStackFrame(
-        classRef,
+        methodRef.getClass(),
         methodRef,
         0,
         args,
@@ -450,7 +477,7 @@ export function runInvokestatic(thread: Thread): void {
     );
   } else {
     thread.invokeStackFrame(
-      new JavaStackFrame(classRef, methodRef, 0, args, 3)
+      new JavaStackFrame(methodRef.getClass(), methodRef, 0, args, 3)
     );
   }
 }

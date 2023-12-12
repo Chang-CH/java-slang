@@ -13,6 +13,7 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { ErrorResult } from '#types/Result';
+import { classFileToText } from '#utils/Prettify/classfile';
 
 export const registerUnsafe = (jni: JNI) => {
   jni.registerNativeMethod(
@@ -373,6 +374,9 @@ export const registerUnsafe = (jni: JNI) => {
 
       const bytecode = new DataView(new Uint8Array(data.getJsArray()).buffer);
       const classfile = parseBin(bytecode);
+
+      console.log('CREATE ANONYMOUS CLASS: ', classFileToText(classfile));
+
       // resolve classname
       const clsInfo = classfile.constantPool[
         classfile.thisClass
