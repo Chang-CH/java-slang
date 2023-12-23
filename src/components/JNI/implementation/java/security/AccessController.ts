@@ -11,7 +11,8 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
     const action = locals[0] as JvmObject;
     const actionCls = action.getClass();
     const methodRes = actionCls.resolveMethod(
-      'run()Ljava/lang/Object;',
+      'run()',
+      'Ljava/lang/Object;',
       thread.getClass()
     );
 
@@ -69,7 +70,7 @@ export const registerJavaSecurityAccessController = (jni: JNI) => {
       }
 
       const paCls = paRes.result;
-      const mRes = paCls.resolveMethod('run()Ljava/lang/Object;', acCls);
+      const mRes = paCls.resolveMethod('run()', 'Ljava/lang/Object;', acCls);
       if (checkError(mRes)) {
         thread.throwNewException(mRes.exceptionCls, mRes.msg);
         return;

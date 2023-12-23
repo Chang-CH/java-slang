@@ -388,16 +388,31 @@ export abstract class ClassData {
 
   /**
    * 5.4.3.3.2 Method resolution in superclass
-   * @param methodName
+   * @param name
+   * @param descriptor
    * @returns MethodRef, if any
    */
-  private _resolveMethodSuper(methodName: string): Method | null {
-    // TODO: SKIPPED: If C declares exactly one method with the name specified by the method reference,
-    // and the declaration is a signature polymorphic method (§2.9.3), then method lookup succeeds.
+  private _resolveMethodSuper(name: string, descriptor: string): Method | null {
+    const signature = name + descriptor;
+    // If C declares a method with the name and descriptor specified by the method reference, method lookup succeeds.
+    if (this.methods[signature]) {
+      return this.methods[signature];
+    }
 
-    // Otherwise, if C declares a method with the name and descriptor specified by the method reference, method lookup succeeds.
-    if (this.methods[methodName]) {
-      return this.methods[methodName];
+    // If C declares exactly one method with the name specified by the method reference,
+    // and the declaration is a signature polymorphic method (§2.9.3), then method lookup succeeds.
+    if (this.thisClass === 'java/lang/invoke/MethodHandle') {
+      const polyMethod =
+        this.methods[name + '([Ljava/lang/Object;)Ljava/lang/Object;'];
+      if (
+        polyMethod &&
+        polyMethod.checkVarargs() &&
+        polyMethod.checkNative() &&
+        Object.keys(this.methods).filter(x => x.startsWith(name + '('))
+          .length === 1
+      ) {
+        return polyMethod;
+      }
     }
 
     // Otherwise, if C has a superclass, step 2 of method resolution is recursively invoked on the direct superclass of C.
@@ -405,7 +420,7 @@ export abstract class ClassData {
     if (superClass === null) {
       return null;
     }
-    return superClass._resolveMethodSuper(methodName);
+    return superClass._resolveMethodSuper(name, descriptor);
   }
 
   /**
@@ -413,14 +428,19 @@ export abstract class ClassData {
    * @param methodName
    * @returns MethodRef, if any
    */
-  private _resolveMethodInterface(methodName: string): Method | null {
+  private _resolveMethodInterface(
+    name: string,
+    descriptor: string
+  ): Method | null {
     let abstractMethod = null;
+    const signature = name + descriptor;
     for (const inter of this.interfaces) {
-      let method = inter.getMethod(methodName);
+      let method = inter.getMethod(signature);
 
       if (!method) {
         method = (inter as ReferenceClassData)._resolveMethodInterface(
-          methodName
+          name,
+          descriptor
         );
       }
 
@@ -447,11 +467,12 @@ export abstract class ClassData {
    * @returns
    */
   resolveMethod(
-    methodKey: string,
+    name: string,
+    descriptor: string,
     accessingClass: ClassData
   ): ImmediateResult<Method> {
     // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
-    let result = this._resolveMethodSuper(methodKey);
+    let result = this._resolveMethodSuper(name, descriptor);
 
     if (result !== null) {
       const method = result;
@@ -462,7 +483,7 @@ export abstract class ClassData {
     }
 
     // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
-    result = this._resolveMethodInterface(methodKey);
+    result = this._resolveMethodInterface(name, descriptor);
     if (result !== null) {
       if (!result.checkAccess(accessingClass, this)) {
         return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };

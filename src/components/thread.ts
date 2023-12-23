@@ -4,6 +4,7 @@ import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import type { JvmArray } from '#types/reference/Array';
+import { j2jsString } from '#utils/index';
 import type { JvmObject } from '../types/reference/Object';
 import { AbstractThreadPool } from './ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
@@ -222,6 +223,10 @@ export default class Thread {
       return sf;
     }
 
+    if (sf.method.getName() === 'extendWith') {
+      console.log('extendWith', ret);
+    }
+
     console.debug(
       sf.class.getClassname() +
         '.' +
@@ -248,6 +253,10 @@ export default class Thread {
   }
 
   invokeStackFrame(sf: StackFrame) {
+    if (sf.method.getName() === 'extendWith') {
+      console.log('extendWith invoke');
+    }
+
     console.debug(
       ''.padEnd(this.stackPointer + 2, '#') +
         sf.class.getClassname() +
@@ -266,7 +275,8 @@ export default class Thread {
           .join(', ') +
         ']'
     );
-    this.stack.push(sf);
+
+    if (sf) this.stack.push(sf);
     this.stackPointer += 1;
   }
 
@@ -401,6 +411,10 @@ export default class Thread {
       }
 
       this.returnStackFrame(null, exception);
+    }
+
+    if (!this.getJVM().checkInitialized()) {
+      throw new Error('Exception in JVM initialization');
     }
 
     const unhandledMethod = this.threadClass.getMethod(

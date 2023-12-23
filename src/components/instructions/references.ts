@@ -219,30 +219,50 @@ function invokeInit(
 
     let target: Method;
     let args: any[] = [];
-    if (methodRef.getName() === 'invokeBasic') {
-      // invokeBasic
-      target = methodRef;
-      args = getArgs(thread, originalDescriptor, target.checkNative());
-    } else {
-      // invoke/invokeExact
-      if (
-        !memberName ||
-        (methodRef.getName() !== 'invokeExact' &&
-          methodRef.getName() !== 'invoke')
-      ) {
-        return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
-      }
-      target = memberName.getNativeField('vmtarget') as Method;
-      args = getArgs(thread, originalDescriptor, target.checkNative());
-      if (appendix !== null) {
-        args.push(appendix);
-      }
+    const name = methodRef.getName();
+    let mh, mn;
+    switch (name) {
+      case 'invokeBasic':
+        target = methodRef;
+        args = getArgs(thread, originalDescriptor, target.checkNative());
+        mh = thread.popStack() as JvmObject;
+        if (mh === null) {
+          return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
+        }
+        args = [mh, ...args];
+        break;
+      case 'invoke':
+      case 'invokeExact':
+        if (!memberName) {
+          return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
+        }
+        target = memberName.getNativeField('vmtarget') as Method;
+        args = getArgs(thread, originalDescriptor, target.checkNative());
+        if (appendix !== null) {
+          args.push(appendix);
+        }
+        mh = thread.popStack() as JvmObject;
+        if (mh === null) {
+          return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
+        }
+        args = [mh, ...args];
+        break;
+      case 'linkToVirtual':
+      case 'linkToInterface':
+      case 'linkToSpecial':
+      case 'linkToStatic':
+        mn = thread.popStack() as JvmObject;
+        target = mn.getNativeField('vmtarget') as Method;
+        thread.pushStack(mn);
+        args = getArgs(thread, originalDescriptor, target.checkNative());
+        args.pop();
+        if (mn === null) {
+          return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
+        }
+        break;
+      default:
+        return { exceptionCls: 'java/lang/LinkageError', msg: '' };
     }
-    const mh = thread.popStack() as JvmObject;
-    if (mh === null) {
-      return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
-    }
-    args = [mh, ...args];
 
     return {
       result: { methodRef: target, args, polyMethod: methodRef },
@@ -268,12 +288,6 @@ function lookupMethod(
 
   if (checkCastTo && !objRef.getClass().checkCast(checkCastTo)) {
     return { exceptionCls: 'java/lang/IncompatibleClassChangeError', msg: '' };
-  }
-
-  try {
-    const runtimeClassRef = objRef.getClass();
-  } catch (e) {
-    console.log(objRef);
   }
 
   const runtimeClassRef = objRef.getClass();

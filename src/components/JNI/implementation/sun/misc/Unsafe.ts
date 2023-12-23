@@ -369,10 +369,12 @@ export const registerUnsafe = (jni: JNI) => {
     (thread: Thread, locals: any[]) => {
       const unsafe = locals[0] as JvmObject;
       const hostClassObj = locals[1] as JvmObject;
-      const data = locals[2] as JvmArray;
+      const byteArray = locals[2] as JvmArray;
       const cpPatches = locals[3] as JvmArray;
 
-      const bytecode = new DataView(new Uint8Array(data.getJsArray()).buffer);
+      const bytecode = new DataView(
+        new Uint8Array(byteArray.getJsArray()).buffer
+      );
       const classfile = parseBin(bytecode);
 
       console.log('CREATE ANONYMOUS CLASS: ', classFileToText(classfile));
@@ -406,6 +408,31 @@ export const registerUnsafe = (jni: JNI) => {
 
       const clsObj = newClass.getJavaObject();
       thread.returnStackFrame(clsObj);
+    }
+  );
+
+  // sun/misc/Unsafe.defineClass(Ljava/lang/String;[BIILjava/lang/ClassLoader;Ljava/security/ProtectionDomain;)Ljava/lang/Class;
+  jni.registerNativeMethod(
+    'sun/misc/Unsafe',
+    'defineClass(Ljava/lang/String;[BIILjava/lang/ClassLoader;Ljava/security/ProtectionDomain;)Ljava/lang/Class;',
+    (thread: Thread, locals: any[]) => {
+      const unsafe = locals[0] as JvmObject;
+      const nameObj = locals[1] as JvmObject;
+      const byteArray = locals[2] as JvmArray;
+      const offset = locals[3] as number;
+      const len = locals[4] as number;
+
+      let loader = thread.getJVM().getBootstrapClassLoader();
+      // load with provided loader
+      if (locals[5]) {
+        throw new Error('loaderObject to loader not implemnented');
+      }
+      const bytecode = new DataView(
+        new Uint8Array(byteArray.getJsArray()).buffer
+      );
+      const classfile = parseBin(bytecode);
+      const clsData = loader.defineClass(classfile);
+      thread.returnStackFrame(clsData.getJavaObject());
     }
   );
 };

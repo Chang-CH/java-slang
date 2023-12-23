@@ -37,6 +37,12 @@ export default abstract class AbstractClassLoader {
     this.parentLoader = parentLoader;
   }
 
+  defineClass(classFile: ClassFile): ClassData {
+    const cls = this.linkClass(classFile);
+    this.prepareClass(classFile);
+    return this.loadClass(cls);
+  }
+
   /**
    * Prepares the class data by checking jvm constraints.
    * @param cls class data to check

@@ -875,12 +875,16 @@ export class ConstantFieldref extends Constant {
   }
 }
 
+/**
+ * Resolves the vmtarget, appendix, and appendix for invoke and invokeExact
+ */
 function resolveSignaturePolymorphic(
+  thread: Thread,
   symbolClass: ClassData,
   selfClass: ClassData,
+  polyMethod: Method,
   name: string,
   descriptor: string,
-  thread: Thread,
   onError: (err?: ErrorResult) => void,
   onSuccess: (
     method: Method,
@@ -889,19 +893,6 @@ function resolveSignaturePolymorphic(
   ) => void
 ) {
   // Check signature polymorphic methods
-  const polyResolutionResult = symbolClass.resolveMethod(
-    name + '([Ljava/lang/Object;)Ljava/lang/Object;',
-    selfClass
-  );
-
-  if (
-    checkError(polyResolutionResult) ||
-    !polyResolutionResult.result.checkSignaturePolymorphic()
-  ) {
-    return onError();
-  }
-
-  const polyMethod = polyResolutionResult.result;
   const polyName = polyMethod.getName();
   // invokebasic
   if (polyName !== 'invoke' && polyName !== 'invokeExact') {
@@ -920,10 +911,15 @@ function resolveSignaturePolymorphic(
   if (checkError(objArrResolution)) {
     return onError(objArrResolution);
   }
+  const clsArrResolution = loader.getClassRef('[Ljava/lang/Class;');
+  if (checkError(clsArrResolution)) {
+    return onError(clsArrResolution);
+  }
 
   const mhn = mhnResolution.result;
   const objArrCls = objArrResolution.result as ArrayClassData;
-  const ptypes = objArrCls.instantiate();
+  const clsArrCls = clsArrResolution.result as ArrayClassData;
+  const ptypes = clsArrCls.instantiate();
   const appendix = objArrCls.instantiate();
   appendix.initArray(1);
   const mhnInitResult = mhn.initialize(thread);
@@ -951,9 +947,9 @@ function resolveSignaturePolymorphic(
         argResolutionError = loadResult;
         return null;
       }
-      return loadResult.result;
+      return loadResult.result.getJavaObject();
     }
-    return loader.getPrimitiveClassRef(arg.type);
+    return loader.getPrimitiveClassRef(arg.type).getJavaObject();
   });
   if (argResolutionError) {
     return onError(argResolutionError);
@@ -1073,20 +1069,24 @@ export class ConstantMethodref extends Constant {
 
     const nt = this.nameAndTypeConstant.get();
     const resolutionResult = symbolClass.resolveMethod(
-      nt.name + nt.descriptor,
+      nt.name,
+      nt.descriptor,
       this.cls
     );
 
-    if (
-      checkError(resolutionResult) &&
-      resolutionResult.exceptionCls === 'java/lang/NoSuchMethodError'
-    ) {
+    if (checkError(resolutionResult)) {
+      this.result = resolutionResult;
+      return this.result;
+    }
+
+    const resolvedMethod = resolutionResult.result;
+    if (resolvedMethod.checkSignaturePolymorphic()) {
       const onSuccess = (
         method: Method,
         appendix?: JvmObject,
         memberName?: JvmObject
       ) => {
-        this.appendix = appendix;
+        this.appendix = appendix ?? null;
         this.memberName = memberName;
         this.result = { result: method };
       };
@@ -1097,11 +1097,12 @@ export class ConstantMethodref extends Constant {
         this.result = err;
       };
       resolveSignaturePolymorphic(
+        thread,
         symbolClass,
         this.cls,
+        resolvedMethod,
         nt.name,
         nt.descriptor,
-        thread,
         onError,
         onSuccess
       );
@@ -1133,8 +1134,6 @@ export class ConstantInterfaceMethodref extends Constant {
   private classConstant: ConstantClass;
   private nameAndTypeConstant: ConstantNameAndType;
   private result?: Result<Method>;
-  private appendix?: any;
-  private memberName?: JvmObject;
 
   constructor(
     cls: ClassData,
@@ -1189,59 +1188,22 @@ export class ConstantInterfaceMethodref extends Constant {
 
     const nt = this.nameAndTypeConstant.get();
     const resolutionResult = symbolClass.resolveMethod(
-      nt.name + nt.descriptor,
+      nt.name,
+      nt.descriptor,
       this.cls
     );
-
-    if (
-      checkError(resolutionResult) &&
-      resolutionResult.exceptionCls === 'java/lang/NoSuchMethodError'
-    ) {
-      const onSuccess = (
-        method: Method,
-        appendix?: JvmObject,
-        memberName?: JvmObject
-      ) => {
-        this.appendix = appendix;
-        this.memberName = memberName;
-        this.result = { result: method };
-      };
-      const onError = (err?: ErrorResult) => {
-        if (!err) {
-          this.result = resolutionResult;
-        }
-        this.result = err;
-      };
-      resolveSignaturePolymorphic(
-        symbolClass,
-        this.cls,
-        nt.name,
-        nt.descriptor,
-        thread,
-        onError,
-        onSuccess
-      );
-      if (this.result) {
-        return this.result;
-      }
-      return { isDefer: true };
-    }
 
     this.result = resolutionResult;
     return this.result;
   }
 
-  public getPolymorphic() {
-    if (!this.memberName || !this.result || !checkSuccess(this.result)) {
-      throw new Error('Not resolved');
-    }
-
-    return {
-      appendix: this.appendix,
-      memberName: this.memberName,
-      method: this.result.result,
-      originalDescriptor: this.nameAndTypeConstant.get().descriptor,
-    };
+  public getPolymorphic(): {
+    appendix: any;
+    memberName?: JvmObject;
+    method: Method;
+    originalDescriptor: string;
+  } {
+    throw new Error('Interface method not signature polymorphic');
   }
 }
 
