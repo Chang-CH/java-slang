@@ -401,6 +401,10 @@ export class TestJVM extends JVM {
     this.tJNI = testJNI;
   }
 
+  checkInitialized(): boolean {
+    return true;
+  }
+
   private tnewCharArr(str: string): ImmediateResult<JvmArray> {
     const cArrRes = this.testLoader.getClassRef('[C');
     if (checkError(cArrRes)) {
