@@ -475,6 +475,7 @@ describe('Astore', () => {
     expect(thread.getPC()).toBe(2);
   });
 });
+
 /*
 describe('Astore0', () => {
   test('ASTORE_0: stores int into locals', () => {

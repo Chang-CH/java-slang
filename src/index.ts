@@ -3,7 +3,7 @@ import type { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
-import { JNI, registerNatives } from './components/JNI';
+import { JNI } from './components/JNI';
 import Thread, { ThreadStatus } from './components/thread';
 import { UnsafeHeap } from './components/unsafe-heap';
 import {
@@ -21,18 +21,16 @@ export default class JVM {
   private jni: JNI;
   private threadpool: AbstractThreadPool;
 
-  private isInitialized = false;
-
   cachedClasses: { [key: string]: ReferenceClassData } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
   private unsafeHeap: UnsafeHeap = new UnsafeHeap();
+  private _initialThread?: Thread; // Reuse initialization thread as main thread
 
-  // Reuse the thread we use in initialization for running main method
-  private _initialThread?: Thread;
   private jvmOptions: {
     javaClassPath: string;
     userDir: string;
   };
+  private isInitialized = false;
 
   constructor(
     nativeSystem: AbstractSystem,
@@ -46,7 +44,6 @@ export default class JVM {
       userDir: 'example',
       ...options,
     };
-
     this.nativeSystem = nativeSystem;
     this.bootstrapClassLoader = new BootstrapClassLoader(
       this.nativeSystem,
@@ -56,7 +53,7 @@ export default class JVM {
     this.threadpool = new RoundRobinThreadPool(() => {});
   }
 
-  initialize() {
+  initialize(onInitialized: () => void) {
     // #region load classes
     const objRes = this.bootstrapClassLoader.getClassRef('java/lang/Object');
     const tRes = this.bootstrapClassLoader.getClassRef('java/lang/Thread');
@@ -81,23 +78,20 @@ export default class JVM {
     const threadGroupCls = tgRes.result;
     // #endregion
 
-    // register natives
-    registerNatives(this.jni);
-
     const mainThread = new Thread(
       threadCls as ReferenceClassData,
       this,
       this.threadpool
     );
 
+    const tasks: (() => void)[] = [];
     // #region initialize threadgroup object
     const tgInitRes = threadGroupCls.initialize(mainThread);
     if (!checkSuccess(tgInitRes)) {
       throw new Error('ThreadGroup initialization failed');
     }
     const initialTg = threadGroupCls.instantiate();
-    initialTg.initialize(mainThread);
-    mainThread._run();
+    tasks.push(() => initialTg.initialize(mainThread));
     // #endregion
 
     // #region initialize Thread class
@@ -109,15 +103,12 @@ export default class JVM {
     const javaThread = mainThread.getJavaObject();
     javaThread.putField(tgfr, initialTg);
     javaThread.putField(pFr, 1);
-
-    threadCls.initialize(mainThread);
-    mainThread._run();
+    tasks.push(() => threadCls.initialize(mainThread));
     // #endregion
 
     // #region initialize thread object
-    mainThread.initialize(mainThread);
-    mainThread._run();
     this._initialThread = mainThread;
+    tasks.push(() => mainThread.initialize(mainThread));
     // #endregion
 
     // #region initialize system class
@@ -125,18 +116,27 @@ export default class JVM {
     if (!sInitMr) {
       throw new Error('System initialization method not found');
     }
-    mainThread.invokeStackFrame(
-      new InternalStackFrame(
-        sysCls as ReferenceClassData,
-        sInitMr,
-        0,
-        [],
-        () => {}
+
+    tasks.push(() =>
+      mainThread.invokeStackFrame(
+        new InternalStackFrame(
+          sysCls as ReferenceClassData,
+          sInitMr,
+          0,
+          [],
+          () => {
+            this.isInitialized = true;
+            onInitialized();
+          }
+        )
       )
     );
-    mainThread._run();
-    this.isInitialized = true;
     // #endregion
+
+    tasks.reverse().forEach(task => task());
+    mainThread.setStatus(ThreadStatus.RUNNABLE);
+    this.threadpool.addThread(mainThread);
+    this.threadpool.run();
   }
 
   runClass(className: string) {

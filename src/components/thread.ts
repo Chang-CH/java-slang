@@ -253,10 +253,6 @@ export default class Thread {
   }
 
   invokeStackFrame(sf: StackFrame) {
-    if (sf.method.getName() === 'extendWith') {
-      console.log('extendWith invoke');
-    }
-
     console.debug(
       ''.padEnd(this.stackPointer + 2, '#') +
         sf.class.getClassname() +

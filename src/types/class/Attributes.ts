@@ -264,37 +264,37 @@ export const info2Attribute = (
         name,
         attributeInfo: info,
       } as UnhandledAttribute;
-      return {
-        name,
-        entries: (info as StackMapTableAttribute).entries,
-      } as StackMapTable;
+    // return {
+    //   name,
+    //   entries: (info as StackMapTableAttribute).entries,
+    // } as StackMapTable;
     case 'SourceFile':
       return {
         name,
         attributeInfo: info,
       } as UnhandledAttribute;
-      return {
-        name,
-        sourceFile: constantPool.get(
-          (info as SourceFileAttribute).sourcefileIndex
-        ) as ConstantUtf8,
-      } as SourceFile;
+    // return {
+    //   name,
+    //   sourceFile: constantPool.get(
+    //     (info as SourceFileAttribute).sourcefileIndex
+    //   ) as ConstantUtf8,
+    // } as SourceFile;
     case 'Synthetic':
       return {
         name,
         attributeInfo: info,
       } as UnhandledAttribute;
-      return {
-        name,
-      } as Synthetic;
+    // return {
+    //   name,
+    // } as Synthetic;
     case 'Deprecated':
       return {
         name,
         attributeInfo: info,
       } as UnhandledAttribute;
-      return {
-        name,
-      } as Deprecated;
+    // return {
+    //   name,
+    // } as Deprecated;
     default:
       return {
         name,

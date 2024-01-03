@@ -32,7 +32,7 @@ import {
   checkDefer,
 } from '#types/Result';
 import { BootstrapMethod } from './Attributes';
-import { MethodHandleReferenceKind } from '#jvm/components/JNI';
+import { MethodHandleReferenceKind } from '#jvm/components/JNI/implementation/java/lang/invoke/MethodHandleNatives';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;

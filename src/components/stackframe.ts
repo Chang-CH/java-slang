@@ -18,6 +18,7 @@ import * as stores from './instructions/stores';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { Code } from '#types/class/Attributes';
 import { JNI } from './JNI';
+import { checkDefer, checkError } from '#types/Result';
 
 const overrides: {
   [cls: string]: {
@@ -829,15 +830,22 @@ export class NativeStackFrame extends StackFrame {
   }
 
   run(thread: Thread): void {
-    const nativeMethod = this.jni.getNativeMethod(
+    const methodRes = this.jni.getNativeMethod(
+      thread,
       this.class.getClassname(),
       this.method.getName() + this.method.getDescriptor()
     );
 
-    if (!nativeMethod) {
-      thread.throwNewException('java/lang/UnsatisfiedLinkError', '');
+    if (checkDefer(methodRes)) {
+      return;
     }
-    nativeMethod(thread, this.locals);
+
+    if (checkError(methodRes)) {
+      thread.throwNewException(methodRes.exceptionCls, methodRes.msg);
+      return;
+    }
+
+    methodRes.result(thread, this.locals);
   }
 
   checkNative(): this is NativeStackFrame {

@@ -88,9 +88,7 @@ export default function main() {
     javaClassPath: options['-j'],
     userDir: options['-d'],
   });
-  jvm.initialize();
-  // @ts-ignore
-  jvm.runClass(options['-m']);
+  jvm.initialize(() => jvm.runClass(options['-m']));
 }
 
 main();

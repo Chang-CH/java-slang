@@ -77,7 +77,15 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
     if (this.threadQueue.isEmpty()) {
       this.currentThread = null;
     } else {
-      this.currentThread = this.threadQueue.popFront();
+      let thread = this.threadQueue.popFront();
+      while (thread?.getStatus() !== ThreadStatus.RUNNABLE) {
+        if (this.threadQueue.isEmpty()) {
+          this.currentThread = null;
+          return;
+        }
+        thread = this.threadQueue.popFront();
+      }
+      this.currentThread = thread;
     }
   }
 
@@ -97,7 +105,6 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
       // restart loop
       if (this.currentThread === null) {
         this.nextThread();
-        this.run();
       }
     } else if (
       thread === this.currentThread &&
@@ -117,8 +124,14 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
   }
 
   run() {
-    while (this.currentThread) {
-      this.currentThread.runFor(10000);
+    if (this.hasThreads()) {
+      setTimeout(() => {
+        if (this.currentThread !== null) {
+          this.currentThread.runFor(10000);
+        }
+
+        this.run();
+      }, 0);
     }
   }
 }
