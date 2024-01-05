@@ -855,8 +855,7 @@ export function runMonitorenter(thread: Thread): void {
     return;
   }
 
-  thread.offsetPc(1);
-  console.warn('MONITORENTER: Not implemented');
+  obj.getMonitor().enter(thread, () => thread.offsetPc(1));
 }
 
 export function runMonitorexit(thread: Thread): void {
@@ -866,6 +865,5 @@ export function runMonitorexit(thread: Thread): void {
     return;
   }
 
-  thread.offsetPc(1);
-  console.warn('MONITOREXIT: Not implemented');
+  obj.getMonitor().exit(thread, () => thread.offsetPc(1));
 }

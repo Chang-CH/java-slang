@@ -130,7 +130,6 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
         if (this.currentThread !== null) {
           this.currentThread.runFor(10000);
         }
-
         this.run();
       }, 0);
     }

@@ -83,43 +83,51 @@ export function runLookupswitch(thread: Thread): void {
   thread.offsetPc(def);
 }
 
-export function runIreturn(thread: Thread): void {
+function _return(thread: Thread, ret?: any, isWide?: boolean): void {
   thread.offsetPc(1);
-  console.warn('IRETURN: monitor not implemented jvms 6.5');
+
+  const method = thread.getMethod();
+  if (method.checkSynchronized()) {
+    if (method.checkStatic()) {
+      method.getClass().getJavaObject().getMonitor().exit(thread);
+    } else {
+      thread.loadLocal(0).getMonitor().exit(thread);
+    }
+  }
+
+  if (isWide) {
+    thread.returnStackFrame64(ret);
+  } else {
+    thread.returnStackFrame(ret);
+  }
+}
+
+export function runIreturn(thread: Thread): void {
+  thread.getMethod().getArgs;
   const ret = thread.popStack();
-  thread.returnStackFrame(ret);
+  _return(thread, ret);
 }
 
 export function runLreturn(thread: Thread): void {
-  thread.offsetPc(1);
-  console.warn('LRETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack64();
-  thread.returnStackFrame64(ret);
+  _return(thread, ret, true);
 }
 
 export function runFreturn(thread: Thread): void {
-  thread.offsetPc(1);
-  console.warn('FRETURN: monitor not implemented jvms 6.5');
   const ret = asFloat(thread.popStack());
-  thread.returnStackFrame(ret);
+  _return(thread, ret);
 }
 
 export function runDreturn(thread: Thread): void {
-  thread.offsetPc(1);
-  console.warn('DRETURN: monitor not implemented jvms 6.5');
   const ret = asDouble(thread.popStack64());
-  thread.returnStackFrame64(ret);
+  _return(thread, ret, true);
 }
 
 export function runAreturn(thread: Thread): void {
-  thread.offsetPc(1);
-  console.warn('ARETURN: monitor not implemented jvms 6.5');
   const ret = thread.popStack();
-  thread.returnStackFrame(ret);
+  _return(thread, ret);
 }
 
 export function runReturn(thread: Thread): void {
-  thread.offsetPc(1);
-  console.warn('RETURN: monitor not implemented jvms 6.5');
-  thread.returnStackFrame();
+  _return(thread);
 }

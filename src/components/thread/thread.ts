@@ -336,6 +336,7 @@ export default class Thread {
 
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
+
     console.log(
       this.stack.map(
         frame =>
@@ -400,6 +401,14 @@ export default class Thread {
         }
       }
 
+      // No handler found, unwind stack
+      if (method.checkSynchronized()) {
+        if (method.checkStatic()) {
+          method.getClass().getJavaObject().getMonitor().exit(this);
+        } else {
+          this.loadLocal(0).getMonitor().exit(this);
+        }
+      }
       this.returnStackFrame(null, exception);
     }
 

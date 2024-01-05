@@ -20,7 +20,7 @@ import { Code } from '#types/class/Attributes';
 import { JNI } from './JNI';
 import { checkDefer, checkError } from '#types/Result';
 
-const overrides: {
+const overwrites: {
   [cls: string]: {
     [methodSig: string]: (thread: Thread, locals: any[]) => boolean;
   };
@@ -58,13 +58,13 @@ const overrides: {
   },
 };
 
-const checkOverride = (thread: Thread, method: Method) => {
-  const override =
-    overrides[method.getClass().getClassname()]?.[
+const checkOverwritten = (thread: Thread, method: Method) => {
+  const overwritten =
+    overwrites[method.getClass().getClassname()]?.[
       method.getName() + method.getDescriptor()
     ];
-  if (override) {
-    override(thread, thread.peekStackFrame().locals);
+  if (overwritten) {
+    overwritten(thread, thread.peekStackFrame().locals);
     return true;
   }
   return false;
@@ -771,8 +771,16 @@ export abstract class StackFrame {
 
 export class JavaStackFrame extends StackFrame {
   run(thread: Thread): void {
-    if (checkOverride(thread, this.method)) {
+    if (checkOverwritten(thread, this.method)) {
       return;
+    }
+
+    if (this.method.checkSynchronized()) {
+      if (this.method.checkStatic()) {
+        this.method.getClass().getJavaObject().getMonitor().enter(thread);
+      } else {
+        this.locals[0].getMonitor().enter(thread);
+      }
     }
 
     runInstruction(thread, this.method);
@@ -782,7 +790,7 @@ export class JavaStackFrame extends StackFrame {
 /**
  * Used for internal methods, does not push return value to stack.
  */
-export class InternalStackFrame extends StackFrame {
+export class InternalStackFrame extends JavaStackFrame {
   private callback: (ret: any, err?: any) => void;
   constructor(
     cls: ClassData,
@@ -805,13 +813,6 @@ export class InternalStackFrame extends StackFrame {
 
   onError(thread: Thread, err: JvmObject): void {
     this.callback(undefined, err);
-  }
-
-  run(thread: Thread): void {
-    if (checkOverride(thread, this.method)) {
-      return;
-    }
-    runInstruction(thread, this.method);
   }
 }
 

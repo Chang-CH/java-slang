@@ -1,6 +1,6 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread, { ThreadStatus } from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread/thread';
 import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
 import {
