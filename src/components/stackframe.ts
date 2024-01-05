@@ -2,7 +2,7 @@ import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import type { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
-import Thread from './thread';
+import Thread from './thread/thread';
 
 import * as comparisons from './instructions/comparisons';
 import * as constants from './instructions/constants';

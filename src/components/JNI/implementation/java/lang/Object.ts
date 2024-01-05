@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import type { JvmObject } from '#types/reference/Object';
 
 const functions = {
@@ -17,6 +17,13 @@ const functions = {
   'hashCode()I': (thread: Thread, locals: any[]) => {
     const obj = locals[0];
     thread.returnStackFrame(obj.hashCode());
+  },
+
+  'wait(J)V': (thread: Thread, locals: any[]) => {
+    const obj = locals[0] as JvmObject;
+    const monitor = obj.getMonitor();
+    monitor.wait(thread, locals[1]);
+    thread.returnStackFrame();
   },
 };
 

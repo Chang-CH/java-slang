@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 
 const functions = {
   'doubleToRawLongBits(D)J': (thread: Thread, locals: any[]) => {

@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { asDouble, asFloat } from '#utils/index';
 
 const MAX_INT = 2147483647;

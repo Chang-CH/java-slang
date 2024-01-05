@@ -4,7 +4,6 @@ import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
 import { JNI } from './components/JNI';
-import Thread, { ThreadStatus } from './components/thread';
 import { UnsafeHeap } from './components/unsafe-heap';
 import {
   AbstractThreadPool,
@@ -13,6 +12,8 @@ import {
 import { InternalStackFrame } from './components/stackframe';
 import { checkError, checkSuccess } from '#types/Result';
 import { js2jString } from './utils';
+import { ThreadStatus } from './components/thread/constants';
+import Thread from './components/thread/thread';
 
 export default class JVM {
   private bootstrapClassLoader: BootstrapClassLoader;

@@ -1,4 +1,5 @@
-import Thread, { ThreadStatus } from '../thread';
+import { ThreadStatus } from '../thread/constants';
+import Thread from '../thread/thread';
 import { Deque } from './utils/deque';
 
 export abstract class AbstractThreadPool {

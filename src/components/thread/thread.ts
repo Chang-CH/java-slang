@@ -3,20 +3,10 @@ import { checkError, checkSuccess } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
-import type { JvmArray } from '#types/reference/Array';
-import { j2jsString } from '#utils/index';
-import type { JvmObject } from '../types/reference/Object';
-import { AbstractThreadPool } from './ThreadPool';
-import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
-
-export enum ThreadStatus {
-  NEW,
-  RUNNABLE,
-  BLOCKED,
-  WAITING,
-  TIMED_WAITING,
-  TERMINATED,
-}
+import type { JvmObject } from '../../types/reference/Object';
+import { AbstractThreadPool } from '../ThreadPool';
+import { InternalStackFrame, JavaStackFrame, StackFrame } from '../stackframe';
+import { ThreadStatus } from './constants';
 
 export default class Thread {
   private status: ThreadStatus = ThreadStatus.NEW;
@@ -109,6 +99,10 @@ export default class Thread {
 
   getPC(): number {
     return this.stack[this.stackPointer].pc;
+  }
+
+  getThreadPool(): AbstractThreadPool {
+    return this.tpool;
   }
 
   /**

@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { JNI } from '#jvm/components/JNI';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';

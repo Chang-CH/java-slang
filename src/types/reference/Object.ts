@@ -1,8 +1,8 @@
-import { InternalStackFrame } from '#jvm/components/stackframe';
-import Thread from '#jvm/components/thread';
-import { Result } from '#types/Result';
-import { ClassData, ReferenceClassData } from '#types/class/ClassData';
-import { Field } from '#types/class/Field';
+import Monitor from '#jvm/components/monitor';
+import type Thread from '#jvm/components/thread/thread';
+import type { Result } from '#types/Result';
+import type { ClassData, ReferenceClassData } from '#types/class/ClassData';
+import type { Field } from '#types/class/Field';
 
 export class JvmObject {
   public initStatus = false;
@@ -14,8 +14,8 @@ export class JvmObject {
   protected nativeFields: {
     [key: string]: any;
   } = {};
+  private monitor?: Monitor;
   private fieldArr: { name: string; ref: Field }[];
-
   private static maxId = 0;
   private id;
 
@@ -69,6 +69,13 @@ export class JvmObject {
 
   getClass() {
     return this.cls;
+  }
+
+  getMonitor() {
+    if (!this.monitor) {
+      this.monitor = new Monitor();
+    }
+    return this.monitor;
   }
 
   getField(fieldRef: Field): any {

@@ -25,7 +25,7 @@ import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import { JNI } from '#jvm/components/JNI';
-import Thread, { ThreadStatus } from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { AbstractThreadPool } from '#jvm/components/ThreadPool';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import JVM from '#jvm/index';
@@ -34,6 +34,7 @@ import { Field } from '#types/class/Field';
 import { JvmArray } from '#types/reference/Array';
 import { primitiveTypeToName } from '#utils/index';
 import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
+import { ThreadStatus } from '#jvm/components/thread/constants';
 
 export class TestClassLoader extends AbstractClassLoader {
   getJavaObject(): JvmObject | null {

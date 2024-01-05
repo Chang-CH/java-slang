@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { asDouble, asFloat } from '#utils/index';
 
 export function runLcmp(thread: Thread): void {

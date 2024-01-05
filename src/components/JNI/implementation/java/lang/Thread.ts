@@ -1,16 +1,24 @@
-import Thread, { ThreadStatus } from '#jvm/components/thread';
+import { JavaStackFrame } from '#jvm/components/stackframe';
+import { ThreadStatus } from '#jvm/components/thread/constants';
+import Thread from '#jvm/components/thread/thread';
+import { ReferenceClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
+import { JvmObject } from '#types/reference/Object';
 
 const functions = {
-  //   'isAlive()Z':
-  //   (thread: Thread, locals: any[]) => {
-  //     const threadObj = locals[0] as JvmObject;
-  //     const t = threadObj.getNativeField('thread') as Thread;
-  //     const status = t.getStatus();
-  //     if (status === ThreadStatus.TERMINATED || status === ThreadStatus.NEW) {
-  //       thread.returnSF(0);
-  //     }
-  //     thread.returnSF(1);
-  //   }
+  'isAlive()Z': (thread: Thread, locals: any[]) => {
+    const threadObj = locals[0] as JvmObject;
+    const t = threadObj.getNativeField('thread') as Thread;
+    if (!t) {
+      thread.returnStackFrame(0);
+    }
+    const status = t.getStatus();
+    if (status === ThreadStatus.TERMINATED || status === ThreadStatus.NEW) {
+      thread.returnStackFrame(0);
+    }
+    thread.returnStackFrame(1);
+  },
+
   'setPriority0(I)V': (thread: Thread, locals: any[]) => {
     // priority field of the thread object is already set.
     // method serves to update our internal priority if we decide to use it.
@@ -35,6 +43,27 @@ const functions = {
       },
       Number(locals[0] as BigInt)
     );
+  },
+
+  'start0()V': (thread: Thread, locals: any[]) => {
+    const threadObj = locals[0] as JvmObject;
+    const threadCls = threadObj.getClass() as ReferenceClassData;
+    const newThread = new Thread(
+      threadCls,
+      thread.getJVM(),
+      thread.getThreadPool()
+    );
+    newThread.invokeStackFrame(
+      new JavaStackFrame(
+        threadCls,
+        threadCls.getMethod('run()V') as Method,
+        0,
+        [threadObj]
+      )
+    );
+    threadObj.putNativeField('thread', newThread);
+    newThread.setStatus(ThreadStatus.RUNNABLE);
+    thread.returnStackFrame();
   },
 };
 

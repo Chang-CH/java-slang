@@ -1,5 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { Field } from './Field';

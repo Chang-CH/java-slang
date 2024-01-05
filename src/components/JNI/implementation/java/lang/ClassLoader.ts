@@ -1,5 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { checkError } from '#types/Result';
 import { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';

@@ -1,7 +1,8 @@
 import { Result } from '#types/Result';
 import { JavaType } from '#types/reference/Object';
 import { parseFieldDescriptor } from '#utils/index';
-import Thread, { ThreadStatus } from '../thread';
+import { ThreadStatus } from '../thread/constants';
+import Thread from '../thread/thread';
 import stdlib from './stdlib';
 
 export class JNI {

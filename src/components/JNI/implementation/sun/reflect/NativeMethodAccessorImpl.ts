@@ -1,5 +1,5 @@
 import { InternalStackFrame } from '#jvm/components/stackframe';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';

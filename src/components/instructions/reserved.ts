@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 
 export function runBreakpoint(thread: Thread): void {
   thread.offsetPc(1);

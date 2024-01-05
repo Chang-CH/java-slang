@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
 

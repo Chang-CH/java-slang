@@ -4,7 +4,7 @@ import {
   parseFieldDescriptor,
   parseMethodDescriptor,
 } from '#utils/index';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';

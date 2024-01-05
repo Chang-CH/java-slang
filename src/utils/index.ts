@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { ConstantPool } from '#jvm/components/constant-pool';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { SuccessResult } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';

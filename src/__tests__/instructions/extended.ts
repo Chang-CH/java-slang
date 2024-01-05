@@ -11,7 +11,7 @@ import {
 } from '#jvm/__tests__/__utils__/test-utility';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { JavaStackFrame } from '#jvm/components/stackframe';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 
 let testLoader: TestClassLoader;
 let thread: Thread;

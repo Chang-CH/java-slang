@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 
 const functions = {
   'initialize()V': (thread: Thread, locals: any[]) => {

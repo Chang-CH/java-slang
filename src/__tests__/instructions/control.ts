@@ -4,7 +4,7 @@ import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 
 let thread: Thread;
 let threadClass: ReferenceClassData;

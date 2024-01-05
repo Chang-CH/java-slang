@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { JNI } from '#jvm/components/JNI';
 import { CLASS_STATUS, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';

@@ -3,7 +3,7 @@ import { ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import type { JvmObject } from '../reference/Object';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { ConstantValue, IAttribute } from './Attributes';
 import { ConstantPool } from '#jvm/components/constant-pool';
 import { attrInfo2Interface } from '#utils/index';

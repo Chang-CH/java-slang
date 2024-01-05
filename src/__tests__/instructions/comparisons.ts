@@ -1,7 +1,7 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JNI } from '#jvm/components/JNI';
 import { ReferenceClassData } from '#types/class/ClassData';
-import Thread from '#jvm/components/thread';
+import Thread from '#jvm/components/thread/thread';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 

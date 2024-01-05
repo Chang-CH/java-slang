@@ -1,4 +1,4 @@
-import Thread from '../thread';
+import Thread from '../thread/thread';
 
 const loadStdlib = (name: string, location: string) => {
   return (
@@ -6,16 +6,13 @@ const loadStdlib = (name: string, location: string) => {
       [key: string]: (thread: Thread, locals: any[]) => void;
     }) => void
   ) => {
-    console.log('LOGGNG');
     import(location)
       .then(lib => {
         const { default: fns } = lib;
-        console.log('STDLIB LOAD');
         onFinish(fns);
       })
       .catch(e => {
         console.log(e);
-        console.log('STDLIB LOAD FAIL');
         throw new Error('load failed');
       });
   };
