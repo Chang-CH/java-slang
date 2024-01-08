@@ -775,14 +775,6 @@ export class JavaStackFrame extends StackFrame {
       return;
     }
 
-    if (this.method.checkSynchronized()) {
-      if (this.method.checkStatic()) {
-        this.method.getClass().getJavaObject().getMonitor().enter(thread);
-      } else {
-        this.locals[0].getMonitor().enter(thread);
-      }
-    }
-
     runInstruction(thread, this.method);
   }
 }
