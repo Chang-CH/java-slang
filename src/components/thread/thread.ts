@@ -9,12 +9,15 @@ import { InternalStackFrame, JavaStackFrame, StackFrame } from '../stackframe';
 import { ThreadStatus } from './constants';
 
 export default class Thread {
+  private static threadIdCounter = 0;
+
   private status: ThreadStatus = ThreadStatus.NEW;
   private stack: StackFrame[];
   private stackPointer: number;
   private javaObject: JvmObject;
   private threadClass: ReferenceClassData;
   private jvm: JVM;
+  private threadId: number;
 
   private quantumLeft: number = 0;
   private tpool: AbstractThreadPool;
@@ -29,9 +32,11 @@ export default class Thread {
     this.stack = [];
     this.stackPointer = -1;
     this.javaObject = threadClass.instantiate();
-    // call init?
     this.javaObject.putNativeField('thread', this);
     this.tpool = tpool;
+
+    this.threadId = Thread.threadIdCounter;
+    Thread.threadIdCounter += 1;
   }
 
   initialize(thread: Thread) {
@@ -67,6 +72,7 @@ export default class Thread {
       this.status = ThreadStatus.TERMINATED;
     }
 
+    console.log('QUANTUM OVER');
     this.tpool.quantumOver(this);
   }
 
@@ -265,6 +271,14 @@ export default class Thread {
           .join(', ') +
         ']'
     );
+
+    if (sf.method.checkSynchronized()) {
+      if (sf.method.checkStatic()) {
+        sf.method.getClass().getJavaObject().getMonitor().enter(this);
+      } else {
+        sf.locals[0].getMonitor().enter(this);
+      }
+    }
 
     if (sf) this.stack.push(sf);
     this.stackPointer += 1;

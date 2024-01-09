@@ -48,11 +48,8 @@ const functions = {
   'start0()V': (thread: Thread, locals: any[]) => {
     const threadObj = locals[0] as JvmObject;
     const threadCls = threadObj.getClass() as ReferenceClassData;
-    const newThread = new Thread(
-      threadCls,
-      thread.getJVM(),
-      thread.getThreadPool()
-    );
+    const mainTpool = thread.getThreadPool();
+    const newThread = new Thread(threadCls, thread.getJVM(), mainTpool);
     newThread.invokeStackFrame(
       new JavaStackFrame(
         threadCls,
@@ -62,6 +59,7 @@ const functions = {
       )
     );
     threadObj.putNativeField('thread', newThread);
+    mainTpool.addThread(newThread);
     newThread.setStatus(ThreadStatus.RUNNABLE);
     thread.returnStackFrame();
   },

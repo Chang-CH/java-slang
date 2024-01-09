@@ -24,9 +24,6 @@ const functions = {
 
     // stdout
     if (fd === 1 || fd === 2) {
-      // const str = String.fromCharCode(
-      //   ...byteArray2charArray(bytes.getJsArray())
-      // );
       const buf: Buffer = Buffer.from(bytes.getJsArray());
       const str = buf.toString('utf8', offset, offset + len);
       const sys = thread.getJVM().getSystem();

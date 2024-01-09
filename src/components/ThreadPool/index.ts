@@ -66,11 +66,12 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
   addThread(thread: Thread): void {
     this.threads.push(thread);
 
-    // TODO: check thread is runnable before pushing
-    this.threadQueue.pushBack(thread);
-
-    if (this.currentThread === null) {
-      this.currentThread = this.threadQueue.popFront();
+    if (thread.getStatus() === ThreadStatus.RUNNABLE) {
+      if (this.currentThread === null) {
+        this.currentThread = this.threadQueue.popFront();
+      } else {
+        this.threadQueue.pushBack(thread);
+      }
     }
   }
 
@@ -121,7 +122,10 @@ export class RoundRobinThreadPool extends AbstractThreadPool {
     } else if (thread.getStatus() === ThreadStatus.RUNNABLE) {
       this.threadQueue.pushBack(thread);
     }
-    this.nextThread();
+
+    if (this.currentThread === thread) {
+      this.nextThread();
+    }
   }
 
   run() {

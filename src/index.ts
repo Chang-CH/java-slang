@@ -173,7 +173,8 @@ export default class JVM {
     );
     mainCls.initialize(mainThread);
     mainThread.setStatus(ThreadStatus.RUNNABLE);
-    this.threadpool.addThread(mainThread);
+    // FIXME: thread should have terminated and be removed from tpool
+    // this.threadpool.addThread(mainThread);
     this.threadpool.run();
   }
 
