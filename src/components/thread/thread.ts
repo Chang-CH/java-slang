@@ -68,10 +68,10 @@ export default class Thread {
     ) {
       this.peekStackFrame().run(this);
       this.quantumLeft -= 1;
-    }
 
-    if (this.stack.length === 0) {
-      this.status = ThreadStatus.TERMINATED;
+      if (this.stack.length === 0 && !this.isShuttingDown) {
+        this._exit();
+      }
     }
 
     this.tpool.quantumOver(this);
