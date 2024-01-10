@@ -68,7 +68,6 @@ export default class Monitor {
       );
     }
 
-    thread.setStatus(ThreadStatus.WAITING);
     const state: { thread: Thread; locks: number; timeout?: number } = {
       thread,
       locks: this.entryCount,
@@ -83,6 +82,9 @@ export default class Monitor {
     if (timeout > 0 || nanos > 0) {
       timeout += Math.min(nanos, 1); // settimeout uses millis
       state.timeout = setTimeout(() => {}, timeout) as any;
+      thread.setStatus(ThreadStatus.TIMED_WAITING);
+    } else {
+      thread.setStatus(ThreadStatus.WAITING);
     }
 
     this.unblock();
@@ -101,7 +103,7 @@ export default class Monitor {
     }
   }
 
-  notifyAll() {
+  notifyAll(thread: Thread) {
     for (const state of this.notifyArray) {
       const thread = state.thread;
       thread.setStatus(ThreadStatus.RUNNABLE);

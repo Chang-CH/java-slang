@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { ConstantPool } from '#jvm/components/constant-pool';
-import Thread from '#jvm/components/thread/thread';
+import type Thread from '#jvm/components/thread/thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { SuccessResult } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';
@@ -13,6 +13,7 @@ import { ConstantUtf8 } from '#types/class/Constants';
 import { Field } from '#types/class/Field';
 import type { JvmArray } from '#types/reference/Array';
 import { JavaType, JvmObject } from '#types/reference/Object';
+import JVM from '..';
 
 /**
  * Converts a Java String to a JS string

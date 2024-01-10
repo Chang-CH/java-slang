@@ -49,16 +49,22 @@ const functions = {
     const threadObj = locals[0] as JvmObject;
     const threadCls = threadObj.getClass() as ReferenceClassData;
     const mainTpool = thread.getThreadPool();
-    const newThread = new Thread(threadCls, thread.getJVM(), mainTpool);
-    newThread.invokeStackFrame(
-      new JavaStackFrame(
-        threadCls,
-        threadCls.getMethod('run()V') as Method,
-        0,
-        [threadObj]
-      )
-    );
-    threadObj.putNativeField('thread', newThread);
+
+    // thread object created from code, native thread not created
+    let newThread = threadObj.getNativeField('thread');
+    if (!newThread) {
+      newThread = new Thread(threadCls, thread.getJVM(), mainTpool, threadObj);
+      newThread.invokeStackFrame(
+        new JavaStackFrame(
+          threadCls,
+          threadCls.getMethod('run()V') as Method,
+          0,
+          [threadObj]
+        )
+      );
+      threadObj.putNativeField('thread', newThread);
+    }
+
     mainTpool.addThread(newThread);
     newThread.setStatus(ThreadStatus.RUNNABLE);
     thread.returnStackFrame();

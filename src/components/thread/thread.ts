@@ -22,17 +22,19 @@ export default class Thread {
   private quantumLeft: number = 0;
   private tpool: AbstractThreadPool;
 
+  private isShuttingDown = false;
+
   constructor(
     threadClass: ReferenceClassData,
     jvm: JVM,
-    tpool: AbstractThreadPool
+    tpool: AbstractThreadPool,
+    threadObj: JvmObject
   ) {
     this.jvm = jvm;
     this.threadClass = threadClass;
     this.stack = [];
     this.stackPointer = -1;
-    this.javaObject = threadClass.instantiate();
-    this.javaObject.putNativeField('thread', this);
+    this.javaObject = threadObj;
     this.tpool = tpool;
 
     this.threadId = Thread.threadIdCounter;
@@ -72,7 +74,6 @@ export default class Thread {
       this.status = ThreadStatus.TERMINATED;
     }
 
-    console.log('QUANTUM OVER');
     this.tpool.quantumOver(this);
   }
 
@@ -83,6 +84,35 @@ export default class Thread {
     while (this.stack.length > 0) {
       this.peekStackFrame().run(this);
     }
+  }
+
+  _exit() {
+    if (this.isShuttingDown) {
+      return;
+    }
+
+    this.isShuttingDown = true;
+    const monitor = this.javaObject.getMonitor();
+    monitor.enter(this, () => {
+      const exitMethod = this.threadClass.getMethod('exit()V');
+      if (!exitMethod) {
+        throw new Error('Thread exit method not found');
+      }
+
+      this.invokeStackFrame(
+        new InternalStackFrame(
+          this.threadClass,
+          exitMethod,
+          0,
+          [this.javaObject],
+          () => {
+            monitor.notifyAll(this);
+            monitor.exit(this);
+            this.setStatus(ThreadStatus.TERMINATED);
+          }
+        )
+      );
+    });
   }
 
   // #region getters

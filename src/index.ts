@@ -9,7 +9,7 @@ import {
   AbstractThreadPool,
   RoundRobinThreadPool,
 } from './components/ThreadPool';
-import { InternalStackFrame } from './components/stackframe';
+import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
 import { checkError, checkSuccess } from '#types/Result';
 import { js2jString } from './utils';
 import { ThreadStatus } from './components/thread/constants';
@@ -25,7 +25,6 @@ export default class JVM {
   cachedClasses: { [key: string]: ReferenceClassData } = {};
   private internedStrings: { [key: string]: JvmObject } = {};
   private unsafeHeap: UnsafeHeap = new UnsafeHeap();
-  private _initialThread?: Thread; // Reuse initialization thread as main thread
 
   private jvmOptions: {
     javaClassPath: string;
@@ -54,7 +53,7 @@ export default class JVM {
     this.threadpool = new RoundRobinThreadPool(() => {});
   }
 
-  initialize(onInitialized: () => void) {
+  run(className: string, onInitialized?: () => void) {
     // #region load classes
     const objRes = this.bootstrapClassLoader.getClassRef('java/lang/Object');
     const tRes = this.bootstrapClassLoader.getClassRef('java/lang/Thread');
@@ -79,11 +78,14 @@ export default class JVM {
     const threadGroupCls = tgRes.result;
     // #endregion
 
+    const javaObject = threadCls.instantiate();
     const mainThread = new Thread(
       threadCls as ReferenceClassData,
       this,
-      this.threadpool
+      this.threadpool,
+      javaObject
     );
+    javaObject.putNativeField('thread', mainThread);
 
     const tasks: (() => void)[] = [];
     // #region initialize threadgroup object
@@ -108,7 +110,6 @@ export default class JVM {
     // #endregion
 
     // #region initialize thread object
-    this._initialThread = mainThread;
     tasks.push(() => mainThread.initialize(mainThread));
     // #endregion
 
@@ -127,20 +128,14 @@ export default class JVM {
           [],
           () => {
             this.isInitialized = true;
-            onInitialized();
+            onInitialized && onInitialized();
           }
         )
       )
     );
     // #endregion
 
-    tasks.reverse().forEach(task => task());
-    mainThread.setStatus(ThreadStatus.RUNNABLE);
-    this.threadpool.addThread(mainThread);
-    this.threadpool.run();
-  }
-
-  runClass(className: string) {
+    // #region run main
     this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,
       this.jvmOptions.userDir,
@@ -149,32 +144,29 @@ export default class JVM {
 
     // convert args to Java String[]
     const mainRes = this.applicationClassLoader.getClassRef(className);
-
-    const threadRes =
-      this.applicationClassLoader.getClassRef('java/lang/Thread');
-
-    if (checkError(threadRes)) {
-      throw new Error('Thread class not found');
-    }
     if (checkError(mainRes)) {
       throw new Error('Main class not found');
     }
 
     const mainCls = mainRes.result;
-    const threadCls = threadRes.result;
 
     const mainMethod = mainCls.getMethod('main([Ljava/lang/String;)V');
     if (!mainMethod) {
       throw new Error('Main method not found');
     }
-    const mainThread = this._initialThread as Thread;
-    mainThread.invokeStackFrame(
-      new InternalStackFrame(mainCls, mainMethod, 0, [], () => {})
-    );
-    mainCls.initialize(mainThread);
+
+    tasks.push(() => mainCls.initialize(mainThread));
+    tasks.push(() => {
+      mainThread.invokeStackFrame(
+        new JavaStackFrame(mainCls, mainMethod, 0, [])
+      );
+    });
+    // #endregion
+
+    tasks.reverse().forEach(task => task());
     mainThread.setStatus(ThreadStatus.RUNNABLE);
-    // FIXME: thread should have terminated and be removed from tpool
-    // this.threadpool.addThread(mainThread);
+
+    this.threadpool.addThread(mainThread);
     this.threadpool.run();
   }
 
