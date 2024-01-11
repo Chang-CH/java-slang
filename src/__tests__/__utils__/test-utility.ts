@@ -41,7 +41,7 @@ export class TestClassLoader extends AbstractClassLoader {
     return null;
   }
   private primitiveClasses: { [className: string]: PrimitiveClassData } = {};
-  getPrimitiveClassRef(className: string): PrimitiveClassData {
+  getPrimitiveClass(className: string): PrimitiveClassData {
     if (this.primitiveClasses[className]) {
       return this.primitiveClasses[className];
     }
@@ -377,7 +377,7 @@ export class TestThread extends Thread {
     jvm: JVM,
     tpool: AbstractThreadPool
   ) {
-    super(threadClass, jvm, tpool);
+    super(threadClass, jvm, tpool, new JvmObject(threadClass));
     this.setStatus(ThreadStatus.RUNNABLE);
   }
 }

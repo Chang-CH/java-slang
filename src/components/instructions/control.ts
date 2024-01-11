@@ -27,7 +27,6 @@ export function runRet(thread: Thread): void {
   thread.setPc(retAddr);
 }
 
-// TODO: test
 export function runTableswitch(thread: Thread): void {
   let offset = thread.getPC() + 1;
   if (offset % 4 !== 0) {

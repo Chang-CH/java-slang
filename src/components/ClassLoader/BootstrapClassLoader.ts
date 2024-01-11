@@ -18,26 +18,6 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     super(nativeSystem, classPath, null);
   }
 
-  private loadArray(
-    className: string,
-    componentCls: ClassData
-  ): ImmediateResult<ArrayClassData> {
-    let error: ErrorResult | null = null;
-    const arrayClass = new ArrayClassData(
-      CLASS_FLAGS.ACC_PUBLIC,
-      className,
-      this,
-      componentCls,
-      e => (error = e)
-    );
-    if (error) {
-      return error;
-    }
-
-    this.loadClass(arrayClass);
-    return { result: arrayClass };
-  }
-
   /**
    * Attempts to load a class file. Class should not already be loaded.
    * @param className name of class to load
@@ -57,7 +37,6 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
       };
     }
 
-    this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
     return { result: this.loadClass(classData) };
   }
@@ -66,10 +45,23 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     className: string,
     componentCls: ClassData
   ): ImmediateResult<ArrayClassData> {
-    return this.loadArray(className, componentCls);
+    let error: ErrorResult | null = null;
+    const arrayClass = new ArrayClassData(
+      CLASS_FLAGS.ACC_PUBLIC,
+      className,
+      this,
+      componentCls,
+      e => (error = e)
+    );
+    if (error) {
+      return error;
+    }
+
+    this.loadClass(arrayClass);
+    return { result: arrayClass };
   }
 
-  getPrimitiveClassRef(className: string): PrimitiveClassData {
+  getPrimitiveClass(className: string): PrimitiveClassData {
     const internalName = primitiveTypeToName(className as JavaType);
     if (!internalName) {
       throw new Error(`Invalid primitive class name: ${className}`);

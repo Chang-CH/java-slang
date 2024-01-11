@@ -87,7 +87,7 @@ const functions = {
     const cls = thread
       .getClass()
       .getLoader()
-      .getPrimitiveClassRef(primitiveClsName);
+      .getPrimitiveClass(primitiveClsName);
     const initRes = cls.initialize(thread);
     if (!checkSuccess(initRes)) {
       if (checkError(initRes)) {

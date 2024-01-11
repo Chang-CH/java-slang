@@ -89,16 +89,14 @@ export function runDconst1(thread: Thread): void {
 }
 
 export function runBipush(thread: Thread): void {
-  thread.offsetPc(1);
-  const byte = thread.getCode().getInt8(thread.getPC());
-  thread.offsetPc(1);
+  const byte = thread.getCode().getInt8(thread.getPC() + 1);
+  thread.offsetPc(2);
   thread.pushStack(byte);
 }
 
 export function runSipush(thread: Thread): void {
-  thread.offsetPc(1);
-  const short = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const short = thread.getCode().getInt16(thread.getPC() + 1);
+  thread.offsetPc(3);
   thread.pushStack(short);
 }
 
@@ -136,7 +134,6 @@ export function loadConstant(
 
 export function runLdc(thread: Thread): void {
   const indexbyte = thread.getCode().getUint8(thread.getPC() + 1);
-
   loadConstant(thread, indexbyte, () => thread.offsetPc(2));
 }
 
@@ -151,6 +148,5 @@ export function runLdc2W(thread: Thread): void {
   const item = thread.getClass().getConstant(indexbyte) as
     | ConstantDouble
     | ConstantLong;
-
   thread.pushStack64(item.get());
 }

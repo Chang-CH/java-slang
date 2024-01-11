@@ -16,7 +16,8 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
 
   /**
    * Attempts to load a class file
-   * @param className name of class to load
+   * @param className name of class to load, e.g. [Ljava/lang/Object;
+   * @returns
    */
   protected load(className: string): ImmediateResult<ClassData> {
     console.debug(`UserClassLoader: loading ${className}`);
@@ -32,16 +33,20 @@ export default class ApplicationClassLoader extends AbstractClassLoader {
       };
     }
 
-    this.prepareClass(classFile);
     const classData = this.linkClass(classFile);
     return { result: this.loadClass(classData) };
   }
 
-  getPrimitiveClassRef(className: string): PrimitiveClassData {
+  /**
+   * Gets the primitive class data for a given primitive type. Overriden by BootstrapClassLoader.
+   * @param className
+   * @returns
+   */
+  getPrimitiveClass(className: string): PrimitiveClassData {
     if (this.parentLoader === null) {
       throw new Error('Primitive class not found');
     }
-    return this.parentLoader.getPrimitiveClassRef(className);
+    return this.parentLoader.getPrimitiveClass(className);
   }
 
   getJavaObject(): JvmObject | null {

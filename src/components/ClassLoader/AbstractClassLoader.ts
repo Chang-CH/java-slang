@@ -37,24 +37,21 @@ export default abstract class AbstractClassLoader {
     this.parentLoader = parentLoader;
   }
 
+  /**
+   * Loads a given classfile. Used to support Unsafe operations.
+   * @param classFile
+   * @returns
+   */
   defineClass(classFile: ClassFile): ClassData {
     const cls = this.linkClass(classFile);
-    this.prepareClass(classFile);
     return this.loadClass(cls);
   }
 
   /**
-   * Prepares the class data by checking jvm constraints.
-   * @param cls class data to check
-   * @returns Error, if any
-   */
-  protected prepareClass(cls: ClassFile): void | Error {
-    return;
-  }
-
-  /**
-   * Loads superclasses etc. for reference classes
-   */
+   * Resolves symbolic references in the classfile. Eagerly loads
+   * @param classFile
+   * @returns
+   * */
   protected linkClass(cls: ClassFile): ReferenceClassData {
     // resolve classname
     const clsInfo = cls.constantPool[cls.thisClass] as ConstantClassInfo;
@@ -76,13 +73,21 @@ export default abstract class AbstractClassLoader {
   }
 
   /**
-   * Stores the resolved class data.
+   * Stores the resolved class data in the classloader.
+   * The same class loaded by a different classloader is considered a different class.
    */
   protected loadClass(cls: ClassData): ClassData {
     this.loadedClasses[cls.getClassname()] = cls;
     return cls;
   }
 
+  /**
+   * Loads an array class given the component class. Overridden by BootstrapClassLoader.
+   *
+   * @param className name of array class
+   * @param componentCls
+   * @returns
+   */
   protected _loadArrayClass(
     className: string,
     componentCls: ClassData
@@ -121,7 +126,7 @@ export default abstract class AbstractClassLoader {
         }
         arrayObjCls = itemRes.result;
       } else {
-        arrayObjCls = this.getPrimitiveClassRef(itemClsName);
+        arrayObjCls = this.getPrimitiveClass(itemClsName);
       }
 
       const res = this._loadArrayClass(className, arrayObjCls);
@@ -152,7 +157,7 @@ export default abstract class AbstractClassLoader {
    * @throws Error if class is not a primitive
    * @param className
    */
-  abstract getPrimitiveClassRef(className: string): PrimitiveClassData;
+  abstract getPrimitiveClass(className: string): PrimitiveClassData;
 
   protected abstract load(className: string): ImmediateResult<ClassData>;
 

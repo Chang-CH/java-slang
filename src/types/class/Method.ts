@@ -130,7 +130,7 @@ export class Method {
           return res.result.getJavaObject();
         }
 
-        return loader.getPrimitiveClassRef(arg.type).getJavaObject();
+        return loader.getPrimitiveClass(arg.type).getJavaObject();
       })
     );
     if (error !== null) {
@@ -147,7 +147,7 @@ export class Method {
       }
       returnType = res.result.getJavaObject();
     } else {
-      returnType = loader.getPrimitiveClassRef(ret.type).getJavaObject();
+      returnType = loader.getPrimitiveClass(ret.type).getJavaObject();
     }
     // #endregion
 

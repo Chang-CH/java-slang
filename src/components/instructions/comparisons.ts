@@ -1,272 +1,195 @@
 import Thread from '#jvm/components/thread/thread';
 import { asDouble, asFloat } from '#utils/index';
 
-export function runLcmp(thread: Thread): void {
-  thread.offsetPc(1);
-  const value2 = thread.popStack64();
-  const value1 = thread.popStack64();
+function cmp(value1: number, value2: number, checkNan: number = 0): number {
+  if (checkNan !== 0 && (Number.isNaN(value1) || Number.isNaN(value2))) {
+    return checkNan;
+  }
+
+  if (value1 == value2) {
+    return 0;
+  }
 
   if (value1 > value2) {
-    thread.pushStack(1);
-    return;
+    return 1;
   }
 
-  if (value1 < value2) {
-    thread.pushStack(-1);
-    return;
-  }
+  return -1;
+}
 
-  thread.pushStack(0);
+export function runLcmp(thread: Thread): void {
+  const value2 = thread.popStack64();
+  const value1 = thread.popStack64();
+  thread.pushStack(cmp(value1, value2));
+  thread.offsetPc(1);
 }
 
 export function runFcmpl(thread: Thread): void {
-  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
-  if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(-1);
-    return;
-  }
-
-  if (value1 == value2) {
-    thread.pushStack(0);
-    return;
-  }
-
-  if (value1 > value2) {
-    thread.pushStack(1);
-    return;
-  }
-
-  thread.pushStack(-1);
+  thread.pushStack(cmp(value1, value2, -1));
+  thread.offsetPc(1);
 }
 
 export function runFcmpg(thread: Thread): void {
-  thread.offsetPc(1);
   const value2 = asFloat(thread.popStack());
   const value1 = asFloat(thread.popStack());
-  if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(1);
-    return;
-  }
-
-  if (value1 == value2) {
-    thread.pushStack(0);
-    return;
-  }
-
-  if (value1 > value2) {
-    thread.pushStack(1);
-    return;
-  }
-
-  thread.pushStack(-1);
+  thread.pushStack(cmp(value1, value2, 1));
+  thread.offsetPc(1);
 }
 
 export function runDcmpl(thread: Thread): void {
-  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
-  if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(-1);
-    return;
-  }
-
-  if (value1 == value2) {
-    thread.pushStack(0);
-    return;
-  }
-
-  if (value1 > value2) {
-    thread.pushStack(1);
-    return;
-  }
-
-  thread.pushStack(-1);
+  thread.pushStack(cmp(value1, value2, -1));
+  thread.offsetPc(1);
 }
 
 export function runDcmpg(thread: Thread): void {
-  thread.offsetPc(1);
   const value2 = asDouble(thread.popStack64());
   const value1 = asDouble(thread.popStack64());
-  if (Number.isNaN(value1) || Number.isNaN(value2)) {
-    thread.pushStack(1);
-    return;
-  }
-
-  if (value1 == value2) {
-    thread.pushStack(0);
-    return;
-  }
-
-  if (value1 > value2) {
-    thread.pushStack(1);
-    return;
-  }
-
-  thread.pushStack(-1);
+  thread.pushStack(cmp(value1, value2, 1));
+  thread.offsetPc(1);
 }
 
 export function runIfeq(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   if (thread.popStack() === 0) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfne(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   if (thread.popStack() !== 0) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIflt(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   if (thread.popStack() < 0) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfge(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   if (thread.popStack() >= 0) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfgt(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   if (thread.popStack() > 0) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfle(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   if (thread.popStack() <= 0) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfIcmpeq(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 === value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfIcmpne(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 !== value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfIcmplt(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 < value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfIcmpge(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 >= value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfIcmpgt(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 > value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfIcmple(thread: Thread): void {
-  thread.offsetPc(1);
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 <= value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfAcmpeq(thread: Thread): void {
-  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 === value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }
 
 export function runIfAcmpne(thread: Thread): void {
-  thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
-  thread.offsetPc(2);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
-
   if (value1 !== value2) {
-    thread.offsetPc(branchbyte - 3);
-    return;
+    thread.offsetPc(branchbyte);
+  } else {
+    thread.offsetPc(3);
   }
 }

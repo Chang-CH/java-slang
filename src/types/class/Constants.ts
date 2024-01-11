@@ -208,7 +208,7 @@ function createMethodType(
   }) => {
     // primitive
     if (!referenceCls) {
-      const pClsRes = loader.getPrimitiveClassRef(type);
+      const pClsRes = loader.getPrimitiveClass(type);
       classArray.push(pClsRes.getJavaObject());
       return;
     }
@@ -949,7 +949,7 @@ function resolveSignaturePolymorphic(
       }
       return loadResult.result.getJavaObject();
     }
-    return loader.getPrimitiveClassRef(arg.type).getJavaObject();
+    return loader.getPrimitiveClass(arg.type).getJavaObject();
   });
   if (argResolutionError) {
     return onError(argResolutionError);
@@ -965,7 +965,7 @@ function resolveSignaturePolymorphic(
     rtype = loadResult.result.getJavaObject();
   } else {
     rtype = loader
-      .getPrimitiveClassRef(descriptorClasses.ret.type)
+      .getPrimitiveClass(descriptorClasses.ret.type)
       .getJavaObject();
   }
   ptypes.initArray(argsCls.length, argsCls);
@@ -1323,7 +1323,7 @@ export class ConstantMethodHandle extends Constant {
         cb(
           this.cls
             .getLoader()
-            .getPrimitiveClassRef(parsedField.type)
+            .getPrimitiveClass(parsedField.type)
             .getJavaObject()
         );
       } else {

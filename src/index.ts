@@ -16,21 +16,20 @@ import { ThreadStatus } from './components/thread/constants';
 import Thread from './components/thread/thread';
 
 export default class JVM {
-  private bootstrapClassLoader: BootstrapClassLoader;
-  private applicationClassLoader?: ApplicationClassLoader;
-  private nativeSystem: AbstractSystem;
-  private jni: JNI;
-  private threadpool: AbstractThreadPool;
-
-  cachedClasses: { [key: string]: ReferenceClassData } = {};
-  private internedStrings: { [key: string]: JvmObject } = {};
-  private unsafeHeap: UnsafeHeap = new UnsafeHeap();
-
   private jvmOptions: {
     javaClassPath: string;
     userDir: string;
   };
   private isInitialized = false;
+
+  private bootstrapClassLoader: BootstrapClassLoader;
+  private applicationClassLoader: ApplicationClassLoader;
+  private nativeSystem: AbstractSystem;
+  private jni: JNI;
+  private threadpool: AbstractThreadPool;
+
+  private internedStrings: { [key: string]: JvmObject } = {};
+  private unsafeHeap: UnsafeHeap = new UnsafeHeap();
 
   constructor(
     nativeSystem: AbstractSystem,
@@ -51,6 +50,11 @@ export default class JVM {
     );
     this.jni = new JNI();
     this.threadpool = new RoundRobinThreadPool(() => {});
+    this.applicationClassLoader = new ApplicationClassLoader(
+      this.nativeSystem,
+      this.jvmOptions.userDir,
+      this.bootstrapClassLoader
+    );
   }
 
   run(className: string, onInitialized?: () => void) {
@@ -136,11 +140,6 @@ export default class JVM {
     // #endregion
 
     // #region run main
-    this.applicationClassLoader = new ApplicationClassLoader(
-      this.nativeSystem,
-      this.jvmOptions.userDir,
-      this.bootstrapClassLoader
-    );
 
     // convert args to Java String[]
     const mainRes = this.applicationClassLoader.getClassRef(className);
