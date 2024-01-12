@@ -1,3 +1,4 @@
+import { ThreadStatus } from '#jvm/constants';
 import JVM from '#jvm/index';
 import { checkError, checkSuccess } from '#types/Result';
 import { Code } from '#types/class/Attributes';
@@ -6,7 +7,6 @@ import { Method } from '#types/class/Method';
 import type { JvmObject } from '../../types/reference/Object';
 import { AbstractThreadPool } from '../ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from '../stackframe';
-import { ThreadStatus } from './constants';
 
 export default class Thread {
   private static threadIdCounter = 0;
@@ -353,7 +353,7 @@ export default class Thread {
   throwNewException(className: string, msg: string) {
     // Initialize exception
     // FIXME: push msg to stack
-    const clsRes = this.getClass().getLoader().getClassRef(className);
+    const clsRes = this.getClass().getLoader().getClass(className);
     if (checkError(clsRes)) {
       if (clsRes.exceptionCls === 'java/lang/ClassNotFoundException') {
         throw new Error(

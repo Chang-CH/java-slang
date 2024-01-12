@@ -15,7 +15,7 @@ import { ConstantUtf8 } from './Constants';
 import type { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread/thread';
 import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
-import { ConstantPool } from '#jvm/components/constant-pool';
+import { ConstantPool } from '#jvm/components/ConstantPool';
 import { Code, IAttribute } from './Attributes';
 import {
   ImmediateResult,
@@ -108,7 +108,7 @@ export class Method {
     }
 
     const loader = this.cls.getLoader();
-    const caRes = loader.getClassRef('[Ljava/lang/Class;');
+    const caRes = loader.getClass('[Ljava/lang/Class;');
     if (checkError(caRes)) {
       return caRes;
     }
@@ -122,7 +122,7 @@ export class Method {
       args.length,
       args.map(arg => {
         if (arg.referenceCls) {
-          const res = loader.getClassRef(arg.referenceCls);
+          const res = loader.getClass(arg.referenceCls);
           if (checkError(res)) {
             error = res;
             return null;
@@ -141,7 +141,7 @@ export class Method {
     // #region create return class
     let returnType: JvmObject;
     if (ret.referenceCls) {
-      const res = loader.getClassRef(ret.referenceCls);
+      const res = loader.getClass(ret.referenceCls);
       if (checkError(res)) {
         return res;
       }
@@ -179,7 +179,7 @@ export class Method {
     if (isConstructor) {
       // load constructor class
       if (!Method.reflectConstructorClass) {
-        const fRes = loader.getClassRef('java/lang/reflect/Constructor');
+        const fRes = loader.getClass('java/lang/reflect/Constructor');
         if (checkError(fRes)) {
           return fRes;
         }
@@ -199,7 +199,7 @@ export class Method {
         const fRes = thread
           .getClass()
           .getLoader()
-          .getClassRef('java/lang/reflect/Method');
+          .getClass('java/lang/reflect/Method');
         if (checkError(fRes)) {
           return fRes;
         }

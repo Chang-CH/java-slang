@@ -2,22 +2,22 @@ import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import type { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
-import Thread from './thread/thread';
+import type Thread from './thread/thread';
 
-import * as comparisons from './instructions/comparisons';
-import * as constants from './instructions/constants';
-import * as control from './instructions/control';
-import * as conversions from './instructions/conversions';
-import * as extended from './instructions/extended';
-import * as loads from './instructions/loads';
-import * as math from './instructions/math';
-import * as reserved from './instructions/reserved';
-import * as references from './instructions/references';
-import * as stack from './instructions/stack';
-import * as stores from './instructions/stores';
+import * as comparisons from '../instructions/comparisons';
+import * as constants from '../instructions/constants';
+import * as control from '../instructions/control';
+import * as conversions from '../instructions/conversions';
+import * as extended from '../instructions/extended';
+import * as loads from '../instructions/loads';
+import * as math from '../instructions/math';
+import * as reserved from '../instructions/reserved';
+import * as references from '../instructions/references';
+import * as stack from '../instructions/stack';
+import * as stores from '../instructions/stores';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { Code } from '#types/class/Attributes';
-import { JNI } from './JNI';
+import { JNI } from './jni';
 import { checkDefer, checkError } from '#types/Result';
 
 const overwrites: {

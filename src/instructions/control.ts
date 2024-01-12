@@ -7,10 +7,6 @@ export function runGoto(thread: Thread): void {
   thread.offsetPc(branchbyte - 1);
 }
 
-/**
- * Used to implement finally. pushes pc + 3 onto stack, then goto pc + branchbyte
- * @param thread
- */
 export function runJsr(thread: Thread): void {
   thread.offsetPc(1);
   const branchbyte = thread.getCode().getInt16(thread.getPC());
@@ -55,7 +51,6 @@ export function runTableswitch(thread: Thread): void {
   thread.offsetPc(offsets[index - low]);
 }
 
-// TODO: test
 export function runLookupswitch(thread: Thread): void {
   let offset = thread.getPC() + 1;
   if (offset % 4 !== 0) {
@@ -102,7 +97,6 @@ function _return(thread: Thread, ret?: any, isWide?: boolean): void {
 }
 
 export function runIreturn(thread: Thread): void {
-  thread.getMethod().getArgs;
   const ret = thread.popStack();
   _return(thread, ret);
 }

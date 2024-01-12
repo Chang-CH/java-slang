@@ -6,7 +6,7 @@ import { Field } from './Field';
 import { Method } from './Method';
 import { JvmObject } from '../reference/Object';
 import { Constant, ConstantClass, ConstantUtf8 } from '#types/class/Constants';
-import { ConstantPool } from '#jvm/components/constant-pool';
+import { ConstantPool } from '#jvm/components/ConstantPool';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { attrInfo2Interface, primitiveNameToType } from '#utils/index';
 import { JvmArray } from '#types/reference/Array';
@@ -138,7 +138,7 @@ export abstract class ClassData {
   }
 
   resolveClass(toResolve: string): ImmediateResult<ClassData> {
-    const res = this.loader.getClassRef(toResolve);
+    const res = this.loader.getClass(toResolve);
     if (checkError(res)) {
       return res;
     }
@@ -523,7 +523,7 @@ export abstract class ClassData {
     if (!this.javaClassObject) {
       // We assume that java/lang/Class has been loaded at JVM initialization
       const clsCls = (
-        this.loader.getClassRef('java/lang/Class') as SuccessResult<ClassData>
+        this.loader.getClass('java/lang/Class') as SuccessResult<ClassData>
       ).result;
 
       this.javaClassObject = clsCls.instantiate();
@@ -808,17 +808,17 @@ export class ArrayClassData extends ClassData {
     this.componentClass = componentClass;
 
     // #region load array superclasses/interfaces
-    const objRes = loader.getClassRef('java/lang/Object');
+    const objRes = loader.getClass('java/lang/Object');
     if (checkError(objRes)) {
       onError(objRes);
       return;
     }
-    const cloneableRes = loader.getClassRef('java/lang/Cloneable');
+    const cloneableRes = loader.getClass('java/lang/Cloneable');
     if (checkError(cloneableRes)) {
       onError(cloneableRes);
       return;
     }
-    const serialRes = loader.getClassRef('java/io/Serializable');
+    const serialRes = loader.getClass('java/io/Serializable');
     if (checkError(serialRes)) {
       onError(serialRes);
       return;

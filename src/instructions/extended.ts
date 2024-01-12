@@ -107,7 +107,7 @@ export function runMultianewarray(thread: Thread): void {
     const classResolutionResult = thread
       .getClass()
       .getLoader()
-      .getClassRef(currentType);
+      .getClass(currentType);
     if (checkError(classResolutionResult)) {
       thread.throwNewException(
         classResolutionResult.exceptionCls,

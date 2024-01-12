@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread/thread';
-import { JNI } from '#jvm/components/JNI';
+import { JNI } from '#jvm/components/jni';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JavaStackFrame } from '#jvm/components/stackframe';

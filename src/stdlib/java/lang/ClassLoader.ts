@@ -16,7 +16,7 @@ const functions = {
 
     console.log('findLoadedClass0: ', className);
 
-    const res = loader.getClassRef(className);
+    const res = loader.getClass(className);
 
     if (checkError(res)) {
       thread.throwNewException(res.exceptionCls, res.msg);

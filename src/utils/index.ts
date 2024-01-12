@@ -1,5 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import { ConstantPool } from '#jvm/components/constant-pool';
+import { ConstantPool } from '#jvm/components/ConstantPool';
 import type Thread from '#jvm/components/thread/thread';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { SuccessResult } from '#types/Result';
@@ -26,7 +26,7 @@ export const j2jsString = (str: JvmObject) => {
 
 function newCharArr(loader: AbstractClassLoader, str: string): JvmArray {
   // Assume char array loaded at init
-  const cArrRes = loader.getClassRef('[C') as SuccessResult<ArrayClassData>;
+  const cArrRes = loader.getClass('[C') as SuccessResult<ArrayClassData>;
   const cArrCls = cArrRes.result;
   const cArr = cArrCls.instantiate() as JvmArray;
   const jsArr = [];
@@ -45,7 +45,7 @@ export function js2jString(
   str: string
 ): JvmObject {
   const charArr = newCharArr(loader, str);
-  const strRes = loader.getClassRef(
+  const strRes = loader.getClass(
     'java/lang/String'
   ) as SuccessResult<ReferenceClassData>;
   const strCls = strRes.result;

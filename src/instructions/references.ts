@@ -14,7 +14,7 @@ import {
   ConstantInvokeDynamic,
   ConstantMethodref,
 } from '#types/class/Constants';
-import { NativeStackFrame, JavaStackFrame } from '../stackframe';
+import { NativeStackFrame, JavaStackFrame } from '../components/stackframe';
 import {
   checkSuccess,
   checkError,
@@ -704,7 +704,7 @@ export function runNewarray(thread: Thread): void {
   const classResolutionResult = thread
     .getClass()
     .getLoader()
-    .getClassRef(className);
+    .getClass(className);
   if (checkError(classResolutionResult)) {
     throw new Error('Failed to load primitive array class');
   }
@@ -748,7 +748,7 @@ export function runAnewarray(thread: Thread): void {
 
   const arrayClassRes = invoker
     .getLoader()
-    .getClassRef('[L' + objCls.getClassname() + ';');
+    .getClass('[L' + objCls.getClassname() + ';');
   if (checkError(arrayClassRes)) {
     throw new Error('Failed to load array class');
   }

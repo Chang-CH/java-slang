@@ -2,9 +2,8 @@ import { ReferenceClassData } from '#types/class/ClassData';
 import type { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
-import ApplicationClassLoader from './components/ClassLoader/ApplicationClassLoader';
-import { JNI } from './components/JNI';
-import { UnsafeHeap } from './components/unsafe-heap';
+import { JNI } from './components/jni';
+import { UnsafeHeap } from './components/UnsafeHeap';
 import {
   AbstractThreadPool,
   RoundRobinThreadPool,
@@ -12,8 +11,10 @@ import {
 import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
 import { checkError, checkSuccess } from '#types/Result';
 import { js2jString } from './utils';
-import { ThreadStatus } from './components/thread/constants';
 import Thread from './components/thread/thread';
+import { ApplicationClassLoader } from './components/ClassLoader/AbstractClassLoader';
+import stdlib from './stdlib/stdlib';
+import { ThreadStatus } from './constants';
 
 export default class JVM {
   private jvmOptions: {
@@ -48,7 +49,7 @@ export default class JVM {
       this.nativeSystem,
       this.jvmOptions.javaClassPath
     );
-    this.jni = new JNI();
+    this.jni = new JNI(stdlib);
     this.threadpool = new RoundRobinThreadPool(() => {});
     this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,
@@ -59,14 +60,12 @@ export default class JVM {
 
   run(className: string, onInitialized?: () => void) {
     // #region load classes
-    const objRes = this.bootstrapClassLoader.getClassRef('java/lang/Object');
-    const tRes = this.bootstrapClassLoader.getClassRef('java/lang/Thread');
-    const sysRes = this.bootstrapClassLoader.getClassRef('java/lang/System');
-    const clsRes = this.bootstrapClassLoader.getClassRef('java/lang/Class');
-    const tgRes = this.bootstrapClassLoader.getClassRef(
-      'java/lang/ThreadGroup'
-    );
-    const unsafeRes = this.bootstrapClassLoader.getClassRef('sun/misc/Unsafe');
+    const objRes = this.bootstrapClassLoader.getClass('java/lang/Object');
+    const tRes = this.bootstrapClassLoader.getClass('java/lang/Thread');
+    const sysRes = this.bootstrapClassLoader.getClass('java/lang/System');
+    const clsRes = this.bootstrapClassLoader.getClass('java/lang/Class');
+    const tgRes = this.bootstrapClassLoader.getClass('java/lang/ThreadGroup');
+    const unsafeRes = this.bootstrapClassLoader.getClass('sun/misc/Unsafe');
     if (
       checkError(objRes) ||
       checkError(sysRes) ||
@@ -142,7 +141,7 @@ export default class JVM {
     // #region run main
 
     // convert args to Java String[]
-    const mainRes = this.applicationClassLoader.getClassRef(className);
+    const mainRes = this.applicationClassLoader.getClass(className);
     if (checkError(mainRes)) {
       throw new Error('Main class not found');
     }

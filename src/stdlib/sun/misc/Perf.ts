@@ -15,7 +15,7 @@ const functions = {
       .getMethod()
       .getClass()
       .getLoader()
-      .getClassRef('java/nio/DirectByteBuffer');
+      .getClass('java/nio/DirectByteBuffer');
     if (checkError(bbRes)) {
       thread.throwNewException(bbRes.exceptionCls, bbRes.msg);
       return;

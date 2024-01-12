@@ -1,4 +1,4 @@
-import { ThreadStatus } from '../thread/constants';
+import { ThreadStatus } from '#jvm/constants';
 import Thread from '../thread/thread';
 import { Deque } from './utils/deque';
 

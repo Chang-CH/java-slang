@@ -1,7 +1,7 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
 import Thread from '#jvm/components/thread/thread';
-import { JNI } from '#jvm/components/JNI';
+import { JNI } from '#jvm/components/jni';
 import { CLASS_STATUS, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
@@ -5102,8 +5102,7 @@ describe('Arraylength', () => {
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
 
-    const arrCls = (testLoader.getClassRef('[I') as any)
-      .result as ArrayClassData;
+    const arrCls = (testLoader.getClass('[I') as any).result as ArrayClassData;
     const arrayRef = arrCls.instantiate();
     arrayRef.initialize(thread, 5);
     thread.pushStack(arrayRef);
@@ -5471,8 +5470,7 @@ describe('Checkcast', () => {
       ],
       loader: testLoader,
     });
-    const arrCls = (testLoader.getClassRef('[I') as any)
-      .result as ArrayClassData;
+    const arrCls = (testLoader.getClass('[I') as any).result as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
@@ -5522,8 +5520,7 @@ describe('Checkcast', () => {
       ],
       loader: testLoader,
     });
-    const arrCls = (testLoader.getClassRef('[I') as any)
-      .result as ArrayClassData;
+    const arrCls = (testLoader.getClass('[I') as any).result as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
@@ -5573,8 +5570,7 @@ describe('Checkcast', () => {
       ],
       loader: testLoader,
     });
-    const arrCls = (testLoader.getClassRef('[I') as any)
-      .result as ArrayClassData;
+    const arrCls = (testLoader.getClass('[I') as any).result as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.CHECKCAST);
@@ -5636,7 +5632,7 @@ describe('Checkcast', () => {
       superClass: sClass as ReferenceClassData,
     });
 
-    const arrCls = (testLoader.getClassRef('[LChild;') as any)
+    const arrCls = (testLoader.getClass('[LChild;') as any)
       .result as ArrayClassData;
     const obj = arrCls.instantiate();
 
@@ -5688,7 +5684,7 @@ describe('Checkcast', () => {
       loader: testLoader,
     });
 
-    const arrCls = (testLoader.getClassRef('[LChild;') as any)
+    const arrCls = (testLoader.getClass('[LChild;') as any)
       .result as ArrayClassData;
     const obj = arrCls.instantiate();
 
@@ -6020,8 +6016,7 @@ describe('Instanceof', () => {
       ],
       loader: testLoader,
     });
-    const arrCls = (testLoader.getClassRef('[I') as any)
-      .result as ArrayClassData;
+    const arrCls = (testLoader.getClass('[I') as any).result as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
@@ -6071,8 +6066,7 @@ describe('Instanceof', () => {
       ],
       loader: testLoader,
     });
-    const arrCls = (testLoader.getClassRef('[I') as any)
-      .result as ArrayClassData;
+    const arrCls = (testLoader.getClass('[I') as any).result as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
@@ -6122,8 +6116,7 @@ describe('Instanceof', () => {
       ],
       loader: testLoader,
     });
-    const arrCls = (testLoader.getClassRef('[I') as any)
-      .result as ArrayClassData;
+    const arrCls = (testLoader.getClass('[I') as any).result as ArrayClassData;
     const obj = arrCls.instantiate();
 
     code.setUint8(0, OPCODE.INSTANCEOF);
@@ -6185,7 +6178,7 @@ describe('Instanceof', () => {
       superClass: sClass as ReferenceClassData,
     });
 
-    const arrCls = (testLoader.getClassRef('[LChild;') as any)
+    const arrCls = (testLoader.getClass('[LChild;') as any)
       .result as ArrayClassData;
     const obj = arrCls.instantiate();
 
@@ -6237,7 +6230,7 @@ describe('Instanceof', () => {
       loader: testLoader,
     });
 
-    const arrCls = (testLoader.getClassRef('[LChild;') as any)
+    const arrCls = (testLoader.getClass('[LChild;') as any)
       .result as ArrayClassData;
     const obj = arrCls.instantiate();
 

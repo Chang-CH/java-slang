@@ -62,7 +62,7 @@ const functions = {
     const faClsRes = thread
       .getClass()
       .getLoader()
-      .getClassRef('[Ljava/lang/reflect/Field;');
+      .getClass('[Ljava/lang/reflect/Field;');
     if (checkError(faClsRes)) {
       thread.returnStackFrame();
       thread.throwNewException(faClsRes.exceptionCls, faClsRes.msg);
@@ -151,7 +151,7 @@ const functions = {
         loader = thread.getJVM().getBootstrapClassLoader();
       }
 
-      const loadRes = loader.getClassRef(name);
+      const loadRes = loader.getClass(name);
       if (checkError(loadRes)) {
         thread.returnStackFrame();
         thread.throwNewException(loadRes.exceptionCls, loadRes.msg);
@@ -215,7 +215,7 @@ const functions = {
 
     const caRes = clsRef
       .getLoader()
-      .getClassRef('[Ljava/lang/reflect/Constructor;');
+      .getClass('[Ljava/lang/reflect/Constructor;');
     if (checkError(caRes)) {
       thread.returnStackFrame();
       thread.throwNewException(caRes.exceptionCls, caRes.msg);
@@ -239,7 +239,7 @@ const functions = {
 
     const mArrRes = classRef
       .getLoader()
-      .getClassRef('[Ljava/lang/reflect/Method;');
+      .getClass('[Ljava/lang/reflect/Method;');
     if (checkError(mArrRes)) {
       thread.throwNewException(mArrRes.exceptionCls, mArrRes.msg);
       return;
@@ -300,7 +300,7 @@ const functions = {
     const jThis = locals[0] as JvmObject;
     const thisCls = jThis.getNativeField('classRef') as ClassData;
 
-    const clsArrRes = thisCls.getLoader().getClassRef('[Ljava/lang/Class;');
+    const clsArrRes = thisCls.getLoader().getClass('[Ljava/lang/Class;');
     if (checkError(clsArrRes)) {
       thread.throwNewException(clsArrRes.exceptionCls, clsArrRes.msg);
       return;

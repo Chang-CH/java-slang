@@ -1,4 +1,4 @@
-import { ConstantPool } from '#jvm/components/constant-pool';
+import { ConstantPool } from '#jvm/components/ConstantPool';
 import {
   AttributeInfo,
   BootstrapMethodsAttribute,

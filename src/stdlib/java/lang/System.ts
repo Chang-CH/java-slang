@@ -146,7 +146,7 @@ const functions = {
       thread
         .getJVM()
         .getBootstrapClassLoader()
-        .getClassRef('java/lang/System') as SuccessResult<ReferenceClassData>
+        .getClass('java/lang/System') as SuccessResult<ReferenceClassData>
     ).result;
 
     const fr = sysCls.lookupField('inLjava/io/InputStream;');
@@ -161,7 +161,7 @@ const functions = {
       thread
         .getJVM()
         .getBootstrapClassLoader()
-        .getClassRef('java/lang/System') as SuccessResult<ReferenceClassData>
+        .getClass('java/lang/System') as SuccessResult<ReferenceClassData>
     ).result;
 
     const fr = sysCls.lookupField('outLjava/io/PrintStream;');
@@ -176,7 +176,7 @@ const functions = {
       thread
         .getJVM()
         .getBootstrapClassLoader()
-        .getClassRef('java/lang/System') as SuccessResult<ReferenceClassData>
+        .getClass('java/lang/System') as SuccessResult<ReferenceClassData>
     ).result;
 
     const fr = sysCls.lookupField('errLjava/io/PrintStream;');

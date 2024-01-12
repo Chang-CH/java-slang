@@ -48,14 +48,14 @@ const functions = {
   ) => {
     const action = locals[0] as JvmObject;
     const loader = thread.getClass().getLoader();
-    const acRes = loader.getClassRef('java/security/AccessController');
+    const acRes = loader.getClass('java/security/AccessController');
     if (checkError(acRes)) {
       thread.throwNewException(acRes.exceptionCls, acRes.msg);
       return;
     }
     const acCls = acRes.result;
 
-    const paRes = loader.getClassRef('java/security/PrivilegedAction');
+    const paRes = loader.getClass('java/security/PrivilegedAction');
     if (checkError(paRes)) {
       thread.throwNewException(paRes.exceptionCls, paRes.msg);
       return;

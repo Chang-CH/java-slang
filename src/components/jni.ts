@@ -1,27 +1,34 @@
+import { ThreadStatus } from '#jvm/constants';
 import { Result } from '#types/Result';
 import { JavaType } from '#types/reference/Object';
 import { parseFieldDescriptor } from '#utils/index';
-import { ThreadStatus } from '../thread/constants';
-import Thread from '../thread/thread';
-import stdlib from './stdlib';
+import Thread from './thread/thread';
+
+type Lib = {
+  [className: string]: {
+    loader: (
+      onFinish: (lib: {
+        [key: string]: (thread: Thread, locals: any[]) => void;
+      }) => void
+    ) => void;
+    methods?: { [key: string]: (thread: Thread, locals: any[]) => void };
+    blocking?: Thread[];
+  };
+};
 
 export class JNI {
-  private classes: {
-    [className: string]: {
-      loader: (
-        onFinish: (lib: {
-          [key: string]: (thread: Thread, locals: any[]) => void;
-        }) => void
-      ) => void;
-      methods?: { [key: string]: (thread: Thread, locals: any[]) => void };
-      blocking?: Thread[];
-    };
-  };
+  private classes: Lib;
 
-  constructor() {
+  constructor(stdlib: Lib) {
     this.classes = stdlib;
   }
 
+  /**
+   * Registers a lambda function as a native method
+   * @param className
+   * @param methodName
+   * @param method
+   */
   registerNativeMethod(
     className: string,
     methodName: string,
@@ -36,6 +43,13 @@ export class JNI {
     this.classes[className].methods![methodName] = method;
   }
 
+  /**
+   * Gets the lambda function for a native method
+   * @param thread
+   * @param className
+   * @param methodName
+   * @returns
+   */
   getNativeMethod(
     thread: Thread,
     className: string,
@@ -47,10 +61,10 @@ export class JNI {
         loader: () => {},
         methods: {},
         blocking: [],
-      }; // temporary workaround for unimplemented natives
+      }; // temporary workaround for unimplemented native classes
     }
 
-    // class native methods not yet loaded
+    // dynamic import class native lambdas
     if (!this.classes?.[className]?.methods) {
       if (!this.classes[className].blocking) {
         this.classes[className].blocking = [thread];
@@ -71,7 +85,7 @@ export class JNI {
 
     // native method does not exist
     if (!this.classes?.[className]?.methods?.[methodName]) {
-      // FIXME: Returns an empty function for now, but should throw an error
+      // FIXME: Returns a dummy function for now, but should throw an error
       console.error(`Native method missing: ${className}.${methodName} `);
       const retType = parseFieldDescriptor(methodName.split(')')[1], 0).type;
 

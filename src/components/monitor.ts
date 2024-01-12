@@ -1,4 +1,4 @@
-import { ThreadStatus } from './thread/constants';
+import { ThreadStatus } from '#jvm/constants';
 import type Thread from './thread/thread';
 
 export default class Monitor {

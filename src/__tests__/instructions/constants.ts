@@ -1,7 +1,7 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import Thread from '#jvm/components/thread/thread';
-import { JNI } from '#jvm/components/JNI';
+import { JNI } from '#jvm/components/jni';
 import { JvmObject } from '#types/reference/Object';
 import {
   ConstantClassInfo,

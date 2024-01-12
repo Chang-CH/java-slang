@@ -1,6 +1,6 @@
 import { JavaStackFrame } from '#jvm/components/stackframe';
-import { ThreadStatus } from '#jvm/components/thread/constants';
 import Thread from '#jvm/components/thread/thread';
+import { ThreadStatus } from '#jvm/constants';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmObject } from '#types/reference/Object';

@@ -5,7 +5,7 @@ import { JavaType } from '../reference/Object';
 import type { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread/thread';
 import { ConstantValue, IAttribute } from './Attributes';
-import { ConstantPool } from '#jvm/components/constant-pool';
+import { ConstantPool } from '#jvm/components/ConstantPool';
 import { attrInfo2Interface } from '#utils/index';
 import {
   ImmediateResult,
@@ -114,7 +114,7 @@ export class Field {
       const fRes = thread
         .getClass()
         .getLoader()
-        .getClassRef('java/lang/reflect/Field');
+        .getClass('java/lang/reflect/Field');
       if (checkError(fRes)) {
         return fRes;
       }

@@ -32,7 +32,7 @@ import {
   checkDefer,
 } from '#types/Result';
 import { BootstrapMethod } from './Attributes';
-import { MethodHandleReferenceKind } from '#jvm/components/JNI/implementation/java/lang/invoke/MethodHandleNatives';
+import { MethodHandleReferenceKind } from '#jvm/stdlib/java/lang/invoke/MethodHandleNatives';
 
 export abstract class Constant {
   private tag: CONSTANT_TAG;
@@ -181,7 +181,7 @@ function createMethodType(
   descriptor: string,
   cb: (mt: JvmObject) => void
 ): Result<JvmObject> {
-  const mhnRes = loader.getClassRef('java/lang/invoke/MethodHandleNatives');
+  const mhnRes = loader.getClass('java/lang/invoke/MethodHandleNatives');
   if (checkError(mhnRes)) {
     return mhnRes;
   }
@@ -213,7 +213,7 @@ function createMethodType(
       return;
     }
 
-    const clsRes = loader.getClassRef(referenceCls);
+    const clsRes = loader.getClass(referenceCls);
     if (!checkSuccess(clsRes)) {
       if (!error) {
         error = clsRes;
@@ -228,7 +228,7 @@ function createMethodType(
     return error;
   }
 
-  const clArrRes = loader.getClassRef('[Ljava/lang/Class;');
+  const clArrRes = loader.getClass('[Ljava/lang/Class;');
   if (checkError(clArrRes)) {
     if (!error) {
       return clArrRes;
@@ -487,7 +487,7 @@ export class ConstantInvokeDynamic extends Constant {
     // #endregion
 
     // #region get arguments
-    const objArrRes = loader.getClassRef('[Ljava/lang/Object;');
+    const objArrRes = loader.getClass('[Ljava/lang/Object;');
     if (checkError(objArrRes)) {
       return { exceptionCls: 'java/lang/ClassNotFoundException', msg: '' };
     }
@@ -503,7 +503,7 @@ export class ConstantInvokeDynamic extends Constant {
     // #region run bootstrap method
     console.log('RUNNING LINK CALL SITE');
 
-    const mhnRes = loader.getClassRef('java/lang/invoke/MethodHandleNatives');
+    const mhnRes = loader.getClass('java/lang/invoke/MethodHandleNatives');
     if (checkError(mhnRes)) {
       return { exceptionCls: 'java/lang/ClassNotFoundException', msg: '' };
     }
@@ -603,8 +603,8 @@ export class ConstantInvokeDynamic extends Constant {
       throw new Error('Only lambdas are supported at the moment');
     }
     const loader = this.cls.getLoader();
-    const clsRes = loader.getClassRef(clsName);
-    const objRes = loader.getClassRef('java/lang/Object');
+    const clsRes = loader.getClass(clsName);
+    const objRes = loader.getClass('java/lang/Object');
     if (checkError(clsRes) || checkError(objRes)) {
       return (checkError(clsRes) ? clsRes : objRes) as ErrorResult;
     }
@@ -901,17 +901,15 @@ function resolveSignaturePolymorphic(
   }
   const loader = selfClass.getLoader();
 
-  const mhnResolution = loader.getClassRef(
-    'java/lang/invoke/MethodHandleNatives'
-  );
+  const mhnResolution = loader.getClass('java/lang/invoke/MethodHandleNatives');
   if (checkError(mhnResolution)) {
     return onError(mhnResolution);
   }
-  const objArrResolution = loader.getClassRef('[Ljava/lang/Object;');
+  const objArrResolution = loader.getClass('[Ljava/lang/Object;');
   if (checkError(objArrResolution)) {
     return onError(objArrResolution);
   }
-  const clsArrResolution = loader.getClassRef('[Ljava/lang/Class;');
+  const clsArrResolution = loader.getClass('[Ljava/lang/Class;');
   if (checkError(clsArrResolution)) {
     return onError(clsArrResolution);
   }
@@ -942,7 +940,7 @@ function resolveSignaturePolymorphic(
   let argResolutionError: ErrorResult | null = null;
   const argsCls = descriptorClasses.args.map(arg => {
     if (arg.type === JavaType.reference || arg.type === JavaType.array) {
-      const loadResult = loader.getClassRef(arg.referenceCls as string);
+      const loadResult = loader.getClass(arg.referenceCls as string);
       if (checkError(loadResult)) {
         argResolutionError = loadResult;
         return null;
@@ -956,7 +954,7 @@ function resolveSignaturePolymorphic(
   }
   let rtype: JvmObject;
   if (descriptorClasses.ret.referenceCls) {
-    const loadResult = loader.getClassRef(
+    const loadResult = loader.getClass(
       descriptorClasses.ret.referenceCls as string
     );
     if (checkError(loadResult)) {
@@ -1263,7 +1261,7 @@ export class ConstantMethodHandle extends Constant {
       const mhnCls = (
         this.cls
           .getLoader()
-          .getClassRef(
+          .getClass(
             'java/lang/invoke/MethodHandleNatives'
           ) as SuccessResult<ReferenceClassData>
       ).result;
@@ -1306,7 +1304,7 @@ export class ConstantMethodHandle extends Constant {
       // #region init MethodHandleNatives. MethodType initializes it already.
       const mhnRes = this.cls
         .getLoader()
-        .getClassRef('java/lang/invoke/MethodHandleNatives');
+        .getClass('java/lang/invoke/MethodHandleNatives');
       if (checkError(mhnRes)) {
         return mhnRes;
       }
@@ -1329,7 +1327,7 @@ export class ConstantMethodHandle extends Constant {
       } else {
         const fieldClsRes = this.cls
           .getLoader()
-          .getClassRef(parsedField.referenceCls);
+          .getClass(parsedField.referenceCls);
         if (checkError(fieldClsRes)) {
           this.result = fieldClsRes;
           return this.result;

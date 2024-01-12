@@ -1,19 +1,16 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { JNI } from '#jvm/components/JNI';
-import { ReferenceClassData } from '#types/class/ClassData';
+import { JNI } from '#jvm/components/jni';
 import Thread from '#jvm/components/thread/thread';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
 let thread: Thread;
-let threadClass: ReferenceClassData;
 let code: DataView;
 let jni: JNI;
 
 beforeEach(() => {
   const setup = setupTest();
   thread = setup.thread;
-  threadClass = setup.classes.threadClass;
   code = setup.code;
   jni = setup.jni;
   const testClass = setup.classes.testClass;

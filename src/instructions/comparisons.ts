@@ -173,7 +173,7 @@ export function runIfIcmple(thread: Thread): void {
 }
 
 export function runIfAcmpeq(thread: Thread): void {
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   if (value1 === value2) {
@@ -184,7 +184,7 @@ export function runIfAcmpeq(thread: Thread): void {
 }
 
 export function runIfAcmpne(thread: Thread): void {
-  const branchbyte = thread.getCode().getInt16(thread.getPC());
+  const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
   const value2 = thread.popStack();
   const value1 = thread.popStack();
   if (value1 !== value2) {

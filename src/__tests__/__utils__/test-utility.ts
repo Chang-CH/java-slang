@@ -24,7 +24,7 @@ import {
 import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
-import { JNI } from '#jvm/components/JNI';
+import { JNI } from '#jvm/components/jni';
 import Thread from '#jvm/components/thread/thread';
 import { AbstractThreadPool } from '#jvm/components/ThreadPool';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
@@ -34,7 +34,8 @@ import { Field } from '#types/class/Field';
 import { JvmArray } from '#types/reference/Array';
 import { primitiveTypeToName } from '#utils/index';
 import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
-import { ThreadStatus } from '#jvm/components/thread/constants';
+import stdlib from '#jvm/stdlib/stdlib';
+import { ThreadStatus } from '#jvm/constants';
 
 export class TestClassLoader extends AbstractClassLoader {
   getJavaObject(): JvmObject | null {
@@ -60,15 +61,15 @@ export class TestClassLoader extends AbstractClassLoader {
     componentCls: ReferenceClassData
   ): ImmediateResult<ArrayClassData> {
     // #region load array superclasses/interfaces
-    const objRes = this.getClassRef('java/lang/Object');
+    const objRes = this.getClass('java/lang/Object');
     if (checkError(objRes)) {
       return objRes;
     }
-    const cloneableRes = this.getClassRef('java/lang/Cloneable');
+    const cloneableRes = this.getClass('java/lang/Cloneable');
     if (checkError(cloneableRes)) {
       return cloneableRes;
     }
-    const serialRes = this.getClassRef('java/io/Serializable');
+    const serialRes = this.getClass('java/io/Serializable');
     if (checkError(serialRes)) {
       return serialRes;
     }
@@ -407,7 +408,7 @@ export class TestJVM extends JVM {
   }
 
   private tnewCharArr(str: string): ImmediateResult<JvmArray> {
-    const cArrRes = this.testLoader.getClassRef('[C');
+    const cArrRes = this.testLoader.getClass('[C');
     if (checkError(cArrRes)) {
       return cArrRes;
     }
@@ -429,7 +430,7 @@ export class TestJVM extends JVM {
       return charArr;
     }
 
-    const strRes = this.testLoader.getClassRef('java/lang/String');
+    const strRes = this.testLoader.getClass('java/lang/String');
 
     if (checkError(strRes)) {
       return strRes;
@@ -460,7 +461,7 @@ export class TestJVM extends JVM {
 }
 
 export const setupTest = () => {
-  const jni = new JNI();
+  const jni = new JNI(stdlib);
   const testSystem = new TestSystem();
   const testLoader = new TestClassLoader(testSystem, '', null);
 

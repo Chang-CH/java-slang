@@ -146,32 +146,6 @@ const functions = {
   'registerNatives()V': (thread: Thread, locals: any[]) => {
     thread.returnStackFrame();
   },
-  // jni.registerNativeMethod(
-  //   'sun/misc/Unsafe',
-  //   'arrayIndexScale(Ljava/lang/Class;)I',
-  //   (thread: Thread, locals: any[]) => {
-  //     const clsObj = locals[0] as JvmObject;
-  //     const clsRef = clsObj.getNativeField('classRef') as ClassRef;
-
-  //     if (!ArrayClassRef.check(clsRef)) {
-  //       thread.returnSF(-1);
-  //       return;
-  //     }
-
-  //     const compCls = clsRef.getComponentClass();
-  //     if (
-  //       compCls.checkPrimitive() &&
-  //       (compCls.getClassname() === 'long' ||
-  //         compCls.getClassname() === 'double')
-  //     ) {
-  //       thread.returnSF(2);
-  //       return;
-  //     }
-
-  //     thread.returnSF(1);
-  //     return;
-  //   }
-  // );
 
   'arrayBaseOffset(Ljava/lang/Class;)I': (thread: Thread, locals: any[]) => {
     thread.returnStackFrame(0);

@@ -15,7 +15,7 @@ const functions = {
     const shouldWrap = !clsRef.checkPrimitive() && !clsRef.checkArray();
     let clsName = '[' + clsRef.getDescriptor();
 
-    const arrClsRes = clsRef.getLoader().getClassRef(clsName);
+    const arrClsRes = clsRef.getLoader().getClass(clsName);
     if (checkError(arrClsRes)) {
       console.error(
         'init(Ljava/lang/invoke/MemberName;Ljava/lang/Object;)V: Method not found'

@@ -1,7 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
 import Thread from '#jvm/components/thread/thread';
-import { JNI } from '#jvm/components/JNI';
 import { JvmObject } from '#types/reference/Object';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
@@ -15,14 +14,12 @@ const MIN_INT = -2147483648;
 let thread: Thread;
 let threadClass: ReferenceClassData;
 let code: DataView;
-let jni: JNI;
 
 beforeEach(() => {
   const setup = setupTest();
   thread = setup.thread;
   threadClass = setup.classes.threadClass;
   code = setup.code;
-  jni = setup.jni;
   const testClass = setup.classes.testClass;
   const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));

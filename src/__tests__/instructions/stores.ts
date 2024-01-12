@@ -1,7 +1,7 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
 import Thread from '#jvm/components/thread/thread';
-import { JNI } from '#jvm/components/JNI';
+import { JNI } from '#jvm/components/jni';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 import { JavaStackFrame } from '#jvm/components/stackframe';
@@ -549,8 +549,7 @@ describe('Astore3', () => {
 
 describe('Iastore', () => {
   test('IASTORE: stores int into array', () => {
-    const arrCls = (loader.getClassRef('[I') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[I') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
 
@@ -583,8 +582,7 @@ describe('Iastore', () => {
   });
 
   test('IASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[I') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[I') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -601,8 +599,7 @@ describe('Iastore', () => {
   });
 
   test('IASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[I') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[I') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -621,8 +618,7 @@ describe('Iastore', () => {
 
 describe('Lastore', () => {
   test('LASTORE: stores long into array', () => {
-    const arrCls = (loader.getClassRef('[J') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[J') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -654,8 +650,7 @@ describe('Lastore', () => {
   });
 
   test('LASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[J') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[J') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -672,8 +667,7 @@ describe('Lastore', () => {
   });
 
   test('LASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[J') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[J') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -692,8 +686,7 @@ describe('Lastore', () => {
 
 describe('Fastore', () => {
   test('FASTORE: stores float into array', () => {
-    const arrCls = (loader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[F') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -725,8 +718,7 @@ describe('Fastore', () => {
   });
 
   test('FASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[F') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -743,8 +735,7 @@ describe('Fastore', () => {
   });
 
   test('FASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[F') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[F') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -763,8 +754,7 @@ describe('Fastore', () => {
 
 describe('Dastore', () => {
   test('DASTORE: stores double into array', () => {
-    const arrCls = (loader.getClassRef('[D') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[D') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -796,8 +786,7 @@ describe('Dastore', () => {
   });
 
   test('DASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[D') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[D') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -814,8 +803,7 @@ describe('Dastore', () => {
   });
 
   test('DASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[D') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[D') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -835,7 +823,7 @@ describe('Dastore', () => {
 describe('Aastore', () => {
   test('AASTORE: stores reference into array', () => {
     const arrCls = (
-      loader.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      loader.getClass('[Ljava/lang/Thread;') as SuccessResult<ClassData>
     ).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
@@ -870,7 +858,7 @@ describe('Aastore', () => {
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      loader.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      loader.getClass('[Ljava/lang/Thread;') as SuccessResult<ClassData>
     ).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
@@ -890,7 +878,7 @@ describe('Aastore', () => {
 
   test('AASTORE: throws ArrayIndexOutOfBoundsException', () => {
     const arrCls = (
-      loader.getClassRef('[Ljava/lang/Thread;') as SuccessResult<ClassData>
+      loader.getClass('[Ljava/lang/Thread;') as SuccessResult<ClassData>
     ).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
@@ -911,8 +899,7 @@ describe('Aastore', () => {
 
 describe('Bastore', () => {
   test('BASTORE: stores byte into array', () => {
-    const arrCls = (loader.getClassRef('[B') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[B') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -930,8 +917,7 @@ describe('Bastore', () => {
   });
 
   test('BASTORE: truncates int to byte', () => {
-    const arrCls = (loader.getClassRef('[B') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[B') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -963,8 +949,7 @@ describe('Bastore', () => {
   });
 
   test('BASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[B') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[B') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -981,8 +966,7 @@ describe('Bastore', () => {
   });
 
   test('BASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[B') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[B') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1001,8 +985,7 @@ describe('Bastore', () => {
 
 describe('Castore', () => {
   test('CASTORE: stores char into array', () => {
-    const arrCls = (loader.getClassRef('[C') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[C') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1020,8 +1003,7 @@ describe('Castore', () => {
   });
 
   test('CASTORE: truncates int to char', () => {
-    const arrCls = (loader.getClassRef('[C') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[C') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1053,8 +1035,7 @@ describe('Castore', () => {
   });
 
   test('CASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[C') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[C') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1071,8 +1052,7 @@ describe('Castore', () => {
   });
 
   test('CASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[C') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[C') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1091,8 +1071,7 @@ describe('Castore', () => {
 
 describe('Sastore', () => {
   test('SASTORE: stores short into array', () => {
-    const arrCls = (loader.getClassRef('[S') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[S') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1110,8 +1089,7 @@ describe('Sastore', () => {
   });
 
   test('SASTORE: truncates int to short', () => {
-    const arrCls = (loader.getClassRef('[S') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[S') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1143,8 +1121,7 @@ describe('Sastore', () => {
   });
 
   test('SASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[S') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[S') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
@@ -1161,8 +1138,7 @@ describe('Sastore', () => {
   });
 
   test('SASTORE: throws ArrayIndexOutOfBoundsException', () => {
-    const arrCls = (loader.getClassRef('[S') as SuccessResult<ClassData>)
-      .result;
+    const arrCls = (loader.getClass('[S') as SuccessResult<ClassData>).result;
     const arrayref = arrCls.instantiate() as JvmArray;
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
