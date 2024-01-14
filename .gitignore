@@ -132,10 +132,10 @@ dist
 #build output
 bin/*
 
+*.class
+
 # java natives
 natives
 
-# development examples
 example/*
-
 disassembly/*
