@@ -6,7 +6,7 @@ import Thread from './thread/thread';
 
 type Lib = {
   [className: string]: {
-    loader: (
+    loader?: (
       onFinish: (lib: {
         [key: string]: (thread: Thread, locals: any[]) => void;
       }) => void
@@ -19,8 +19,8 @@ type Lib = {
 export class JNI {
   private classes: Lib;
 
-  constructor(stdlib: Lib) {
-    this.classes = stdlib;
+  constructor(stdlib?: Lib) {
+    this.classes = stdlib ?? {};
   }
 
   /**
@@ -36,7 +36,6 @@ export class JNI {
   ) {
     if (!this.classes[className]) {
       this.classes[className] = {
-        loader: () => {},
         methods: {},
       };
     }
@@ -53,15 +52,12 @@ export class JNI {
   getNativeMethod(
     thread: Thread,
     className: string,
+    classPath: string,
     methodName: string
   ): Result<(thread: Thread, locals: any[]) => void> {
     // classname not found
     if (!this.classes?.[className]) {
-      this.classes[className] = {
-        loader: () => {},
-        methods: {},
-        blocking: [],
-      }; // temporary workaround for unimplemented native classes
+      this.classes[className] = {};
     }
 
     // dynamic import class native lambdas
@@ -69,13 +65,31 @@ export class JNI {
       if (!this.classes[className].blocking) {
         this.classes[className].blocking = [thread];
         thread.setStatus(ThreadStatus.WAITING);
-        this.classes[className].loader(lib => {
-          this.classes[className].methods = lib;
-          this.classes[className].blocking?.forEach(thread => {
-            thread.setStatus(ThreadStatus.RUNNABLE);
+        if (this.classes[className].loader) {
+          // @ts-ignore
+          this.classes[className].loader(lib => {
+            this.classes[className].methods = lib;
+            this.classes[className].blocking?.forEach(thread => {
+              thread.setStatus(ThreadStatus.RUNNABLE);
+            });
+            this.classes[className].blocking = [];
           });
-          this.classes[className].blocking = [];
-        });
+        } else {
+          const cp = '../../' + classPath + '/' + className;
+          import(cp)
+            .then(lib => {
+              this.classes[className].methods = lib.default;
+            })
+            .catch(e => {
+              this.classes[className].methods = {};
+            })
+            .finally(() => {
+              this.classes[className].blocking?.forEach(thread => {
+                thread.setStatus(ThreadStatus.RUNNABLE);
+              });
+              this.classes[className].blocking = [];
+            });
+        }
       } else {
         this.classes[className].blocking!.push(thread);
         thread.setStatus(ThreadStatus.WAITING);

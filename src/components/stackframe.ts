@@ -826,6 +826,7 @@ export class NativeStackFrame extends StackFrame {
     const methodRes = this.jni.getNativeMethod(
       thread,
       this.class.getClassname(),
+      this.class.getLoader().getClassPath(),
       this.method.getName() + this.method.getDescriptor()
     );
 

@@ -37,6 +37,10 @@ export default abstract class AbstractClassLoader {
     this.parentLoader = parentLoader;
   }
 
+  getClassPath(): string {
+    return this.classPath;
+  }
+
   /**
    * Loads a given classfile. Used to support Unsafe operations.
    * @param classFile

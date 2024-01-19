@@ -13,7 +13,6 @@ import { checkError, checkSuccess } from '#types/Result';
 import { js2jString } from './utils';
 import Thread from './components/thread/thread';
 import { ApplicationClassLoader } from './components/ClassLoader/AbstractClassLoader';
-import stdlib from './stdlib/stdlib';
 import { ThreadStatus } from './constants';
 
 export default class JVM {
@@ -49,7 +48,7 @@ export default class JVM {
       this.nativeSystem,
       this.jvmOptions.javaClassPath
     );
-    this.jni = new JNI(stdlib);
+    this.jni = new JNI();
     this.threadpool = new RoundRobinThreadPool(() => {});
     this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,
