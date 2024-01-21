@@ -1,13 +1,13 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JvmObject } from '#types/reference/Object';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 
-const MAX_LONG = 9223372036854775807n;
-const MIN_LONG = -9223372036854775808n;
+const MAX_LONG = BigInt('9223372036854775807');
+const MIN_LONG = BigInt('-9223372036854775808');
 const MAX_INT = 2147483647;
 const MIN_INT = -2147483648;
 
@@ -65,20 +65,20 @@ describe('Iadd', () => {
 
 describe('Ladd', () => {
   test('LADD: long addition', () => {
-    thread.pushStack64(1n);
-    thread.pushStack64(2n);
+    thread.pushStack64(BigInt(1));
+    thread.pushStack64(BigInt(2));
     code.setUint8(0, OPCODE.LADD);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(3n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(3));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LADD: long addition overflows', () => {
     thread.pushStack64(MAX_LONG);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LADD);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -90,7 +90,7 @@ describe('Ladd', () => {
 
   test('LADD: long addition underflows', () => {
     thread.pushStack64(MIN_LONG);
-    thread.pushStack64(-1n);
+    thread.pushStack64(BigInt(-1));
     code.setUint8(0, OPCODE.LADD);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -529,20 +529,20 @@ describe('Isub', () => {
 
 describe('Lsub', () => {
   test('LSUB: long subtraction', () => {
-    thread.pushStack64(2n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(2));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LSUB);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LSUB: long subtraction overflows', () => {
     thread.pushStack64(MAX_LONG);
-    thread.pushStack64(-1n);
+    thread.pushStack64(BigInt(-1));
     code.setUint8(0, OPCODE.LSUB);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -554,7 +554,7 @@ describe('Lsub', () => {
 
   test('LSUB: long subtraction underflows', () => {
     thread.pushStack64(MIN_LONG);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LSUB);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -1007,37 +1007,37 @@ describe('Imul', () => {
 
 describe('Lmul', () => {
   test('LMUL: long multiplication', () => {
-    thread.pushStack64(2n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(2));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LMUL);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(2n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(2));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LMUL: long multiplication overflows', () => {
     thread.pushStack64(MAX_LONG);
-    thread.pushStack64(2n);
+    thread.pushStack64(BigInt(2));
     code.setUint8(0, OPCODE.LMUL);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-2n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-2));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LMUL: long multiplication underflows', () => {
     thread.pushStack64(MAX_LONG);
-    thread.pushStack64(-2n);
+    thread.pushStack64(BigInt(-2));
     code.setUint8(0, OPCODE.LMUL);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(2n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(2));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -1406,44 +1406,44 @@ describe('Idiv', () => {
 
 describe('Ldiv', () => {
   test('LDIV: long division', () => {
-    thread.pushStack64(2n);
-    thread.pushStack64(2n);
+    thread.pushStack64(BigInt(2));
+    thread.pushStack64(BigInt(2));
     code.setUint8(0, OPCODE.LDIV);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LDIV: long division rounds to 0', () => {
-    thread.pushStack64(9n);
-    thread.pushStack64(10n);
+    thread.pushStack64(BigInt(9));
+    thread.pushStack64(BigInt(10));
     code.setUint8(0, OPCODE.LDIV);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(0n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(0));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LDIV: negative long division rounds to 0', () => {
-    thread.pushStack64(9n);
-    thread.pushStack64(-10n);
+    thread.pushStack64(BigInt(9));
+    thread.pushStack64(BigInt(-10));
     code.setUint8(0, OPCODE.LDIV);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(0n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(0));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LDIV: long min / -1 division overflows', () => {
     thread.pushStack64(MIN_LONG);
-    thread.pushStack64(-1n);
+    thread.pushStack64(BigInt(-1));
     code.setUint8(0, OPCODE.LDIV);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -1454,8 +1454,8 @@ describe('Ldiv', () => {
   });
 
   test('LDIV: divide by zero throws ArithmeticException', () => {
-    thread.pushStack64(9n);
-    thread.pushStack64(0n);
+    thread.pushStack64(BigInt(9));
+    thread.pushStack64(BigInt(0));
     code.setUint8(0, OPCODE.LDIV);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -1916,32 +1916,32 @@ describe('Irem', () => {
 
 describe('Lrem', () => {
   test('LREM: long remainder', () => {
-    thread.pushStack64(3n);
-    thread.pushStack64(2n);
+    thread.pushStack64(BigInt(3));
+    thread.pushStack64(BigInt(2));
     code.setUint8(0, OPCODE.LREM);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LREM: long min % -1 returns 0', () => {
     thread.pushStack64(MIN_LONG);
-    thread.pushStack64(-1n);
+    thread.pushStack64(BigInt(-1));
     code.setUint8(0, OPCODE.LREM);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(0n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(0));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LREM: Remainder by zero throws ArithmeticException', () => {
-    thread.pushStack64(9n);
-    thread.pushStack64(0n);
+    thread.pushStack64(BigInt(9));
+    thread.pushStack64(BigInt(0));
     code.setUint8(0, OPCODE.LREM);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
@@ -2205,12 +2205,12 @@ describe('Ineg', () => {
 
 describe('Lneg', () => {
   test('LNEG: long negation', () => {
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LNEG);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -2359,19 +2359,19 @@ describe('Ishl', () => {
 
 describe('Lshl', () => {
   test('LSHL: shift left long', () => {
-    thread.pushStack64(2n);
+    thread.pushStack64(BigInt(2));
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LSHL);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(4n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(4));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LSHL: int shift left overflows', () => {
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(1));
     thread.pushStack(0x3f);
     code.setUint8(0, OPCODE.LSHL);
     thread.runFor(1);
@@ -2383,7 +2383,7 @@ describe('Lshl', () => {
   });
 
   test('LSHL: int shift left capped at 0x3f', () => {
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(1));
     thread.pushStack(0x7f);
     code.setUint8(0, OPCODE.LSHL);
     thread.runFor(1);
@@ -2435,13 +2435,13 @@ describe('Ishr', () => {
 
 describe('Lshr', () => {
   test('LSHR: shift right long', () => {
-    thread.pushStack64(2n);
+    thread.pushStack64(BigInt(2));
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LSHR);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -2453,7 +2453,7 @@ describe('Lshr', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -2465,7 +2465,7 @@ describe('Lshr', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -2511,19 +2511,19 @@ describe('Iushr', () => {
 
 describe('Lushr', () => {
   test('LUSHR: shift right long', () => {
-    thread.pushStack64(2n);
+    thread.pushStack64(BigInt(2));
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LUSHR);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LUSHR: int shift right changes sign', () => {
-    thread.pushStack64(-2n);
+    thread.pushStack64(BigInt(-2));
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LUSHR);
     thread.runFor(1);
@@ -2587,25 +2587,25 @@ describe('Iand', () => {
 
 describe('Land', () => {
   test('LAND: long and', () => {
-    thread.pushStack64(3n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(3));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LAND);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LAND: long and negatives', () => {
-    thread.pushStack64(-1n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(-1));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LAND);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -2639,25 +2639,25 @@ describe('Ior', () => {
 
 describe('Lor', () => {
   test('LOR: long or', () => {
-    thread.pushStack64(2n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(2));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LOR);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(3n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(3));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LOR: long or negatives', () => {
-    thread.pushStack64(-1n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(-1));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LOR);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -2691,25 +2691,25 @@ describe('IXor', () => {
 
 describe('Lxor', () => {
   test('LXOR: long xor', () => {
-    thread.pushStack64(3n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(3));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LXOR);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(2n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(2));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LXOR: long xor negatives', () => {
-    thread.pushStack64(-1n);
-    thread.pushStack64(1n);
+    thread.pushStack64(BigInt(-1));
+    thread.pushStack64(BigInt(1));
     code.setUint8(0, OPCODE.LXOR);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-2n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-2));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });

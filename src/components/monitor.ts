@@ -1,5 +1,5 @@
 import { ThreadStatus } from '#jvm/constants';
-import type Thread from './thread/thread';
+import type Thread from './thread';
 
 export default class Monitor {
   notifyArray: {

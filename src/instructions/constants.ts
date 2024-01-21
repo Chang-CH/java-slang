@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import {
   ConstantClass,
   ConstantDouble,
@@ -55,12 +55,12 @@ export function runIconst5(thread: Thread): void {
 
 export function runLconst0(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(0n);
+  thread.pushStack64(BigInt(0));
 }
 
 export function runLconst1(thread: Thread): void {
   thread.offsetPc(1);
-  thread.pushStack64(1n);
+  thread.pushStack64(BigInt(1));
 }
 
 export function runFconst0(thread: Thread): void {

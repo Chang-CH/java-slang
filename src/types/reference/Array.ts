@@ -1,4 +1,4 @@
-import type Thread from '#jvm/components/thread/thread';
+import type Thread from '#jvm/components/thread';
 import { JavaType, JvmObject } from './Object';
 import type { ArrayClassData } from '#types/class/ClassData';
 import type { Result } from '#types/Result';
@@ -77,7 +77,7 @@ export class JvmArray extends JvmObject {
         def = 0;
         break;
       case ArrayPrimitiveType.long:
-        def = 0n;
+        def = BigInt(0);
         break;
       default:
         def = null;

@@ -1,6 +1,6 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/jni';
 import { JvmObject } from '#types/reference/Object';
 import {
@@ -163,7 +163,7 @@ describe('Lconst0', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(0n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(0));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -176,7 +176,7 @@ describe('Lconst1', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -734,7 +734,7 @@ describe('Ldc2W', () => {
     thread.returnStackFrame();
     const longConstant = {
       tag: CONSTANT_TAG.Long,
-      value: 99n,
+      value: BigInt(99),
     };
     let constIdx = 0;
     const customClass = testLoader.createClass({
@@ -764,7 +764,7 @@ describe('Ldc2W', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(99n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(99));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });

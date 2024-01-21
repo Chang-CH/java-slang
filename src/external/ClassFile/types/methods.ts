@@ -1,8 +1,6 @@
 import { AttributeInfo } from './attributes';
 
 export interface MethodInfo {
-  name: any;
-  descriptor: any;
   accessFlags: number;
   nameIndex: number;
   descriptorIndex: number;

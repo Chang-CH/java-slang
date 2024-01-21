@@ -1,5 +1,5 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/jni';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
@@ -528,14 +528,14 @@ describe('LALOAD', () => {
       testLoader.getClass('[J') as SuccessResult<ReferenceClassData>
     ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(thread, 1, [99n]);
+    arrayRef.initialize(thread, 1, [BigInt(99)]);
     thread.pushStack(arrayRef);
     thread.pushStack(0);
     code.setUint8(0, OPCODE.LALOAD);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(99n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(99));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -561,7 +561,7 @@ describe('LALOAD', () => {
       testLoader.getClass('[J') as SuccessResult<ReferenceClassData>
     ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(thread, 1, [99n]);
+    arrayRef.initialize(thread, 1, [BigInt(99)]);
     thread.pushStack(arrayRef);
     thread.pushStack(1);
     code.setUint8(0, OPCODE.LALOAD);
@@ -583,7 +583,7 @@ describe('LALOAD', () => {
       testLoader.getClass('[J') as SuccessResult<ReferenceClassData>
     ).result;
     const arrayRef = arrCls.instantiate() as JvmArray;
-    arrayRef.initialize(thread, 1, [99n]);
+    arrayRef.initialize(thread, 1, [BigInt(99)]);
     thread.pushStack(arrayRef);
     thread.pushStack(-1);
     code.setUint8(0, OPCODE.LALOAD);

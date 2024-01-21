@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { asDouble, asFloat } from '#utils/index';
 
 function cmp(value1: number, value2: number, checkNan: number = 0): number {

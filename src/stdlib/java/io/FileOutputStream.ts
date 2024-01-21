@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 

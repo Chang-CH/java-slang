@@ -4,10 +4,10 @@ import {
   parseFieldDescriptor,
   parseMethodDescriptor,
 } from '#utils/index';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
+import { ClassFile } from '#jvm/external/ClassFile/types';
 import * as info from '#jvm/external/ClassFile/types/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { Field } from '#types/class/Field';
@@ -395,7 +395,6 @@ export class ConstantClass extends Constant {
 // #endregion
 
 // #region name and type dependency
-// TODO:
 export class ConstantInvokeDynamic extends Constant {
   private bootstrapMethodAttrIndex: number;
   private nameAndType: ConstantNameAndType;
@@ -782,9 +781,7 @@ export class ConstantInvokeDynamic extends Constant {
       methods: [
         {
           accessFlags: METHOD_FLAGS.ACC_PUBLIC,
-          name: methodName,
           nameIndex: 9,
-          descriptor: erasedDesc,
           descriptorIndex: 8,
           attributesCount: 0,
           attributes: [

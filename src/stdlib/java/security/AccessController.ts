@@ -1,5 +1,5 @@
 import { InternalStackFrame } from '#jvm/components/stackframe';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { checkSuccess, checkError } from '#types/Result';
 import { Method } from '#types/class/Method';
 import type { JvmObject } from '#types/reference/Object';

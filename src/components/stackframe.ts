@@ -2,7 +2,7 @@ import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import type { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
-import type Thread from './thread/thread';
+import type Thread from './thread';
 
 import * as comparisons from '../instructions/comparisons';
 import * as constants from '../instructions/constants';
@@ -826,7 +826,6 @@ export class NativeStackFrame extends StackFrame {
     const methodRes = this.jni.getNativeMethod(
       thread,
       this.class.getClassname(),
-      this.class.getLoader().getClassPath(),
       this.method.getName() + this.method.getDescriptor()
     );
 

@@ -13,7 +13,7 @@ import { ArrayClassData } from './ClassData';
 import { ClassData, ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import type { JvmObject } from '../reference/Object';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import { Code, IAttribute } from './Attributes';

@@ -40,13 +40,9 @@ export function readMethod(
     offset = resultOffset;
   }
 
-  const name = (constPool[nameIndex] as ConstantUtf8Info).value;
-  const descriptor = (constPool[descriptorIndex] as ConstantUtf8Info).value;
   return {
     result: {
       accessFlags,
-      name,
-      descriptor,
       attributes,
       nameIndex: nameIndex,
       descriptorIndex: descriptorIndex,
@@ -60,5 +56,8 @@ export function getMethodName(
   method: MethodInfo,
   constPool: Array<ConstantInfo>
 ): string {
-  return method.name + method.descriptor;
+  return (
+    (constPool[method.nameIndex] as ConstantUtf8Info).value +
+    (constPool[method.descriptorIndex] as ConstantUtf8Info).value
+  );
 }

@@ -287,7 +287,6 @@ function readCodeAttribute(
     offset,
   };
 }
-// TODO:
 function readAttributeStackMapTable(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -311,7 +310,6 @@ function readAttributeStackMapTable(
     offset,
   };
 }
-// TODO:
 function readAttributeExceptions(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -335,7 +333,6 @@ function readAttributeExceptions(
     offset,
   };
 }
-// TODO:
 function readAttributeInnerClasses(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -359,7 +356,6 @@ function readAttributeInnerClasses(
     offset,
   };
 }
-// TODO:
 function readAttributeEnclosingMethod(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -383,7 +379,6 @@ function readAttributeEnclosingMethod(
     offset,
   };
 }
-// TODO:
 function readAttributeSynthetic(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -425,7 +420,6 @@ function readAttributeSignature(
     offset,
   };
 }
-// TODO:
 function readAttributeSourceFile(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -449,7 +443,6 @@ function readAttributeSourceFile(
     offset,
   };
 }
-// TODO:
 function readAttributeSourceDebugExtension(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -504,7 +497,6 @@ function readAttributeLineNumberTable(
     offset,
   };
 }
-// TODO:
 function readAttributeLocalVariableTable(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -528,7 +520,6 @@ function readAttributeLocalVariableTable(
     offset,
   };
 }
-// TODO:
 function readAttributeLocalVariableTypeTable(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -552,7 +543,6 @@ function readAttributeLocalVariableTypeTable(
     offset,
   };
 }
-// TODO:
 function readAttributeDeprecated(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -576,7 +566,6 @@ function readAttributeDeprecated(
     offset,
   };
 }
-// TODO:
 function readAttributeRuntimeVisibleAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -600,7 +589,6 @@ function readAttributeRuntimeVisibleAnnotations(
     offset,
   };
 }
-// TODO:
 function readAttributeRuntimeInvisibleAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -624,7 +612,6 @@ function readAttributeRuntimeInvisibleAnnotations(
     offset,
   };
 }
-// TODO:
 function readAttributeRuntimeVisibleParameterAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -650,7 +637,6 @@ function readAttributeRuntimeVisibleParameterAnnotations(
     offset,
   };
 }
-// TODO:
 function readAttributeRuntimeInvisibleParameterAnnotations(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -676,7 +662,6 @@ function readAttributeRuntimeInvisibleParameterAnnotations(
     offset,
   };
 }
-// TODO:
 function readAttributeAnnotationDefault(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,

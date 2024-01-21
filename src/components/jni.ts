@@ -2,7 +2,7 @@ import { ThreadStatus } from '#jvm/constants';
 import { Result } from '#types/Result';
 import { JavaType } from '#types/reference/Object';
 import { parseFieldDescriptor } from '#utils/index';
-import Thread from './thread/thread';
+import Thread from './thread';
 
 type Lib = {
   [className: string]: {
@@ -18,9 +18,11 @@ type Lib = {
 
 export class JNI {
   private classes: Lib;
+  private classPath: string;
 
-  constructor(stdlib?: Lib) {
+  constructor(classPath: string, stdlib?: Lib) {
     this.classes = stdlib ?? {};
+    this.classPath = classPath;
   }
 
   /**
@@ -52,7 +54,6 @@ export class JNI {
   getNativeMethod(
     thread: Thread,
     className: string,
-    classPath: string,
     methodName: string
   ): Result<(thread: Thread, locals: any[]) => void> {
     // classname not found
@@ -60,7 +61,6 @@ export class JNI {
       this.classes[className] = {};
     }
 
-    // dynamic import class native lambdas
     if (!this.classes?.[className]?.methods) {
       if (!this.classes[className].blocking) {
         this.classes[className].blocking = [thread];
@@ -75,7 +75,8 @@ export class JNI {
             this.classes[className].blocking = [];
           });
         } else {
-          const cp = '../../' + classPath + '/' + className;
+          // dynamic import to avoid downloading everything each run
+          const cp = '../../' + this.classPath + '/' + className;
           import(cp)
             .then(lib => {
               this.classes[className].methods = lib.default;
@@ -135,7 +136,7 @@ export class JNI {
         case JavaType.long:
           return {
             result: (thread: Thread, ...params: any) => {
-              thread.returnStackFrame64(0n);
+              thread.returnStackFrame64(BigInt(0));
             },
           };
         case JavaType.reference:
@@ -159,7 +160,6 @@ export class JNI {
       }
     }
 
-    console.log('Native method ', methodName);
     return { result: (this.classes[className].methods as any)[methodName] };
   }
 }

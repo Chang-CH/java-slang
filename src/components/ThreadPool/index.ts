@@ -1,5 +1,5 @@
 import { ThreadStatus } from '#jvm/constants';
-import Thread from '../thread/thread';
+import Thread from '../thread';
 import { Deque } from './utils/deque';
 
 export abstract class AbstractThreadPool {

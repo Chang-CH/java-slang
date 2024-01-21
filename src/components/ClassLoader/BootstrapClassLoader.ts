@@ -1,4 +1,4 @@
-import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
+import { ACCESS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ImmediateResult, ErrorResult } from '#types/Result';
 import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, PrimitiveClassData } from '#types/class/ClassData';
@@ -20,7 +20,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
   ): ImmediateResult<ArrayClassData> {
     let error: ErrorResult | null = null;
     const arrayClass = new ArrayClassData(
-      CLASS_FLAGS.ACC_PUBLIC,
+      ACCESS_FLAGS.ACC_PUBLIC,
       className,
       this,
       componentCls,

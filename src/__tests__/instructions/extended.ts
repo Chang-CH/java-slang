@@ -11,7 +11,7 @@ import {
 } from '#jvm/__tests__/__utils__/test-utility';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { JavaStackFrame } from '#jvm/components/stackframe';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 
 let testLoader: TestClassLoader;
 let thread: Thread;
@@ -184,11 +184,11 @@ describe('Wide', () => {
     code.setUint8(1, OPCODE.LSTORE);
     code.setUint16(2, 0);
     thread.storeLocal(0, 3);
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal(0) == 5n).toBe(true);
+    expect(thread.loadLocal(0) == BigInt(5)).toBe(true);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });

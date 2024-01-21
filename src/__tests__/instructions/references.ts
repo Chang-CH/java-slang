@@ -1,8 +1,8 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/jni';
-import { CLASS_STATUS, ReferenceClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
@@ -11,12 +11,13 @@ import {
   setupTest,
 } from '#jvm/__tests__/__utils__/test-utility';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
-import { CLASS_FLAGS } from '#jvm/external/ClassFile/types';
+import { ACCESS_FLAGS } from '#jvm/external/ClassFile/types';
 import { ArrayPrimitiveType } from '#types/reference/Array';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { ArrayClassData } from '#types/class/ClassData';
 import { JavaStackFrame } from '#jvm/components/stackframe';
+import { CLASS_STATUS } from '#jvm/constants';
 
 let thread: Thread;
 let threadClass: ReferenceClassData;
@@ -827,14 +828,14 @@ describe('Invokestatic', () => {
     code.setUint16(1, nativeMethodIdx);
     const method = testClass.getMethod('test0()J') as Method;
     jni.registerNativeMethod('Test', 'nativeFunc()J', (thread: Thread) => {
-      thread.returnStackFrame64(5n);
+      thread.returnStackFrame64(BigInt(5));
     });
     thread.invokeStackFrame(
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
     thread.runFor(1);
     thread.runFor(1);
-    expect(thread.popStack64() === 5n).toBe(true);
+    expect(thread.popStack64() === BigInt(5)).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
 });
@@ -1650,7 +1651,7 @@ describe('Invokeinterface', () => {
     let methodIdx = 0;
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_ABSTRACT],
@@ -1741,7 +1742,7 @@ describe('Invokeinterface', () => {
     let methodIdx = 0;
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_ABSTRACT],
@@ -1837,7 +1838,7 @@ describe('Invokeinterface', () => {
     let methodIdx = 0;
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_ABSTRACT],
@@ -1933,7 +1934,7 @@ describe('Invokeinterface', () => {
     let methodIdx = 0;
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_ABSTRACT],
@@ -1948,7 +1949,7 @@ describe('Invokeinterface', () => {
 
     const objClass = testLoader.createClass({
       className: 'objClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [],
@@ -2038,7 +2039,7 @@ describe('Invokeinterface', () => {
     let methodIdx = 0;
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_ABSTRACT],
@@ -2053,7 +2054,7 @@ describe('Invokeinterface', () => {
 
     const objClass = testLoader.createClass({
       className: 'objClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_PUBLIC, METHOD_FLAGS.ACC_ABSTRACT],
@@ -2143,7 +2144,7 @@ describe('Invokeinterface', () => {
     let methodIdx = 0;
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_ABSTRACT],
@@ -2157,7 +2158,7 @@ describe('Invokeinterface', () => {
     });
     const superInterA = testLoader.createClass({
       className: 'superInterA',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
@@ -2171,7 +2172,7 @@ describe('Invokeinterface', () => {
     });
     const superInterB = testLoader.createClass({
       className: 'superInterB',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
@@ -2186,7 +2187,7 @@ describe('Invokeinterface', () => {
 
     const objClass = testLoader.createClass({
       className: 'objClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       interfaces: [
         interfaceClass as ReferenceClassData,
         superInterA as ReferenceClassData,
@@ -2271,7 +2272,7 @@ describe('Invokeinterface', () => {
     let methodIdx = 0;
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_ABSTRACT],
@@ -2286,7 +2287,7 @@ describe('Invokeinterface', () => {
 
     const objClass = testLoader.createClass({
       className: 'objClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       interfaces: [interfaceClass as ReferenceClassData],
       loader: testLoader,
     });
@@ -2679,7 +2680,7 @@ describe('invokespecial', () => {
     });
     const interfaceClass = testLoader.createClass({
       className: 'interfaceClass',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [],
       superClass: objClass as ReferenceClassData,
       loader: testLoader,
@@ -2853,7 +2854,7 @@ describe('invokespecial', () => {
     let methodIdx = 0;
     const superInterA = testLoader.createClass({
       className: 'superInterA',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
@@ -2867,7 +2868,7 @@ describe('invokespecial', () => {
     });
     const superInterB = testLoader.createClass({
       className: 'superInterB',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       methods: [
         {
           accessFlags: [METHOD_FLAGS.ACC_PUBLIC],
@@ -3160,7 +3161,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    testClass.lookupField('staticFieldJ')?.putValue(5n);
+    testClass.lookupField('staticFieldJ')?.putValue(BigInt(5));
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
@@ -3170,7 +3171,7 @@ describe('Getstatic', () => {
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
     thread.runFor(1);
-    expect(thread.popStack64() === 5n).toBe(true);
+    expect(thread.popStack64() === BigInt(5)).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('GETSTATIC: gets inherited static long', () => {
@@ -3237,7 +3238,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.lookupField('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(BigInt(5));
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
 
@@ -3246,7 +3247,7 @@ describe('Getstatic', () => {
       new JavaStackFrame(mainClass, method as Method, 0, [])
     );
     thread.runFor(1);
-    expect(thread.popStack64() === 5n).toBe(true);
+    expect(thread.popStack64() === BigInt(5)).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('GETSTATIC: private static int throws IllegalAccessError', () => {
@@ -3313,7 +3314,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.lookupField('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(BigInt(5));
 
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
@@ -3396,7 +3397,7 @@ describe('Getstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.lookupField('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(BigInt(5));
 
     code.setUint8(0, OPCODE.GETSTATIC);
     code.setUint16(1, fieldIdx);
@@ -3699,9 +3700,11 @@ describe('Putstatic', () => {
     thread.invokeStackFrame(
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     thread.runFor(1);
-    expect(testClass.lookupField('staticFieldJ')?.getValue() === 5n).toBe(true);
+    expect(
+      testClass.lookupField('staticFieldJ')?.getValue() === BigInt(5)
+    ).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('PUTSTATIC: Puts inherited static long', () => {
@@ -3775,11 +3778,11 @@ describe('Putstatic', () => {
     thread.invokeStackFrame(
       new JavaStackFrame(mainClass, method as Method, 0, [])
     );
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     thread.runFor(1);
-    expect(superClass.lookupField('staticFieldJ')?.getValue() === 5n).toBe(
-      true
-    );
+    expect(
+      superClass.lookupField('staticFieldJ')?.getValue() === BigInt(5)
+    ).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('PUTSTATIC: private static int throws IllegalAccessError', () => {
@@ -3846,7 +3849,7 @@ describe('Putstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.lookupField('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(BigInt(5));
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
@@ -3929,7 +3932,7 @@ describe('Putstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.lookupField('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(BigInt(5));
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
@@ -4085,7 +4088,7 @@ describe('Putstatic', () => {
       ],
       loader: testLoader,
     });
-    superClass.lookupField('staticFieldJ')?.putValue(5n);
+    superClass.lookupField('staticFieldJ')?.putValue(BigInt(5));
 
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
@@ -4455,7 +4458,7 @@ describe('New', () => {
     let classIdx = 0;
     const testClass = testLoader.createClass({
       className: 'Test',
-      flags: CLASS_FLAGS.ACC_INTERFACE,
+      flags: ACCESS_FLAGS.ACC_INTERFACE,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -4506,7 +4509,7 @@ describe('New', () => {
     let classIdx = 0;
     const testClass = testLoader.createClass({
       className: 'Test',
-      flags: CLASS_FLAGS.ACC_ABSTRACT,
+      flags: ACCESS_FLAGS.ACC_ABSTRACT,
       constants: [
         () => ({
           tag: CONSTANT_TAG.Utf8,
@@ -4735,7 +4738,7 @@ describe('Newarray', () => {
     thread.pushStack(1);
     thread.runFor(1);
     arrayObj = thread.popStack() as JvmArray;
-    expect(arrayObj.get(0) === 0n).toBe(true);
+    expect(arrayObj.get(0) === BigInt(0)).toBe(true);
     thread.returnStackFrame();
   });
 

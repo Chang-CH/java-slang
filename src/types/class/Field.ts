@@ -3,7 +3,7 @@ import { ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import type { JvmObject } from '../reference/Object';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { ConstantValue, IAttribute } from './Attributes';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import { attrInfo2Interface } from '#utils/index';
@@ -52,7 +52,7 @@ export class Field {
         this.value = 0;
         break;
       case JavaType.long:
-        this.value = 0n;
+        this.value = BigInt(0);
         break;
       default:
         this.value = null;

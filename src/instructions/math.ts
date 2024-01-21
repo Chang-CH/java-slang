@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { asDouble, asFloat } from '#utils/index';
 
 const MIN_INT = -2147483648;
@@ -131,12 +131,12 @@ export function runLdiv(thread: Thread): void {
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
 
-  if (value2 === 0n) {
+  if (value2 === BigInt(0)) {
     thread.throwNewException('java/lang/ArithmeticException', 'Division by 0');
     return;
   }
 
-  if (value1 === MIN_LONG && value2 === -1n) {
+  if (value1 === MIN_LONG && value2 === -BigInt(1)) {
     thread.pushStack64(value1);
     return;
   }
@@ -176,7 +176,7 @@ export function runLrem(thread: Thread): void {
   const value2: bigint = thread.popStack64();
   const value1: bigint = thread.popStack64();
 
-  if (value2 === 0n) {
+  if (value2 === BigInt(0)) {
     thread.throwNewException('java/lang/ArithmeticException', 'Division by 0');
     return;
   }

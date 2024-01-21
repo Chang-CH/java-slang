@@ -4,7 +4,7 @@ import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 
 let thread: Thread;
 let threadClass: ReferenceClassData;
@@ -88,14 +88,14 @@ describe('Lreturn', () => {
     thread.invokeStackFrame(
       new JavaStackFrame(threadClass, thread.getMethod(), 0, [])
     );
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LRETURN);
 
     thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(thread.popStack64() === 5n).toBe(true);
+    expect(thread.popStack64() === BigInt(5)).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 

@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { JNI } from '#jvm/components/jni';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
@@ -21,7 +21,7 @@ beforeEach(() => {
 describe('Lcmp', () => {
   test('lcmp: value1 > value2 pushes 1I onto stack', () => {
     thread.pushStack64(100n);
-    thread.pushStack64(99n);
+    thread.pushStack64(BigInt(99));
     code.setUint8(0, OPCODE.LCMP);
 
     thread.runFor(1);
@@ -46,7 +46,7 @@ describe('Lcmp', () => {
   });
 
   test('lcmp: value1 < value2 pushes 0I onto stack', () => {
-    thread.pushStack64(99n);
+    thread.pushStack64(BigInt(99));
     thread.pushStack64(100n);
     code.setUint8(0, OPCODE.LCMP);
 

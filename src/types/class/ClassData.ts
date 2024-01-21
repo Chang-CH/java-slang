@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import Thread from '#jvm/components/thread/thread';
-import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
+import Thread from '#jvm/components/thread';
+import { ACCESS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { Field } from './Field';
 import { Method } from './Method';
@@ -19,19 +19,7 @@ import {
   SuccessResult,
   ErrorResult,
 } from '#types/Result';
-
-export enum CLASS_STATUS {
-  PREPARED,
-  INITIALIZING,
-  INITIALIZED,
-  ERROR,
-}
-
-export enum CLASS_TYPE {
-  REFERENCE,
-  ARRAY,
-  PRIMITIVE,
-}
+import { CLASS_TYPE, CLASS_STATUS } from '#jvm/constants';
 
 export abstract class ClassData {
   protected loader: AbstractClassLoader;
@@ -102,39 +90,39 @@ export abstract class ClassData {
   }
 
   checkPublic() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_PUBLIC) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_PUBLIC) !== 0;
   }
 
   checkFinal() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_FINAL) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_FINAL) !== 0;
   }
 
   checkSuper() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_SUPER) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_SUPER) !== 0;
   }
 
   checkInterface() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_INTERFACE) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_INTERFACE) !== 0;
   }
 
   checkAbstract() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_ABSTRACT) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_ABSTRACT) !== 0;
   }
 
   checkSynthetic() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_SYNTHETIC) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_SYNTHETIC) !== 0;
   }
 
   checkAnnotation() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_ANNOTATION) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_ANNOTATION) !== 0;
   }
 
   checkEnum() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_ENUM) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_ENUM) !== 0;
   }
 
   checkModule() {
-    return (this.accessFlags & CLASS_FLAGS.ACC_MODULE) !== 0;
+    return (this.accessFlags & ACCESS_FLAGS.ACC_MODULE) !== 0;
   }
 
   resolveClass(toResolve: string): ImmediateResult<ClassData> {
@@ -580,7 +568,9 @@ export class PrimitiveClassData extends ClassData {
   constructor(loader: AbstractClassLoader, primitiveName: string) {
     super(
       loader,
-      CLASS_FLAGS.ACC_ABSTRACT & CLASS_FLAGS.ACC_FINAL & CLASS_FLAGS.ACC_PUBLIC,
+      ACCESS_FLAGS.ACC_ABSTRACT &
+        ACCESS_FLAGS.ACC_FINAL &
+        ACCESS_FLAGS.ACC_PUBLIC,
       CLASS_TYPE.PRIMITIVE,
       primitiveName
     );

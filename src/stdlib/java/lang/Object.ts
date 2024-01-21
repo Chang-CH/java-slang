@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import type { JvmObject } from '#types/reference/Object';
 
 const functions = {

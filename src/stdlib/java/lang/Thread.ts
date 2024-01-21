@@ -1,5 +1,5 @@
 import { JavaStackFrame } from '#jvm/components/stackframe';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { ThreadStatus } from '#jvm/constants';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';

@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 
 export const functions = {
   'floatToRawIntBits(F)I': (thread: Thread, locals: any[]) => {

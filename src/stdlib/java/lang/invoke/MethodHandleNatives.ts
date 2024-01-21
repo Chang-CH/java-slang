@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { MemberNameFlags, MethodHandleReferenceKind } from '#jvm/constants';
 import { checkError } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';

@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { asFloat, asDouble } from '#utils/index';
 import type { JvmArray } from '#types/reference/Array';

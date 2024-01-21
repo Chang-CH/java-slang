@@ -1,13 +1,10 @@
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
-import {
-  ConstantClassInfo,
-  ConstantUtf8Info,
-} from '#jvm/external/ClassFile/types/constants';
+import { ConstantUtf8Info } from '#jvm/external/ClassFile/types/constants';
 import { readAttribute } from '#utils/parseBinary/utils/readAttributes';
 import { readConstants } from '#utils/parseBinary/utils/readConstants';
 import { readField } from '#utils/parseBinary/utils/readField';
-import { readMethod, getMethodName } from '#utils/parseBinary/utils/readMethod';
+import { readMethod } from '#utils/parseBinary/utils/readMethod';
 
 export default function parseBin(view: DataView) {
   let offset = 0;
@@ -28,7 +25,7 @@ export default function parseBin(view: DataView) {
     interfacesCount: 0,
     fieldsCount: 0,
     methodsCount: 0,
-    attributesCount: 0
+    attributesCount: 0,
   };
 
   cls.magic = view.getUint32(offset);

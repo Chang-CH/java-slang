@@ -4,9 +4,9 @@ import { checkError, checkSuccess } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
-import type { JvmObject } from '../../types/reference/Object';
-import { AbstractThreadPool } from '../ThreadPool';
-import { InternalStackFrame, JavaStackFrame, StackFrame } from '../stackframe';
+import type { JvmObject } from '../types/reference/Object';
+import { AbstractThreadPool } from './ThreadPool';
+import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
 
 export default class Thread {
   private static threadIdCounter = 0;
@@ -367,7 +367,6 @@ export default class Thread {
 
     const exceptionCls = clsRes.result;
     const initRes = exceptionCls.initialize(this);
-    // TODO: check infinite loops
     if (!checkSuccess(initRes)) {
       if (checkError(initRes)) {
         this.throwNewException(initRes.exceptionCls, initRes.msg);

@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/jni';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
@@ -29,7 +29,7 @@ describe('I2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(1n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(1));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -361,7 +361,7 @@ describe('F2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(0n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(0));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -523,7 +523,7 @@ describe('D2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(0n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(0));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });

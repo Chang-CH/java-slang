@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { primitiveNameToType } from '#utils/index';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import type { JvmObject } from '#types/reference/Object';

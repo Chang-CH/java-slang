@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 
 import { asDouble, asFloat, getArgs } from '#utils/index';
 import { ReferenceClassData } from '#types/class/ClassData';

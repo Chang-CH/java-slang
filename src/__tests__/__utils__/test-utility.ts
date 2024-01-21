@@ -1,5 +1,5 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { CLASS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
+import { ACCESS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import {
   AttributeInfo,
   CodeAttribute,
@@ -13,10 +13,9 @@ import {
   METHOD_FLAGS,
   MethodInfo,
 } from '#jvm/external/ClassFile/types/methods';
-import { Method, MethodHandler } from '#types/class/Method';
+import { Method } from '#types/class/Method';
 import { ArrayClassData } from '#types/class/ClassData';
 import {
-  CLASS_STATUS,
   ClassData,
   PrimitiveClassData,
   ReferenceClassData,
@@ -25,7 +24,7 @@ import { JavaType } from '#types/reference/Object';
 import { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import { JNI } from '#jvm/components/jni';
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { AbstractThreadPool } from '#jvm/components/ThreadPool';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import JVM from '#jvm/index';
@@ -34,8 +33,7 @@ import { Field } from '#types/class/Field';
 import { JvmArray } from '#types/reference/Array';
 import { primitiveTypeToName } from '#utils/index';
 import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
-import stdlib from '#jvm/stdlib/stdlib';
-import { ThreadStatus } from '#jvm/constants';
+import { CLASS_STATUS, ThreadStatus } from '#jvm/constants';
 
 export class TestClassLoader extends AbstractClassLoader {
   getJavaObject(): JvmObject | null {
@@ -76,7 +74,7 @@ export class TestClassLoader extends AbstractClassLoader {
     // #endregion
 
     const arrayClass = new ArrayClassData(
-      CLASS_FLAGS.ACC_PUBLIC,
+      ACCESS_FLAGS.ACC_PUBLIC,
       className,
       this,
       componentCls,
@@ -193,8 +191,6 @@ export class TestClassLoader extends AbstractClassLoader {
           const temp: MethodInfo = {
             accessFlags: (method.accessFlags ?? []).reduce((a, b) => a | b, 0),
             nameIndex: constantPool.length - 5,
-            name: method.name ?? `test${index}`,
-            descriptor: method.descriptor ?? `()V`,
             descriptorIndex: constantPool.length - 6,
             attributes: method.attributes ?? [],
             attributesCount: method.attributes?.length ?? 0,
@@ -461,7 +457,7 @@ export class TestJVM extends JVM {
 }
 
 export const setupTest = () => {
-  const jni = new JNI(stdlib);
+  const jni = new JNI('stdlib');
   const testSystem = new TestSystem();
   const testLoader = new TestClassLoader(testSystem, '', null);
 
@@ -501,12 +497,12 @@ export const setupTest = () => {
   testLoader.createClass({
     className: 'java/lang/Cloneable',
     loader: testLoader,
-    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
+    flags: ACCESS_FLAGS.ACC_INTERFACE | ACCESS_FLAGS.ACC_PUBLIC,
   });
   testLoader.createClass({
     className: 'java/io/Serializable',
     loader: testLoader,
-    flags: CLASS_FLAGS.ACC_INTERFACE | CLASS_FLAGS.ACC_PUBLIC,
+    flags: ACCESS_FLAGS.ACC_INTERFACE | ACCESS_FLAGS.ACC_PUBLIC,
   });
   const strClass = testLoader.createClass({
     className: 'java/lang/String',
@@ -575,30 +571,30 @@ export const setupTest = () => {
   const Throwable = testLoader.createClass({
     className: 'java/lang/Throwable',
     loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
+    flags: ACCESS_FLAGS.ACC_PUBLIC,
   });
   const NullPointerException = testLoader.createClass({
     className: 'java/lang/NullPointerException',
     superClass: Throwable as ReferenceClassData,
     loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
+    flags: ACCESS_FLAGS.ACC_PUBLIC,
   });
   const ArithmeticException = testLoader.createClass({
     className: 'java/lang/ArithmeticException',
     superClass: Throwable as ReferenceClassData,
     loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
+    flags: ACCESS_FLAGS.ACC_PUBLIC,
   });
   const IllegalAccessError = testLoader.createClass({
     className: 'java/lang/IllegalAccessError',
     superClass: Throwable as ReferenceClassData,
     loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
+    flags: ACCESS_FLAGS.ACC_PUBLIC,
   });
   testLoader.createClass({
     className: 'java/lang/NegativeArraySizeException',
     loader: testLoader,
-    flags: CLASS_FLAGS.ACC_PUBLIC,
+    flags: ACCESS_FLAGS.ACC_PUBLIC,
   });
 
   //   #endregion

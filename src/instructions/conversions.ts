@@ -1,4 +1,4 @@
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { asDouble, asFloat } from '#utils/index';
 
 const MAX_INT = 2147483647;
@@ -57,7 +57,7 @@ export function runF2l(thread: Thread): void {
   thread.offsetPc(1);
   let value = thread.popStack();
   if (Number.isNaN(value)) {
-    value = 0n;
+    value = BigInt(0);
   } else if (value == Infinity) {
     value = MAX_LONG;
   } else if (value == -Infinity) {
@@ -92,7 +92,7 @@ export function runD2l(thread: Thread): void {
   const dbl = asDouble(thread.popStack64());
   let value;
   if (Number.isNaN(dbl)) {
-    value = 0n;
+    value = BigInt(0);
   } else if (dbl == Infinity) {
     value = MAX_LONG;
   } else if (dbl == -Infinity) {

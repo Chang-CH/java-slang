@@ -1,5 +1,5 @@
 import Monitor from '#jvm/components/monitor';
-import type Thread from '#jvm/components/thread/thread';
+import type Thread from '#jvm/components/thread';
 import type { Result } from '#types/Result';
 import type { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import type { Field } from '#types/class/Field';

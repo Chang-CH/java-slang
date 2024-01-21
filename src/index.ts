@@ -11,7 +11,7 @@ import {
 import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
 import { checkError, checkSuccess } from '#types/Result';
 import { js2jString } from './utils';
-import Thread from './components/thread/thread';
+import Thread from './components/thread';
 import { ApplicationClassLoader } from './components/ClassLoader/AbstractClassLoader';
 import { ThreadStatus } from './constants';
 
@@ -48,7 +48,7 @@ export default class JVM {
       this.nativeSystem,
       this.jvmOptions.javaClassPath
     );
-    this.jni = new JNI();
+    this.jni = new JNI(this.jvmOptions.javaClassPath);
     this.threadpool = new RoundRobinThreadPool(() => {});
     this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,

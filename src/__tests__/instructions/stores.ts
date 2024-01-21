@@ -1,6 +1,6 @@
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
-import Thread from '#jvm/components/thread/thread';
+import Thread from '#jvm/components/thread';
 import { JNI } from '#jvm/components/jni';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
@@ -126,7 +126,7 @@ describe('Lstore', () => {
 
 describe('Lstore0', () => {
   test('LSTORE_0: stores long into locals', () => {
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LSTORE_0);
 
     try {
@@ -134,14 +134,14 @@ describe('Lstore0', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal(0) === 5n).toBe(true);
+    expect(thread.loadLocal(0) === BigInt(5)).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
 
 describe('Lstore1', () => {
   test('LSTORE_1: stores long into locals', () => {
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LSTORE_1);
 
     try {
@@ -149,14 +149,14 @@ describe('Lstore1', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal(1) === 5n).toBe(true);
+    expect(thread.loadLocal(1) === BigInt(5)).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
 
 describe('Lstore2', () => {
   test('LSTORE_2: stores long into locals', () => {
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LSTORE_2);
 
     try {
@@ -164,14 +164,14 @@ describe('Lstore2', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal(2) === 5n).toBe(true);
+    expect(thread.loadLocal(2) === BigInt(5)).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
 
 describe('Lstore3', () => {
   test('LSTORE_3: stores long into locals', () => {
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LSTORE_3);
 
     try {
@@ -179,7 +179,7 @@ describe('Lstore3', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal(3) === 5n).toBe(true);
+    expect(thread.loadLocal(3) === BigInt(5)).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 });
@@ -623,7 +623,7 @@ describe('Lastore', () => {
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(0);
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LASTORE);
 
     try {
@@ -631,14 +631,14 @@ describe('Lastore', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(arrayref.get(0) === 5n).toBe(true);
+    expect(arrayref.get(0) === BigInt(5)).toBe(true);
     expect(thread.getPC()).toBe(1);
   });
 
   test('LASTORE: throws NullPointerException', () => {
     thread.pushStack(null);
     thread.pushStack(0);
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LASTORE);
     try {
       thread.runFor(1);
@@ -655,7 +655,7 @@ describe('Lastore', () => {
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(1);
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LASTORE);
     try {
       thread.runFor(1);
@@ -672,7 +672,7 @@ describe('Lastore', () => {
     arrayref.initialize(thread, 1);
     thread.pushStack(arrayref);
     thread.pushStack(-1);
-    thread.pushStack64(5n);
+    thread.pushStack64(BigInt(5));
     code.setUint8(0, OPCODE.LASTORE);
     try {
       thread.runFor(1);

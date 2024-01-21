@@ -30,3 +30,16 @@ export enum MemberNameFlags {
   MN_REFERENCE_KIND_SHIFT = 24, // refKind
   MN_REFERENCE_KIND_MASK = 0x0f000000 >> MN_REFERENCE_KIND_SHIFT,
 }
+
+export enum CLASS_STATUS {
+  PREPARED,
+  INITIALIZING,
+  INITIALIZED,
+  ERROR,
+}
+
+export enum CLASS_TYPE {
+  REFERENCE,
+  ARRAY,
+  PRIMITIVE,
+}
