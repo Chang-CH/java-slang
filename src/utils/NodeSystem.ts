@@ -9,6 +9,8 @@ export interface Folder {
 
 export default class NodeSystem extends AbstractSystem {
   private files: Folder;
+  private stdoutBuffer: string = '';
+  private stderrBuffer: string = '';
 
   constructor(initialFiles: Folder) {
     super();
@@ -29,10 +31,26 @@ export default class NodeSystem extends AbstractSystem {
   }
 
   stdout(message: string): void {
-    console.log('\x1b[32m' + message + '\x1b[0m');
+    if (message.endsWith('\n')) {
+      console.log(
+        '\x1b[32m' + this.stdoutBuffer + message.slice(0, -1) + '\x1b[0m'
+      );
+      this.stdoutBuffer = '';
+      return;
+    }
+
+    this.stdoutBuffer += message;
   }
 
   stderr(message: string): void {
-    console.error('\x1b[31m' + message + '\x1b[0m');
+    if (message.endsWith('\n')) {
+      console.log(
+        '\x1b[31m' + this.stderrBuffer + message.slice(0, -1) + '\x1b[0m'
+      );
+      this.stderrBuffer = '';
+      return;
+    }
+
+    this.stderrBuffer += message;
   }
 }

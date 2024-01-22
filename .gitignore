@@ -135,7 +135,7 @@ bin/*
 *.class
 
 # java natives
-natives
+stdlib
 
 example/*
 disassembly/*

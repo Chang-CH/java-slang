@@ -157,6 +157,10 @@ export default class Thread {
     return (this.stack[this.stackPointer].method._getCode() as Code).code;
   }
 
+  getThreadId() {
+    return this.threadId;
+  }
+
   // #endregion
 
   // #region setters
@@ -379,23 +383,6 @@ export default class Thread {
 
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
-
-    console.log(
-      this.stack.map(
-        frame =>
-          frame.class.getClassname() +
-          '.' +
-          frame.method.getName() +
-          frame.method.getDescriptor()
-      )
-    );
-
-    console.error(
-      'throwing exception ',
-      exceptionCls.getClassname(),
-      this.getMethod().getName(),
-      this.getPC()
-    );
 
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
