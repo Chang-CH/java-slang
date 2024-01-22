@@ -500,8 +500,6 @@ export class ConstantInvokeDynamic extends Constant {
     // #endregion
 
     // #region run bootstrap method
-    console.log('RUNNING LINK CALL SITE');
-
     const mhnRes = loader.getClass('java/lang/invoke/MethodHandleNatives');
     if (checkError(mhnRes)) {
       return { exceptionCls: 'java/lang/ClassNotFoundException', msg: '' };
@@ -550,7 +548,6 @@ export class ConstantInvokeDynamic extends Constant {
             appendixArr,
           ],
           css => {
-            console.log('LINK CSS FINISH. ', css);
             this.result = { result: css };
           }
         )
@@ -573,7 +570,6 @@ export class ConstantInvokeDynamic extends Constant {
       throw new Error('Bootstrap method not found');
     }
 
-    console.log('BOOTSTRAP METHOD: ', bootstrapMethod);
     const bootstrapMhConst = bootstrapMethod.bootstrapMethodRef;
     const constref = bootstrapMhConst.tempGetReference();
     const refres = constref.resolve(thread);

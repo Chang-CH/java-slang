@@ -257,10 +257,6 @@ export default class Thread {
       return sf;
     }
 
-    if (sf.method.getName() === 'extendWith') {
-      console.log('extendWith', ret);
-    }
-
     console.debug(
       sf.class.getClassname() +
         '.' +
@@ -418,12 +414,6 @@ export default class Thread {
           pc < handler.endPc &&
           (handlerCls === null || exceptionCls.checkCast(handlerCls))
         ) {
-          console.log(
-            'EXCEPTION CAUGHT: @',
-            method.getClass().getClassname(),
-            ' FOR: ',
-            exceptionCls.getClassname()
-          );
           // clear the operand stack and push exception
           this.stack[this.stackPointer].operandStack = [exception];
           this.setPc(handler.handlerPc);

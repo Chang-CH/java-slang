@@ -17,9 +17,9 @@ export default class NodeSystem extends AbstractSystem {
     this.files = initialFiles;
   }
 
-  readFile(path: string): ClassFile {
+  readFileSync(path: string): ClassFile {
     // converts nodejs buffer to ArrayBuffer
-    const buffer = fs.readFileSync(path + '.class', null);
+    const buffer = fs.readFileSync(path, null);
     const arraybuffer = a2ab(buffer);
     const view = new DataView(arraybuffer);
     const res = parseBin(view);
@@ -28,6 +28,10 @@ export default class NodeSystem extends AbstractSystem {
     }
 
     throw new Error('File is not a class file');
+  }
+
+  readFile(path: string): Promise<any> {
+    return import('../../' + path);
   }
 
   stdout(message: string): void {

@@ -19,6 +19,7 @@ export default class JVM {
   private jvmOptions: {
     javaClassPath: string;
     userDir: string;
+    nativesPath: string;
   };
   private isInitialized = false;
 
@@ -36,11 +37,13 @@ export default class JVM {
     options?: {
       javaClassPath?: string;
       userDir?: string;
+      nativesPath?: string;
     }
   ) {
     this.jvmOptions = {
-      javaClassPath: 'natives',
+      javaClassPath: 'stdlib',
       userDir: 'example',
+      nativesPath: 'src/stdlib',
       ...options,
     };
     this.nativeSystem = nativeSystem;
@@ -48,7 +51,7 @@ export default class JVM {
       this.nativeSystem,
       this.jvmOptions.javaClassPath
     );
-    this.jni = new JNI(this.jvmOptions.javaClassPath);
+    this.jni = new JNI(this.jvmOptions.nativesPath, nativeSystem);
     this.threadpool = new RoundRobinThreadPool(() => {});
     this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,

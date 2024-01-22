@@ -179,12 +179,6 @@ const functions = {
         );
 
         if (checkError(lookupRes)) {
-          console.log(
-            'failed resolution::: ',
-            clsRef.getClassname(),
-            '@',
-            name + methodDesc
-          );
           thread.throwNewException(
             'java/lang/NoSuchMethodError',
             `Invalid method ${methodDesc}`
@@ -213,7 +207,6 @@ const functions = {
           type.getNativeField('classRef') as ReferenceClassData
         ).getDescriptor();
         const field = clsRef.lookupField(name + descriptor);
-        console.log('Lookup field: ', name, descriptor);
         if (field === null) {
           thread.throwNewException(
             'java/lang/NoSuchFieldError',
@@ -232,7 +225,6 @@ const functions = {
         thread.returnStackFrame(memberName);
         return;
       } else {
-        console.log('Unknown member name');
         thread.throwNewException(
           'java/lang/LinkageError',
           `Could not resolve member name`

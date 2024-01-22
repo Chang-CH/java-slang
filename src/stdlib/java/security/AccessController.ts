@@ -25,10 +25,6 @@ const doPrivileged = (thread: Thread, locals: any[]) => {
       0,
       [action],
       (ret: JvmObject) => {
-        console.debug(
-          'RUN doPrivileged(Ljava/security/PrivilegedExceptionAction;)Ljava/lang/Object;',
-          { ...ret, cls: null }
-        );
         thread.returnStackFrame();
         thread.returnStackFrame(ret);
       }
@@ -89,6 +85,16 @@ const functions = {
         thread.returnStackFrame(ret);
       })
     );
+  },
+
+  'getStackAccessControlContext()Ljava/security/AccessControlContext;': (
+    thread: Thread,
+    locals: any[]
+  ) => {
+    console.warn(
+      'getStackAccessControlContext()Ljava/security/AccessControlContext; not implemented'
+    );
+    thread.returnStackFrame(null);
   },
 };
 export default functions;

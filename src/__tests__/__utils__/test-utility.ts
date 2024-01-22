@@ -352,7 +352,10 @@ export class TestSystem extends AbstractSystem {
   stderr(message: string): void {
     throw new Error('Method not implemented.');
   }
-  readFile(path: string): ClassFile {
+  readFile(path: string): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  readFileSync(path: string): ClassFile {
     throw new Error('Method not implemented.');
   }
 }

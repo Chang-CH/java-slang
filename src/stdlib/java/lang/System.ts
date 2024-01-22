@@ -185,6 +185,18 @@ const functions = {
     }
     thread.returnStackFrame();
   },
+
+  'currentTimeMillis()J': (thread: Thread, locals: any[]) => {
+    const time = BigInt(Date.now());
+    thread.returnStackFrame64(time);
+  },
+
+  'identityHashCode(Ljava/lang/Object;)I': (thread: Thread, locals: any[]) => {
+    console.warn(
+      'System.identityHashCode(Ljava/lang/Object;)I not implemented'
+    );
+    thread.returnStackFrame(0);
+  },
 };
 
 export default functions;

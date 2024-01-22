@@ -558,7 +558,6 @@ export function runInvokedynamic(thread: Thread): void {
     }
     return;
   }
-  console.log('INDY RES DONE');
   // const lambdaObj = tempRes.result;
   // thread.pushStack(lambdaObj);
   console.warn('INDY not implemented');

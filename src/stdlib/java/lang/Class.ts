@@ -114,7 +114,6 @@ const functions = {
     const clsRef = clsObj.getNativeField('classRef') as ClassData;
     // Replace slashes with ., Class splits by . to get simple name
     const name = clsRef.getClassname().replaceAll('/', '.');
-    console.log('getName0: ', name);
     const strRes = thread.getJVM().getInternedString(name);
     thread.returnStackFrame(strRes);
   },
@@ -140,7 +139,6 @@ const functions = {
       const callerClassObj = locals[3] as JvmObject;
 
       const name = j2jsString(nameJStr).replaceAll('.', '/');
-      console.log('forname0 w/ ', j2jsString(nameJStr));
 
       let loader: AbstractClassLoader;
       if (loaderObj) {

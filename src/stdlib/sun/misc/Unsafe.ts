@@ -12,7 +12,6 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { ErrorResult } from '#types/Result';
-import { classFileToText } from '#utils/Prettify/classfile';
 
 function getFieldInfo(
   thread: Thread,
@@ -206,12 +205,6 @@ const functions = {
       // expected: SoftReference object
       // newValue: SoftReference object
 
-      console.debug(
-        'compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z: ',
-        obj1.getClass().getClassname(),
-        offset
-      );
-
       thread.returnStackFrame(
         unsafeCompareAndSwap(thread, unsafe, obj1, offset, expected, newValue)
       );
@@ -287,8 +280,6 @@ const functions = {
         new Uint8Array(byteArray.getJsArray()).buffer
       );
       const classfile = parseBin(bytecode);
-
-      console.log('CREATE ANONYMOUS CLASS: ', classFileToText(classfile));
 
       // resolve classname
       const clsInfo = classfile.constantPool[
