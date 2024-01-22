@@ -179,7 +179,6 @@ export default abstract class AbstractClassLoader {
   }
 
   getJavaObject(): JvmObject | null {
-    console.error('ApplicationClassloader: Java object not created');
     return null;
   }
 }
@@ -191,5 +190,10 @@ export class ApplicationClassLoader extends AbstractClassLoader {
     parentLoader: AbstractClassLoader
   ) {
     super(nativeSystem, classPath, parentLoader);
+  }
+
+  getJavaObject(): JvmObject | null {
+    console.error('ApplicationClassLoader.getJavaObject not implemented');
+    return null;
   }
 }
