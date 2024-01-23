@@ -8,7 +8,7 @@
     "build": "npx tsc -p tsconfig.json",
     "test": "jest --silent",
     "dev": "npx tsx src/utils/cli -d tests/thread/sync -m Main -j stdlib -p --nowarn --nodebug",
-    "dev2": "npx tsx src/utils/cli -d example/methodhandle -m Main -j stdlib -p --nowarn",
+    "dev2": "npx tsx src/utils/cli -d example/dynamic -m Main -j stdlib -p --nowarn --nodebug",
     "watch": "npx tsx watch src/utils/cli -d example/pe1 -m Test5 -j stdlib -p --nowarn --nodebug"
   },
   "keywords": [
