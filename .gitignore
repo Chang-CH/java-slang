@@ -134,5 +134,7 @@ bin/*
 
 *.class
 
+stdlib/*
+
 example/*
 disassembly/*
