@@ -694,7 +694,10 @@ export class ReferenceClassData extends ClassData {
   }
 
   initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
-    if (this.status === CLASS_STATUS.INITIALIZED) {
+    if (
+      this.status === CLASS_STATUS.INITIALIZED ||
+      this.status === CLASS_STATUS.INITIALIZING
+    ) {
       return { result: this };
     }
 
@@ -709,12 +712,12 @@ export class ReferenceClassData extends ClassData {
 
     this.initThread = thread;
 
-    // if (this.superClass) {
-    //   const superInit = this.superClass.initialize(thread);
-    //   if (!checkSuccess(superInit)) {
-    //     return superInit;
-    //   }
-    // }
+    if (this.superClass) {
+      const superInit = this.superClass.initialize(thread);
+      if (!checkSuccess(superInit)) {
+        return superInit;
+      }
+    }
 
     // has static initializer
     if (this.methods['<clinit>()V']) {

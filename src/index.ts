@@ -94,11 +94,7 @@ export default class JVM {
 
     const tasks: (() => void)[] = [];
     // #region initialize threadgroup object
-    tasks.push(() => threadCls.initialize(mainThread));
-    const tgInitRes = threadGroupCls.initialize(mainThread);
-    if (!checkSuccess(tgInitRes)) {
-      throw new Error('ThreadGroup initialization failed');
-    }
+    tasks.push(() => threadGroupCls.initialize(mainThread));
     const initialTg = threadGroupCls.instantiate();
     tasks.push(() => initialTg.initialize(mainThread));
     // #endregion
@@ -133,6 +129,7 @@ export default class JVM {
           0,
           [],
           () => {
+            console.log('ASD');
             this.isInitialized = true;
             onInitialized && onInitialized();
           }
