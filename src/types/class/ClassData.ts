@@ -709,30 +709,18 @@ export class ReferenceClassData extends ClassData {
       return { result: this };
     }
 
-    // if (this.status === CLASS_STATUS.INITIALIZING) {
-    //   onInitialized && this.onInitCallbacks.push(onInitialized);
-    //   if (this.initThread === thread) {
-    //     return { result: this };
-    //   }
-    //   return { result: this };
-    // }
-
     if (this.status === CLASS_STATUS.INITIALIZING) {
-      if (this.initThread === thread) {
-        console.log('INITIALIZING BY THIS THREAD');
+      if (this.initThread !== thread) {
+        thread.setStatus(ThreadStatus.WAITING);
+        this.onInitCallbacks.push(() =>
+          thread.setStatus(ThreadStatus.RUNNABLE)
+        );
+        return { isDefer: true };
       }
-      onInitialized && onInitialized();
+
+      onInitialized && this.onInitCallbacks.push(onInitialized);
       return { result: this };
     }
-
-    // if (
-    //   this.status === CLASS_STATUS.INITIALIZING &&
-    //   this.initThread !== thread
-    // ) {
-    //   thread.setStatus(ThreadStatus.WAITING);
-    //   this.onInitCallbacks.push(() => thread.setStatus(ThreadStatus.RUNNABLE));
-    //   return { isDefer: true };
-    // }
 
     this.initThread = thread;
 
@@ -755,7 +743,6 @@ export class ReferenceClassData extends ClassData {
       thread.invokeStackFrame(
         new InternalStackFrame(this, this.methods['<clinit>()V'], 0, [], () => {
           this.status = CLASS_STATUS.INITIALIZED;
-          console.log(this.thisClass + ' initialized');
           this.onInitCallbacks.forEach(cb => cb());
           this.onInitCallbacks = [];
         })
