@@ -93,13 +93,22 @@ export default class JVM {
     javaObject.putNativeField('thread', mainThread);
 
     const tasks: (() => void)[] = [];
-    // #region initialize threadgroup object
-    tasks.push(() => threadGroupCls.initialize(mainThread));
+
+    // #region initialize classes
+    tasks.push(() =>
+      threadGroupCls.initialize(mainThread, null, () => {
+        // initialize thread class
+        threadCls.initialize(mainThread);
+      })
+    );
+    // #endregion
+
+    // #region initialize threadgroup
     const initialTg = threadGroupCls.instantiate();
     tasks.push(() => initialTg.initialize(mainThread));
     // #endregion
 
-    // #region initialize Thread class
+    // #region initialize Thread
     const tgfr = threadCls.lookupField('groupLjava/lang/ThreadGroup;');
     const pFr = threadCls.lookupField('priorityI');
     if (!tgfr || !pFr) {
@@ -108,10 +117,6 @@ export default class JVM {
     const javaThread = mainThread.getJavaObject();
     javaThread.putField(tgfr, initialTg);
     javaThread.putField(pFr, 1);
-    tasks.push(() => threadCls.initialize(mainThread));
-    // #endregion
-
-    // #region initialize thread object
     tasks.push(() => mainThread.initialize(mainThread));
     // #endregion
 
@@ -129,9 +134,9 @@ export default class JVM {
           0,
           [],
           () => {
-            console.log('ASD');
             this.isInitialized = true;
             onInitialized && onInitialized();
+            mainCls.initialize(mainThread);
           }
         )
       )
@@ -152,8 +157,6 @@ export default class JVM {
     if (!mainMethod) {
       throw new Error('Main method not found');
     }
-
-    tasks.push(() => mainCls.initialize(mainThread));
     tasks.push(() => {
       mainThread.invokeStackFrame(
         new JavaStackFrame(mainCls, mainMethod, 0, [])

@@ -504,8 +504,14 @@ export abstract class ClassData {
    * Initializes the class. If the class has a static initializer, it is invoked.
    * @param thread used to invoke the static initializer
    * @param onDefer callback to be called before invoking the static initializer.
+   * @param onInitialized callback to be called after the class has been initialized.
    */
-  initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
+  initialize(
+    thread: Thread,
+    onDefer?: () => void | null,
+    onInitialized?: () => void | null
+  ): Result<ClassData> {
+    onInitialized && onInitialized();
     return { result: this };
   }
 
@@ -693,11 +699,29 @@ export class ReferenceClassData extends ClassData {
     return true;
   }
 
-  initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
-    if (
-      this.status === CLASS_STATUS.INITIALIZED ||
-      this.status === CLASS_STATUS.INITIALIZING
-    ) {
+  initialize(
+    thread: Thread,
+    onDefer?: () => void | null,
+    onInitialized?: () => void | null
+  ): Result<ClassData> {
+    if (this.status === CLASS_STATUS.INITIALIZED) {
+      onInitialized && onInitialized();
+      return { result: this };
+    }
+
+    // if (this.status === CLASS_STATUS.INITIALIZING) {
+    //   onInitialized && this.onInitCallbacks.push(onInitialized);
+    //   if (this.initThread === thread) {
+    //     return { result: this };
+    //   }
+    //   return { result: this };
+    // }
+
+    if (this.status === CLASS_STATUS.INITIALIZING) {
+      if (this.initThread === thread) {
+        console.log('INITIALIZING BY THIS THREAD');
+      }
+      onInitialized && onInitialized();
       return { result: this };
     }
 
@@ -712,7 +736,10 @@ export class ReferenceClassData extends ClassData {
 
     this.initThread = thread;
 
-    if (this.superClass) {
+    if (
+      this.superClass &&
+      this.superClass.status !== CLASS_STATUS.INITIALIZED
+    ) {
       const superInit = this.superClass.initialize(thread);
       if (!checkSuccess(superInit)) {
         return superInit;
@@ -723,16 +750,21 @@ export class ReferenceClassData extends ClassData {
     if (this.methods['<clinit>()V']) {
       this.status = CLASS_STATUS.INITIALIZING;
       onDefer && onDefer();
+
+      onInitialized && this.onInitCallbacks.push(onInitialized);
       thread.invokeStackFrame(
         new InternalStackFrame(this, this.methods['<clinit>()V'], 0, [], () => {
           this.status = CLASS_STATUS.INITIALIZED;
+          console.log(this.thisClass + ' initialized');
           this.onInitCallbacks.forEach(cb => cb());
+          this.onInitCallbacks = [];
         })
       );
       return { isDefer: true };
     }
 
     this.status = CLASS_STATUS.INITIALIZED;
+    onInitialized && onInitialized();
     return { result: this };
   }
 
