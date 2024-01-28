@@ -147,8 +147,6 @@ export function runGetfield(thread: Thread): void {
     return;
   }
 
-  // FIXME: Store instance field data in the classref instead.
-  // If fieldRef is Parent.X, and object is Child, Parent.X is set not Child.X
   const value = objRef.getField(field);
   if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
     thread.pushStack64(value);
@@ -181,7 +179,6 @@ export function runPutfield(thread: Thread): void {
   }
 
   let value;
-  // FIXME: in theory it is legal to have 2 same field name, different type
   if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
     value = thread.popStack64();
   } else {
@@ -402,7 +399,7 @@ export function runInvokevirtual(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const constant = thread
     .getClass()
-    .getConstant(indexbyte) as ConstantMethodref; // TODO: handle method handle etc.
+    .getConstant(indexbyte) as ConstantMethodref;
 
   invokeVirtual(thread, constant, 3);
 }
@@ -662,7 +659,7 @@ export function runNew(thread: Thread): void {
 }
 
 export function runNewarray(thread: Thread): void {
-  const atype = thread.getCode().getUint8(thread.getPC() + 1); // TODO: check atype valid
+  const atype = thread.getCode().getUint8(thread.getPC() + 1);
   thread.offsetPc(2);
 
   const count = thread.popStack();

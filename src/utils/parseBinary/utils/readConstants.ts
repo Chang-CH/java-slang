@@ -396,7 +396,7 @@ export function readConstants(
   for (let i = 0; i < constantPoolCount - 1; i += 1) {
     const tag = constantTagMap[view.getUint8(offset)];
     offset += 1;
-    const { result, offset: resultOffset } = readConstant(view, offset, tag); // TODO: check index's in readConstant
+    const { result, offset: resultOffset } = readConstant(view, offset, tag);
     constantPool.push(result);
 
     // Longs and doubles take 2 indexes in the constant pool.

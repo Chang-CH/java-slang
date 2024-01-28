@@ -352,7 +352,6 @@ export default class Thread {
 
   throwNewException(className: string, msg: string) {
     // Initialize exception
-    // FIXME: push msg to stack
     const clsRes = this.getClass().getLoader().getClass(className);
     if (checkError(clsRes)) {
       if (clsRes.exceptionCls === 'java/lang/ClassNotFoundException') {

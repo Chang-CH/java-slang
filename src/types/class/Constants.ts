@@ -379,6 +379,10 @@ export class ConstantClass extends Constant {
     return this.result;
   }
 
+  public getClassName(): string {
+    return this.className.get();
+  }
+
   public get() {
     if (!this.result) {
       this.resolve();
@@ -492,7 +496,6 @@ export class ConstantInvokeDynamic extends Constant {
     }
     const arrCls = objArrRes.result as ArrayClassData;
     const argsArr = arrCls.instantiate();
-    // TODO: Autoboxing?
     argsArr.initArray(bootstrapArgs.length, resolvedArgs);
 
     const appendixArr = arrCls.instantiate();
@@ -1059,6 +1062,10 @@ export class ConstantMethodref extends Constant {
     }
 
     const nt = this.nameAndTypeConstant.get();
+
+    if (nt.name === 'staticPrint') {
+      console.log('break');
+    }
     const resolutionResult = symbolClass.resolveMethod(
       nt.name,
       nt.descriptor,

@@ -1,6 +1,7 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import type Thread from '#jvm/components/thread';
+import { ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { SuccessResult } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';
@@ -288,4 +289,23 @@ export function autoBox(obj: any) {
 export function autoUnbox(obj: any) {
   console.warn('Auto unboxing not implemented');
   return obj;
+}
+
+export function serializeClassFile(cf: ClassFile): string {
+  return JSON.stringify(cf, (key, value) => {
+    if (ArrayBuffer.isView(value) && key === 'code') {
+      return String.fromCharCode.apply(null, value.buffer as any);
+    }
+    return value;
+  });
+}
+
+export function deserializeClassFile(cf: string): ClassFile {
+  return JSON.parse(cf, (key, value) => {
+    if (key === 'code') {
+      // @ts-ignore
+      return new DataView(Uint8Array.from(value, x => x.charCodeAt(0)).buffer);
+    }
+    return value;
+  });
 }

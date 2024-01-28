@@ -8,7 +8,6 @@ import { readInstruction } from '#utils/parseBinary/utils/readInstruction';
 
 /**
  * Parses the class file to replace references with actual values.
- * TODO: replicate javap -v output
  *
  * @param cls classfile object output during bscl parse stage
  * @returns stringified classfile

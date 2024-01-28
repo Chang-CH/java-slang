@@ -11,7 +11,7 @@ import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { ErrorResult } from '#types/Result';
+import { ErrorResult, checkError, checkSuccess } from '#types/Result';
 
 function getFieldInfo(
   thread: Thread,
@@ -157,7 +157,6 @@ const functions = {
     const field = locals[1] as JvmObject;
     const slot = field._getField('slot', 'I', 'java/lang/reflect/Field');
 
-    // TODO: check if slot needs to uniquely identify inherited fields as well
     console.warn(
       'objectFieldOffset: not checking if slot is used to access fields not declared in this class'
     );
@@ -332,6 +331,27 @@ const functions = {
       const clsData = loader.defineClass(classfile);
       thread.returnStackFrame(clsData.getJavaObject());
     },
+
+  'ensureClassInitialized(Ljava/lang/Class;)V': (
+    thread: Thread,
+    locals: any[]
+  ) => {
+    const unsafe = locals[0] as JvmObject;
+    const clsObj = locals[1] as JvmObject;
+    const cls = clsObj.getNativeField('classRef') as ClassData;
+    const initRes = cls.initialize(thread);
+
+    if (checkSuccess(initRes)) {
+      thread.returnStackFrame();
+    } else if (checkError(initRes)) {
+      thread.throwNewException(
+        (initRes as ErrorResult).exceptionCls,
+        (initRes as ErrorResult).msg
+      );
+    }
+
+    return;
+  },
 };
 
 export default functions;

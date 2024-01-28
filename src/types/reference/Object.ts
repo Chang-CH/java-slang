@@ -46,7 +46,6 @@ export class JvmObject {
       return { result: this };
     }
 
-    // TODO: check for other inits.
     const initMethod = this.cls.getMethod('<init>()V');
     if (!initMethod) {
       this.initStatus = true;
@@ -126,7 +125,6 @@ export class JvmObject {
   }
 
   getFieldFromVMIndex(index: number): Field {
-    // TODO: check if VM index includes static fields
     const res = this.fieldArr.filter(f => {
       const slot = f.ref.getSlot();
       return slot === index;

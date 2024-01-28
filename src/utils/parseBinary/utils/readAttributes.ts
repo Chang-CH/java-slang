@@ -287,6 +287,7 @@ function readCodeAttribute(
     offset,
   };
 }
+
 function readAttributeStackMapTable(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,
@@ -394,6 +395,7 @@ function readAttributeEnclosingMethod(
     offset,
   };
 }
+
 function readAttributeSynthetic(
   constantPool: Array<ConstantInfo>,
   attributeNameIndex: number,

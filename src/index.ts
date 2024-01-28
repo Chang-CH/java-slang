@@ -94,6 +94,7 @@ export default class JVM {
 
     const tasks: (() => void)[] = [];
     // #region initialize threadgroup object
+    tasks.push(() => threadCls.initialize(mainThread));
     const tgInitRes = threadGroupCls.initialize(mainThread);
     if (!checkSuccess(tgInitRes)) {
       throw new Error('ThreadGroup initialization failed');

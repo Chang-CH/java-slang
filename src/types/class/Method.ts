@@ -483,7 +483,6 @@ export class Method {
     }
 
     // R is private
-    // FIXME: test inner class
     return accessingClass === declaringCls;
   }
 

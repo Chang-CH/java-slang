@@ -30,7 +30,6 @@ export function readField(
       offset
     );
 
-    // TODO: only some attributes are recognised, should ignore non recognised
     attributes.push(result as unknown as AttributeInfo);
     offset = newOffset;
   }

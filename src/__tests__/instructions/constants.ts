@@ -274,9 +274,6 @@ describe('Sipush', () => {
   });
 });
 
-// FIXME: classref should push class object not classref onto stack
-// Test MethodHandle
-// Test MethodType
 describe('Ldc', () => {
   test('reads int from constant pool and pushes to stack', () => {
     // use custom class

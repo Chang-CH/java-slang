@@ -840,9 +840,6 @@ describe('Invokestatic', () => {
   });
 });
 
-// Test synchronized
-// unsatisfiedlinkerror
-// Test signature polymorphic method declaration
 describe('invokevirtual', () => {
   test('INVOKEVIRTUAL: static method invoked without error', () => {
     const ab = new ArrayBuffer(24);
@@ -1641,9 +1638,6 @@ describe('invokevirtual', () => {
   });
 });
 
-// Test synchronized
-// unsatisfiedlinkerror
-// Test signature polymorphic method declaration
 describe('Invokeinterface', () => {
   test('INVOKEINTERFACE: static method invoked without error', () => {
     const ab = new ArrayBuffer(40);
@@ -2364,9 +2358,6 @@ describe('Invokeinterface', () => {
   });
 });
 
-// Test synchronized
-// unsatisfiedlinkerror
-// Test signature polymorphic method declaration
 describe('invokespecial', () => {
   test('INVOKESPECIAL: static method invoked without error', () => {
     const ab = new ArrayBuffer(24);

@@ -93,10 +93,6 @@ export const info2Attribute = (
         exceptionTable: exceptions,
       } as Exceptions;
     case 'InnerClasses':
-      return {
-        name,
-        attributeInfo: info,
-      } as UnhandledAttribute;
       const innerclasses: {
         innerClass: ConstantClass;
         outerClass: ConstantClass | null;
@@ -123,7 +119,6 @@ export const info2Attribute = (
           innerClassAccessFlags: element.innerClassAccessFlags,
         });
       });
-
       return {
         name,
         classes: innerclasses,

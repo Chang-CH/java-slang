@@ -19,13 +19,16 @@ import {
   SuccessResult,
   ErrorResult,
 } from '#types/Result';
-import { CLASS_TYPE, CLASS_STATUS } from '#jvm/constants';
+import { CLASS_TYPE, CLASS_STATUS, ThreadStatus } from '#jvm/constants';
 
 export abstract class ClassData {
   protected loader: AbstractClassLoader;
   protected accessFlags: number;
   protected type: CLASS_TYPE;
   public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
+
+  protected initThread?: Thread;
+  protected onInitCallbacks: Array<() => void> = [];
 
   protected thisClass: string;
   protected packageName: string;
@@ -434,7 +437,6 @@ export abstract class ClassData {
 
       if (method && !method.checkPrivate() && !method.checkStatic()) {
         if (method.checkAbstract()) {
-          // FIXME: multiple maximally specific methods
           abstractMethod = method;
           continue;
         }
@@ -692,30 +694,37 @@ export class ReferenceClassData extends ClassData {
   }
 
   initialize(thread: Thread, onDefer?: () => void): Result<ClassData> {
-    if (
-      this.status === CLASS_STATUS.INITIALIZED ||
-      this.status === CLASS_STATUS.INITIALIZING
-    ) {
-      // FIXME: check if current class is initializer
+    if (this.status === CLASS_STATUS.INITIALIZED) {
       return { result: this };
     }
 
-    if (!this.javaClassObject) {
-      this.getJavaObject();
-    }
+    // if (
+    //   this.status === CLASS_STATUS.INITIALIZING &&
+    //   this.initThread !== thread
+    // ) {
+    //   thread.setStatus(ThreadStatus.WAITING);
+    //   this.onInitCallbacks.push(() => thread.setStatus(ThreadStatus.RUNNABLE));
+    //   return { isDefer: true };
+    // }
+
+    this.initThread = thread;
+
+    // if (this.superClass) {
+    //   const superInit = this.superClass.initialize(thread);
+    //   if (!checkSuccess(superInit)) {
+    //     return superInit;
+    //   }
+    // }
 
     // has static initializer
     if (this.methods['<clinit>()V']) {
       this.status = CLASS_STATUS.INITIALIZING;
       onDefer && onDefer();
       thread.invokeStackFrame(
-        new InternalStackFrame(
-          this,
-          this.methods['<clinit>()V'],
-          0,
-          [],
-          () => (this.status = CLASS_STATUS.INITIALIZED)
-        )
+        new InternalStackFrame(this, this.methods['<clinit>()V'], 0, [], () => {
+          this.status = CLASS_STATUS.INITIALIZED;
+          this.onInitCallbacks.forEach(cb => cb());
+        })
       );
       return { isDefer: true };
     }
