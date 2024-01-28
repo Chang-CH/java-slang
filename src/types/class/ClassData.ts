@@ -745,6 +745,7 @@ export class ReferenceClassData extends ClassData {
           this.status = CLASS_STATUS.INITIALIZED;
           this.onInitCallbacks.forEach(cb => cb());
           this.onInitCallbacks = [];
+          this.initThread = undefined;
         })
       );
       return { isDefer: true };
