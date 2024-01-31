@@ -80,7 +80,7 @@ export abstract class ClassData {
     [methodName: string]: Method;
   } = {};
 
-  protected attributes: { [attributeName: string]: IAttribute[] } = {};
+  protected attributes: { [attributeName: string]: IAttribute } = {};
 
   constructor(
     loader: AbstractClassLoader,
@@ -719,7 +719,7 @@ export class ReferenceClassData extends ClassData {
 
     if (this.attributes['BootstrapMethods']) {
       this.bootstrapMethods = (
-        this.attributes['BootstrapMethods'][0] as BootstrapMethods
+        this.attributes['BootstrapMethods'] as BootstrapMethods
       ).bootstrapMethods;
     }
   }

@@ -20,7 +20,7 @@ export class Field {
   private fieldDesc: string;
   private value: any;
   private accessFlags: number;
-  private attributes: { [attributeName: string]: IAttribute[] } = {};
+  private attributes: { [attributeName: string]: IAttribute } = {};
 
   private static reflectedClass: ReferenceClassData | null = null;
   private javaObject: JvmObject | null = null;
@@ -31,7 +31,7 @@ export class Field {
     fieldName: string,
     fieldDesc: string,
     accessFlags: number,
-    attributes: { [attributeName: string]: IAttribute[] },
+    attributes: { [attributeName: string]: IAttribute },
     slot: number
   ) {
     this.cls = cls;
@@ -61,7 +61,7 @@ export class Field {
 
     if (this.checkStatic() && this.attributes['ConstantValue']) {
       const constantValue = (
-        this.attributes['ConstantValue'][0] as ConstantValue
+        this.attributes['ConstantValue'] as ConstantValue
       ).constantvalue.resolve(null as any, cls.getLoader()); // String resolution does not need thread
       if (!checkSuccess(constantValue)) {
         return;

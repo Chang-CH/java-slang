@@ -16,13 +16,15 @@ import type { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
 import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
 import { ConstantPool } from '#jvm/components/ConstantPool';
-import { Code, IAttribute } from './Attributes';
+import { Code, Exceptions, IAttribute, Signature } from './Attributes';
 import {
   ImmediateResult,
   checkError,
   ErrorResult,
   checkSuccess,
 } from '#types/Result';
+import { Sign } from 'node:crypto';
+import { SignatureAttribute } from '#jvm/external/ClassFile/types/attributes';
 
 export interface MethodHandler {
   startPc: number;
@@ -37,7 +39,7 @@ export class Method {
   private accessFlags: number;
   private name: string;
   private descriptor: string;
-  private attributes: { [attributeName: string]: IAttribute[] } = {};
+  private attributes: { [attributeName: string]: IAttribute } = {};
 
   private static reflectMethodClass: ReferenceClassData | null = null;
   private static reflectConstructorClass: ReferenceClassData | null = null;
@@ -49,11 +51,11 @@ export class Method {
     accessFlags: number,
     name: string,
     descriptor: string,
-    attributes: { [attributeName: string]: IAttribute[] },
+    attributes: { [attributeName: string]: IAttribute },
     slot: number
   ) {
     this.cls = cls;
-    this.code = (attributes['Code']?.[0] as Code) ?? null;
+    this.code = (attributes['Code'] as Code) ?? null;
     this.accessFlags = accessFlags;
     this.name = name;
     this.descriptor = descriptor;
@@ -153,23 +155,49 @@ export class Method {
 
     // create exception class array
     const exceptionTypes = caCls.instantiate();
-    exceptionTypes.initArray(0, []);
-    console.error('reflected method exception array not initialized');
+    const exceptions = this.attributes['Exceptions'] as Exceptions;
+    let err;
+    if (exceptions) {
+      exceptionTypes.initArray(
+        exceptions.exceptionTable.length,
+        exceptions.exceptionTable.map(exceptionClass => {
+          const res = exceptionClass.resolve();
+          if (checkError(res)) {
+            err = res;
+            return null;
+          }
+          return res.result.getJavaObject();
+        })
+      );
+    } else {
+      exceptionTypes.initArray(0, []);
+    }
 
     // modifiers
     const modifiers = this.accessFlags;
 
     // signature
-    const signature = null;
-    console.error('reflected method signature not initialized');
+    let signature = this.attributes['Signature']
+      ? thread
+          .getJVM()
+          .getInternedString(
+            (this.attributes['Signature'] as Signature).signature
+          )
+      : null;
 
     // annotations
     const annotations = null;
-    console.error('reflected method annotations not initialized');
+    const anno = this.attributes['RuntimeVisibleAnnotations'];
+    if (anno) {
+      throw new Error('reflected method annotations not implemented');
+    }
 
     // parameter annotations
     const parameterAnnotations = null;
-    console.error('reflected method parameter annotations not initialized');
+    const pAnno = this.attributes['RuntimeVisibleParameterAnnotations'];
+    if (pAnno) {
+      throw new Error('reflected method parameter annotations not implemented');
+    }
 
     let javaObject: JvmObject;
 

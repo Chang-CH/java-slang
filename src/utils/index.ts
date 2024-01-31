@@ -267,16 +267,13 @@ export function attrInfo2Interface(
   infoArr: AttributeInfo[],
   constantPool: ConstantPool
 ) {
-  const attributes: { [attributeName: string]: IAttribute[] } = {};
+  const attributes: { [attributeName: string]: IAttribute } = {};
   // attributes
   infoArr.forEach(attr => {
     const attrName = (
       constantPool.get(attr.attributeNameIndex) as ConstantUtf8
     ).get();
-    if (!attributes[attrName]) {
-      attributes[attrName] = [];
-    }
-    attributes[attrName].push(info2Attribute(attr, constantPool));
+    attributes[attrName] = info2Attribute(attr, constantPool);
   });
   return attributes;
 }
