@@ -21,14 +21,43 @@ import {
 } from '#types/Result';
 import { CLASS_TYPE, CLASS_STATUS, ThreadStatus } from '#jvm/constants';
 
+class ClassLock {
+  private owner?: Thread;
+  private onRelease: Array<() => void> = [];
+
+  constructor() {}
+
+  isOwner(thread: Thread) {
+    return this.owner === thread;
+  }
+
+  lock(thread: Thread, onInit?: () => void): boolean {
+    if (onInit) {
+      this.onRelease.push(onInit);
+    }
+
+    if (!this.owner) {
+      this.owner = thread;
+      return true;
+    }
+
+    return false;
+  }
+
+  release() {
+    this.onRelease.forEach(cb => cb());
+    this.onRelease = [];
+    this.owner = undefined;
+  }
+}
+
 export abstract class ClassData {
   protected loader: AbstractClassLoader;
   protected accessFlags: number;
   protected type: CLASS_TYPE;
   public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
 
-  protected initThread?: Thread;
-  protected onInitCallbacks: Array<() => void> = [];
+  protected classLock?: ClassLock;
 
   protected thisClass: string;
   protected packageName: string;
@@ -702,7 +731,7 @@ export class ReferenceClassData extends ClassData {
   initialize(
     thread: Thread,
     onDefer?: () => void | null,
-    onInitialized?: () => void | null
+    onInitialized?: () => void
   ): Result<ClassData> {
     if (this.status === CLASS_STATUS.INITIALIZED) {
       onInitialized && onInitialized();
@@ -710,19 +739,20 @@ export class ReferenceClassData extends ClassData {
     }
 
     if (this.status === CLASS_STATUS.INITIALIZING) {
-      if (this.initThread !== thread) {
-        thread.setStatus(ThreadStatus.WAITING);
-        this.onInitCallbacks.push(() =>
+      onDefer && onDefer();
+      if (this.classLock && !this.classLock.isOwner(thread)) {
+        this.classLock.lock(thread, () =>
           thread.setStatus(ThreadStatus.RUNNABLE)
         );
+        thread.setStatus(ThreadStatus.WAITING);
         return { isDefer: true };
       }
-
-      onInitialized && this.onInitCallbacks.push(onInitialized);
+      // Object's static initializer invokes static method registerNatives(), which initializes Object again.
+      // We return a success result so the clinit can complete.
       return { result: this };
     }
 
-    this.initThread = thread;
+    this.status = CLASS_STATUS.INITIALIZING;
 
     if (
       this.superClass &&
@@ -734,18 +764,18 @@ export class ReferenceClassData extends ClassData {
       }
     }
 
+    this.classLock = new ClassLock();
+
     // has static initializer
     if (this.methods['<clinit>()V']) {
-      this.status = CLASS_STATUS.INITIALIZING;
       onDefer && onDefer();
-
-      onInitialized && this.onInitCallbacks.push(onInitialized);
+      this.classLock.lock(thread, onInitialized);
       thread.invokeStackFrame(
         new InternalStackFrame(this, this.methods['<clinit>()V'], 0, [], () => {
           this.status = CLASS_STATUS.INITIALIZED;
-          this.onInitCallbacks.forEach(cb => cb());
-          this.onInitCallbacks = [];
-          this.initThread = undefined;
+
+          console.log('STATIC INIT DONE: ', this.thisClass);
+          this.classLock?.release();
         })
       );
       return { isDefer: true };

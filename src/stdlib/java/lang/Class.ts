@@ -322,10 +322,14 @@ const functions = {
       thread.returnStackFrame(null);
       return;
     }
-    // TODO: get enclosing methodf from attribute enclosingmethod
-    console.error(
-      'native method missing: Class.getEnclosingMethod0() for reference class'
-    );
+
+    const attrib = thisCls.getAttribute('EnclosingMethod');
+    if (attrib) {
+      // TODO: get enclosing method from attribute enclosingmethod
+      console.error(
+        'native method missing: Class.getEnclosingMethod0() for reference class'
+      );
+    }
     thread.returnStackFrame(null);
   },
 
