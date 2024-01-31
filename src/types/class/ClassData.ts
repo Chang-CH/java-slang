@@ -739,20 +739,24 @@ export class ReferenceClassData extends ClassData {
     }
 
     if (this.status === CLASS_STATUS.INITIALIZING) {
-      onDefer && onDefer();
-      if (this.classLock && !this.classLock.isOwner(thread)) {
-        this.classLock.lock(thread, () =>
-          thread.setStatus(ThreadStatus.RUNNABLE)
-        );
-        thread.setStatus(ThreadStatus.WAITING);
-        return { isDefer: true };
+      if (!this.classLock) {
+        throw new Error('Class lock not set during initialization');
       }
-      // Object's static initializer invokes static method registerNatives(), which initializes Object again.
-      // We return a success result so the clinit can complete.
-      return { result: this };
-    }
 
-    this.status = CLASS_STATUS.INITIALIZING;
+      onDefer && onDefer();
+      if (this.classLock.isOwner(thread)) {
+        // Object's static initializer invokes static method Object.registerNatives()
+        // Invokestatic initializes Object again.
+        // We return a success result so the clinit can complete.
+        return { result: this };
+      }
+
+      this.classLock.lock(thread, () =>
+        thread.setStatus(ThreadStatus.RUNNABLE)
+      );
+      thread.setStatus(ThreadStatus.WAITING);
+      return { isDefer: true };
+    }
 
     if (
       this.superClass &&
@@ -764,17 +768,16 @@ export class ReferenceClassData extends ClassData {
       }
     }
 
+    this.status = CLASS_STATUS.INITIALIZING;
     this.classLock = new ClassLock();
+    this.classLock.lock(thread, onInitialized);
 
     // has static initializer
     if (this.methods['<clinit>()V']) {
       onDefer && onDefer();
-      this.classLock.lock(thread, onInitialized);
       thread.invokeStackFrame(
         new InternalStackFrame(this, this.methods['<clinit>()V'], 0, [], () => {
           this.status = CLASS_STATUS.INITIALIZED;
-
-          console.log('STATIC INIT DONE: ', this.thisClass);
           this.classLock?.release();
         })
       );
@@ -783,6 +786,7 @@ export class ReferenceClassData extends ClassData {
 
     this.status = CLASS_STATUS.INITIALIZED;
     onInitialized && onInitialized();
+    this.classLock.release();
     return { result: this };
   }
 
