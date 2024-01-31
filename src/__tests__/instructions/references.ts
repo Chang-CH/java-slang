@@ -33,14 +33,11 @@ beforeEach(() => {
   const testClass = setup.classes.testClass;
   const method = setup.method;
   testLoader = setup.testLoader;
-  thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
+  // thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
   NullPointerException = setup.classes
     .NullPointerException as ReferenceClassData;
 });
 
-// method resolution tested under classref
-// Test synchronized
-// Test signature polymorphic method declaration
 describe('Invokestatic', () => {
   test('INVOKESTATIC: Non static method throws IncompatibleClassChangeError', () => {
     const ab = new ArrayBuffer(24);
@@ -4105,7 +4102,8 @@ describe('Putstatic', () => {
     let fieldIdx = 0;
     const mainClass = testLoader.createClass({
       className: 'MainClass',
-      status: CLASS_STATUS.INITIALIZING,
+      superClass: null,
+
       fields: [
         {
           accessFlags: [FIELD_FLAGS.ACC_FINAL, FIELD_FLAGS.ACC_STATIC],
@@ -4160,14 +4158,13 @@ describe('Putstatic', () => {
     });
     code.setUint8(0, OPCODE.PUTSTATIC);
     code.setUint16(1, fieldIdx);
-    const method = mainClass.getMethod('<clinit>()V') as Method;
-    thread.invokeStackFrame(new JavaStackFrame(mainClass, method, 0, []));
+    mainClass.initialize(thread);
     thread.pushStack(5);
     thread.runFor(1);
-    expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(mainClass.lookupField('staticFieldI')?.getValue()).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
+
   test('PUTSTATIC: final static int from child init throws IllegalAccessError', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);

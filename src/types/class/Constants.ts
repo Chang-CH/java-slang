@@ -1296,6 +1296,7 @@ export class ConstantMethodHandle extends Constant {
           }
         )
       );
+      return { isDefer: true };
     };
     // #endregion
 

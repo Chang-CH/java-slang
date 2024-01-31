@@ -16,7 +16,7 @@ import {
   ConstantStringInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { ClassData, ReferenceClassData } from '#types/class/ClassData';
+import { ClassData } from '#types/class/ClassData';
 import {
   Constant,
   ConstantClass,

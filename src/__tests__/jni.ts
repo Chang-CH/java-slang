@@ -1,5 +1,4 @@
 import { JNI } from '#jvm/components/jni';
-import { ThreadStatus } from '#jvm/constants';
 import { SuccessResult, checkSuccess } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
 import {
@@ -28,7 +27,7 @@ beforeEach(() => {
     className: 'java/lang/Thread',
     loader: testLoader,
   }) as ReferenceClassData;
-  jni = new JNI('stdlib');
+  jni = new JNI('stdlib', testSystem);
 
   jest.resetModules();
   jest.restoreAllMocks();
@@ -36,7 +35,8 @@ beforeEach(() => {
 
 describe('JNI', () => {
   test('JNI: get stdlib implementation', () => {
-    const jni2 = new JNI('stdlib', {
+    const jni2 = new JNI('stdlib', testSystem, {
+      // @ts-ignore
       'test/Test': {
         methods: {
           'stdrun()V': callback,

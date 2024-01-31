@@ -200,7 +200,7 @@ export class TestClassLoader extends AbstractClassLoader {
             attributeNameIndex: 5,
             attributeLength: 0,
             maxStack: 100,
-            maxLocals: 0,
+            maxLocals: 100,
             codeLength: 0,
             code: method.code,
             exceptionTableLength: method.exceptionTable?.length ?? 0,
@@ -460,8 +460,8 @@ export class TestJVM extends JVM {
 }
 
 export const setupTest = () => {
-  const jni = new JNI('stdlib');
   const testSystem = new TestSystem();
+  const jni = new JNI('stdlib', testSystem);
   const testLoader = new TestClassLoader(testSystem, '', null);
 
   // #region create dummy classes

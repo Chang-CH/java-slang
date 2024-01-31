@@ -96,6 +96,7 @@ export default class JVM {
 
     // #region initialize classes
     tasks.push(() =>
+      // @ts-ignore
       threadGroupCls.initialize(mainThread, null, () => {
         // initialize thread class
         threadCls.initialize(mainThread);

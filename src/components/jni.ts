@@ -1,8 +1,6 @@
 import { ThreadStatus } from '#jvm/constants';
 import { Result } from '#types/Result';
-import { JavaType } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
-import { parseFieldDescriptor } from '#utils/index';
 import Thread from './thread';
 
 type Lib = {
@@ -102,6 +100,7 @@ export class JNI {
 
     // native method does not exist
     if (!this.classes?.[className]?.methods?.[methodName]) {
+      console.log('native method not found', className, methodName);
       return {
         exceptionCls: 'java/lang/UnsatisfiedLinkError',
         msg: `${className}.${methodName} implementation not found`,
