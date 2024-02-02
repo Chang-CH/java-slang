@@ -25,6 +25,7 @@ import {
 } from '#types/Result';
 import { Sign } from 'node:crypto';
 import { SignatureAttribute } from '#jvm/external/ClassFile/types/attributes';
+import { JvmArray } from '#types/reference/Array';
 
 export interface MethodHandler {
   startPc: number;
@@ -186,17 +187,26 @@ export class Method {
       : null;
 
     // annotations
-    const annotations = null;
+    const baRes = loader.getClass('[B');
+    if (checkError(baRes)) {
+      return baRes;
+    }
+    const baCls = baRes.result as ArrayClassData;
+    const annotations = baCls.instantiate() as JvmArray;
+    annotations.initArray(0, []);
     const anno = this.attributes['RuntimeVisibleAnnotations'];
     if (anno) {
-      throw new Error('reflected method annotations not implemented');
+      // convert attribute back to byte array
+      console.warn('reflected method annotations not implemented');
     }
 
     // parameter annotations
-    const parameterAnnotations = null;
+    const parameterAnnotations = baCls.instantiate() as JvmArray;
+    parameterAnnotations.initArray(0, []);
     const pAnno = this.attributes['RuntimeVisibleParameterAnnotations'];
     if (pAnno) {
-      throw new Error('reflected method parameter annotations not implemented');
+      // convert attribute back to byte array
+      console.warn('reflected method annotations not implemented');
     }
 
     let javaObject: JvmObject;

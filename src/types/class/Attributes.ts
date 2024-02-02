@@ -80,10 +80,6 @@ export const info2Attribute = (
         attributes: attr,
       } as Code;
     case 'Exceptions':
-      return {
-        name,
-        attributeInfo: info,
-      } as UnhandledAttribute;
       const exceptions: ConstantClass[] = [];
       (info as ExceptionsAttribute).exceptionIndexTable.forEach(index => {
         exceptions.push(constantPool.get(index) as ConstantClass);

@@ -277,9 +277,7 @@ const functions = {
       return;
     }
 
-    const innerAttrib = classRef.getAttribute(
-      'InnerClasses'
-    )?.[0] as InnerClasses;
+    const innerAttrib = classRef.getAttribute('InnerClasses') as InnerClasses;
     if (innerAttrib) {
       for (const cls of innerAttrib.classes) {
         if (cls.innerClass.getClassName() === classRef.getClassname()) {
@@ -357,7 +355,7 @@ const functions = {
     // TODO: get inner classes from attribute innerclasses
     const innerclassesAttr = thisCls.getAttribute(
       'InnerClasses'
-    )?.[0] as InnerClasses;
+    ) as InnerClasses;
     if (innerclassesAttr) {
       console.error(
         'native method missing: Class.getDeclaredClasses0() for inner class'
@@ -377,6 +375,15 @@ const functions = {
       return;
     }
     thread.returnStackFrame(obj.getClass().checkCast(thisCls) ? 1 : 0);
+  },
+
+  'getProtectionDomain0()Ljava/security/ProtectionDomain;': (
+    thread: Thread,
+    locals: any[]
+  ) => {
+    thread.returnStackFrame(
+      (locals[0] as JvmObject).getNativeField('classRef').getProtectionDomain()
+    );
   },
 };
 

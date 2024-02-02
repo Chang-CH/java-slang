@@ -240,6 +240,23 @@ const functions = {
   'getConstant(I)I': (thread: Thread, locals: any[]) => {
     thread.returnStackFrame(0);
   },
+
+  // TODO:
+  'getMembers(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Class;I[Ljava/lang/invoke/MemberName;)I':
+    (thread: Thread, locals: any[]) => {
+      console.error(
+        'Native method missing: getMembers(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Class;I[Ljava/lang/invoke/MemberName;)I'
+      );
+      thread.returnStackFrame(0);
+    },
+
+  'objectFieldOffset(Ljava/lang/invoke/MemberName;)J': (
+    thread: Thread,
+    locals: any[]
+  ) => {
+    const memberName = locals[0] as JvmObject;
+    thread.returnStackFrame64(BigInt(memberName.getNativeField('field').slot));
+  },
 };
 
 export default functions;

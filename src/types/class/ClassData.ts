@@ -96,6 +96,10 @@ export abstract class ClassData {
     this.constantPool = new ConstantPool(this, []);
   }
 
+  isInitialized(): boolean {
+    return this.status === CLASS_STATUS.INITIALIZED;
+  }
+
   checkPrimitive(): this is PrimitiveClassData {
     return false;
   }
@@ -564,6 +568,10 @@ export abstract class ClassData {
     return this.javaClassObject;
   }
 
+  getProtectionDomain(): JvmObject | null {
+    return null;
+  }
+
   getAccessFlags(): number {
     return this.accessFlags;
   }
@@ -634,16 +642,19 @@ export class ReferenceClassData extends ClassData {
   private nestedHost: ReferenceClassData = this;
   private nestedMembers: ReferenceClassData[] = [];
   private anonymousInnerId: number = 0;
+  private protectionDomain: JvmObject | null;
 
   constructor(
     classfile: ClassFile,
     loader: AbstractClassLoader,
     className: string,
     onError: (error: ErrorResult) => void,
-    cpOverrides?: JvmArray
+    cpOverrides?: JvmArray,
+    protectionDomain?: JvmObject
   ) {
     super(loader, classfile.accessFlags, CLASS_TYPE.REFERENCE, className);
     this.loader = loader;
+    this.protectionDomain = protectionDomain ?? null;
 
     this.constantPool = new ConstantPool(
       this,
@@ -822,6 +833,10 @@ export class ReferenceClassData extends ClassData {
     }
 
     return superClass.checkCast(castTo);
+  }
+
+  getProtectionDomain(): JvmObject | null {
+    return this.protectionDomain;
   }
 
   // #region used for temp indy hack

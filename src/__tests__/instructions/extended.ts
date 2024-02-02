@@ -12,6 +12,7 @@ import {
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
+import { SuccessResult } from '#types/Result';
 
 let testLoader: TestClassLoader;
 let thread: Thread;
@@ -114,7 +115,7 @@ describe('Wide', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack()).toBe(3);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(3);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });
@@ -126,7 +127,9 @@ describe('Wide', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(thread.popStack64() === 3n).toBe(true);
+    expect((thread.popStack64() as SuccessResult<any>).result === 3n).toBe(
+      true
+    );
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });
@@ -138,7 +141,7 @@ describe('Wide', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack()).toBe(3);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(3);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });
@@ -150,7 +153,7 @@ describe('Wide', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(thread.popStack64()).toBe(3);
+    expect((thread.popStack64() as SuccessResult<any>).result).toBe(3);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });
@@ -162,7 +165,7 @@ describe('Wide', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack()).toBe(null);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(null);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });
@@ -295,7 +298,8 @@ describe('Multianewarray', () => {
     expect(lastFrame.pc).toBe(4);
     expect(thread.getPC()).toBe(4);
     expect(lastFrame.locals.length).toBe(0);
-    const arrayRef = thread.popStack() as JvmArray;
+    const arrayRef = (thread.popStack() as SuccessResult<any>)
+      .result as JvmArray;
     expect(arrayRef.len()).toBe(2);
     expect(arrayRef.getClass().getClassname()).toBe('[[Ljava/lang/Thread;');
     expect(arrayRef.get(0).len()).toBe(3);
@@ -408,7 +412,7 @@ describe('Multianewarray', () => {
     expect(lastFrame.pc).toBe(4);
     expect(thread.getPC()).toBe(4);
     expect(lastFrame.locals.length).toBe(0);
-    const arrayRef = thread.popStack();
+    const arrayRef = (thread.popStack() as SuccessResult<any>).result;
     expect(arrayRef.len()).toBe(0);
     expect(arrayRef.getClass().getClassname()).toBe('[[Ljava/lang/Thread;');
   });

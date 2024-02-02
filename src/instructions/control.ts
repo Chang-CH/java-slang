@@ -1,4 +1,6 @@
 import Thread from '#jvm/components/thread';
+import { checkError } from '#types/Result';
+import { JvmObject } from '#types/reference/Object';
 import { asDouble, asFloat } from '#utils/index';
 
 export function runGoto(thread: Thread): void {
@@ -19,7 +21,7 @@ export function runRet(thread: Thread): void {
   thread.offsetPc(1);
   const index = thread.getCode().getUint8(thread.getPC());
   thread.offsetPc(1);
-  const retAddr = thread.loadLocal(index);
+  const retAddr = thread.loadLocal(index) as number;
   thread.setPc(retAddr);
 }
 
@@ -36,7 +38,11 @@ export function runTableswitch(thread: Thread): void {
   const high = thread.getCode().getInt32(offset);
   offset += 4;
 
-  const index = thread.popStack();
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const index = popResult.result;
   if (index < low || index > high) {
     thread.offsetPc(def);
     return;
@@ -62,11 +68,14 @@ export function runLookupswitch(thread: Thread): void {
   const npairCount = thread.getCode().getInt32(offset);
   offset += 4;
 
-  const value = thread.popStack();
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
 
   for (let i = 0; i < npairCount; i++) {
     const key = thread.getCode().getInt32(offset);
-    if (key === value) {
+    if (key === popResult.result) {
       const nextPcOffset = thread.getCode().getInt32(offset + 4);
       thread.offsetPc(nextPcOffset);
       return;
@@ -85,7 +94,7 @@ function _return(thread: Thread, ret?: any, isWide?: boolean): void {
     if (method.checkStatic()) {
       method.getClass().getJavaObject().getMonitor().exit(thread);
     } else {
-      thread.loadLocal(0).getMonitor().exit(thread);
+      (thread.loadLocal(0) as JvmObject).getMonitor().exit(thread);
     }
   }
 
@@ -97,27 +106,47 @@ function _return(thread: Thread, ret?: any, isWide?: boolean): void {
 }
 
 export function runIreturn(thread: Thread): void {
-  const ret = thread.popStack();
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const ret = popResult.result;
   _return(thread, ret);
 }
 
 export function runLreturn(thread: Thread): void {
-  const ret = thread.popStack64();
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  const ret = popResult.result;
   _return(thread, ret, true);
 }
 
 export function runFreturn(thread: Thread): void {
-  const ret = asFloat(thread.popStack());
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const ret = asFloat(popResult.result);
   _return(thread, ret);
 }
 
 export function runDreturn(thread: Thread): void {
-  const ret = asDouble(thread.popStack64());
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  const ret = asDouble(popResult.result);
   _return(thread, ret, true);
 }
 
 export function runAreturn(thread: Thread): void {
-  const ret = thread.popStack();
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const ret = popResult.result;
   _return(thread, ret);
 }
 

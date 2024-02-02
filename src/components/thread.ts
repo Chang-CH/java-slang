@@ -1,6 +1,6 @@
 import { ThreadStatus } from '#jvm/constants';
 import JVM from '#jvm/index';
-import { checkError, checkSuccess } from '#types/Result';
+import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
@@ -201,46 +201,83 @@ export default class Thread {
     return this.stack[this.stackPointer];
   }
 
-  pushStack(value: any, onError?: (e: string) => void) {
+  /**
+   * Pushes a value onto the stack. Throws an error if the stack is full.
+   * @param value
+   * @returns true if successful, false if stack overflow
+   */
+  pushStack(value: JvmObject | number | bigint | null): boolean {
+    if (value === undefined) {
+      throw new Error('undefined pushed onto stack');
+    }
+
     if (
       this.stack[this.stackPointer].operandStack.length + 1 >
       this.stack[this.stackPointer].maxStack
     ) {
       this.throwNewException('java/lang/StackOverflowError', '');
-      onError && onError('java/lang/StackOverflowError');
-      return;
+      return false;
     }
+
     this.stack[this.stackPointer].operandStack.push(value);
+    return true;
   }
 
-  pushStack64(value: any, onError?: (e: string) => void) {
+  /**
+   * Pushes a wide value onto the stack. Throws an error if the stack is full.
+   * @param value
+   * @returns true if successful, false if stack overflow
+   */
+  pushStack64(value: bigint | number): boolean {
     if (
       this.stack[this.stackPointer].operandStack.length + 2 >
       this.stack[this.stackPointer].maxStack
     ) {
       this.throwNewException('java/lang/StackOverflowError', '');
-      onError && onError('java/lang/StackOverflowError');
-      return;
+      return false;
     }
     this.stack[this.stackPointer].operandStack.push(value);
     this.stack[this.stackPointer].operandStack.push(value);
+    return true;
   }
 
-  popStack64() {
-    if (this.stack?.[this.stackPointer]?.operandStack?.length <= 1) {
+  /**
+   * Pops a wide value from the stack. Throws an error if the stack is empty.
+   * @returns result of the pop
+   */
+  popStack64(): ImmediateResult<any> {
+    if (
+      this.stackPointer >= this.stack.length ||
+      this.stack?.[this.stackPointer]?.operandStack?.length <= 1
+    ) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
+      return {
+        exceptionCls: 'java/lang/RuntimeException',
+        msg: 'Stack Underflow',
+      };
     }
     this.stack?.[this.stackPointer]?.operandStack?.pop();
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    return value;
+    return { result: value };
   }
 
-  popStack() {
-    if (this.stack?.[this.stackPointer]?.operandStack?.length <= 0) {
+  /**
+   * Pops a value from the stack. Throws an error if the stack is empty.
+   * @returns result of the pop
+   */
+  popStack(): ImmediateResult<any> {
+    if (
+      this.stackPointer >= this.stack.length ||
+      this.stack?.[this.stackPointer]?.operandStack?.length <= 0
+    ) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
+      return {
+        exceptionCls: 'java/lang/RuntimeException',
+        msg: 'Stack Underflow',
+      };
     }
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    return value;
+    return { result: value };
   }
 
   private _returnSF(ret?: any, err?: JvmObject, isWide?: boolean) {
@@ -333,16 +370,16 @@ export default class Thread {
 
   // #region locals
 
-  storeLocal(index: number, value: any) {
+  storeLocal(index: number, value: JvmObject | number | bigint | null) {
     this.stack[this.stackPointer].locals[index] = value;
   }
 
-  storeLocal64(index: number, value: any) {
+  storeLocal64(index: number, value: JvmObject | number | bigint | null) {
     this.stack[this.stackPointer].locals[index] = value;
     this.stack[this.stackPointer].locals[index + 1] = value;
   }
 
-  loadLocal(index: number): any {
+  loadLocal(index: number): JvmObject | number | bigint | null {
     return this.stack[this.stackPointer].locals[index];
   }
 
@@ -425,7 +462,7 @@ export default class Thread {
         if (method.checkStatic()) {
           method.getClass().getJavaObject().getMonitor().exit(this);
         } else {
-          this.loadLocal(0).getMonitor().exit(this);
+          (this.loadLocal(0) as JvmObject).getMonitor().exit(this);
         }
       }
       this.returnStackFrame(null, exception);
@@ -442,6 +479,9 @@ export default class Thread {
       throw new Error(
         'Uncaught exception could not be thrown: dispatchUncaughtException(Ljava/lang/Throwable;)V not found'
       );
+    }
+    if (!exception) {
+      throw new Error('Undefined exception thrown');
     }
 
     this.invokeStackFrame(

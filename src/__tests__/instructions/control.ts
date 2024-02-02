@@ -5,6 +5,7 @@ import { JvmObject } from '#types/reference/Object';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 import Thread from '#jvm/components/thread';
+import { SuccessResult } from '#types/Result';
 
 let thread: Thread;
 let threadClass: ReferenceClassData;
@@ -74,7 +75,7 @@ describe('Ireturn', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack()).toBe(5);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(5);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
@@ -95,7 +96,9 @@ describe('Lreturn', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(thread.popStack64() === BigInt(5)).toBe(true);
+    expect(
+      (thread.popStack64() as SuccessResult<any>).result === BigInt(5)
+    ).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
@@ -116,7 +119,7 @@ describe('Freturn', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack()).toBe(0);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(0);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
@@ -135,7 +138,9 @@ describe('Freturn', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack()).toBe(Math.fround(3.33));
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(
+      Math.fround(3.33)
+    );
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
@@ -156,7 +161,7 @@ describe('Dreturn', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(thread.popStack64()).toBe(5.5);
+    expect((thread.popStack64() as SuccessResult<any>).result).toBe(5.5);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 
@@ -178,7 +183,7 @@ describe('Areturn', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack()).toBe(obj);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(obj);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(0);
 

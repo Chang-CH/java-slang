@@ -1,12 +1,12 @@
 import { FIELD_FLAGS, FieldInfo } from '#jvm/external/ClassFile/types/fields';
-import { ReferenceClassData } from './ClassData';
+import { ClassData, ReferenceClassData } from './ClassData';
 import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import type { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
 import { ConstantValue, IAttribute } from './Attributes';
 import { ConstantPool } from '#jvm/components/ConstantPool';
-import { attrInfo2Interface } from '#utils/index';
+import { attrInfo2Interface, parseFieldDescriptor } from '#utils/index';
 import {
   ImmediateResult,
   checkError,
@@ -121,6 +121,20 @@ export class Field {
       Field.reflectedClass = fRes.result as ReferenceClassData;
     }
 
+    const fieldClsName = parseFieldDescriptor(this.fieldDesc, 0);
+    let ftRes;
+    if (fieldClsName.referenceCls) {
+      ftRes = this.cls.getLoader().getClass(fieldClsName.referenceCls);
+    } else {
+      ftRes = {
+        result: this.cls.getLoader().getPrimitiveClass(fieldClsName.type),
+      };
+    }
+    if (checkError(ftRes)) {
+      return ftRes;
+    }
+    const fieldType = (ftRes.result as ClassData).getJavaObject() as JvmObject;
+
     this.javaObject = Field.reflectedClass.instantiate();
     this.javaObject.initialize(thread);
 
@@ -128,7 +142,7 @@ export class Field {
       'clazz',
       'Ljava/lang/Class;',
       'java/lang/reflect/Field',
-      Field.reflectedClass.getJavaObject()
+      this.cls.getJavaObject()
     );
     this.javaObject._putField(
       'name',
@@ -140,7 +154,7 @@ export class Field {
       'type',
       'Ljava/lang/Class;',
       'java/lang/reflect/Field',
-      this.cls.getJavaObject()
+      fieldType
     );
     this.javaObject._putField(
       'modifiers',

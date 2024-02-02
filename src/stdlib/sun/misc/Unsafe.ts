@@ -12,6 +12,7 @@ import {
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
 import { ErrorResult, checkError, checkSuccess } from '#types/Result';
+import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 
 function getFieldInfo(
   thread: Thread,
@@ -310,7 +311,7 @@ const functions = {
       const clsObj = newClass.getJavaObject();
       thread.returnStackFrame(clsObj);
     },
-  // sun/misc/Unsafe.defineClass(Ljava/lang/String;[BIILjava/lang/ClassLoader;Ljava/security/ProtectionDomain;)Ljava/lang/Class;
+
   'defineClass(Ljava/lang/String;[BIILjava/lang/ClassLoader;Ljava/security/ProtectionDomain;)Ljava/lang/Class;':
     (thread: Thread, locals: any[]) => {
       const unsafe = locals[0] as JvmObject;
@@ -318,12 +319,13 @@ const functions = {
       const byteArray = locals[2] as JvmArray;
       const offset = locals[3] as number;
       const len = locals[4] as number;
+      const loaderObj = locals[5] as JvmObject;
+      const protectionDomain = locals[6] as JvmObject;
 
-      let loader = thread.getJVM().getBootstrapClassLoader();
-      // load with provided loader
-      if (locals[5]) {
-        throw new Error('loaderObject to loader not implemnented');
-      }
+      let loader = loaderObj
+        ? (loaderObj.getNativeField('loader') as AbstractClassLoader)
+        : thread.getJVM().getBootstrapClassLoader();
+
       const bytecode = new DataView(
         new Uint8Array(byteArray.getJsArray()).buffer
       );
@@ -351,6 +353,15 @@ const functions = {
     }
 
     return;
+  },
+
+  'shouldBeInitialized(Ljava/lang/Class;)Z': (
+    thread: Thread,
+    locals: any[]
+  ) => {
+    const clsObj = locals[1] as JvmObject;
+    const cls = clsObj.getNativeField('classRef') as ClassData;
+    thread.returnStackFrame(cls.isInitialized() ? 1 : 0);
   },
 };
 

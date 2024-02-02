@@ -18,6 +18,7 @@ import { JvmObject } from '#types/reference/Object';
 import { ArrayClassData } from '#types/class/ClassData';
 import { JavaStackFrame } from '#jvm/components/stackframe';
 import { CLASS_STATUS } from '#jvm/constants';
+import { SuccessResult } from '#types/Result';
 
 let thread: Thread;
 let threadClass: ReferenceClassData;
@@ -732,7 +733,7 @@ describe('Invokestatic', () => {
     );
     thread.runFor(1);
     thread.runFor(1);
-    expect(thread.popStack()).toBe(5);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('INVOKESTATIC: Native method returns long', () => {
@@ -832,7 +833,9 @@ describe('Invokestatic', () => {
     );
     thread.runFor(1);
     thread.runFor(1);
-    expect(thread.popStack64() === BigInt(5)).toBe(true);
+    expect(
+      (thread.popStack64() as SuccessResult<any>).result === BigInt(5)
+    ).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
 });
@@ -3087,7 +3090,7 @@ describe('Getstatic', () => {
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
     thread.runFor(1);
-    expect(thread.popStack()).toBe(5);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(5);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('GETSTATIC: Gets static long', () => {
@@ -3159,7 +3162,9 @@ describe('Getstatic', () => {
       new JavaStackFrame(testClass, method as Method, 0, [])
     );
     thread.runFor(1);
-    expect(thread.popStack64() === BigInt(5)).toBe(true);
+    expect(
+      (thread.popStack64() as SuccessResult<any>).result === BigInt(5)
+    ).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('GETSTATIC: gets inherited static long', () => {
@@ -3235,7 +3240,9 @@ describe('Getstatic', () => {
       new JavaStackFrame(mainClass, method as Method, 0, [])
     );
     thread.runFor(1);
-    expect(thread.popStack64() === BigInt(5)).toBe(true);
+    expect(
+      (thread.popStack64() as SuccessResult<any>).result === BigInt(5)
+    ).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
   });
   test('GETSTATIC: private static int throws IllegalAccessError', () => {
@@ -4437,7 +4444,9 @@ describe('New', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(thread.popStack().getClass() === testClass).toBe(true);
+    expect(
+      (thread.popStack() as SuccessResult<any>).result.getClass() === testClass
+    ).toBe(true);
   });
 
   test('NEW: Interface class throws InstantiationError', () => {
@@ -4615,7 +4624,8 @@ describe('Newarray', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    const arrayObj = thread.popStack() as JvmArray;
+    const arrayObj = (thread.popStack() as SuccessResult<any>)
+      .result as JvmArray;
     expect(arrayObj.getClass().getClassname()).toBe('[Z');
     expect(arrayObj.len()).toBe(0);
   });
@@ -4648,7 +4658,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    let arrayObj = thread.popStack() as JvmArray;
+    let arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnStackFrame();
 
@@ -4659,7 +4669,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    arrayObj = thread.popStack() as JvmArray;
+    arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnStackFrame();
 
@@ -4670,7 +4680,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    arrayObj = thread.popStack() as JvmArray;
+    arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnStackFrame();
 
@@ -4681,7 +4691,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    arrayObj = thread.popStack() as JvmArray;
+    arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnStackFrame();
 
@@ -4692,7 +4702,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    arrayObj = thread.popStack() as JvmArray;
+    arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnStackFrame();
 
@@ -4703,7 +4713,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    arrayObj = thread.popStack() as JvmArray;
+    arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnStackFrame();
 
@@ -4714,7 +4724,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    arrayObj = thread.popStack() as JvmArray;
+    arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0)).toBe(0);
     thread.returnStackFrame();
 
@@ -4725,7 +4735,7 @@ describe('Newarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    arrayObj = thread.popStack() as JvmArray;
+    arrayObj = (thread.popStack() as SuccessResult<any>).result as JvmArray;
     expect(arrayObj.get(0) === BigInt(0)).toBe(true);
     thread.returnStackFrame();
   });
@@ -4811,7 +4821,8 @@ describe('Anewarray', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    const arrayObj = thread.popStack() as JvmArray;
+    const arrayObj = (thread.popStack() as SuccessResult<any>)
+      .result as JvmArray;
     expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
     expect(arrayObj.len()).toBe(0);
   });
@@ -4856,7 +4867,8 @@ describe('Anewarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    const arrayObj = thread.popStack() as JvmArray;
+    const arrayObj = (thread.popStack() as SuccessResult<any>)
+      .result as JvmArray;
     expect(arrayObj.get(0) === null).toBe(true);
   });
 
@@ -4955,7 +4967,8 @@ describe('Anewarray', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    const arrayObj = thread.popStack() as JvmArray;
+    const arrayObj = (thread.popStack() as SuccessResult<any>)
+      .result as JvmArray;
     expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
     expect(arrayObj.len()).toBe(0);
   });
@@ -5000,7 +5013,8 @@ describe('Anewarray', () => {
     );
     thread.pushStack(1);
     thread.runFor(1);
-    const arrayObj = thread.popStack() as JvmArray;
+    const arrayObj = (thread.popStack() as SuccessResult<any>)
+      .result as JvmArray;
     expect(arrayObj.get(0) === null).toBe(true);
   });
 
@@ -5099,7 +5113,7 @@ describe('Arraylength', () => {
     thread.pushStack(arrayRef);
 
     thread.runFor(1);
-    expect(thread.popStack()).toBe(5);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(5);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(1);
@@ -5200,7 +5214,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(null);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(null);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5248,7 +5262,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(null);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(null);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5303,7 +5317,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack() === obj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5364,7 +5378,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack() === obj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5425,7 +5439,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack() === obj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5475,7 +5489,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack() === obj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5525,7 +5539,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack() === obj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5575,7 +5589,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack() === obj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5638,7 +5652,7 @@ describe('Checkcast', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack() === obj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === obj).toBe(true);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5746,7 +5760,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(0);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(0);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5794,7 +5808,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(0);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(0);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5849,7 +5863,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(1);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5910,7 +5924,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(1);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -5971,7 +5985,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(1);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -6021,7 +6035,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(1);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -6071,7 +6085,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(1);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -6121,7 +6135,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(1);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -6184,7 +6198,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(1);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(1);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -6236,7 +6250,7 @@ describe('Instanceof', () => {
 
     thread.runFor(1);
 
-    expect(thread.popStack()).toBe(0);
+    expect((thread.popStack() as SuccessResult<any>).result).toBe(0);
     expect(thread.peekStackFrame().operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(3);
   });
@@ -6350,7 +6364,9 @@ describe('Athrow', () => {
     thread.pushStack(eObj);
     thread.runFor(1);
     expect(thread.getMethod().getName()).toBe('test0');
-    expect(thread.popStack() === eObj).toBe(true);
+    expect((thread.popStack() as SuccessResult<any>).result === eObj).toBe(
+      true
+    );
     const sf = thread.peekStackFrame();
     expect(sf.operandStack.length).toBe(0);
     expect(thread.getPC()).toBe(99);

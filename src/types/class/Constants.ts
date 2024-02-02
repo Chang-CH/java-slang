@@ -521,21 +521,6 @@ export class ConstantInvokeDynamic extends Constant {
       return this.result;
     }
 
-    /**
-     *   * Do what all OpenJDK-based JVMs do: Call
-     * MethodHandleNatives.linkCallSite with:
-     * - The class w/ the invokedynamic instruction `this.cls.getJavaObject()`
-     * - The bootstrap method `bootstrapMhn`
-     * - The name string from the nameAndTypeInfo `methodNameStr`
-     * - The methodType object from the nameAndTypeInfo `methodType`
-     * - The static arguments from the bootstrap method. `argsArr`
-     * - A 1-length appendix box. `appendixArr`
-     *
-     * On finish:
-     * returns a MemberName object, which contains:
-     * - The class containing the invokedynamic instruction
-     * - method to be run
-     */
     this.cls.getJavaObject(),
       thread.invokeStackFrame(
         new InternalStackFrame(

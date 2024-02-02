@@ -1,4 +1,5 @@
 import Thread from '#jvm/components/thread';
+import { checkError } from '#types/Result';
 import { asDouble, asFloat } from '#utils/index';
 
 function cmp(value1: number, value2: number, checkNan: number = 0): number {
@@ -18,43 +19,73 @@ function cmp(value1: number, value2: number, checkNan: number = 0): number {
 }
 
 export function runLcmp(thread: Thread): void {
-  const value2 = thread.popStack64();
-  const value1 = thread.popStack64();
-  thread.pushStack(cmp(value1, value2));
+  const popResult2 = thread.popStack64();
+  const popResult1 = thread.popStack64();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  thread.pushStack(cmp(popResult1.result, popResult2.result));
   thread.offsetPc(1);
 }
 
 export function runFcmpl(thread: Thread): void {
-  const value2 = asFloat(thread.popStack());
-  const value1 = asFloat(thread.popStack());
-  thread.pushStack(cmp(value1, value2, -1));
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+  thread.pushStack(
+    cmp(asFloat(popResult1.result), asFloat(popResult2.result), -1)
+  );
   thread.offsetPc(1);
 }
 
 export function runFcmpg(thread: Thread): void {
-  const value2 = asFloat(thread.popStack());
-  const value1 = asFloat(thread.popStack());
-  thread.pushStack(cmp(value1, value2, 1));
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  thread.pushStack(
+    cmp(asFloat(popResult1.result), asFloat(popResult2.result), 1)
+  );
   thread.offsetPc(1);
 }
 
 export function runDcmpl(thread: Thread): void {
-  const value2 = asDouble(thread.popStack64());
-  const value1 = asDouble(thread.popStack64());
-  thread.pushStack(cmp(value1, value2, -1));
+  const popResult2 = thread.popStack64();
+  const popResult1 = thread.popStack64();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+  thread.pushStack(
+    cmp(asDouble(popResult1.result), asDouble(popResult2.result), -1)
+  );
   thread.offsetPc(1);
 }
 
 export function runDcmpg(thread: Thread): void {
-  const value2 = asDouble(thread.popStack64());
-  const value1 = asDouble(thread.popStack64());
-  thread.pushStack(cmp(value1, value2, 1));
+  const popResult2 = thread.popStack64();
+  const popResult1 = thread.popStack64();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+  thread.pushStack(
+    cmp(asDouble(popResult1.result), asDouble(popResult2.result), 1)
+  );
   thread.offsetPc(1);
 }
 
 export function runIfeq(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  if (thread.popStack() === 0) {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+
+  if (popResult.result === 0) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -63,7 +94,12 @@ export function runIfeq(thread: Thread): void {
 
 export function runIfne(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  if (thread.popStack() !== 0) {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+
+  if (popResult.result !== 0) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -72,7 +108,12 @@ export function runIfne(thread: Thread): void {
 
 export function runIflt(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  if (thread.popStack() < 0) {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+
+  if (popResult.result < 0) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -81,7 +122,12 @@ export function runIflt(thread: Thread): void {
 
 export function runIfge(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  if (thread.popStack() >= 0) {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+
+  if (popResult.result >= 0) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -90,7 +136,12 @@ export function runIfge(thread: Thread): void {
 
 export function runIfgt(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  if (thread.popStack() > 0) {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+
+  if (popResult.result > 0) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -99,7 +150,12 @@ export function runIfgt(thread: Thread): void {
 
 export function runIfle(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  if (thread.popStack() <= 0) {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+
+  if (popResult.result <= 0) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -108,9 +164,13 @@ export function runIfle(thread: Thread): void {
 
 export function runIfIcmpeq(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 === value2) {
+  const popResult1 = thread.popStack();
+  const popResult2 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result === popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -119,9 +179,13 @@ export function runIfIcmpeq(thread: Thread): void {
 
 export function runIfIcmpne(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 !== value2) {
+  const popResult1 = thread.popStack();
+  const popResult2 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result !== popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -130,9 +194,13 @@ export function runIfIcmpne(thread: Thread): void {
 
 export function runIfIcmplt(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 < value2) {
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result < popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -141,9 +209,13 @@ export function runIfIcmplt(thread: Thread): void {
 
 export function runIfIcmpge(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 >= value2) {
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result >= popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -152,9 +224,13 @@ export function runIfIcmpge(thread: Thread): void {
 
 export function runIfIcmpgt(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 > value2) {
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result > popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -163,9 +239,13 @@ export function runIfIcmpgt(thread: Thread): void {
 
 export function runIfIcmple(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 <= value2) {
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result <= popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -174,9 +254,13 @@ export function runIfIcmple(thread: Thread): void {
 
 export function runIfAcmpeq(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 === value2) {
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result === popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);
@@ -185,9 +269,13 @@ export function runIfAcmpeq(thread: Thread): void {
 
 export function runIfAcmpne(thread: Thread): void {
   const branchbyte = thread.getCode().getInt16(thread.getPC() + 1);
-  const value2 = thread.popStack();
-  const value1 = thread.popStack();
-  if (value1 !== value2) {
+  const popResult2 = thread.popStack();
+  const popResult1 = thread.popStack();
+  if (checkError(popResult1) || checkError(popResult2)) {
+    return;
+  }
+
+  if (popResult1.result !== popResult2.result) {
     thread.offsetPc(branchbyte);
   } else {
     thread.offsetPc(3);

@@ -739,7 +739,10 @@ export abstract class StackFrame {
    */
   public onReturn(thread: Thread, retn: any) {
     if (retn !== undefined) {
-      thread.pushStack(retn);
+      const popResult = thread.pushStack(retn);
+      if (!popResult) {
+        return;
+      }
     }
     thread.offsetPc(this.returnOffset);
   }
@@ -749,7 +752,10 @@ export abstract class StackFrame {
    * Responsible for pushing return value to operand stack of stackframe below it.
    */
   public onReturn64(thread: Thread, retn: any) {
-    thread.pushStack64(retn);
+    const popResult = thread.pushStack64(retn);
+    if (!popResult) {
+      return;
+    }
     thread.offsetPc(this.returnOffset);
   }
 

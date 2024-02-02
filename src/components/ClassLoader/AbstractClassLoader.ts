@@ -52,7 +52,10 @@ export default abstract class AbstractClassLoader {
    * @param classFile
    * @returns
    * */
-  protected linkClass(cls: ClassFile): ReferenceClassData {
+  protected linkClass(
+    cls: ClassFile,
+    protectionDomain?: JvmObject
+  ): ReferenceClassData {
     // resolve classname
     const clsInfo = cls.constantPool[cls.thisClass] as ConstantClassInfo;
     const clsName = cls.constantPool[clsInfo.nameIndex] as ConstantUtf8Info;
@@ -63,7 +66,9 @@ export default abstract class AbstractClassLoader {
       cls,
       this,
       thisClass,
-      e => (hasError = e)
+      e => (hasError = e),
+      undefined,
+      protectionDomain
     );
 
     if (hasError) {
@@ -184,6 +189,7 @@ export default abstract class AbstractClassLoader {
 }
 
 export class ApplicationClassLoader extends AbstractClassLoader {
+  private javaClassLoader?: JvmObject;
   constructor(
     nativeSystem: AbstractSystem,
     classPath: string,
@@ -192,8 +198,11 @@ export class ApplicationClassLoader extends AbstractClassLoader {
     super(nativeSystem, classPath, parentLoader);
   }
 
+  _setJavaClassLoader(javaClassLoader: JvmObject) {
+    this.javaClassLoader = javaClassLoader;
+  }
+
   getJavaObject(): JvmObject | null {
-    console.error('ApplicationClassLoader.getJavaObject not implemented');
-    return null;
+    return this.javaClassLoader ?? null;
   }
 }

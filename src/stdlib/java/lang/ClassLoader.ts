@@ -5,6 +5,10 @@ import { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
 
 const functions = {
+  'registerNatives()V': (thread: Thread, locals: any[]) => {
+    thread.returnStackFrame();
+  },
+
   'findLoadedClass0(Ljava/lang/String;)Ljava/lang/Class;': (
     thread: Thread,
     locals: any[]
@@ -13,8 +17,6 @@ const functions = {
     const loader: AbstractClassLoader =
       (locals[0] as JvmObject).getNativeField('$loader') ??
       thread.getJVM().getBootstrapClassLoader();
-
-    console.log('findLoadedClass0: ', className);
 
     const res = loader.getClass(className);
 

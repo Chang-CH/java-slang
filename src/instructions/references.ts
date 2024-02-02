@@ -98,22 +98,43 @@ export function runPutstatic(thread: Thread): void {
 
   const desc = field.getFieldDesc();
   thread.offsetPc(3);
+  let popResult;
   switch (desc) {
     case JavaType.long:
-      field.putValue(thread.popStack64());
+      popResult = thread.popStack64();
+      if (checkError(popResult)) {
+        return;
+      }
+      field.putValue(popResult.result);
       return;
     case JavaType.double:
-      field.putValue(asDouble(thread.popStack64()));
+      popResult = thread.popStack64();
+      if (checkError(popResult)) {
+        return;
+      }
+      field.putValue(asDouble(popResult.result));
       return;
     case JavaType.float:
-      field.putValue(asFloat(thread.popStack()));
+      popResult = thread.popStack();
+      if (checkError(popResult)) {
+        return;
+      }
+      field.putValue(asFloat(popResult.result));
       return;
     case JavaType.boolean:
-      field.putValue(thread.popStack() & 1);
+      popResult = thread.popStack();
+      if (checkError(popResult)) {
+        return;
+      }
+      field.putValue(popResult.result & 1);
       return;
     case JavaType.int:
     default:
-      field.putValue(thread.popStack());
+      popResult = thread.popStack();
+      if (checkError(popResult)) {
+        return;
+      }
+      field.putValue(popResult.result);
       return;
   }
 }
@@ -141,7 +162,11 @@ export function runGetfield(thread: Thread): void {
     return;
   }
 
-  const objRef = thread.popStack() as JvmObject;
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const objRef = popResult.result as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -149,7 +174,7 @@ export function runGetfield(thread: Thread): void {
 
   const value = objRef.getField(field);
   if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
-    thread.pushStack64(value);
+    thread.pushStack64(value as number | bigint);
   } else {
     thread.pushStack(value);
   }
@@ -178,19 +203,23 @@ export function runPutfield(thread: Thread): void {
     return;
   }
 
-  let value;
+  let vpopResult;
   if (field.getFieldDesc() === 'J' || field.getFieldDesc() === 'D') {
-    value = thread.popStack64();
+    vpopResult = thread.popStack64();
   } else {
-    value = thread.popStack();
+    vpopResult = thread.popStack();
   }
 
-  const objRef = thread.popStack() as JvmObject;
+  const popResult = thread.popStack();
+  if (checkError(vpopResult) || checkError(popResult)) {
+    return;
+  }
+  const objRef = popResult.result as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
   }
-  objRef.putField(field, value);
+  objRef.putField(field, vpopResult.result);
   thread.offsetPc(3);
 }
 
@@ -217,12 +246,16 @@ function invokeInit(
     let target: Method;
     let args: any[] = [];
     const name = methodRef.getName();
-    let mh, mn;
+    let mh, mn, popResult;
     switch (name) {
       case 'invokeBasic':
         target = methodRef;
         args = getArgs(thread, originalDescriptor, target.checkNative());
-        mh = thread.popStack() as JvmObject;
+        popResult = thread.popStack();
+        if (checkError(popResult)) {
+          return popResult;
+        }
+        mh = popResult.result as JvmObject;
         if (mh === null) {
           return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
         }
@@ -238,7 +271,11 @@ function invokeInit(
         if (appendix !== null) {
           args.push(appendix);
         }
-        mh = thread.popStack() as JvmObject;
+        popResult = thread.popStack();
+        if (checkError(popResult)) {
+          return popResult;
+        }
+        mh = popResult.result as JvmObject;
         if (mh === null) {
           return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
         }
@@ -248,7 +285,11 @@ function invokeInit(
       case 'linkToInterface':
       case 'linkToSpecial':
       case 'linkToStatic':
-        mn = thread.popStack() as JvmObject;
+        popResult = thread.popStack();
+        if (checkError(popResult)) {
+          return popResult;
+        }
+        mn = popResult.result as JvmObject;
         target = mn.getNativeField('vmtarget') as Method;
         thread.pushStack(mn);
         args = getArgs(thread, originalDescriptor, target.checkNative());
@@ -278,7 +319,11 @@ function lookupMethod(
   checkInterface: boolean,
   checkCastTo?: ReferenceClassData
 ): ImmediateResult<{ toInvoke: Method; objRef: JvmObject }> {
-  const objRef = thread.popStack() as JvmObject;
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return popResult;
+  }
+  const objRef = popResult.result as JvmObject;
   if (objRef === null) {
     return { exceptionCls: 'java/lang/NullPointerException', msg: '' };
   }
@@ -320,12 +365,12 @@ function invokePoly(
       'form',
       'Ljava/lang/invoke/LambdaForm;',
       'java/lang/invoke/MethodHandle'
-    );
+    ) as JvmObject;
     const memberName = lambdaForm._getField(
       'vmentry',
       'Ljava/lang/invoke/MemberName;',
       'java/lang/invoke/LambdaForm'
-    );
+    ) as JvmObject;
     toInvoke = memberName.getNativeField('vmtarget') as Method;
   }
 
@@ -419,7 +464,11 @@ export function runInvokespecial(thread: Thread): void {
   }
   const { methodRef, args } = resolutionRes.result;
 
-  const objRef = thread.popStack() as JvmObject;
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const objRef = popResult.result as JvmObject;
   if (objRef === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -546,84 +595,18 @@ export function runInvokedynamic(thread: Thread): void {
   const invoker = thread.getClass();
   const callsiteConstant = invoker.getConstant(index) as ConstantInvokeDynamic;
 
-  // // #region Temporary lambda creation code
-  const tempRes = callsiteConstant.resolve(thread);
-  if (!checkSuccess(tempRes)) {
-    if (checkError(tempRes)) {
-      thread.throwNewException(tempRes.exceptionCls, tempRes.msg);
+  const cssRes = callsiteConstant.resolve(thread);
+  if (!checkSuccess(cssRes)) {
+    if (checkError(cssRes)) {
+      thread.throwNewException(cssRes.exceptionCls, cssRes.msg);
       return;
     }
     return;
   }
-  // const lambdaObj = tempRes.result;
-  // thread.pushStack(lambdaObj);
-  console.warn('INDY not implemented');
+  const lambdaObj = cssRes.result;
+  thread.pushStack(lambdaObj);
   thread.offsetPc(5);
   return;
-  // // #endregion
-
-  // const cssRes = callsiteConstant.resolve(thread);
-  // if (!checkSuccess(cssRes)) {
-  //   if (checkError(cssRes)) {
-  //     const err = cssRes.getError();
-  //     thread.throwNewException(err.exceptionCls, err.msg);
-  //     return;
-  //   }
-  //   return;
-  // }
-
-  // const bootstrapIdx = callsiteConstant.bootstrapMethodAttrIndex;
-  // const bootstrapMethod = thread.getClass().getBootstrapMethod(bootstrapIdx);
-
-  /*
-   * bootstrap method is the first method to call when invokedynamic is first run
-   * memoized after first run. returns a callsite, memoize for future uses.
-   * for lambdas: is java/lang/invoke/LambdaMetafactory.metafactory(...)
-   * First 3 params for all bootstrap methods:
-   * java/lang/invoke/MethodHandles$Lookup lookupContext, java/lang/String methodName, java/lang/invoke/MethodType dynamic method sig of this call site
-   * Depending on the bootstrap method might have 3 more params:
-   * 1. MethodType: erased method sig
-   * 2. MethodHandle: ptr to actual method
-   * 3. MethodType: non erased method sig
-   * Bootstrap method dynamically creates the inner class/generates the function object, returns a callsite object.
-   * lambda callsites do not change after first run, no conditions
-   */
-
-  // FIXME: method handle not implemented
-  //   const methodhandle = invoker.resolveMethodHandleRef(
-  //     thread,
-  //     invoker.getConstant(
-  //       bootstrapMethod.bootstrapMethodRef
-  //     ) as ConstantMethodHandleInfo
-  //   );
-  //   if (methodhandle.error || !methodhandle.result) {
-  //     thread.throwNewException(methodhandle.error, '');
-  //   }
-  //   const methodDesc = methodhandle.result;
-
-  //   const iRes = invoker.getLoader().getClassRef('java/lang/invoke/MethodHandle');
-  //   if (iRes.error || !iRes.result) {
-  //     thread.throwNewException(
-  //       iRes.error ?? 'java/lang/ClassNotFoundException',
-  //       ''
-  //     );
-  //     return;
-  //   }
-
-  //   // TODO: varargs
-  //   const name = new ConstantUtf8(invoker, 'invoke');
-  //   const desc = new ConstantUtf8(
-  //     invoker,
-  //     `(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;${methodDesc?.slice(
-  //       1
-  //     )})`
-  //   );
-  //   const nt = new ConstantNameAndType(invoker, name, desc);
-  //   const clsName = new ConstantUtf8(invoker, 'java/lang/invoke/MethodHandle');
-  //   const constantCls = new ConstantClass(invoker, clsName);
-  //   const method = new ConstantMethodref(invoker, constantCls, nt);
-
-  //   invokeVirtual(thread, method, () => thread.offsetPc(5));
 }
 
 export function runNew(thread: Thread): void {
@@ -662,7 +645,11 @@ export function runNewarray(thread: Thread): void {
   const atype = thread.getCode().getUint8(thread.getPC() + 1);
   thread.offsetPc(2);
 
-  const count = thread.popStack();
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const count = popResult.result;
   if (count < 0) {
     thread.throwNewException('java/lang/NegativeArraySizeException', '');
     return;
@@ -714,7 +701,11 @@ export function runNewarray(thread: Thread): void {
 export function runAnewarray(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
   const invoker = thread.getClass();
-  const count = thread.popStack();
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const count = popResult.result;
   thread.offsetPc(3);
   const onDefer = () => {
     thread.pushStack(count);
@@ -732,15 +723,6 @@ export function runAnewarray(thread: Thread): void {
     return;
   }
   const objCls = res.result;
-  // const initRes = objCls.initialize(thread, onDefer);
-  // if (!checkSuccess(initRes)) {
-  //   if (checkError(initRes)) {
-  //     const err = initRes.getError();
-  //     thread.throwNewException(err.exceptionCls, err.msg);
-  //     return;
-  //   }
-  //   return;
-  // }
 
   const arrayClassRes = invoker
     .getLoader()
@@ -749,15 +731,6 @@ export function runAnewarray(thread: Thread): void {
     throw new Error('Failed to load array class');
   }
   const arrayCls = arrayClassRes.result;
-  // const aInitRes = arrayCls.initialize(thread, onDefer);
-  // if (!checkSuccess(aInitRes)) {
-  //   if (checkError(aInitRes)) {
-  //     const err = aInitRes.getError();
-  //     thread.throwNewException(err.exceptionCls, err.msg);
-  //     return;
-  //   }
-  //   return;
-  // }
 
   const arrayref = arrayCls.instantiate() as unknown as JvmArray;
   arrayref.initArray(count);
@@ -765,7 +738,11 @@ export function runAnewarray(thread: Thread): void {
 }
 
 export function runArraylength(thread: Thread): void {
-  const arrayref = thread.popStack() as JvmArray;
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const arrayref = popResult.result as JvmArray;
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -775,7 +752,11 @@ export function runArraylength(thread: Thread): void {
 }
 
 export function runAthrow(thread: Thread): void {
-  const exception = thread.popStack();
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const exception = popResult.result;
 
   if (exception === null) {
     thread.pushStack(exception);
@@ -794,7 +775,11 @@ function _checkCast(
   indexbyte: number,
   isCC: boolean = true
 ): void {
-  const objectref = thread.popStack() as JvmObject;
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const objectref = popResult.result as JvmObject;
 
   if (objectref === null) {
     isCC ? thread.pushStack(null) : thread.pushStack(0);
@@ -845,7 +830,11 @@ export function runInstanceof(thread: Thread): void {
 }
 
 export function runMonitorenter(thread: Thread): void {
-  const obj = thread.popStack() as JvmObject | null;
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const obj = popResult.result as JvmObject | null;
   if (obj === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
@@ -855,7 +844,11 @@ export function runMonitorenter(thread: Thread): void {
 }
 
 export function runMonitorexit(thread: Thread): void {
-  const obj = thread.popStack() as JvmObject | null;
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  const obj = popResult.result as JvmObject | null;
   if (obj === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;

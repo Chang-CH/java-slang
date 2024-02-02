@@ -77,14 +77,18 @@ export class JvmObject {
     return this.monitor;
   }
 
-  getField(fieldRef: Field): any {
+  getField(fieldRef: Field): JvmObject | number | bigint | null {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
     return this._getField(fieldName, fieldDesc, fieldClass);
   }
 
-  _getField(fieldName: string, fieldDesc: string, fieldClass: string): any {
+  _getField(
+    fieldName: string,
+    fieldDesc: string,
+    fieldClass: string
+  ): JvmObject | number | bigint | null {
     const key = `${fieldClass}.${fieldName}${fieldDesc}`;
 
     if (key in this.fields) {
@@ -94,7 +98,7 @@ export class JvmObject {
     throw new Error(`Invalid field`);
   }
 
-  putField(fieldRef: Field, value: any) {
+  putField(fieldRef: Field, value: JvmObject | number | bigint | null) {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
     const fieldClass = fieldRef.getClass().getClassname();
@@ -105,7 +109,7 @@ export class JvmObject {
     fieldName: string,
     fieldDesc: string,
     fieldClass: string,
-    value: any
+    value: JvmObject | number | bigint | null
   ) {
     const key = `${fieldClass}.${fieldName}${fieldDesc}`;
 

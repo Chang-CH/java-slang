@@ -3,7 +3,7 @@ import { ConstantPool } from '#jvm/components/ConstantPool';
 import type Thread from '#jvm/components/thread';
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
-import { SuccessResult } from '#types/Result';
+import { SuccessResult, checkError } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';
 import {
   ArrayClassData,
@@ -165,36 +165,50 @@ export function getArgs(
   const methodDesc = parseMethodDescriptor(descriptor);
   const args = [];
   for (let i = methodDesc.args.length - 1; i >= 0; i--) {
+    let popResult;
     switch (methodDesc.args[i].type) {
       case 'V':
         break; // should not happen
+      case 'D':
+        popResult = thread.popStack64();
+        if (checkError(popResult)) {
+          break;
+        }
+        args.push(asDouble(popResult.result));
+        if (!isNative) {
+          args.push(asDouble(popResult.result));
+        }
+        break;
+      case 'F':
+        popResult = thread.popStack();
+        if (checkError(popResult)) {
+          break;
+        }
+        args.push(asFloat(popResult.result));
+        break;
+      case 'J':
+        popResult = thread.popStack64();
+        if (checkError(popResult)) {
+          break;
+        }
+        args.push(popResult.result);
+        if (!isNative) {
+          args.push(popResult.result);
+        }
+        break;
+      case '[':
       case 'B':
       case 'C':
       case 'I':
       case 'S':
       case 'Z':
-        args.push(thread.popStack());
-        break;
-      case 'D':
-        const double = asDouble(thread.popStack64());
-        args.push(double);
-        if (!isNative) {
-          args.push(double);
+      default: // also references + arrays
+        popResult = thread.popStack();
+        if (checkError(popResult)) {
+          break;
         }
+        args.push(popResult.result);
         break;
-      case 'F':
-        args.push(asFloat(thread.popStack()));
-        break;
-      case 'J':
-        const long = asDouble(thread.popStack64());
-        args.push(long);
-        if (!isNative) {
-          args.push(long);
-        }
-        break;
-      case '[':
-      default: // references + arrays
-        args.push(thread.popStack());
     }
   }
 

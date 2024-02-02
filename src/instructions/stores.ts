@@ -1,167 +1,254 @@
 import Thread from '#jvm/components/thread';
+import { checkError } from '#types/Result';
 import type { JvmArray } from '#types/reference/Array';
 import { asDouble, asFloat } from '#utils/index';
 
 export function runIstore(thread: Thread): void {
-  thread.offsetPc(1);
-  const index = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
-  thread.storeLocal(index, thread.popStack());
+  const index = thread.getCode().getUint8(thread.getPC() + 1);
+  thread.offsetPc(2);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(index, popResult.result);
 }
 
 export function runLstore(thread: Thread): void {
-  thread.offsetPc(1);
-  const index = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
-  thread.storeLocal64(index, thread.popStack64());
+  const index = thread.getCode().getUint8(thread.getPC() + 1);
+  thread.offsetPc(2);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(index, popResult.result);
 }
 
 export function runFstore(thread: Thread): void {
-  thread.offsetPc(1);
-  const index = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
-  thread.storeLocal(index, asFloat(thread.popStack()));
+  const index = thread.getCode().getUint8(thread.getPC() + 1);
+  thread.offsetPc(2);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(index, asFloat(popResult.result));
 }
 
 export function runDstore(thread: Thread): void {
-  thread.offsetPc(1);
-  const index = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
-  thread.storeLocal64(index, asDouble(thread.popStack64()));
+  const index = thread.getCode().getUint8(thread.getPC() + 1);
+  thread.offsetPc(2);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(index, asDouble(popResult.result));
 }
 
 export function runAstore(thread: Thread): void {
-  thread.offsetPc(1);
-  const index = thread.getCode().getUint8(thread.getPC());
-  thread.offsetPc(1);
-  thread.storeLocal(index, thread.popStack());
+  const index = thread.getCode().getUint8(thread.getPC() + 1);
+  thread.offsetPc(2);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(index, popResult.result);
 }
 
 export function runIstore0(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(0, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(0, popResult.result);
 }
 
 export function runIstore1(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(1, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(1, popResult.result);
 }
 
 export function runIstore2(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(2, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(2, popResult.result);
 }
 
 export function runIstore3(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(3, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(3, popResult.result);
 }
 
 export function runLstore0(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack64();
-  thread.storeLocal64(0, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(0, popResult.result);
 }
 
 export function runLstore1(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack64();
-  thread.storeLocal64(1, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(1, popResult.result);
 }
 
 export function runLstore2(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack64();
-  thread.storeLocal64(2, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(2, popResult.result);
 }
 
 export function runLstore3(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack64();
-  thread.storeLocal64(3, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(3, popResult.result);
 }
 
 export function runFstore0(thread: Thread): void {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(0, asFloat(value));
+  thread.storeLocal(0, asFloat(popResult.result));
 }
 
 export function runFstore1(thread: Thread): void {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(1, asFloat(value));
+  thread.storeLocal(1, asFloat(popResult.result));
 }
 
 export function runFstore2(thread: Thread): void {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(2, asFloat(value));
+  thread.storeLocal(2, asFloat(popResult.result));
 }
 
 export function runFstore3(thread: Thread): void {
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(3, asFloat(value));
+  thread.storeLocal(3, asFloat(popResult.result));
 }
 
 export function runDstore0(thread: Thread): void {
   thread.offsetPc(1);
-  const value = asDouble(thread.popStack64());
-  thread.storeLocal64(0, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(0, asDouble(popResult.result));
 }
 
 export function runDstore1(thread: Thread): void {
   thread.offsetPc(1);
-  const value = asDouble(thread.popStack64());
-  thread.storeLocal64(1, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(1, asDouble(popResult.result));
 }
 
 export function runDstore2(thread: Thread): void {
   thread.offsetPc(1);
-  const value = asDouble(thread.popStack64());
-  thread.storeLocal64(2, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(2, asDouble(popResult.result));
 }
 
 export function runDstore3(thread: Thread): void {
   thread.offsetPc(1);
-  const value = asDouble(thread.popStack64());
-  thread.storeLocal64(3, value);
+  const popResult = thread.popStack64();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal64(3, asDouble(popResult.result));
 }
 
 export function runAstore0(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(0, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(0, popResult.result);
 }
 
 export function runAstore1(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(1, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(1, popResult.result);
 }
 
 export function runAstore2(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(2, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(2, popResult.result);
 }
 
 export function runAstore3(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  thread.storeLocal(3, value);
+  const popResult = thread.popStack();
+  if (checkError(popResult)) {
+    return;
+  }
+  thread.storeLocal(3, popResult.result);
 }
 
 export function runIastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -178,9 +265,19 @@ export function runIastore(thread: Thread): void {
 
 export function runLastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack64();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack64();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -197,9 +294,19 @@ export function runLastore(thread: Thread): void {
 
 export function runFastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -216,9 +323,19 @@ export function runFastore(thread: Thread): void {
 
 export function runDastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack64();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack64();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -235,9 +352,19 @@ export function runDastore(thread: Thread): void {
 
 export function runAastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -254,9 +381,19 @@ export function runAastore(thread: Thread): void {
 
 export function runBastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -273,9 +410,19 @@ export function runBastore(thread: Thread): void {
 
 export function runCastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');
@@ -292,9 +439,19 @@ export function runCastore(thread: Thread): void {
 
 export function runSastore(thread: Thread): void {
   thread.offsetPc(1);
-  const value = thread.popStack();
-  const index = thread.popStack();
-  const arrayref = thread.popStack() as JvmArray;
+  const vpopResult = thread.popStack();
+  const ipopResult = thread.popStack();
+  const apopResult = thread.popStack();
+  if (
+    checkError(vpopResult) ||
+    checkError(ipopResult) ||
+    checkError(apopResult)
+  ) {
+    return;
+  }
+  const value = vpopResult.result;
+  const index = ipopResult.result;
+  const arrayref = apopResult.result as JvmArray;
 
   if (arrayref === null) {
     thread.throwNewException('java/lang/NullPointerException', '');

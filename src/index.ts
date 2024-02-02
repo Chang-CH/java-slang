@@ -66,6 +66,9 @@ export default class JVM {
     const tRes = this.bootstrapClassLoader.getClass('java/lang/Thread');
     const sysRes = this.bootstrapClassLoader.getClass('java/lang/System');
     const clsRes = this.bootstrapClassLoader.getClass('java/lang/Class');
+    const loaderRes = this.bootstrapClassLoader.getClass(
+      'java/lang/ClassLoader'
+    );
     const tgRes = this.bootstrapClassLoader.getClass('java/lang/ThreadGroup');
     const unsafeRes = this.bootstrapClassLoader.getClass('sun/misc/Unsafe');
     if (
@@ -74,13 +77,15 @@ export default class JVM {
       checkError(tRes) ||
       checkError(tgRes) ||
       checkError(clsRes) ||
-      checkError(unsafeRes)
+      checkError(unsafeRes) ||
+      checkError(loaderRes)
     ) {
       throw new Error('Initialization classes not found');
     }
     const sysCls = sysRes.result;
     const threadCls = tRes.result;
     const threadGroupCls = tgRes.result;
+    const loaderCls = loaderRes.result;
     // #endregion
 
     const javaObject = threadCls.instantiate();
@@ -134,14 +139,44 @@ export default class JVM {
           sInitMr,
           0,
           [],
-          () => {
+          () => {}
+        )
+      )
+    );
+    // #endregion
+
+    // #region initialize system classloader
+    const clInitMr = loaderCls.getMethod(
+      'getSystemClassLoader()Ljava/lang/ClassLoader;'
+    );
+    if (!clInitMr) {
+      throw new Error(
+        'getSystemClassLoader()Ljava/lang/ClassLoader; method not found'
+      );
+    }
+    tasks.push(() => {
+      mainThread.invokeStackFrame(
+        new InternalStackFrame(
+          loaderCls as ReferenceClassData,
+          clInitMr,
+          0,
+          [],
+          (loader: JvmObject, err) => {
+            if (err) {
+              throw new Error('Could not load system class loader');
+            }
+
+            this.applicationClassLoader._setJavaClassLoader(loader);
+            loader.putNativeField('loader', this.applicationClassLoader);
+
             this.isInitialized = true;
             onInitialized && onInitialized();
             mainCls.initialize(mainThread);
           }
         )
-      )
-    );
+      );
+    });
+
     // #endregion
 
     // #region run main
