@@ -23,7 +23,9 @@ const functions = {
         'Ljava/lang/Class;',
         'java/lang/reflect/Method'
       );
-      const classData = clazz.getNativeField('classRef') as ReferenceClassData;
+      const classData = (clazz as JvmObject).getNativeField(
+        'classRef'
+      ) as ReferenceClassData;
       const methodSlot = ref._getField(
         'slot',
         'I',
@@ -62,6 +64,7 @@ const functions = {
         'java/lang/invoke/MemberName',
         clazz
       );
+      // FIXME: generate bridge method
       memberName.putNativeField('vmtarget', method);
       thread.returnStackFrame();
       return;
@@ -72,7 +75,9 @@ const functions = {
         'Ljava/lang/Class;',
         'java/lang/reflect/Constructor'
       );
-      const classData = clazz.getNativeField('classRef') as ReferenceClassData;
+      const classData = (clazz as JvmObject).getNativeField(
+        'classRef'
+      ) as ReferenceClassData;
       const methodSlot = ref._getField(
         'slot',
         'I',
@@ -95,6 +100,7 @@ const functions = {
         'java/lang/invoke/MemberName',
         clazz
       );
+      // FIXME: generate bridge method
       memberName.putNativeField('vmtarget', method);
       thread.returnStackFrame();
       return;
@@ -199,6 +205,7 @@ const functions = {
           methodFlags | flags
         );
 
+        // FIXME: generate bridge method
         memberName.putNativeField('vmtarget', method);
         thread.returnStackFrame(memberName);
         return;

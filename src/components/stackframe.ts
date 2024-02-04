@@ -19,6 +19,7 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { Code } from '#types/class/Attributes';
 import { JNI } from './jni';
 import { checkDefer, checkError } from '#types/Result';
+import { classFileToText } from '#utils/Prettify/classfile';
 
 const overwrites: {
   [cls: string]: {
@@ -777,6 +778,10 @@ export abstract class StackFrame {
 
 export class JavaStackFrame extends StackFrame {
   run(thread: Thread): void {
+    if (this.class.getClassname() === 'dynamic/Main$$Lambda$1') {
+      console.log('dynamic/Main$$Lambda$1');
+    }
+
     if (checkOverwritten(thread, this.method)) {
       return;
     }

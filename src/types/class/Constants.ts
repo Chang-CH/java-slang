@@ -403,8 +403,8 @@ export class ConstantInvokeDynamic extends Constant {
   private bootstrapMethodAttrIndex: number;
   private nameAndType: ConstantNameAndType;
   private methodTypeObj?: JvmObject;
-  private methodName?: JvmObject;
-  private result?: Result<JvmObject>;
+  private methodNameString?: JvmObject;
+  private result?: Result<Array<JvmObject>>;
 
   constructor(
     cls: ClassData,
@@ -425,9 +425,7 @@ export class ConstantInvokeDynamic extends Constant {
     throw new Error('ConstantInvokeDynamic: get Method not implemented.');
   }
 
-  public constructCso(thread: Thread) {}
-
-  public resolve(thread: Thread): Result<JvmObject> {
+  public resolve(thread: Thread): Result<Array<JvmObject>> {
     if (this.result) {
       return this.result;
     }
@@ -436,7 +434,9 @@ export class ConstantInvokeDynamic extends Constant {
     if (!this.methodTypeObj) {
       // resolve nameAndType
       const nameAndTypeRes = this.nameAndType.get();
-      this.methodName = thread.getJVM().getInternedString(nameAndTypeRes.name);
+      this.methodNameString = thread
+        .getJVM()
+        .getInternedString(nameAndTypeRes.name);
 
       createMethodType(
         thread,
@@ -530,18 +530,22 @@ export class ConstantInvokeDynamic extends Constant {
           [
             this.cls.getJavaObject(),
             bootstrapMhn,
-            this.methodName,
+            this.methodNameString,
             this.methodTypeObj,
             argsArr,
             appendixArr,
           ],
           css => {
-            this.result = { result: css };
+            this.result = { result: [css, appendixArr.get(0)] };
           }
         )
       );
     return { isDefer: true };
     // #endregion
+  }
+
+  public getNameAndType() {
+    return this.nameAndType;
   }
 
   public tempResolve(thread: Thread): Result<JvmObject> {

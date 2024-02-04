@@ -14,7 +14,11 @@ import {
   ConstantInvokeDynamic,
   ConstantMethodref,
 } from '#types/class/Constants';
-import { NativeStackFrame, JavaStackFrame } from '../components/stackframe';
+import {
+  NativeStackFrame,
+  JavaStackFrame,
+  InternalStackFrame,
+} from '../components/stackframe';
 import {
   checkSuccess,
   checkError,
@@ -603,9 +607,18 @@ export function runInvokedynamic(thread: Thread): void {
     }
     return;
   }
-  const lambdaObj = cssRes.result;
-  thread.pushStack(lambdaObj);
+  const [callsite, appendix] = cssRes.result;
+  const toInvoke = callsite.getNativeField('vmtarget') as Method;
+  const args = getArgs(
+    thread,
+    callsiteConstant.getNameAndType().get().descriptor,
+    false // FIXME: check native first
+  );
+  args.push(appendix);
   thread.offsetPc(5);
+  thread.invokeStackFrame(
+    new JavaStackFrame(toInvoke.getClass(), toInvoke, 0, args)
+  );
   return;
 }
 

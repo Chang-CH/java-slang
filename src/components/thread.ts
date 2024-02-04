@@ -207,10 +207,6 @@ export default class Thread {
    * @returns true if successful, false if stack overflow
    */
   pushStack(value: JvmObject | number | bigint | null): boolean {
-    if (value === undefined) {
-      throw new Error('undefined pushed onto stack');
-    }
-
     if (
       this.stack[this.stackPointer].operandStack.length + 1 >
       this.stack[this.stackPointer].maxStack

@@ -13,6 +13,7 @@ import {
 } from '#jvm/external/ClassFile/types/constants';
 import { ErrorResult, checkError, checkSuccess } from '#types/Result';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
+import { classFileToText } from '#utils/Prettify/classfile';
 
 function getFieldInfo(
   thread: Thread,
@@ -168,11 +169,15 @@ const functions = {
       'Ljava/lang/String;',
       'java/lang/reflect/Field'
     );
-    const cArr = fstr._getField('value', '[C', 'java/lang/String');
-    const chars = cArr.getJsArray();
+    const cArr = (fstr as JvmObject)._getField(
+      'value',
+      '[C',
+      'java/lang/String'
+    );
+    const chars = (cArr as JvmArray).getJsArray();
     // #endregion
 
-    thread.returnStackFrame64(BigInt(slot));
+    thread.returnStackFrame64(BigInt(slot as number));
   },
   // Used for bitwise operations
   'arrayIndexScale(Ljava/lang/Class;)I': (thread: Thread, locals: any[]) => {
@@ -290,6 +295,10 @@ const functions = {
       ] as ConstantUtf8Info;
       const lambdaName = clsName.value;
       const hostClass = hostClassObj.getNativeField('classRef') as ClassData;
+
+      if (lambdaName === 'dynamic/Main$$Lambda$1') {
+        console.log('defineAnonymousClass dynamic/Main$$Lambda$1');
+      }
 
       let error: ErrorResult | null = null;
       const newClass = new ReferenceClassData(
