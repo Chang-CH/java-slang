@@ -21,7 +21,9 @@ import { JavaType, JvmObject } from '#types/reference/Object';
  */
 export const j2jsString = (str: JvmObject) => {
   return String.fromCharCode(
-    ...str._getField('value', '[C', 'java/lang/String').getJsArray()
+    ...(
+      str._getField('value', '[C', 'java/lang/String') as JvmArray
+    ).getJsArray()
   );
 };
 
@@ -302,21 +304,15 @@ export function autoUnbox(obj: any) {
   return obj;
 }
 
-export function serializeClassFile(cf: ClassFile): string {
-  return JSON.stringify(cf, (key, value) => {
-    if (ArrayBuffer.isView(value) && key === 'code') {
-      return String.fromCharCode.apply(null, value.buffer as any);
-    }
-    return value;
-  });
+export function arraybuffer2string(buffer: ArrayBuffer) {
+  return String.fromCharCode(...new Uint8Array(buffer));
 }
 
-export function deserializeClassFile(cf: string): ClassFile {
-  return JSON.parse(cf, (key, value) => {
-    if (key === 'code') {
-      // @ts-ignore
-      return new DataView(Uint8Array.from(value, x => x.charCodeAt(0)).buffer);
-    }
-    return value;
-  });
+export function string2arraybuffer(str: string) {
+  var buf = new ArrayBuffer(str.length); // 2 bytes for each char
+  var bufView = new Uint8Array(buf);
+  for (var i = 0, strLen = str.length; i < strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  return buf;
 }

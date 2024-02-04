@@ -21,6 +21,7 @@ export default class NodeSystem extends AbstractSystem {
     // converts nodejs buffer to ArrayBuffer
     const buffer = fs.readFileSync(path, null);
     const arraybuffer = a2ab(buffer);
+
     const view = new DataView(arraybuffer);
     const res = parseBin(view);
     if (res) {

@@ -72,6 +72,7 @@ export default abstract class AbstractClassLoader {
     );
 
     if (hasError) {
+      // FIXME: throw java error instead
       throw new Error((hasError as ErrorResult).exceptionCls);
     }
     return data;
