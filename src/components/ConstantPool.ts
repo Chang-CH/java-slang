@@ -213,4 +213,12 @@ export class ConstantPool {
   get(index: number): Constant {
     return this.pool[index];
   }
+
+  insert(constant: Constant): number {
+    return this.pool.push(constant) - 1;
+  }
+
+  size(): number {
+    return this.pool.length;
+  }
 }

@@ -5,7 +5,13 @@ import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
 import { Field } from './Field';
 import { Method } from './Method';
 import { JvmObject } from '../reference/Object';
-import { Constant, ConstantClass, ConstantUtf8 } from '#types/class/Constants';
+import {
+  Constant,
+  ConstantClass,
+  ConstantInterfaceMethodref,
+  ConstantMethodref,
+  ConstantUtf8,
+} from '#types/class/Constants';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { attrInfo2Interface, primitiveNameToType } from '#utils/index';
@@ -522,6 +528,36 @@ export abstract class ClassData {
     return constItem;
   }
 
+  getMethodConstantIndex(method: Method): number {
+    const isInterface = this.checkInterface();
+    for (let i = 1; i < this.constantPool.size(); i++) {
+      const constItem = this.getConstant(i);
+      if (
+        (!isInterface && ConstantMethodref.check(constItem)) ||
+        (isInterface && ConstantInterfaceMethodref.check(constItem))
+      ) {
+        const clsname = constItem.getClassName();
+        if (clsname !== this.thisClass) {
+          continue;
+        }
+
+        const nameAndType = constItem.getNameAndType();
+
+        if (
+          nameAndType.name === method.getName() &&
+          nameAndType.descriptor === method.getDescriptor()
+        ) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  insertConstant(con: Constant): number {
+    return this.constantPool.insert(con);
+  }
+
   /**
    * Getters
    */
@@ -653,6 +689,7 @@ export class ReferenceClassData extends ClassData {
     protectionDomain?: JvmObject
   ) {
     super(loader, classfile.accessFlags, CLASS_TYPE.REFERENCE, className);
+
     this.loader = loader;
     this.protectionDomain = protectionDomain ?? null;
 

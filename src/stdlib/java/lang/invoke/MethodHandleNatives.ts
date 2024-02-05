@@ -64,8 +64,7 @@ const functions = {
         'java/lang/invoke/MemberName',
         clazz
       );
-      // FIXME: generate bridge method
-      memberName.putNativeField('vmtarget', method);
+      memberName.putNativeField('vmtarget', method.generateBridgeMethod());
       thread.returnStackFrame();
       return;
       // MemberNameFlags
@@ -100,8 +99,7 @@ const functions = {
         'java/lang/invoke/MemberName',
         clazz
       );
-      // FIXME: generate bridge method
-      memberName.putNativeField('vmtarget', method);
+      memberName.putNativeField('vmtarget', method.generateBridgeMethod());
       thread.returnStackFrame();
       return;
     }
@@ -205,8 +203,7 @@ const functions = {
           methodFlags | flags
         );
 
-        // FIXME: generate bridge method
-        memberName.putNativeField('vmtarget', method);
+        memberName.putNativeField('vmtarget', method.generateBridgeMethod());
         thread.returnStackFrame(memberName);
         return;
       } else if (flags & MemberNameFlags.MN_IS_FIELD) {
@@ -248,7 +245,6 @@ const functions = {
     thread.returnStackFrame(0);
   },
 
-  // TODO:
   'getMembers(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Class;I[Ljava/lang/invoke/MemberName;)I':
     (thread: Thread, locals: any[]) => {
       console.error(

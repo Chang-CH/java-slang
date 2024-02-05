@@ -778,10 +778,6 @@ export abstract class StackFrame {
 
 export class JavaStackFrame extends StackFrame {
   run(thread: Thread): void {
-    if (this.class.getClassname() === 'dynamic/Main$$Lambda$1') {
-      console.log('dynamic/Main$$Lambda$1');
-    }
-
     if (checkOverwritten(thread, this.method)) {
       return;
     }

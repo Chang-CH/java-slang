@@ -394,6 +394,16 @@ export class ConstantClass extends Constant {
 
     return this.result.result;
   }
+
+  static asResolved(
+    cls: ClassData,
+    className: ConstantUtf8,
+    referringClass: ClassData
+  ): ConstantClass {
+    const constant = new ConstantClass(cls, className);
+    constant.result = { result: referringClass };
+    return constant;
+  }
 }
 
 // #endregion
@@ -1052,9 +1062,6 @@ export class ConstantMethodref extends Constant {
 
     const nt = this.nameAndTypeConstant.get();
 
-    if (nt.name === 'staticPrint') {
-      console.log('break');
-    }
     const resolutionResult = symbolClass.resolveMethod(
       nt.name,
       nt.descriptor,
@@ -1114,6 +1121,29 @@ export class ConstantMethodref extends Constant {
       method: this.result.result,
       originalDescriptor: this.nameAndTypeConstant.get().descriptor,
     };
+  }
+
+  public getNameAndType() {
+    return this.nameAndTypeConstant.get();
+  }
+
+  public getClassName() {
+    return this.classConstant.getClassName();
+  }
+
+  static asResolved(
+    cls: ClassData,
+    classConstant: ConstantClass,
+    nameAndTypeConstant: ConstantNameAndType,
+    method: Method
+  ): ConstantMethodref {
+    const constant = new ConstantMethodref(
+      cls,
+      classConstant,
+      nameAndTypeConstant
+    );
+    constant.result = { result: method };
+    return constant;
   }
 }
 
@@ -1191,6 +1221,29 @@ export class ConstantInterfaceMethodref extends Constant {
     originalDescriptor: string;
   } {
     throw new Error('Interface method not signature polymorphic');
+  }
+
+  public getNameAndType() {
+    return this.nameAndTypeConstant.get();
+  }
+
+  public getClassName() {
+    return this.classConstant.getClassName();
+  }
+
+  static asResolved(
+    cls: ClassData,
+    classConstant: ConstantClass,
+    nameAndTypeConstant: ConstantNameAndType,
+    method: Method
+  ): ConstantInterfaceMethodref {
+    const constant = new ConstantInterfaceMethodref(
+      cls,
+      classConstant,
+      nameAndTypeConstant
+    );
+    constant.result = { result: method };
+    return constant;
   }
 }
 

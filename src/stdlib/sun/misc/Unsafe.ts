@@ -296,10 +296,6 @@ const functions = {
       const lambdaName = clsName.value;
       const hostClass = hostClassObj.getNativeField('classRef') as ClassData;
 
-      if (lambdaName === 'dynamic/Main$$Lambda$1') {
-        console.log('defineAnonymousClass dynamic/Main$$Lambda$1');
-      }
-
       let error: ErrorResult | null = null;
       const newClass = new ReferenceClassData(
         classfile,

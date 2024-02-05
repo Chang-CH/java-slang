@@ -11,8 +11,13 @@ import {
 } from '#jvm/external/ClassFile/types/methods';
 import { ArrayClassData } from './ClassData';
 import { ClassData, ReferenceClassData } from './ClassData';
-import { ConstantUtf8 } from './Constants';
-import type { JvmObject } from '../reference/Object';
+import {
+  ConstantClass,
+  ConstantMethodref,
+  ConstantNameAndType,
+  ConstantUtf8,
+} from './Constants';
+import { JavaType, type JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
 import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
 import { ConstantPool } from '#jvm/components/ConstantPool';
@@ -26,6 +31,7 @@ import {
 import { Sign } from 'node:crypto';
 import { SignatureAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { JvmArray } from '#types/reference/Array';
+import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
 export interface MethodHandler {
   startPc: number;
@@ -44,6 +50,8 @@ export class Method {
 
   private static reflectMethodClass: ReferenceClassData | null = null;
   private static reflectConstructorClass: ReferenceClassData | null = null;
+  private bridgeCounter = 0;
+
   private javaObject?: JvmObject;
   private slot: number;
 
@@ -391,39 +399,144 @@ export class Method {
     return getArgs(thread, this.descriptor, this.checkNative());
   }
 
-  getBridgeMethod() {
-    return (thread: Thread, returnOffset: number) => {
-      let sf;
+  generateBridgeMethod() {
+    const isStatic = this.checkStatic();
+    const bridgeDescriptor = isStatic
+      ? this.descriptor
+      : `(${this.cls.getClassname()};${this.descriptor.slice(1)}`;
 
-      const args = this.getArgs(thread);
-      let locals;
+    const pdesc = parseMethodDescriptor(this.descriptor);
+    let maxStack = 0;
+    let maxLocals = 0;
 
-      // push object for non static invokes
-      if (!this.checkStatic()) {
-        const obj = thread.popStack();
-        if (obj === null) {
-          thread.throwNewException('java/lang/NullPointerException', '');
-          return;
-        }
-        locals = [obj, ...args];
-      } else {
-        locals = args;
+    // #region build bytecode
+    let bytecode = [];
+    let constantIdx = 0;
+    // push args
+    if (!isStatic) {
+      bytecode.push(OPCODE.ALOAD_0);
+      maxStack++;
+      maxLocals++;
+    }
+    for (const arg of pdesc.args) {
+      let stacksize = 1;
+      switch (arg.type) {
+        case JavaType.byte:
+        case JavaType.char:
+        case JavaType.short:
+        case JavaType.boolean:
+        case JavaType.int:
+          bytecode.push(OPCODE.ILOAD);
+          break;
+        case JavaType.double:
+          bytecode.push(OPCODE.DLOAD);
+          stacksize++;
+          break;
+        case JavaType.float:
+          bytecode.push(OPCODE.FLOAD);
+          break;
+        case JavaType.long:
+          bytecode.push(OPCODE.LLOAD);
+          stacksize++;
+          break;
+        case JavaType.array:
+        case JavaType.reference:
+          bytecode.push(OPCODE.ALOAD);
+          break;
+        case JavaType.void:
+          throw new Error('void type in method descriptor');
       }
+      bytecode.push(maxLocals);
+      maxStack += stacksize;
+      maxLocals += stacksize;
+    }
 
-      if (this.checkNative()) {
-        sf = new NativeStackFrame(
-          this.cls,
-          this,
-          0,
-          locals,
-          returnOffset,
-          thread.getJVM().getJNI()
-        );
+    // invoke original method
+    bytecode.push(isStatic ? OPCODE.INVOKESTATIC : OPCODE.INVOKESPECIAL);
+    constantIdx = bytecode.length;
+    let index = this.cls.getMethodConstantIndex(this);
+    if (index <= 0) {
+      const nc = new ConstantUtf8(this.cls, this.name);
+      const dc = new ConstantUtf8(this.cls, this.descriptor);
+      const nt = new ConstantNameAndType(this.cls, nc, dc);
+      this.cls.insertConstant(nc);
+      this.cls.insertConstant(dc);
+      this.cls.insertConstant(nt);
+
+      const cnc = new ConstantUtf8(this.cls, this.cls.getClassname());
+      const cc = ConstantClass.asResolved(this.cls, cnc, this.cls);
+      this.cls.insertConstant(cnc);
+      this.cls.insertConstant(cc);
+
+      const mc = ConstantMethodref.asResolved(this.cls, cc, nt, this);
+      index = this.cls.insertConstant(mc);
+    }
+    bytecode.push(index);
+
+    // return
+    switch (pdesc.ret.type) {
+      case JavaType.byte:
+      case JavaType.char:
+      case JavaType.short:
+      case JavaType.boolean:
+      case JavaType.int:
+        bytecode.push(OPCODE.IRETURN);
+        maxStack = Math.max(maxStack, 1);
+        break;
+      case JavaType.double:
+        bytecode.push(OPCODE.DRETURN);
+        maxStack = Math.max(maxStack, 2);
+        break;
+      case JavaType.float:
+        bytecode.push(OPCODE.FRETURN);
+        maxStack = Math.max(maxStack, 1);
+        break;
+      case JavaType.long:
+        bytecode.push(OPCODE.LRETURN);
+        maxStack = Math.max(maxStack, 2);
+        break;
+      case JavaType.array:
+      case JavaType.reference:
+        bytecode.push(OPCODE.ARETURN);
+        maxStack = Math.max(maxStack, 1);
+        break;
+      case JavaType.void:
+    }
+
+    const ab = new ArrayBuffer(bytecode.length + 1);
+    const dv = new DataView(ab);
+    let dvidx = 0;
+    for (let i = 0; i < bytecode.length; i++) {
+      if (i !== constantIdx) {
+        dv.setUint8(dvidx++, bytecode[i]);
       } else {
-        sf = new JavaStackFrame(this.cls, this, 0, locals, returnOffset);
+        dv.setUint16(dvidx, bytecode[i]);
+        dvidx += 2;
       }
-      thread.invokeStackFrame(sf);
-    };
+    }
+    // #endregion
+
+    const bridge = new Method(
+      this.cls,
+      METHOD_FLAGS.ACC_SYNTHETIC | METHOD_FLAGS.ACC_STATIC,
+      this.name + '$' + this.bridgeCounter++,
+      bridgeDescriptor,
+      {
+        Code: {
+          name: 'Code',
+          maxStack: maxStack,
+          maxLocals: maxLocals,
+          codeLength: dv.buffer.byteLength,
+          code: dv,
+          exceptionTableLength: 0,
+          exceptionTable: [],
+          attributes: {},
+        } as Code,
+      },
+      -1 // FIXME: get a slot number from cls
+    );
+
+    return bridge;
   }
 
   /**
@@ -518,6 +631,12 @@ export class Method {
         declaringCls.checkCast(symbolicClass) ||
         symbolicClass.checkCast(declaringCls)
       );
+    }
+
+    if (accessingClass.getClassname().startsWith(declaringCls.getClassname())) {
+      // FIXME: Temp fix to allow lambdas to work.
+      // access private methods through bridge method instead.
+      return true;
     }
 
     // R is private
