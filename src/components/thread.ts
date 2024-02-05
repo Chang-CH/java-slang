@@ -412,6 +412,10 @@ export default class Thread {
   throwException(exception: JvmObject) {
     const exceptionCls = exception.getClass();
 
+    if (exceptionCls.getClassname() === 'java/lang/NoSuchMethodError') {
+      console.error('NoSuchMethodError');
+    }
+
     // Find a stackframe with appropriate exception handlers
     while (this.stack.length > 0) {
       const method = this.getMethod();

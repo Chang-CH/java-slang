@@ -375,6 +375,10 @@ export abstract class ClassData {
     return this.methods[methodName] ?? null;
   }
 
+  addMethod(method: Method) {
+    this.methods[method.getName() + method.getDescriptor()] = method;
+  }
+
   /**
    * Gets all methods declared in this class, including private methods.
    * Excludes inherited methods.

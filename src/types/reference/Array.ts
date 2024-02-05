@@ -1,7 +1,7 @@
 import type Thread from '#jvm/components/thread';
 import { JavaType, JvmObject } from './Object';
 import type { ArrayClassData } from '#types/class/ClassData';
-import type { Result } from '#types/Result';
+import type { Result, SuccessResult } from '#types/Result';
 
 export class JvmArray extends JvmObject {
   private primitiveType: ArrayPrimitiveType | null;
@@ -45,7 +45,7 @@ export class JvmArray extends JvmObject {
     return this.initArray(rest[0], rest[1]);
   }
 
-  initArray(length: number, arr?: any[]): Result<JvmArray> {
+  initArray(length: number, arr?: any[]): SuccessResult<JvmArray> {
     this.length = length;
 
     if (arr) {

@@ -315,6 +315,9 @@ const functions = {
 
       const clsObj = newClass.getJavaObject();
       thread.returnStackFrame(clsObj);
+      if (newClass.getClassname() === 'dynamic/Main$$Lambda$1') {
+        console.log('BREAK');
+      }
     },
 
   'defineClass(Ljava/lang/String;[BIILjava/lang/ClassLoader;Ljava/security/ProtectionDomain;)Ljava/lang/Class;':

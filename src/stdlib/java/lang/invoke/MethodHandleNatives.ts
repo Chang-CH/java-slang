@@ -1,10 +1,10 @@
 import Thread from '#jvm/components/thread';
 import { MemberNameFlags, MethodHandleReferenceKind } from '#jvm/constants';
 import { checkError } from '#types/Result';
-import { ReferenceClassData } from '#types/class/ClassData';
+import { ArrayClassData, ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
-import { j2jsString } from '#utils/index';
+import { j2jsString, js2jString } from '#utils/index';
 
 const functions = {
   'init(Ljava/lang/invoke/MemberName;Ljava/lang/Object;)V': (
@@ -65,6 +65,9 @@ const functions = {
         clazz
       );
       memberName.putNativeField('vmtarget', method.generateBridgeMethod());
+      if (method.getName() === 'lambda$main$0') {
+        console.log('lambda$main$02');
+      }
       thread.returnStackFrame();
       return;
       // MemberNameFlags
@@ -181,7 +184,6 @@ const functions = {
           true,
           true
         );
-
         if (checkError(lookupRes)) {
           thread.throwNewException(
             'java/lang/NoSuchMethodError',
@@ -203,7 +205,46 @@ const functions = {
           methodFlags | flags
         );
 
-        memberName.putNativeField('vmtarget', method.generateBridgeMethod());
+        const bridge = method.generateBridgeMethod();
+        memberName.putNativeField('vmtarget', bridge);
+        // FIXME: Do we need to change the membername to link to the bridge instead?
+        if (bridge !== method) {
+          // change membername to link to bridge instead
+          memberName._putField(
+            'name',
+            'Ljava/lang/String;',
+            'java/lang/invoke/MemberName',
+            js2jString(memberName.getClass().getLoader(), bridge.getName())
+          );
+          // this in non instance methods are passed as parameters.
+          if (!method.checkStatic()) {
+            const mt = memberName._getField(
+              'type',
+              'Ljava/lang/Object;',
+              'java/lang/invoke/MemberName'
+            ) as JvmObject;
+            const ptypeArr = mt._getField(
+              'ptypes',
+              '[Ljava/lang/Class;',
+              'java/lang/invoke/MethodType'
+            ) as JvmArray;
+            const jsptypeArr = ptypeArr.getJsArray();
+            const newPtypeArr = (
+              ptypeArr.getClass() as ArrayClassData
+            ).instantiate();
+            newPtypeArr.initArray(jsptypeArr.length + 1, [
+              method.getClass().getJavaObject(),
+              ...jsptypeArr,
+            ]);
+            mt._putField(
+              'ptypes',
+              '[Ljava/lang/Class;',
+              'java/lang/invoke/MethodType',
+              newPtypeArr
+            );
+          }
+        }
+
         thread.returnStackFrame(memberName);
         return;
       } else if (flags & MemberNameFlags.MN_IS_FIELD) {

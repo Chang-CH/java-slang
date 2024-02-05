@@ -400,6 +400,12 @@ export class Method {
   }
 
   generateBridgeMethod() {
+    // if this is not a private method, then no bridge method is needed
+    // FIXME:
+    if (!this.checkPrivate()) {
+      return this;
+    }
+
     const isStatic = this.checkStatic();
     const bridgeDescriptor = isStatic
       ? this.descriptor
@@ -536,6 +542,8 @@ export class Method {
       -1 // FIXME: get a slot number from cls
     );
 
+    this.cls.addMethod(bridge);
+
     return bridge;
   }
 
@@ -631,12 +639,6 @@ export class Method {
         declaringCls.checkCast(symbolicClass) ||
         symbolicClass.checkCast(declaringCls)
       );
-    }
-
-    if (accessingClass.getClassname().startsWith(declaringCls.getClassname())) {
-      // FIXME: Temp fix to allow lambdas to work.
-      // access private methods through bridge method instead.
-      return true;
     }
 
     // R is private
