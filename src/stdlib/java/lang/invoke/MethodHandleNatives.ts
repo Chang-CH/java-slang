@@ -194,21 +194,24 @@ const functions = {
         const method = lookupRes.result;
 
         const methodFlags = method.getAccessFlags();
-        console.warn(
-          'MethodHandle resolution: CALLER_SENSITIVE not implemented'
-        ); // FIXME: check method caller sensitive and |= caller sensitive flag.
-        const refKind = flags >>> MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
         memberName._putField(
           'flags',
           'I',
           'java/lang/invoke/MemberName',
           methodFlags | flags
         );
+        console.warn(
+          'MethodHandle resolution: CALLER_SENSITIVE not implemented'
+        ); // FIXME: check method caller sensitive and |= caller sensitive flag.
+        const refKind = flags >>> MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
 
         const bridge = method.generateBridgeMethod();
         memberName.putNativeField('vmtarget', bridge);
-        // FIXME: Do we need to change the membername to link to the bridge instead?
+        // FIXME: We should not need to modify the membername to link to the bridge method.
         if (bridge !== method) {
+          console.log(
+            'resolve(Ljava/lang/invoke/MemberName;Ljava/lang/Class;)Ljava/lang/invoke/MemberName;: Membername modified to use bridge method'
+          );
           // change membername to link to bridge instead
           memberName._putField(
             'name',

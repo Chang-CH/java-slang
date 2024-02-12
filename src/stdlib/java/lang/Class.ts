@@ -345,6 +345,7 @@ const functions = {
     }
     const clsArrCls = clsArrRes.result as ArrayClassData;
     const clsArr = clsArrCls.instantiate();
+    const jsClsArr = [];
 
     if (thisCls.checkPrimitive() || thisCls.checkArray()) {
       clsArr.initArray(0);
@@ -352,17 +353,32 @@ const functions = {
       return;
     }
 
-    // TODO: get inner classes from attribute innerclasses
     const innerclassesAttr = thisCls.getAttribute(
       'InnerClasses'
     ) as InnerClasses;
     if (innerclassesAttr) {
-      console.error(
-        'native method missing: Class.getDeclaredClasses0() for inner class'
-      );
+      for (const cls of innerclassesAttr.classes) {
+        if (!cls.outerClass) continue;
+
+        const outerRes = cls.outerClass.resolve();
+        if (!checkSuccess(outerRes)) {
+          continue;
+        }
+        if (outerRes.result !== thisCls) continue;
+        const innerRes = cls.innerClass.resolve();
+        if (!checkSuccess(innerRes)) {
+          if (checkError(innerRes)) {
+            thread.throwNewException(innerRes.exceptionCls, innerRes.msg);
+          }
+          return;
+        }
+        jsClsArr.push(innerRes.result.getJavaObject());
+      }
+      clsArr.initArray(jsClsArr.length, jsClsArr);
+    } else {
+      clsArr.initArray(0);
     }
-    const innerclasses: any[] = [];
-    clsArr.initArray(innerclasses.length, innerclasses);
+
     thread.returnStackFrame(clsArr);
   },
 

@@ -612,7 +612,7 @@ export function runInvokedynamic(thread: Thread): void {
   const args = getArgs(
     thread,
     callsiteConstant.getNameAndType().get().descriptor,
-    false // FIXME: check native first
+    toInvoke.checkNative()
   );
   args.push(appendix);
   thread.offsetPc(5);

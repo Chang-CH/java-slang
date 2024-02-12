@@ -11,7 +11,12 @@ import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import { ErrorResult, checkError, checkSuccess } from '#types/Result';
+import {
+  ErrorResult,
+  SuccessResult,
+  checkError,
+  checkSuccess,
+} from '#types/Result';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { classFileToText } from '#utils/Prettify/classfile';
 
@@ -32,16 +37,8 @@ function getFieldInfo(
   const unsafeCls = unsafe.getClass();
 
   if (objCls.getClassname() === 'java/lang/Object') {
-    // Static field. The staticFieldBase is always a pure Object that has a
-    // class reference on it.
-    // There's no reason to get the field on an Object, as they have no fields.
-
-    throw new Error('not implemented');
-    //   cls = <ReferenceClassData<JVMTypes.java_lang_Object>>(
-    //     (<any>obj).$staticFieldBase
-    //   );
-    //   objBase = <any>cls.getConstructor(thread);
-    //   fieldName = cls.getStaticFieldFromVMIndex(offset.toInt()).fullName;
+    const objBase = obj.getNativeField('staticFieldBase') as ReferenceClassData;
+    return [objBase, objBase.getFieldFromVmIndex(Number(offset))];
   } else if (objCls.checkArray()) {
     // obj is an array. offset represents index * unit space
     const compCls = objCls.getComponentClass();
@@ -315,9 +312,6 @@ const functions = {
 
       const clsObj = newClass.getJavaObject();
       thread.returnStackFrame(clsObj);
-      if (newClass.getClassname() === 'dynamic/Main$$Lambda$1') {
-        console.log('BREAK');
-      }
     },
 
   'defineClass(Ljava/lang/String;[BIILjava/lang/ClassLoader;Ljava/security/ProtectionDomain;)Ljava/lang/Class;':
@@ -370,6 +364,47 @@ const functions = {
     const clsObj = locals[1] as JvmObject;
     const cls = clsObj.getNativeField('classRef') as ClassData;
     thread.returnStackFrame(cls.isInitialized() ? 1 : 0);
+  },
+
+  'staticFieldOffset(Ljava/lang/reflect/Field;)J': (
+    thread: Thread,
+    locals: any[]
+  ) => {
+    const field = locals[1] as JvmObject;
+    const slot = field._getField(
+      'slot',
+      'I',
+      'java/lang/reflect/Field'
+    ) as number;
+    const cls = field._getField(
+      'clazz',
+      'Ljava/lang/Class;',
+      'java/lang/reflect/Field'
+    ) as JvmObject;
+    const clsRef = cls.getNativeField('classRef') as ReferenceClassData;
+    const jsField = clsRef.getFieldFromSlot(slot);
+    thread.returnStackFrame64(
+      BigInt(jsField ? clsRef.getFieldVmIndex(jsField) : -1)
+    );
+  },
+
+  'staticFieldBase(Ljava/lang/reflect/Field;)Ljava/lang/Object;': (
+    thread: Thread,
+    locals: any[]
+  ) => {
+    const field = locals[1] as JvmObject;
+    const javaClass = field._getField(
+      'clazz',
+      'Ljava/lang/Class;',
+      'java/lang/reflect/Field'
+    ) as JvmObject;
+    const cls = javaClass.getNativeField('classRef') as ReferenceClassData;
+    const objRes = cls
+      .getLoader()
+      .getClass('java/lang/Object') as SuccessResult<ClassData>;
+    const jobj = objRes.result.instantiate();
+    jobj.putNativeField('staticFieldBase', cls);
+    thread.returnStackFrame(jobj);
   },
 };
 

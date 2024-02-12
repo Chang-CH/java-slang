@@ -80,7 +80,7 @@ export abstract class ClassData {
     [fieldName: string]: Field;
   } = {};
   protected instanceFields: { [key: string]: Field } | null = null;
-  protected allFields: Field[] = [];
+  protected vmIndexFields?: Field[];
   protected staticFields: Field[] = [];
   protected methods: {
     [methodName: string]: Method;
@@ -397,6 +397,30 @@ export abstract class ClassData {
     return null;
   }
 
+  getFieldFromSlot(slot: number): Field | null {
+    for (const field of Object.values(this.fields)) {
+      if (field.getSlot() === slot) {
+        return field;
+      }
+    }
+
+    return null;
+  }
+
+  getFieldVmIndex(field: Field): number {
+    const fieldArr = this.vmIndexFields
+      ? this.vmIndexFields
+      : this._fillVmIndexFieldArr();
+    return fieldArr.indexOf(field);
+  }
+
+  getFieldFromVmIndex(index: number): Field | null {
+    const fieldArr = this.vmIndexFields
+      ? this.vmIndexFields
+      : this._fillVmIndexFieldArr();
+    return fieldArr[index] ?? null;
+  }
+
   lookupField(fieldName: string): Field | null {
     if (this.fields[fieldName]) {
       return this.fields[fieldName];
@@ -571,6 +595,22 @@ export abstract class ClassData {
 
   getPackageName(): string {
     return this.packageName;
+  }
+
+  private _fillVmIndexFieldArr(): Field[] {
+    if (this.vmIndexFields) {
+      return this.vmIndexFields;
+    }
+
+    this.vmIndexFields = this.superClass
+      ? [...this.superClass._fillVmIndexFieldArr()]
+      : [];
+    this.interfaces.forEach(interfaceCls => {
+      this.vmIndexFields?.push(...interfaceCls._fillVmIndexFieldArr());
+    });
+    this.vmIndexFields.push(...Object.values(this.fields));
+
+    return this.vmIndexFields;
   }
 
   /**
