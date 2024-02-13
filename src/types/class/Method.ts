@@ -400,12 +400,6 @@ export class Method {
   }
 
   generateBridgeMethod() {
-    // if this is not a private method, then no bridge method is needed
-    // FIXME:
-    if (!this.checkPrivate()) {
-      return this;
-    }
-
     const isStatic = this.checkStatic();
     const bridgeDescriptor = isStatic
       ? this.descriptor

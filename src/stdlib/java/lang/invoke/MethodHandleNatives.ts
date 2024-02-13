@@ -2,6 +2,7 @@ import Thread from '#jvm/components/thread';
 import { MemberNameFlags, MethodHandleReferenceKind } from '#jvm/constants';
 import { checkError } from '#types/Result';
 import { ArrayClassData, ReferenceClassData } from '#types/class/ClassData';
+import { Method } from '#types/class/Method';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
 import { j2jsString, js2jString } from '#utils/index';
@@ -208,8 +209,8 @@ const functions = {
         const bridge = method.generateBridgeMethod();
         memberName.putNativeField('vmtarget', bridge);
         // FIXME: We should not need to modify the membername to link to the bridge method.
-        if (bridge !== method) {
-          console.log(
+        if (method.checkPrivate()) {
+          console.warn(
             'resolve(Ljava/lang/invoke/MemberName;Ljava/lang/Class;)Ljava/lang/invoke/MemberName;: Membername modified to use bridge method'
           );
           // change membername to link to bridge instead
@@ -291,10 +292,181 @@ const functions = {
 
   'getMembers(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Class;I[Ljava/lang/invoke/MemberName;)I':
     (thread: Thread, locals: any[]) => {
-      console.error(
-        'Native method missing: getMembers(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Class;I[Ljava/lang/invoke/MemberName;)I'
-      );
-      thread.returnStackFrame(0);
+      const defc = locals[0] as JvmObject;
+      const matchName: string | null = locals[1]
+        ? j2jsString(locals[1] as JvmObject)
+        : locals[1];
+      const matchSig: string | null = locals[2]
+        ? j2jsString(locals[2] as JvmObject)
+        : locals[2];
+      const matchFlags = locals[3] as number;
+      const caller = locals[4] as JvmObject;
+      let skip = locals[5] as number;
+      const results = (locals[6] as JvmArray).getJsArray();
+      let matched = 0;
+
+      const cls = defc.getNativeField('classRef') as ReferenceClassData;
+      const methods = Object.values(cls.getDeclaredMethods());
+
+      const addMethod = (method: Method) => {
+        if (skip) {
+          skip--;
+          return;
+        }
+
+        if (results.length <= matched) {
+          return;
+        }
+
+        const memberName = results[matched] as JvmObject;
+
+        // set flags
+        let flags = MemberNameFlags.MN_IS_METHOD;
+        let refKind = 0;
+        if (method.getClass().checkInterface()) {
+          refKind = MethodHandleReferenceKind.REF_invokeInterface;
+        } else if (method.checkStatic()) {
+          refKind = MethodHandleReferenceKind.REF_invokeStatic;
+        } else if (method.getName() === '<init>') {
+          flags = MemberNameFlags.MN_IS_CONSTRUCTOR;
+          refKind = MethodHandleReferenceKind.REF_newInvokeSpecial;
+        } else {
+          refKind = MethodHandleReferenceKind.REF_invokeVirtual;
+        }
+        flags |= refKind << MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
+        flags |= method.getAccessFlags();
+        memberName._putField(
+          'flags',
+          'I',
+          'java/lang/invoke/MemberName',
+          flags
+        );
+
+        // set clazz
+        memberName._putField(
+          'clazz',
+          'Ljava/lang/Class;',
+          'java/lang/invoke/MemberName',
+          method.getClass().getJavaObject()
+        );
+
+        // set name
+        memberName._putField(
+          'name',
+          'Ljava/lang/String;',
+          'java/lang/invoke/MemberName',
+          matchName ? locals[1] : js2jString(cls.getLoader(), method.getName())
+        );
+
+        // set type
+        memberName._putField(
+          'type',
+          'Ljava/lang/Object;',
+          'java/lang/invoke/MemberName',
+          matchSig
+            ? locals[2]
+            : js2jString(cls.getLoader(), method.getDescriptor())
+        );
+
+        // set vmtarget
+        memberName.putNativeField('vmtarget', method.generateBridgeMethod());
+
+        matched++;
+      };
+
+      // constructor
+      if (matchFlags & MemberNameFlags.MN_IS_CONSTRUCTOR) {
+        for (const method of methods) {
+          if (
+            (matchName === null ||
+              (matchName === '<init>' && method.getName() === '<init>')) &&
+            (matchSig === null || method.getDescriptor() === matchSig)
+          ) {
+            addMethod(method);
+          }
+        }
+      }
+
+      // method
+      if (matchFlags & MemberNameFlags.MN_IS_METHOD) {
+        for (const method of methods) {
+          if (
+            method.getName() !== '<init>' &&
+            (matchName === null || method.getName() === matchName) &&
+            (matchSig === null || method.getDescriptor() === matchSig)
+          ) {
+            addMethod(method);
+          }
+        }
+      }
+
+      // fields
+      if (matchFlags & MemberNameFlags.MN_IS_FIELD) {
+        const fields = cls.getDeclaredFields();
+        for (const field of fields) {
+          if (skip) {
+            skip--;
+            return;
+          }
+
+          if (results.length <= matched) {
+            return;
+          }
+
+          const memberName = results[matched] as JvmObject;
+          // set flags
+          let flags = MemberNameFlags.MN_IS_FIELD;
+          let refKind = 0;
+          if (field.checkStatic()) {
+            refKind = MethodHandleReferenceKind.REF_getStatic;
+          } else {
+            refKind = MethodHandleReferenceKind.REF_getField;
+          }
+          flags |= refKind << MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
+          flags |= field.getAccessFlags();
+          memberName._putField(
+            'flags',
+            'I',
+            'java/lang/invoke/MemberName',
+            flags
+          );
+
+          // set clazz
+          memberName._putField(
+            'clazz',
+            'Ljava/lang/Class;',
+            'java/lang/invoke/MemberName',
+            field.getClass().getJavaObject()
+          );
+
+          // set name
+          memberName._putField(
+            'name',
+            'Ljava/lang/String;',
+            'java/lang/invoke/MemberName',
+            matchName ? locals[1] : js2jString(cls.getLoader(), field.getName())
+          );
+
+          // set type
+          memberName._putField(
+            'type',
+            'Ljava/lang/Object;',
+            'java/lang/invoke/MemberName',
+            matchSig
+              ? locals[2]
+              : js2jString(cls.getLoader(), field.getFieldDesc())
+          );
+
+          // set vmindex
+          memberName.putNativeField(
+            'vmindex',
+            field.getClass().getFieldVmIndex(field)
+          );
+          matched++;
+        }
+      }
+
+      thread.returnStackFrame(matched);
     },
 
   'objectFieldOffset(Ljava/lang/invoke/MemberName;)J': (
