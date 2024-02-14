@@ -19,6 +19,8 @@ import {
 } from '#types/Result';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { classFileToText } from '#utils/Prettify/classfile';
+import { NestHost } from '#types/class/Attributes';
+import { ConstantClass, ConstantUtf8 } from '#types/class/Constants';
 
 function getFieldInfo(
   thread: Thread,
@@ -308,6 +310,20 @@ const functions = {
           (error as ErrorResult).msg
         );
         return;
+      }
+
+      // add nest information
+      if (!hostClass.getAttribute('NestHost')) {
+        const classConstant = ConstantClass.asResolved(
+          hostClass,
+          new ConstantUtf8(hostClass, hostClass.getClassname()),
+          hostClass
+        );
+        const nestHostAttr: NestHost = {
+          hostClass: classConstant,
+          name: 'NestHost',
+        };
+        newClass._addAttribute(nestHostAttr);
       }
 
       const clsObj = newClass.getJavaObject();

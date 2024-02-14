@@ -66,9 +66,6 @@ const functions = {
         clazz
       );
       memberName.putNativeField('vmtarget', method.generateBridgeMethod());
-      if (method.getName() === 'lambda$main$0') {
-        console.log('lambda$main$02');
-      }
       thread.returnStackFrame();
       return;
       // MemberNameFlags
@@ -201,53 +198,9 @@ const functions = {
           'java/lang/invoke/MemberName',
           methodFlags | flags
         );
-        console.warn(
-          'MethodHandle resolution: CALLER_SENSITIVE not implemented'
-        ); // FIXME: check method caller sensitive and |= caller sensitive flag.
-        const refKind = flags >>> MemberNameFlags.MN_REFERENCE_KIND_SHIFT;
 
         const bridge = method.generateBridgeMethod();
         memberName.putNativeField('vmtarget', bridge);
-        // FIXME: We should not need to modify the membername to link to the bridge method.
-        if (method.checkPrivate()) {
-          console.warn(
-            'resolve(Ljava/lang/invoke/MemberName;Ljava/lang/Class;)Ljava/lang/invoke/MemberName;: Membername modified to use bridge method'
-          );
-          // change membername to link to bridge instead
-          memberName._putField(
-            'name',
-            'Ljava/lang/String;',
-            'java/lang/invoke/MemberName',
-            js2jString(memberName.getClass().getLoader(), bridge.getName())
-          );
-          // this in non instance methods are passed as parameters.
-          if (!method.checkStatic()) {
-            const mt = memberName._getField(
-              'type',
-              'Ljava/lang/Object;',
-              'java/lang/invoke/MemberName'
-            ) as JvmObject;
-            const ptypeArr = mt._getField(
-              'ptypes',
-              '[Ljava/lang/Class;',
-              'java/lang/invoke/MethodType'
-            ) as JvmArray;
-            const jsptypeArr = ptypeArr.getJsArray();
-            const newPtypeArr = (
-              ptypeArr.getClass() as ArrayClassData
-            ).instantiate();
-            newPtypeArr.initArray(jsptypeArr.length + 1, [
-              method.getClass().getJavaObject(),
-              ...jsptypeArr,
-            ]);
-            mt._putField(
-              'ptypes',
-              '[Ljava/lang/Class;',
-              'java/lang/invoke/MethodType',
-              newPtypeArr
-            );
-          }
-        }
 
         thread.returnStackFrame(memberName);
         return;

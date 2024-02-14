@@ -4,7 +4,7 @@ import { ConstantUtf8 } from './Constants';
 import { JavaType } from '../reference/Object';
 import type { JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
-import { ConstantValue, IAttribute } from './Attributes';
+import { ConstantValue, IAttribute, NestHost } from './Attributes';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import { attrInfo2Interface, parseFieldDescriptor } from '#utils/index';
 import {
@@ -287,9 +287,37 @@ export class Field {
 
     const invokerClass = thread.getClass();
     const fieldClass = this.getClass();
-    // FIXME: check innter classes if private
     if (this.checkPrivate() && invokerClass !== fieldClass) {
-      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      // nest mate test (se11)
+      // There is currently a bug with lambdas invoking the private bytecode directly.
+      // We add nest information so the invocation succeeds.
+      // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html#jvms-5.4.4
+      const nestHostAttrD = fieldClass.getAttribute('NestHost') as NestHost;
+      let nestHostD;
+      if (!nestHostAttrD) {
+        nestHostD = fieldClass;
+      } else {
+        const resolutionResult = nestHostAttrD.hostClass.resolve();
+        if (checkError(resolutionResult)) {
+          return resolutionResult;
+        }
+        nestHostD = resolutionResult.result;
+      }
+      const nestHostArrC = invokerClass.getAttribute('NestHost') as NestHost;
+      let nestHostC;
+      if (!nestHostArrC) {
+        nestHostC = invokerClass;
+      } else {
+        const resolutionResult = nestHostArrC.hostClass.resolve();
+        if (checkError(resolutionResult)) {
+          return resolutionResult;
+        }
+        nestHostC = resolutionResult.result;
+      }
+
+      if (nestHostC !== nestHostD) {
+        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      }
     }
 
     if (

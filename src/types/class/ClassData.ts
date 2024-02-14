@@ -16,7 +16,12 @@ import { ConstantPool } from '#jvm/components/ConstantPool';
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import { attrInfo2Interface, primitiveNameToType } from '#utils/index';
 import { JvmArray } from '#types/reference/Array';
-import { BootstrapMethod, BootstrapMethods, IAttribute } from './Attributes';
+import {
+  BootstrapMethod,
+  BootstrapMethods,
+  IAttribute,
+  NestMembers,
+} from './Attributes';
 import {
   ImmediateResult,
   checkError,
@@ -533,8 +538,9 @@ export abstract class ClassData {
 
     if (result !== null) {
       const method = result;
-      if (!method.checkAccess(accessingClass, this)) {
-        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      const accessCheckResult = method.checkAccess(accessingClass, this);
+      if (checkError(accessCheckResult)) {
+        return accessCheckResult;
       }
       return { result };
     }
@@ -542,8 +548,9 @@ export abstract class ClassData {
     // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
     result = this._resolveMethodInterface(name, descriptor);
     if (result !== null) {
-      if (!result.checkAccess(accessingClass, this)) {
-        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      const accessCheckResult = result.checkAccess(accessingClass, this);
+      if (checkError(accessCheckResult)) {
+        return accessCheckResult;
       }
       return { result };
     }
@@ -719,8 +726,6 @@ export class PrimitiveClassData extends ClassData {
 
 export class ReferenceClassData extends ClassData {
   protected bootstrapMethods: Array<BootstrapMethod> = [];
-  private nestedHost: ReferenceClassData = this;
-  private nestedMembers: ReferenceClassData[] = [];
   private anonymousInnerId: number = 0;
   private protectionDomain: JvmObject | null;
 
@@ -920,29 +925,9 @@ export class ReferenceClassData extends ClassData {
     return this.protectionDomain;
   }
 
-  // #region used for temp indy hack
-
-  getAnonymousInnerId(): number {
-    return this.anonymousInnerId++;
+  _addAttribute(attr: IAttribute) {
+    this.attributes[attr.name] = attr;
   }
-
-  nestMember(cls: ReferenceClassData) {
-    this.nestedMembers.push(cls);
-  }
-
-  nestHost(cls: ReferenceClassData) {
-    this.nestedHost = cls;
-  }
-
-  getNestedMembers(): ReferenceClassData[] {
-    return this.nestedMembers;
-  }
-
-  getNestedHost(): ReferenceClassData {
-    return this.nestedHost;
-  }
-
-  // #endregion
 }
 
 export class ArrayClassData extends ClassData {

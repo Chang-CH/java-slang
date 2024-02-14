@@ -19,9 +19,14 @@ import {
 } from './Constants';
 import { JavaType, type JvmObject } from '../reference/Object';
 import Thread from '#jvm/components/thread';
-import { JavaStackFrame, NativeStackFrame } from '#jvm/components/stackframe';
 import { ConstantPool } from '#jvm/components/ConstantPool';
-import { Code, Exceptions, IAttribute, Signature } from './Attributes';
+import {
+  Code,
+  Exceptions,
+  IAttribute,
+  NestHost,
+  Signature,
+} from './Attributes';
 import {
   ImmediateResult,
   checkError,
@@ -536,8 +541,6 @@ export class Method {
       -1 // FIXME: get a slot number from cls
     );
 
-    this.cls.addMethod(bridge);
-
     return bridge;
   }
 
@@ -601,42 +604,84 @@ export class Method {
   /**
    * Checks if this method is accessible to a given class through a symbolic reference.
    */
-  checkAccess(accessingClass: ClassData, symbolicClass: ClassData) {
+  checkAccess(
+    accessingClass: ClassData,
+    symbolicClass: ClassData
+  ): ImmediateResult<Method> {
     const declaringCls = this.getClass();
+    const illegalAccessResult = {
+      exceptionCls: 'java/lang/IllegalAccessError',
+      msg: '',
+    };
+    const successResult = { result: this };
 
     // this is public
     if (this.checkPublic()) {
-      return true;
+      return successResult;
     }
 
     const isSamePackage =
       declaringCls.getPackageName() === accessingClass.getPackageName();
 
     if (this.checkDefault()) {
-      return isSamePackage;
+      return isSamePackage ? { result: this } : illegalAccessResult;
     }
 
     if (this.checkProtected()) {
       if (isSamePackage) {
-        return true;
+        return successResult;
       }
 
       // this is protected and is declared in a class C, and D is either a subclass of C or C itself
       if (!accessingClass.checkCast(declaringCls)) {
-        return false;
+        return illegalAccessResult;
       }
 
       // if this is not static, then the symbolic reference to this must contain a symbolic reference to a class T,
       // such that T is either a subclass of D, a superclass of D, or D itself.
-      return (
-        this.checkStatic() ||
+      return this.checkStatic() ||
         declaringCls.checkCast(symbolicClass) ||
         symbolicClass.checkCast(declaringCls)
-      );
+        ? successResult
+        : illegalAccessResult;
     }
 
     // R is private
-    return accessingClass === declaringCls;
+    if (accessingClass === declaringCls) {
+      return successResult;
+    }
+
+    // nest mate test (se11)
+    // There is currently a bug with lambdas invoking the private bytecode directly.
+    // We add nest information so the invocation succeeds.
+    // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html#jvms-5.4.4
+    const nestHostAttrD = declaringCls.getAttribute('NestHost') as NestHost;
+    let nestHostD;
+    if (!nestHostAttrD) {
+      nestHostD = declaringCls;
+    } else {
+      const resolutionResult = nestHostAttrD.hostClass.resolve();
+      if (checkError(resolutionResult)) {
+        return resolutionResult;
+      }
+      nestHostD = resolutionResult.result;
+    }
+    const nestHostArrC = accessingClass.getAttribute('NestHost') as NestHost;
+    let nestHostC;
+    if (!nestHostArrC) {
+      nestHostC = accessingClass;
+    } else {
+      const resolutionResult = nestHostArrC.hostClass.resolve();
+      if (checkError(resolutionResult)) {
+        return resolutionResult;
+      }
+      nestHostC = resolutionResult.result;
+    }
+    if (nestHostC === nestHostD) {
+      return successResult;
+    }
+
+    return illegalAccessResult;
   }
 
   _getCode() {

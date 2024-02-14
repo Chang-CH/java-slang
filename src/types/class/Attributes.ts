@@ -388,3 +388,11 @@ export interface Synthetic extends IAttribute {}
 export interface UnhandledAttribute extends IAttribute {
   attributeInfo: AttributeInfo;
 }
+
+export interface NestHost extends IAttribute {
+  hostClass: ConstantClass;
+}
+
+export interface NestMembers extends IAttribute {
+  classes: Array<ConstantClass>;
+}
