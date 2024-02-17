@@ -13,14 +13,12 @@ let thread: Thread;
 let threadClass: ReferenceClassData;
 let testLoader: AbstractClassLoader;
 let code: DataView;
-let jni: JNI;
 
 beforeEach(() => {
   const setup = setupTest();
   thread = setup.thread;
   threadClass = setup.classes.threadClass;
   code = setup.code;
-  jni = setup.jni;
   const testClass = setup.classes.testClass;
   const method = setup.method;
   testLoader = setup.testLoader;
@@ -470,7 +468,7 @@ describe('IALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -493,7 +491,7 @@ describe('IALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -516,7 +514,7 @@ describe('IALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -551,7 +549,7 @@ describe('LALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -573,7 +571,7 @@ describe('LALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -595,7 +593,7 @@ describe('LALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -630,7 +628,7 @@ describe('FALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -652,7 +650,7 @@ describe('FALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -674,7 +672,7 @@ describe('FALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -709,7 +707,7 @@ describe('DALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -731,7 +729,7 @@ describe('DALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -753,7 +751,7 @@ describe('DALOAD', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -816,7 +814,7 @@ describe('AALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -841,7 +839,7 @@ describe('AALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -866,7 +864,7 @@ describe('AALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -901,7 +899,7 @@ describe('BALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -924,7 +922,7 @@ describe('BALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -947,7 +945,7 @@ describe('BALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -982,7 +980,7 @@ describe('CALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -1005,7 +1003,7 @@ describe('CALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1028,7 +1026,7 @@ describe('CALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1063,7 +1061,7 @@ describe('SALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -1086,7 +1084,7 @@ describe('SALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1109,7 +1107,7 @@ describe('SALOAD', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });

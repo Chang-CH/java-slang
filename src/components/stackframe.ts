@@ -61,7 +61,7 @@ const overwrites: {
 
 const checkOverwritten = (thread: Thread, method: Method) => {
   const overwritten =
-    overwrites[method.getClass().getClassname()]?.[
+    overwrites[method.getClass().getName()]?.[
       method.getName() + method.getDescriptor()
     ];
   if (overwritten) {
@@ -78,7 +78,7 @@ const runInstruction = (thread: Thread, method: Method) => {
   if (thread.getJVM().checkInitialized() || true) {
     console.debug(
       ''.padEnd(thread.getFrames().length, '#') +
-        `${method.getClass().getClassname()}.${
+        `${method.getClass().getName()}.${
           method.getName() + method.getDescriptor()
         }:${OPCODE[opcode]}#${thread.getPC()}, stack: ${
           thread.peekStackFrame().operandStack
@@ -832,7 +832,7 @@ export class NativeStackFrame extends StackFrame {
   run(thread: Thread): void {
     const methodRes = this.jni.getNativeMethod(
       thread,
-      this.class.getClassname(),
+      this.class.getName(),
       this.method.getName() + this.method.getDescriptor()
     );
 

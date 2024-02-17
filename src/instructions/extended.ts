@@ -114,7 +114,7 @@ export function runMultianewarray(thread: Thread): void {
 
   let pendingInit = [res];
   let nextInit = [];
-  let currentType = arrayCls.getClassname();
+  let currentType = arrayCls.getName();
 
   for (let i = 1; i < dimensions; i++) {
     currentType = currentType.slice(1); // remove leading '[', array type should be '[[[...'

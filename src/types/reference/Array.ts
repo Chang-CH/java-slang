@@ -9,7 +9,7 @@ export class JvmArray extends JvmObject {
   private array: any[];
   constructor(cls: ArrayClassData) {
     super(cls);
-    switch (cls.getClassname()[1]) {
+    switch (cls.getName()[1]) {
       case JavaType.boolean:
         this.primitiveType = ArrayPrimitiveType.boolean;
         break;

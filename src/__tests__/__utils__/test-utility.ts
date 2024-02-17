@@ -134,7 +134,7 @@ export class TestClassLoader extends AbstractClassLoader {
         tag: 1,
         length: 16,
         value: options.superClass
-          ? options.superClass?.getClassname()
+          ? options.superClass?.getName()
           : 'java/lang/Object',
       }, // superclass name
       { tag: 7, nameIndex: 4 },
@@ -293,7 +293,7 @@ export class TestClassLoader extends AbstractClassLoader {
             });
             constantPool.push({
               tag: CONSTANT_TAG.Utf8,
-              value: interfaceCls.getClassname(),
+              value: interfaceCls.getName(),
             } as ConstantUtf8Info);
             return clsIndex;
           }

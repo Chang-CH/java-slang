@@ -1,6 +1,4 @@
 import {
-  asDouble,
-  asFloat,
   attrInfo2Interface,
   getArgs,
   parseMethodDescriptor,
@@ -33,8 +31,6 @@ import {
   ErrorResult,
   checkSuccess,
 } from '#types/Result';
-import { Sign } from 'node:crypto';
-import { SignatureAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { JvmArray } from '#types/reference/Array';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 
@@ -108,7 +104,7 @@ export class Method {
 
   checkSignaturePolymorphic() {
     return (
-      this.cls.getClassname() === 'java/lang/invoke/MethodHandle' &&
+      this.cls.getName() === 'java/lang/invoke/MethodHandle' &&
       this.descriptor === '([Ljava/lang/Object;)Ljava/lang/Object;' &&
       this.checkVarargs() &&
       this.checkNative()
@@ -185,6 +181,9 @@ export class Method {
       );
     } else {
       exceptionTypes.initArray(0, []);
+    }
+    if (err) {
+      return err;
     }
 
     // modifiers
@@ -408,7 +407,7 @@ export class Method {
     const isStatic = this.checkStatic();
     const bridgeDescriptor = isStatic
       ? this.descriptor
-      : `(${this.cls.getClassname()};${this.descriptor.slice(1)}`;
+      : `(${this.cls.getName()};${this.descriptor.slice(1)}`;
 
     const pdesc = parseMethodDescriptor(this.descriptor);
     let maxStack = 0;
@@ -468,7 +467,7 @@ export class Method {
       this.cls.insertConstant(dc);
       this.cls.insertConstant(nt);
 
-      const cnc = new ConstantUtf8(this.cls, this.cls.getClassname());
+      const cnc = new ConstantUtf8(this.cls, this.cls.getName());
       const cc = ConstantClass.asResolved(this.cls, cnc, this.cls);
       this.cls.insertConstant(cnc);
       this.cls.insertConstant(cc);

@@ -111,18 +111,6 @@ export abstract class ClassData {
     return this.status === CLASS_STATUS.INITIALIZED;
   }
 
-  checkPrimitive(): this is PrimitiveClassData {
-    return false;
-  }
-
-  checkArray(): this is ArrayClassData {
-    return false;
-  }
-
-  checkReference(): this is ReferenceClassData {
-    return false;
-  }
-
   /**
    * Gets all fields, including private and protected fields but excluding inherited fields.
    */
@@ -134,6 +122,18 @@ export abstract class ClassData {
     }
 
     return result;
+  }
+
+  checkPrimitive(): this is PrimitiveClassData {
+    return false;
+  }
+
+  checkArray(): this is ArrayClassData {
+    return false;
+  }
+
+  checkReference(): this is ReferenceClassData {
+    return false;
   }
 
   checkPublic() {
@@ -172,6 +172,11 @@ export abstract class ClassData {
     return (this.accessFlags & ACCESS_FLAGS.ACC_MODULE) !== 0;
   }
 
+  /**
+   * Resolves a class given the class name using the classloader used to load this class.
+   * If the class is not accessible to the current class, an exception is returned.
+   * @param toResolve: class name to resolve, e.g. java/lang/Object
+   */
   resolveClass(toResolve: string): ImmediateResult<ClassData> {
     const res = this.loader.getClass(toResolve);
     if (checkError(res)) {
@@ -215,10 +220,16 @@ export abstract class ClassData {
     return res;
   }
 
+  /**
+   * Gets the superclass of the current class. Returns null if the current class has no superclasses.
+   */
   getSuperClass(): ReferenceClassData | null {
     return this.superClass;
   }
 
+  /**
+   * Gets all interfaces this class implements. Does not include interfaces implemented by superclasses.
+   */
   getInterfaces(): ReferenceClassData[] {
     return this.interfaces;
   }
@@ -378,10 +389,6 @@ export abstract class ClassData {
    */
   getMethod(methodName: string): Method | null {
     return this.methods[methodName] ?? null;
-  }
-
-  addMethod(method: Method) {
-    this.methods[method.getName() + method.getDescriptor()] = method;
   }
 
   /**
@@ -600,6 +607,10 @@ export abstract class ClassData {
     return this.loader;
   }
 
+  /**
+   * Gets the package name of the current class. Used to check protected access.
+   * @returns pacakge name, e.g. java/lang
+   */
   getPackageName(): string {
     return this.packageName;
   }
@@ -666,7 +677,7 @@ export abstract class ClassData {
   /**
    *  Gets the classname for the current class, e.g. package/Class
    */
-  getClassname(): string {
+  getName(): string {
     return this.thisClass;
   }
 
@@ -726,7 +737,6 @@ export class PrimitiveClassData extends ClassData {
 
 export class ReferenceClassData extends ClassData {
   protected bootstrapMethods: Array<BootstrapMethod> = [];
-  private anonymousInnerId: number = 0;
   private protectionDomain: JvmObject | null;
 
   constructor(
@@ -967,7 +977,7 @@ export class ArrayClassData extends ClassData {
   }
 
   getDescriptor(): string {
-    return this.getClassname();
+    return this.getName();
   }
 
   getComponentClass(): ClassData {

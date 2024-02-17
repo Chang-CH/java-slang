@@ -18,14 +18,12 @@ let testLoader: TestClassLoader;
 let thread: Thread;
 let threadClass: ReferenceClassData;
 let code: DataView;
-let jni: JNI;
 
 beforeEach(() => {
   const setup = setupTest();
   thread = setup.thread;
   threadClass = setup.classes.threadClass;
   code = setup.code;
-  jni = setup.jni;
   const testClass = setup.classes.testClass;
   const method = setup.method;
   testLoader = setup.testLoader;
@@ -123,13 +121,13 @@ describe('Wide', () => {
     code.setUint8(0, OPCODE.WIDE);
     code.setUint8(1, OPCODE.LLOAD);
     code.setUint16(2, 0);
-    thread.storeLocal(0, 3n);
+    thread.storeLocal(0, BigInt(3));
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect((thread.popStack64() as SuccessResult<any>).result === 3n).toBe(
-      true
-    );
+    expect(
+      (thread.popStack64() as SuccessResult<any>).result === BigInt(3)
+    ).toBe(true);
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(4);
   });
@@ -301,16 +299,12 @@ describe('Multianewarray', () => {
     const arrayRef = (thread.popStack() as SuccessResult<any>)
       .result as JvmArray;
     expect(arrayRef.len()).toBe(2);
-    expect(arrayRef.getClass().getClassname()).toBe('[[Ljava/lang/Thread;');
+    expect(arrayRef.getClass().getName()).toBe('[[Ljava/lang/Thread;');
     expect(arrayRef.get(0).len()).toBe(3);
-    expect(arrayRef.get(0).getClass().getClassname()).toBe(
-      '[Ljava/lang/Thread;'
-    );
+    expect(arrayRef.get(0).getClass().getName()).toBe('[Ljava/lang/Thread;');
     expect(arrayRef.get(0).get(2)).toBe(null);
     expect(arrayRef.get(1).len()).toBe(3);
-    expect(arrayRef.get(1).getClass().getClassname()).toBe(
-      '[Ljava/lang/Thread;'
-    );
+    expect(arrayRef.get(1).getClass().getName()).toBe('[Ljava/lang/Thread;');
     expect(arrayRef.get(1).get(2)).toBe(null);
   });
 
@@ -361,7 +355,7 @@ describe('Multianewarray', () => {
     expect(lastFrame.class === threadClass).toBe(true);
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NegativeArraySizeException'
     );
   });
@@ -414,6 +408,7 @@ describe('Multianewarray', () => {
     expect(lastFrame.locals.length).toBe(0);
     const arrayRef = (thread.popStack() as SuccessResult<any>).result;
     expect(arrayRef.len()).toBe(0);
-    expect(arrayRef.getClass().getClassname()).toBe('[[Ljava/lang/Thread;');
+    const cl = arrayRef.getClass();
+    expect(arrayRef.getClass().getName()).toBe('[[Ljava/lang/Thread;');
   });
 });

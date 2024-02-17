@@ -29,8 +29,8 @@ const functions = {
     }
 
     if (
-      src.getClass().getClassname()[0] !== '[' ||
-      dest.getClass().getClassname()[0] !== '['
+      src.getClass().getName()[0] !== '[' ||
+      dest.getClass().getName()[0] !== '['
     ) {
       thread.throwNewException(
         'java/lang/ArrayStoreException',

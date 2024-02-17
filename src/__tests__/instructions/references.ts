@@ -31,10 +31,7 @@ beforeEach(() => {
   thread = setup.thread;
   threadClass = setup.classes.threadClass;
   jni = setup.jni;
-  const testClass = setup.classes.testClass;
-  const method = setup.method;
   testLoader = setup.testLoader;
-  // thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
   NullPointerException = setup.classes
     .NullPointerException as ReferenceClassData;
 });
@@ -106,7 +103,7 @@ describe('Invokestatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
   });
@@ -231,11 +228,11 @@ describe('Invokestatic', () => {
     );
     thread.pushStack(1);
     thread.pushStack64(2.5);
-    thread.pushStack64(3n);
+    thread.pushStack64(BigInt(3));
     thread.runFor(1);
     expect(thread.peekStackFrame().locals[0]).toBe(1);
     expect(thread.peekStackFrame().locals[1]).toBe(2.5);
-    expect(thread.peekStackFrame().locals[3] === 3n).toBe(true);
+    expect(thread.peekStackFrame().locals[3] === BigInt(3)).toBe(true);
   });
   test('INVOKESTATIC: Undergoes value set conversion', () => {
     const ab = new ArrayBuffer(24);
@@ -381,7 +378,7 @@ describe('Invokestatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IllegalAccessError'
     );
   });
@@ -454,7 +451,7 @@ describe('Invokestatic', () => {
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     thread.runFor(1);
-    expect(thread.getClass().getClassname()).toBe('mainClass');
+    expect(thread.getClass().getName()).toBe('mainClass');
     expect(thread.peekStackFrame().locals[0]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
   });
@@ -547,7 +544,7 @@ describe('Invokestatic', () => {
     thread.pushStack(1.3);
     thread.pushStack64(1.3);
     thread.runFor(1);
-    expect(thread.getClass().getClassname()).toBe('superClass');
+    expect(thread.getClass().getName()).toBe('superClass');
     expect(thread.peekStackFrame().locals[0]).toBe(Math.fround(1.3));
     expect(thread.peekStackFrame().locals[1]).toBe(1.3);
   });
@@ -632,14 +629,13 @@ describe('Invokestatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NoSuchMethodError'
     );
   });
   test('INVOKESTATIC: Native method returns int', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
-    let methodIdx = 0;
     let nativeMethodIdx = 0;
     const testClass = testLoader.createClass({
       className: 'Test',
@@ -669,7 +665,6 @@ describe('Invokestatic', () => {
           nameIndex: cPool.length - 2,
         }),
         cPool => {
-          methodIdx = cPool.length;
           return {
             tag: CONSTANT_TAG.Methodref,
             classIndex: cPool.length - 1,
@@ -739,7 +734,6 @@ describe('Invokestatic', () => {
   test('INVOKESTATIC: Native method returns long', () => {
     const ab = new ArrayBuffer(24);
     const code = new DataView(ab);
-    let methodIdx = 0;
     let nativeMethodIdx = 0;
     const testClass = testLoader.createClass({
       className: 'Test',
@@ -769,7 +763,6 @@ describe('Invokestatic', () => {
           nameIndex: cPool.length - 2,
         }),
         cPool => {
-          methodIdx = cPool.length;
           return {
             tag: CONSTANT_TAG.Methodref,
             classIndex: cPool.length - 1,
@@ -969,12 +962,12 @@ describe('invokevirtual', () => {
     thread.pushStack(objRef);
     thread.pushStack(1);
     thread.pushStack64(2.5);
-    thread.pushStack64(3n);
+    thread.pushStack64(BigInt(3));
     thread.runFor(1);
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
     expect(thread.peekStackFrame().locals[1]).toBe(1);
     expect(thread.peekStackFrame().locals[2]).toBe(2.5);
-    expect(thread.peekStackFrame().locals[4] === 3n).toBe(true);
+    expect(thread.peekStackFrame().locals[4] === BigInt(3)).toBe(true);
   });
   test('INVOKEVIRTUAL: Undergoes value set conversion', () => {
     const ab = new ArrayBuffer(24);
@@ -1123,7 +1116,7 @@ describe('invokevirtual', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IllegalAccessError'
     );
   });
@@ -1271,7 +1264,7 @@ describe('invokevirtual', () => {
     const objRef = new JvmObject(superClass);
     thread.pushStack(objRef);
     thread.runFor(1);
-    expect(thread.getClass().getClassname()).toBe('superClass');
+    expect(thread.getClass().getName()).toBe('superClass');
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
   });
   test('INVOKEVIRTUAL: method lookup override OK', () => {
@@ -1354,7 +1347,7 @@ describe('invokevirtual', () => {
     const objRef = new JvmObject(mainClass);
     thread.pushStack(objRef);
     thread.runFor(1);
-    expect(thread.getClass().getClassname()).toBe('mainClass');
+    expect(thread.getClass().getName()).toBe('mainClass');
     expect(thread.peekStackFrame().locals[0] === objRef).toBe(true);
   });
   test('INVOKEVIRTUAL: objectref is null, throws a NullPointerException', () => {
@@ -1429,7 +1422,7 @@ describe('invokevirtual', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -1507,7 +1500,7 @@ describe('invokevirtual', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/AbstractMethodError'
     );
   });
@@ -1632,7 +1625,7 @@ describe('invokevirtual', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/AbstractMethodError'
     );
   });
@@ -2023,7 +2016,7 @@ describe('Invokeinterface', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IllegalAccessError'
     );
   });
@@ -2128,7 +2121,7 @@ describe('Invokeinterface', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/AbstractMethodError'
     );
   });
@@ -2256,7 +2249,7 @@ describe('Invokeinterface', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
   });
@@ -2352,7 +2345,7 @@ describe('Invokeinterface', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/AbstractMethodError'
     );
   });
@@ -2835,7 +2828,7 @@ describe('invokespecial', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/AbstractMethodError'
     );
   });
@@ -2944,7 +2937,7 @@ describe('invokespecial', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
   });
@@ -3325,7 +3318,7 @@ describe('Getstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IllegalAccessError'
     );
   });
@@ -3408,7 +3401,7 @@ describe('Getstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
   });
@@ -3479,7 +3472,7 @@ describe('Getstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NoSuchFieldError'
     );
   });
@@ -3860,7 +3853,7 @@ describe('Putstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IllegalAccessError'
     );
   });
@@ -3943,7 +3936,7 @@ describe('Putstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IncompatibleClassChangeError'
     );
   });
@@ -4015,7 +4008,7 @@ describe('Putstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NoSuchFieldError'
     );
   });
@@ -4099,7 +4092,7 @@ describe('Putstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IllegalAccessError'
     );
   });
@@ -4252,7 +4245,7 @@ describe('Putstatic', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/IllegalAccessError'
     );
   });
@@ -4495,7 +4488,7 @@ describe('New', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/InstantiationError'
     );
   });
@@ -4546,7 +4539,7 @@ describe('New', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/InstantiationError'
     );
   });
@@ -4626,7 +4619,7 @@ describe('Newarray', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     const arrayObj = (thread.popStack() as SuccessResult<any>)
       .result as JvmArray;
-    expect(arrayObj.getClass().getClassname()).toBe('[Z');
+    expect(arrayObj.getClass().getName()).toBe('[Z');
     expect(arrayObj.len()).toBe(0);
   });
 
@@ -4772,7 +4765,7 @@ describe('Newarray', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NegativeArraySizeException'
     );
   });
@@ -4823,7 +4816,7 @@ describe('Anewarray', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     const arrayObj = (thread.popStack() as SuccessResult<any>)
       .result as JvmArray;
-    expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
+    expect(arrayObj.getClass().getName()).toBe('[LTest;');
     expect(arrayObj.len()).toBe(0);
   });
 
@@ -4918,7 +4911,7 @@ describe('Anewarray', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NegativeArraySizeException'
     );
   });
@@ -4969,7 +4962,7 @@ describe('Anewarray', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     const arrayObj = (thread.popStack() as SuccessResult<any>)
       .result as JvmArray;
-    expect(arrayObj.getClass().getClassname()).toBe('[LTest;');
+    expect(arrayObj.getClass().getName()).toBe('[LTest;');
     expect(arrayObj.len()).toBe(0);
   });
 
@@ -5064,7 +5057,7 @@ describe('Anewarray', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NegativeArraySizeException'
     );
   });
@@ -5164,7 +5157,7 @@ describe('Arraylength', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -5631,7 +5624,7 @@ describe('Checkcast', () => {
       loader: testLoader,
     });
 
-    const childClass = testLoader.createClass({
+    testLoader.createClass({
       className: 'Child',
       loader: testLoader,
       superClass: sClass as ReferenceClassData,
@@ -5710,7 +5703,7 @@ describe('Checkcast', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ClassCastException'
     );
   });
@@ -6177,7 +6170,7 @@ describe('Instanceof', () => {
       loader: testLoader,
     });
 
-    const childClass = testLoader.createClass({
+    testLoader.createClass({
       className: 'Child',
       loader: testLoader,
       superClass: sClass as ReferenceClassData,
@@ -6288,7 +6281,7 @@ describe('Athrow', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });

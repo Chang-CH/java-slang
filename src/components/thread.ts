@@ -291,7 +291,7 @@ export default class Thread {
     }
 
     console.debug(
-      sf.class.getClassname() +
+      sf.class.getName() +
         '.' +
         sf.method.getName() +
         sf.method.getDescriptor() +
@@ -299,7 +299,7 @@ export default class Thread {
         (ret === null
           ? 'null'
           : ret?.getClass
-          ? (ret?.getClass() as ReferenceClassData).getClassname()
+          ? (ret?.getClass() as ReferenceClassData).getName()
           : ret)
     );
 
@@ -318,7 +318,7 @@ export default class Thread {
   invokeStackFrame(sf: StackFrame) {
     console.debug(
       ''.padEnd(this.stackPointer + 2, '#') +
-        sf.class.getClassname() +
+        sf.class.getName() +
         '.' +
         sf.method.getName() +
         sf.method.getDescriptor() +
@@ -328,7 +328,7 @@ export default class Thread {
             return v === null
               ? 'null'
               : v?.getClass
-              ? (v?.getClass() as ReferenceClassData).getClassname()
+              ? (v?.getClass() as ReferenceClassData).getName()
               : v;
           })
           .join(', ') +

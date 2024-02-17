@@ -548,9 +548,6 @@ export function runInvokestatic(thread: Thread): void {
 
 export function runInvokeinterface(thread: Thread): void {
   const indexbyte = thread.getCode().getUint16(thread.getPC() + 1);
-  // Not actually useful
-  const count = thread.getCode().getUint8(thread.getPC() + 3);
-  const zero = thread.getCode().getUint8(thread.getPC() + 4);
 
   const constant = thread
     .getClass()
@@ -573,7 +570,6 @@ export function runInvokeinterface(thread: Thread): void {
   const { toInvoke, objRef } = toInvokeRes.result;
 
   if (toInvoke.checkNative()) {
-    const methodCls = toInvoke.getClass();
     thread.invokeStackFrame(
       new NativeStackFrame(
         toInvoke.getClass(),
@@ -593,8 +589,6 @@ export function runInvokeinterface(thread: Thread): void {
 
 export function runInvokedynamic(thread: Thread): void {
   const index = thread.getCode().getUint16(thread.getPC() + 1);
-  const zero1 = thread.getCode().getUint8(thread.getPC() + 3);
-  const zero2 = thread.getCode().getUint8(thread.getPC() + 4);
 
   const invoker = thread.getClass();
   const callsiteConstant = invoker.getConstant(index) as ConstantInvokeDynamic;
@@ -720,10 +714,6 @@ export function runAnewarray(thread: Thread): void {
   }
   const count = popResult.result;
   thread.offsetPc(3);
-  const onDefer = () => {
-    thread.pushStack(count);
-    thread.offsetPc(-3);
-  };
 
   if (count < 0) {
     thread.throwNewException('java/lang/NegativeArraySizeException', '');
@@ -739,7 +729,7 @@ export function runAnewarray(thread: Thread): void {
 
   const arrayClassRes = invoker
     .getLoader()
-    .getClass('[L' + objCls.getClassname() + ';');
+    .getClass('[L' + objCls.getName() + ';');
   if (checkError(arrayClassRes)) {
     throw new Error('Failed to load array class');
   }
@@ -776,8 +766,6 @@ export function runAthrow(thread: Thread): void {
     thread.throwNewException('java/lang/NullPointerException', '');
     return;
   }
-
-  console.warn('ATHROW: structured locking w/ synchronized not implemented');
 
   thread.offsetPc(1);
   thread.throwException(exception);

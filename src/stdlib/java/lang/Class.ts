@@ -115,7 +115,7 @@ const functions = {
     const clsObj = locals[0] as JvmObject;
     const clsRef = clsObj.getNativeField('classRef') as ClassData;
     // Replace slashes with ., Class splits by . to get simple name
-    const name = clsRef.getClassname().replaceAll('/', '.');
+    const name = clsRef.getName().replaceAll('/', '.');
     const strRes = thread.getJVM().getInternedString(name);
     thread.returnStackFrame(strRes);
   },
@@ -280,7 +280,7 @@ const functions = {
     const innerAttrib = classRef.getAttribute('InnerClasses') as InnerClasses;
     if (innerAttrib) {
       for (const cls of innerAttrib.classes) {
-        if (cls.innerClass.getClassName() === classRef.getClassname()) {
+        if (cls.innerClass.getClassName() === classRef.getName()) {
           if (cls.outerClass === null) {
             thread.returnStackFrame(null);
           } else {

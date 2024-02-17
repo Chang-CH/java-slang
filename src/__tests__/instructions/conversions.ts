@@ -6,16 +6,12 @@ import { JavaStackFrame } from '#jvm/components/stackframe';
 import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
 let thread: Thread;
-let threadClass: ReferenceClassData;
 let code: DataView;
-let jni: JNI;
 
 beforeEach(() => {
   const setup = setupTest();
   thread = setup.thread;
-  threadClass = setup.classes.threadClass;
   code = setup.code;
-  jni = setup.jni;
   const testClass = setup.classes.testClass;
   const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
@@ -155,7 +151,7 @@ describe('I2s', () => {
 
 describe('L2i', () => {
   test('L2I: max int long converts to int', () => {
-    thread.pushStack64(2147483647n);
+    thread.pushStack64(BigInt(2147483647));
     code.setUint8(0, OPCODE.L2I);
 
     thread.runFor(1);
@@ -167,7 +163,7 @@ describe('L2i', () => {
   });
 
   test('L2I: min int long converts to int', () => {
-    thread.pushStack64(-2147483648n);
+    thread.pushStack64(BigInt(-2147483648));
     code.setUint8(0, OPCODE.L2I);
 
     thread.runFor(1);
@@ -179,7 +175,7 @@ describe('L2i', () => {
   });
 
   test('L2I: long convert to int overflows', () => {
-    thread.pushStack64(2147483648n);
+    thread.pushStack64(BigInt(2147483648));
     code.setUint8(0, OPCODE.L2I);
 
     thread.runFor(1);
@@ -193,7 +189,7 @@ describe('L2i', () => {
 
 describe('L2f', () => {
   test('L2F: long converts to float', () => {
-    thread.pushStack64(10n);
+    thread.pushStack64(BigInt(10));
     code.setUint8(0, OPCODE.L2F);
 
     thread.runFor(1);
@@ -205,7 +201,7 @@ describe('L2f', () => {
   });
 
   test('L2F: long convert to float lose precision', () => {
-    thread.pushStack64(9223372036854775807n);
+    thread.pushStack64(BigInt('9223372036854775807'));
     code.setUint8(0, OPCODE.L2F);
 
     thread.runFor(1);
@@ -219,7 +215,7 @@ describe('L2f', () => {
 
 describe('L2d', () => {
   test('L2D: long converts to double', () => {
-    thread.pushStack64(10n);
+    thread.pushStack64(BigInt(10));
     code.setUint8(0, OPCODE.L2D);
 
     thread.runFor(1);
@@ -231,7 +227,7 @@ describe('L2d', () => {
   });
 
   test('L2D: long convert to double lose precision', () => {
-    thread.pushStack64(9223372036854775807n);
+    thread.pushStack64(BigInt('9223372036854775807'));
     code.setUint8(0, OPCODE.L2D);
 
     thread.runFor(1);
@@ -325,7 +321,7 @@ describe('F2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-20n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-20));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -337,7 +333,7 @@ describe('F2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('9223372036854775807'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -349,7 +345,7 @@ describe('F2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('-9223372036854775808'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -373,7 +369,7 @@ describe('F2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('9223372036854775807'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -385,7 +381,7 @@ describe('F2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('-9223372036854775808'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -487,7 +483,7 @@ describe('D2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-20n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(-20));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -499,7 +495,7 @@ describe('D2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('9223372036854775807'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -511,7 +507,7 @@ describe('D2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('-9223372036854775808'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -535,7 +531,7 @@ describe('D2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(9223372036854775807n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('9223372036854775807'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });
@@ -547,7 +543,7 @@ describe('D2l', () => {
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(-9223372036854775808n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt('-9223372036854775808'));
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(1);
   });

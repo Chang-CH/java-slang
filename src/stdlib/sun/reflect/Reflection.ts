@@ -15,7 +15,7 @@ function getCallerClass(
   let frame: StackFrame = caller[idx];
 
   while (
-    frame.method.getClass().getClassname() === 'java/lang/reflect/Method' &&
+    frame.method.getClass().getName() === 'java/lang/reflect/Method' &&
     frame.method.getName() === 'invoke'
   ) {
     if (idx === 0) {

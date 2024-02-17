@@ -1,7 +1,6 @@
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import Thread from '#jvm/components/thread';
-import { JNI } from '#jvm/components/jni';
 import { JvmObject } from '#types/reference/Object';
 import {
   ConstantClassInfo,
@@ -20,10 +19,7 @@ import { SuccessResult } from '#types/Result';
 let testSystem: AbstractSystem;
 let testLoader: TestClassLoader;
 let thread: Thread;
-let threadClass: ReferenceClassData;
 let code: DataView;
-let jni: JNI;
-let strClass: ReferenceClassData;
 let testClass: ReferenceClassData;
 
 beforeEach(() => {
@@ -31,10 +27,7 @@ beforeEach(() => {
   testSystem = setup.testSystem;
   testLoader = setup.testLoader;
   thread = setup.thread;
-  threadClass = setup.classes.threadClass;
   code = setup.code;
-  jni = setup.jni;
-  strClass = setup.classes.strClass as ReferenceClassData;
   testClass = setup.classes.testClass as ReferenceClassData;
   const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
@@ -493,7 +486,7 @@ describe('Ldc', () => {
     expect(lastFrame.operandStack.length).toBe(1);
     const clsObj = lastFrame.operandStack[0] as JvmObject;
     expect(clsConstant.get() === testClass).toBe(true);
-    expect(clsObj.getClass().getClassname()).toBe('java/lang/Class');
+    expect(clsObj.getClass().getName()).toBe('java/lang/Class');
     expect(clsObj.getNativeField('classRef') === testClass).toBe(true);
     expect(lastFrame.locals.length).toBe(0);
     expect(thread.getPC()).toBe(2);
@@ -714,7 +707,7 @@ describe('LdcW', () => {
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(1);
-    expect(lastFrame.operandStack[0].getClass().getClassname()).toBe(
+    expect(lastFrame.operandStack[0].getClass().getName()).toBe(
       'java/lang/Class'
     );
     expect(

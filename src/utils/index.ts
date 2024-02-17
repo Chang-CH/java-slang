@@ -68,7 +68,7 @@ export const typeIndexScale = (cls: ClassData) => {
     return 4;
   }
 
-  const componentName = cls.getClassname();
+  const componentName = cls.getName();
   switch (componentName) {
     case 'long':
     case 'double':

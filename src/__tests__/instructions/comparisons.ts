@@ -6,13 +6,11 @@ import { setupTest } from '#jvm/__tests__/__utils__/test-utility';
 
 let thread: Thread;
 let code: DataView;
-let jni: JNI;
 
 beforeEach(() => {
   const setup = setupTest();
   thread = setup.thread;
   code = setup.code;
-  jni = setup.jni;
   const testClass = setup.classes.testClass;
   const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
@@ -20,7 +18,7 @@ beforeEach(() => {
 
 describe('Lcmp', () => {
   test('lcmp: value1 > value2 pushes 1I onto stack', () => {
-    thread.pushStack64(100n);
+    thread.pushStack64(BigInt(100));
     thread.pushStack64(BigInt(99));
     code.setUint8(0, OPCODE.LCMP);
 
@@ -33,8 +31,8 @@ describe('Lcmp', () => {
   });
 
   test('lcmp: value1 == value2 pushes 0I onto stack', () => {
-    thread.pushStack64(100n);
-    thread.pushStack64(100n);
+    thread.pushStack64(BigInt(100));
+    thread.pushStack64(BigInt(100));
     code.setUint8(0, OPCODE.LCMP);
 
     thread.runFor(1);
@@ -47,7 +45,7 @@ describe('Lcmp', () => {
 
   test('lcmp: value1 < value2 pushes 0I onto stack', () => {
     thread.pushStack64(BigInt(99));
-    thread.pushStack64(100n);
+    thread.pushStack64(BigInt(100));
     code.setUint8(0, OPCODE.LCMP);
 
     thread.runFor(1);

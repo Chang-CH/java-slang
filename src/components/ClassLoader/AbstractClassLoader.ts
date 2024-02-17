@@ -14,6 +14,7 @@ import { ArrayClassData } from '#types/class/ClassData';
 import {
   ErrorResult,
   ImmediateResult,
+  SuccessResult,
   checkError,
   checkSuccess,
 } from '#types/Result';
@@ -42,9 +43,12 @@ export default abstract class AbstractClassLoader {
    * @param classFile
    * @returns
    */
-  defineClass(classFile: ClassFile): ClassData {
-    const cls = this.linkClass(classFile);
-    return this.loadClass(cls);
+  defineClass(classFile: ClassFile): ImmediateResult<ClassData> {
+    const linkResult = this.linkClass(classFile);
+    if (checkError(linkResult)) {
+      return linkResult;
+    }
+    return { result: this.loadClass(linkResult.result) };
   }
 
   /**
@@ -55,7 +59,7 @@ export default abstract class AbstractClassLoader {
   protected linkClass(
     cls: ClassFile,
     protectionDomain?: JvmObject
-  ): ReferenceClassData {
+  ): ImmediateResult<ClassData> {
     // resolve classname
     const clsInfo = cls.constantPool[cls.thisClass] as ConstantClassInfo;
     const clsName = cls.constantPool[clsInfo.nameIndex] as ConstantUtf8Info;
@@ -72,10 +76,9 @@ export default abstract class AbstractClassLoader {
     );
 
     if (hasError) {
-      // FIXME: throw java error instead
-      throw new Error((hasError as ErrorResult).exceptionCls);
+      return hasError;
     }
-    return data;
+    return { result: data };
   }
 
   /**
@@ -83,7 +86,7 @@ export default abstract class AbstractClassLoader {
    * The same class loaded by a different classloader is considered a different class.
    */
   protected loadClass(cls: ClassData): ClassData {
-    this.loadedClasses[cls.getClassname()] = cls;
+    this.loadedClasses[cls.getName()] = cls;
     return cls;
   }
 
@@ -180,8 +183,12 @@ export default abstract class AbstractClassLoader {
       };
     }
 
-    const classData = this.linkClass(classFile);
-    return { result: this.loadClass(classData) };
+    const linkResult = this.linkClass(classFile);
+    if (checkError(linkResult)) {
+      return linkResult;
+    }
+
+    return { result: this.loadClass(linkResult.result) };
   }
 
   getJavaObject(): JvmObject | null {

@@ -80,7 +80,7 @@ export class JvmObject {
   getField(fieldRef: Field): JvmObject | number | bigint | null {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
-    const fieldClass = fieldRef.getClass().getClassname();
+    const fieldClass = fieldRef.getClass().getName();
     return this._getField(fieldName, fieldDesc, fieldClass);
   }
 
@@ -101,7 +101,7 @@ export class JvmObject {
   putField(fieldRef: Field, value: JvmObject | number | bigint | null) {
     const fieldName = fieldRef.getName();
     const fieldDesc = fieldRef.getFieldDesc();
-    const fieldClass = fieldRef.getClass().getClassname();
+    const fieldClass = fieldRef.getClass().getName();
     this._putField(fieldName, fieldDesc, fieldClass, value);
   }
 

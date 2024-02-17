@@ -1398,7 +1398,7 @@ describe('Idiv', () => {
     expect(thread.getPC()).toBe(0);
 
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArithmeticException'
     );
   });
@@ -1465,7 +1465,7 @@ describe('Ldiv', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArithmeticException'
     );
   });
@@ -1908,7 +1908,7 @@ describe('Irem', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArithmeticException'
     );
   });
@@ -1951,7 +1951,7 @@ describe('Lrem', () => {
     );
     expect(thread.getPC()).toBe(0);
     const exceptionObj = lastFrame.locals[1] as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArithmeticException'
     );
   });

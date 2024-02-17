@@ -14,7 +14,7 @@ const functions = {
   ) => {
     const ref = locals[1] as JvmObject;
     const memberName = locals[0] as JvmObject;
-    const refClassname = ref.getClass().getClassname();
+    const refClassname = ref.getClass().getName();
 
     if (refClassname === 'java/lang/reflect/Field') {
       throw new Error('Not implemented');

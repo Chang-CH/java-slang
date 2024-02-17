@@ -6,10 +6,7 @@ import {
 } from '#utils/index';
 import Thread from '#jvm/components/thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
-import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import { ClassFile } from '#jvm/external/ClassFile/types';
 import * as info from '#jvm/external/ClassFile/types/constants';
-import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { Field } from '#types/class/Field';
 import { Method } from '#types/class/Method';
 import {
@@ -21,7 +18,6 @@ import { JavaType } from '#types/reference/Object';
 import type { JvmArray } from '#types/reference/Array';
 import type { JvmObject } from '#types/reference/Object';
 import { InternalStackFrame } from '#jvm/components/stackframe';
-import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import {
   Result,
   checkError,

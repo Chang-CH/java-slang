@@ -10,14 +10,12 @@ import { SuccessResult } from '#types/Result';
 let thread: Thread;
 let threadClass: ReferenceClassData;
 let code: DataView;
-let jni: JNI;
 
 beforeEach(() => {
   const setup = setupTest();
   thread = setup.thread;
   threadClass = setup.classes.threadClass;
   code = setup.code;
-  jni = setup.jni;
   const testClass = setup.classes.testClass;
   const method = setup.method;
   thread.invokeStackFrame(new JavaStackFrame(testClass, method, 0, []));
@@ -194,7 +192,6 @@ describe('Areturn', () => {
 
 describe('return', () => {
   test('RETURN: returns to previous stackframe', () => {
-    const obj = new JvmObject(threadClass);
     thread.invokeStackFrame(
       new JavaStackFrame(threadClass, thread.getMethod(), 0, [])
     );

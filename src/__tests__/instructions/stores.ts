@@ -16,7 +16,6 @@ let thread: Thread;
 let threadClass: ReferenceClassData;
 let testClass: ClassData;
 let code: DataView;
-let jni: JNI;
 let loader: TestClassLoader;
 
 beforeEach(() => {
@@ -24,7 +23,6 @@ beforeEach(() => {
   thread = setup.thread;
   threadClass = setup.classes.threadClass;
   code = setup.code;
-  jni = setup.jni;
   testClass = setup.classes.testClass;
   loader = setup.testLoader;
 
@@ -110,7 +108,7 @@ describe('Istore3', () => {
 
 describe('Lstore', () => {
   test('LSTORE: stores long into locals', () => {
-    thread.pushStack64(3n);
+    thread.pushStack64(BigInt(3));
     code.setUint8(0, OPCODE.LSTORE);
     code.setUint8(1, 0);
 
@@ -119,7 +117,7 @@ describe('Lstore', () => {
     } catch (e) {}
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(0);
-    expect(thread.loadLocal(0) === 3n).toBe(true);
+    expect(thread.loadLocal(0) === BigInt(3)).toBe(true);
     expect(thread.getPC()).toBe(2);
   });
 });
@@ -576,7 +574,7 @@ describe('Iastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -593,7 +591,7 @@ describe('Iastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -610,7 +608,7 @@ describe('Iastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -644,7 +642,7 @@ describe('Lastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -661,7 +659,7 @@ describe('Lastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -678,7 +676,7 @@ describe('Lastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -712,7 +710,7 @@ describe('Fastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -729,7 +727,7 @@ describe('Fastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -746,7 +744,7 @@ describe('Fastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -780,7 +778,7 @@ describe('Dastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -797,7 +795,7 @@ describe('Dastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -814,7 +812,7 @@ describe('Dastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -851,7 +849,7 @@ describe('Aastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -871,7 +869,7 @@ describe('Aastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -891,7 +889,7 @@ describe('Aastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -943,7 +941,7 @@ describe('Bastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -960,7 +958,7 @@ describe('Bastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -977,7 +975,7 @@ describe('Bastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1029,7 +1027,7 @@ describe('Castore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -1046,7 +1044,7 @@ describe('Castore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1063,7 +1061,7 @@ describe('Castore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1115,7 +1113,7 @@ describe('Sastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/NullPointerException'
     );
   });
@@ -1132,7 +1130,7 @@ describe('Sastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });
@@ -1149,7 +1147,7 @@ describe('Sastore', () => {
       thread.runFor(1);
     } catch (e) {}
     const exceptionObj = thread.loadLocal(1) as JvmObject;
-    expect(exceptionObj.getClass().getClassname()).toBe(
+    expect(exceptionObj.getClass().getName()).toBe(
       'java/lang/ArrayIndexOutOfBoundsException'
     );
   });

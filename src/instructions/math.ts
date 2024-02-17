@@ -418,7 +418,7 @@ export function runLushr(thread: Thread): void {
   }
 
   // convert leading 1's to zeros
-  thread.pushStack64((value1 & 0xffffffffffffffffn) >> BigInt(value2));
+  thread.pushStack64((value1 & BigInt('0xffffffffffffffff')) >> BigInt(value2));
 }
 
 export function runIand(thread: Thread): void {

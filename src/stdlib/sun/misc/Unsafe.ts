@@ -38,7 +38,7 @@ function getFieldInfo(
   // also init unsafe at JVM startup?
   const unsafeCls = unsafe.getClass();
 
-  if (objCls.getClassname() === 'java/lang/Object') {
+  if (objCls.getName() === 'java/lang/Object') {
     const objBase = obj.getNativeField('staticFieldBase') as ReferenceClassData;
     return [objBase, objBase.getFieldFromVmIndex(Number(offset))];
   } else if (objCls.checkArray()) {
@@ -316,7 +316,7 @@ const functions = {
       if (!hostClass.getAttribute('NestHost')) {
         const classConstant = ConstantClass.asResolved(
           hostClass,
-          new ConstantUtf8(hostClass, hostClass.getClassname()),
+          new ConstantUtf8(hostClass, hostClass.getName()),
           hostClass
         );
         const nestHostAttr: NestHost = {
@@ -348,8 +348,15 @@ const functions = {
         new Uint8Array(byteArray.getJsArray()).buffer
       );
       const classfile = parseBin(bytecode);
-      const clsData = loader.defineClass(classfile);
-      thread.returnStackFrame(clsData.getJavaObject());
+      const loadResult = loader.defineClass(classfile);
+      if (checkError(loadResult)) {
+        thread.throwNewException(
+          (loadResult as ErrorResult).exceptionCls,
+          (loadResult as ErrorResult).msg
+        );
+        return;
+      }
+      thread.returnStackFrame(loadResult.result.getJavaObject());
     },
 
   'ensureClassInitialized(Ljava/lang/Class;)V': (
