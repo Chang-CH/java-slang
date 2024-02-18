@@ -3,7 +3,6 @@ import {
   ConstantClass,
   ConstantDouble,
   ConstantLong,
-  ConstantMethodHandle,
 } from '#types/class/Constants';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { checkSuccess, checkError } from '#types/Result';

@@ -14,11 +14,7 @@ import {
   ConstantInvokeDynamic,
   ConstantMethodref,
 } from '#types/class/Constants';
-import {
-  NativeStackFrame,
-  JavaStackFrame,
-  InternalStackFrame,
-} from '../components/stackframe';
+import { NativeStackFrame, JavaStackFrame } from '../components/stackframe';
 import {
   checkSuccess,
   checkError,

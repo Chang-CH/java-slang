@@ -19,7 +19,6 @@ import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { Code } from '#types/class/Attributes';
 import { JNI } from './jni';
 import { checkDefer, checkError } from '#types/Result';
-import { classFileToText } from '#utils/Prettify/classfile';
 
 const overwrites: {
   [cls: string]: {

@@ -369,8 +369,21 @@ export class ConstantClass extends Constant {
     if (this.result) {
       return this.result;
     }
+    const res = this.cls.getLoader().getClass(this.className.get());
+    if (checkError(res)) {
+      this.result = res;
+      return this.result;
+    }
 
-    this.result = this.cls.resolveClass(this.className.get());
+    const cls = res.result;
+    if (
+      !cls.checkPublic() &&
+      cls.getPackageName() !== this.cls.getPackageName()
+    ) {
+      this.result = { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+    } else {
+      this.result = { result: cls };
+    }
 
     return this.result;
   }

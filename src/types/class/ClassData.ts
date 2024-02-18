@@ -67,20 +67,13 @@ export abstract class ClassData {
   protected accessFlags: number;
   protected type: CLASS_TYPE;
   public status: CLASS_STATUS = CLASS_STATUS.PREPARED;
-
-  protected classLock?: ClassLock;
-
+  protected classLock?: ClassLock; // Used to synchronize class initialization
   protected thisClass: string;
   protected packageName: string;
-
   protected javaClassObject?: JvmObject;
-
   protected superClass: ReferenceClassData | null = null;
-
   protected interfaces: Array<ReferenceClassData> = [];
-
   protected constantPool: ConstantPool;
-
   protected fields: {
     [fieldName: string]: Field;
   } = {};
@@ -90,9 +83,7 @@ export abstract class ClassData {
   protected methods: {
     [methodName: string]: Method;
   } = {};
-
   protected attributes: { [attributeName: string]: IAttribute } = {};
-
   constructor(
     loader: AbstractClassLoader,
     accessFlags: number,
@@ -173,24 +164,9 @@ export abstract class ClassData {
   }
 
   /**
-   * Resolves a class given the class name using the classloader used to load this class.
-   * If the class is not accessible to the current class, an exception is returned.
-   * @param toResolve: class name to resolve, e.g. java/lang/Object
+   * Gets all non static fields of the current class, including inherited fields.
+   * @returns {{ [fieldName: string]: Field }} Object with key "classname.fieldnamefieldtype"
    */
-  resolveClass(toResolve: string): ImmediateResult<ClassData> {
-    const res = this.loader.getClass(toResolve);
-    if (checkError(res)) {
-      return res;
-    }
-    const cls = res.result;
-
-    if (!cls.checkPublic() && cls.getPackageName() !== this.getPackageName()) {
-      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
-    }
-
-    return res;
-  }
-
   getInstanceFields(): {
     [fieldName: string]: Field;
   } {
@@ -232,6 +208,116 @@ export abstract class ClassData {
    */
   getInterfaces(): ReferenceClassData[] {
     return this.interfaces;
+  }
+
+  /**
+   * 5.4.3.3.2 Method resolution in superclass
+   * @param name
+   * @param descriptor
+   * @returns MethodRef, if any
+   */
+  private _resolveMethodSuper(name: string, descriptor: string): Method | null {
+    const signature = name + descriptor;
+    // If C declares a method with the name and descriptor specified by the method reference, method lookup succeeds.
+    if (this.methods[signature]) {
+      return this.methods[signature];
+    }
+
+    // If C declares exactly one method with the name specified by the method reference,
+    // and the declaration is a signature polymorphic method (§2.9.3), then method lookup succeeds.
+    if (this.thisClass === 'java/lang/invoke/MethodHandle') {
+      const polyMethod =
+        this.methods[name + '([Ljava/lang/Object;)Ljava/lang/Object;'];
+      if (
+        polyMethod &&
+        polyMethod.checkVarargs() &&
+        polyMethod.checkNative() &&
+        Object.keys(this.methods).filter(x => x.startsWith(name + '('))
+          .length === 1
+      ) {
+        return polyMethod;
+      }
+    }
+
+    // Otherwise, if C has a superclass, step 2 of method resolution is recursively invoked on the direct superclass of C.
+    const superClass = this.getSuperClass();
+    if (superClass === null) {
+      return null;
+    }
+    return superClass._resolveMethodSuper(name, descriptor);
+  }
+
+  /**
+   * 5.4.3.3.2 Method resolution in superinterfaces
+   * @param methodName
+   * @returns MethodRef, if any
+   */
+  private _resolveMethodInterface(
+    name: string,
+    descriptor: string
+  ): Method | null {
+    let abstractMethod = null;
+    const signature = name + descriptor;
+    for (const inter of this.interfaces) {
+      let method = inter.getMethod(signature);
+
+      if (!method) {
+        method = (inter as ReferenceClassData)._resolveMethodInterface(
+          name,
+          descriptor
+        );
+      }
+
+      if (method && !method.checkPrivate() && !method.checkStatic()) {
+        if (method.checkAbstract()) {
+          abstractMethod = method;
+          continue;
+        }
+        return method;
+      }
+    }
+    if (abstractMethod !== null) {
+      return abstractMethod;
+    }
+    return null;
+  }
+
+  /**
+   * Resolves method reference from the current class.
+   * Checks if the accessing class has access to the method.
+   * @param name method name
+   * @param descriptor method descriptor
+   * @param accessingClass
+   * @returns
+   */
+  resolveMethod(
+    name: string,
+    descriptor: string,
+    accessingClass: ClassData
+  ): ImmediateResult<Method> {
+    // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
+    let result = this._resolveMethodSuper(name, descriptor);
+
+    if (result !== null) {
+      const method = result;
+      const accessCheckResult = method.checkAccess(accessingClass, this);
+      if (checkError(accessCheckResult)) {
+        return accessCheckResult;
+      }
+      return { result };
+    }
+
+    // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
+    result = this._resolveMethodInterface(name, descriptor);
+    if (result !== null) {
+      const accessCheckResult = result.checkAccess(accessingClass, this);
+      if (checkError(accessCheckResult)) {
+        return accessCheckResult;
+      }
+      return { result };
+    }
+    // If method lookup fails, method resolution throws a NoSuchMethodError
+    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
   }
 
   private _checkOverrides(
@@ -454,115 +540,6 @@ export abstract class ClassData {
     }
 
     return superClass.lookupField(fieldName);
-  }
-
-  /**
-   * 5.4.3.3.2 Method resolution in superclass
-   * @param name
-   * @param descriptor
-   * @returns MethodRef, if any
-   */
-  private _resolveMethodSuper(name: string, descriptor: string): Method | null {
-    const signature = name + descriptor;
-    // If C declares a method with the name and descriptor specified by the method reference, method lookup succeeds.
-    if (this.methods[signature]) {
-      return this.methods[signature];
-    }
-
-    // If C declares exactly one method with the name specified by the method reference,
-    // and the declaration is a signature polymorphic method (§2.9.3), then method lookup succeeds.
-    if (this.thisClass === 'java/lang/invoke/MethodHandle') {
-      const polyMethod =
-        this.methods[name + '([Ljava/lang/Object;)Ljava/lang/Object;'];
-      if (
-        polyMethod &&
-        polyMethod.checkVarargs() &&
-        polyMethod.checkNative() &&
-        Object.keys(this.methods).filter(x => x.startsWith(name + '('))
-          .length === 1
-      ) {
-        return polyMethod;
-      }
-    }
-
-    // Otherwise, if C has a superclass, step 2 of method resolution is recursively invoked on the direct superclass of C.
-    const superClass = this.getSuperClass();
-    if (superClass === null) {
-      return null;
-    }
-    return superClass._resolveMethodSuper(name, descriptor);
-  }
-
-  /**
-   * 5.4.3.3.2 Method resolution in superinterfaces
-   * @param methodName
-   * @returns MethodRef, if any
-   */
-  private _resolveMethodInterface(
-    name: string,
-    descriptor: string
-  ): Method | null {
-    let abstractMethod = null;
-    const signature = name + descriptor;
-    for (const inter of this.interfaces) {
-      let method = inter.getMethod(signature);
-
-      if (!method) {
-        method = (inter as ReferenceClassData)._resolveMethodInterface(
-          name,
-          descriptor
-        );
-      }
-
-      if (method && !method.checkPrivate() && !method.checkStatic()) {
-        if (method.checkAbstract()) {
-          abstractMethod = method;
-          continue;
-        }
-        return method;
-      }
-    }
-    if (abstractMethod !== null) {
-      return abstractMethod;
-    }
-    return null;
-  }
-
-  /**
-   * Resolves method reference from the current class.
-   * Returns exception if any.
-   * @param methodKey method name + method descriptor
-   * @param accessingClass class that is accessing the method
-   * @returns
-   */
-  resolveMethod(
-    name: string,
-    descriptor: string,
-    accessingClass: ClassData
-  ): ImmediateResult<Method> {
-    // Otherwise, method resolution attempts to locate the referenced method in C and its superclasses
-    let result = this._resolveMethodSuper(name, descriptor);
-
-    if (result !== null) {
-      const method = result;
-      const accessCheckResult = method.checkAccess(accessingClass, this);
-      if (checkError(accessCheckResult)) {
-        return accessCheckResult;
-      }
-      return { result };
-    }
-
-    // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
-    result = this._resolveMethodInterface(name, descriptor);
-    if (result !== null) {
-      const accessCheckResult = result.checkAccess(accessingClass, this);
-      if (checkError(accessCheckResult)) {
-        return accessCheckResult;
-      }
-      return { result };
-    }
-    // If method lookup fails, method resolution throws a NoSuchMethodError
-    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
   }
 
   getConstant(constantIndex: number): Constant {
