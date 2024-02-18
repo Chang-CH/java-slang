@@ -15,6 +15,7 @@ public class Main {
             Main.staticOuter();
             Main m = new Main();
             m.outer();
+            m.outerWithParam("Param1 from inner", "Param2 from inner");
             System.out.println(Main.value);
             System.out.println("InnerClass.run() finished");
         }
@@ -29,6 +30,12 @@ public class Main {
 
     private void outer() {
         System.out.println("Main.outer()");
+    }
+
+    private void outerWithParam(String s, String s2) {
+        System.out.println("Main.outerWithParam()");
+        System.out.println(s);
+        System.out.println(s2);
     }
 
     public static void main(String[] args) {
