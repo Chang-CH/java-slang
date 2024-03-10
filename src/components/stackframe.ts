@@ -74,16 +74,6 @@ const runInstruction = (thread: Thread, method: Method) => {
   const opcode = (method._getCode() as Code).code.getUint8(thread.getPC());
 
   let result;
-  if (thread.getJVM().checkInitialized() || true) {
-    console.debug(
-      ''.padEnd(thread.getFrames().length, '#') +
-        `${method.getClass().getName()}.${
-          method.getName() + method.getDescriptor()
-        }:${OPCODE[opcode]}#${thread.getPC()}, stack: ${
-          thread.peekStackFrame().operandStack
-        }`
-    );
-  }
   switch (opcode) {
     case OPCODE.NOP:
       result = constants.runNop(thread);

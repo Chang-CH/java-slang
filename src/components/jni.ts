@@ -67,8 +67,7 @@ export class JNI {
         this.classes[className].blocking = [thread];
         thread.setStatus(ThreadStatus.WAITING);
         if (this.classes[className].loader) {
-          // @ts-ignore
-          this.classes[className].loader(lib => {
+          this.classes[className].loader?.(lib => {
             this.classes[className].methods = lib;
             this.classes[className].blocking?.forEach(thread => {
               thread.setStatus(ThreadStatus.RUNNABLE);
@@ -77,7 +76,9 @@ export class JNI {
           });
         } else {
           this.system
-            .readFile(this.classPath + '/' + className)
+            .readFile(
+              this.classPath ? this.classPath + '/' + className : className
+            )
             .then(lib => {
               this.classes[className].methods = lib.default;
             })

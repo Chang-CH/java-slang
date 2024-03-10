@@ -27,7 +27,7 @@ import { JNI } from '#jvm/components/jni';
 import Thread from '#jvm/components/thread';
 import { AbstractThreadPool } from '#jvm/components/ThreadPool';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
-import JVM from '#jvm/index';
+import JVM from '#jvm/jvm';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import { Field } from '#types/class/Field';
 import { JvmArray } from '#types/reference/Array';

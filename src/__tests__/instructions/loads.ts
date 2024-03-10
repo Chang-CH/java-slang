@@ -42,14 +42,14 @@ describe('ILOAD', () => {
 
 describe('LLOAD', () => {
   test('LLOAD: loads long from local variable array', () => {
-    thread.peekStackFrame().locals[0] = 10n;
+    thread.peekStackFrame().locals[0] = BigInt(10);
     code.setUint8(0, OPCODE.LLOAD);
     code.setUint8(1, 0);
     thread.runFor(1);
 
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(10n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(10));
     expect(lastFrame.locals.length).toBe(1);
     expect(thread.getPC()).toBe(2);
   });
@@ -169,15 +169,15 @@ describe('ILOAD_3', () => {
 
 describe('LLOAD_0', () => {
   test('LLOAD_0: loads long from local variable array', () => {
-    thread.peekStackFrame().locals[0] = 10n;
-    thread.peekStackFrame().locals[1] = 11n;
-    thread.peekStackFrame().locals[2] = 12n;
-    thread.peekStackFrame().locals[3] = 13n;
+    thread.peekStackFrame().locals[0] = BigInt(10);
+    thread.peekStackFrame().locals[1] = BigInt(11);
+    thread.peekStackFrame().locals[2] = BigInt(12);
+    thread.peekStackFrame().locals[3] = BigInt(13);
     code.setUint8(0, OPCODE.LLOAD_0);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(10n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(10));
     expect(lastFrame.locals.length).toBe(4);
     expect(thread.getPC()).toBe(1);
   });
@@ -185,15 +185,15 @@ describe('LLOAD_0', () => {
 
 describe('LLOAD_1', () => {
   test('LLOAD_1: loads long from local variable array', () => {
-    thread.peekStackFrame().locals[0] = 10n;
-    thread.peekStackFrame().locals[1] = 11n;
-    thread.peekStackFrame().locals[2] = 12n;
-    thread.peekStackFrame().locals[3] = 13n;
+    thread.peekStackFrame().locals[0] = BigInt(10);
+    thread.peekStackFrame().locals[1] = BigInt(11);
+    thread.peekStackFrame().locals[2] = BigInt(12);
+    thread.peekStackFrame().locals[3] = BigInt(13);
     code.setUint8(0, OPCODE.LLOAD_1);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(11n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(11));
     expect(lastFrame.locals.length).toBe(4);
     expect(thread.getPC()).toBe(1);
   });
@@ -201,15 +201,15 @@ describe('LLOAD_1', () => {
 
 describe('LLOAD_2', () => {
   test('LLOAD_2: loads long from local variable array', () => {
-    thread.peekStackFrame().locals[0] = 10n;
-    thread.peekStackFrame().locals[1] = 11n;
-    thread.peekStackFrame().locals[2] = 12n;
-    thread.peekStackFrame().locals[3] = 13n;
+    thread.peekStackFrame().locals[0] = BigInt(10);
+    thread.peekStackFrame().locals[1] = BigInt(11);
+    thread.peekStackFrame().locals[2] = BigInt(12);
+    thread.peekStackFrame().locals[3] = BigInt(13);
     code.setUint8(0, OPCODE.LLOAD_2);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(12n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(12));
     expect(lastFrame.locals.length).toBe(4);
     expect(thread.getPC()).toBe(1);
   });
@@ -217,15 +217,15 @@ describe('LLOAD_2', () => {
 
 describe('LLOAD_3', () => {
   test('LLOAD_3: loads long from local variable array', () => {
-    thread.peekStackFrame().locals[0] = 10n;
-    thread.peekStackFrame().locals[1] = 11n;
-    thread.peekStackFrame().locals[2] = 12n;
-    thread.peekStackFrame().locals[3] = 13n;
+    thread.peekStackFrame().locals[0] = BigInt(10);
+    thread.peekStackFrame().locals[1] = BigInt(11);
+    thread.peekStackFrame().locals[2] = BigInt(12);
+    thread.peekStackFrame().locals[3] = BigInt(13);
     code.setUint8(0, OPCODE.LLOAD_3);
     thread.runFor(1);
     const lastFrame = thread.peekStackFrame();
     expect(lastFrame.operandStack.length).toBe(2);
-    expect(lastFrame.operandStack[0]).toBe(13n);
+    expect(lastFrame.operandStack[0]).toBe(BigInt(13));
     expect(lastFrame.locals.length).toBe(4);
     expect(thread.getPC()).toBe(1);
   });

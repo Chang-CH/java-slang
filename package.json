@@ -2,10 +2,9 @@
   "name": "jvm-slang",
   "version": "1.0.0",
   "description": "Java Virtual Machine written in JavaScript",
-  "main": "src/index.ts",
-  "type": "module",
+  "main": "bin/index",
   "scripts": {
-    "build": "npx tsc -p tsconfig.json",
+    "build": "npx tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "test": "jest --silent",
     "dev": "npx tsx src/utils/cli -d tests/thread/sync -m Main -j stdlib -p --nowarn --nodebug",
     "dev2": "npx tsx src/utils/cli -d example/dynamic -m Main -j stdlib -p --nowarn --nodebug",
@@ -15,6 +14,9 @@
     "Java",
     "Source",
     "SICP"
+  ],
+  "files": [
+    "bin"
   ],
   "imports": {
     "#types/*": "./src/types/*",
@@ -38,6 +40,7 @@
     "prettier": "^3.0.2",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.8",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
   },

@@ -1,5 +1,5 @@
 import { ThreadStatus } from '#jvm/constants';
-import JVM from '#jvm/index';
+import JVM from '#jvm/jvm';
 import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
@@ -59,6 +59,9 @@ export default class Thread {
   }
 
   runFor(quantum: number) {
+    if (this.quantumLeft > 0) {
+      return;
+    }
     this.quantumLeft = quantum;
 
     while (
@@ -74,6 +77,7 @@ export default class Thread {
       }
     }
 
+    this.quantumLeft = 0;
     this.tpool.quantumOver(this);
   }
 
@@ -290,19 +294,6 @@ export default class Thread {
       return sf;
     }
 
-    console.debug(
-      sf.class.getName() +
-        '.' +
-        sf.method.getName() +
-        sf.method.getDescriptor() +
-        ' return: ' +
-        (ret === null
-          ? 'null'
-          : ret?.getClass
-          ? (ret?.getClass() as ReferenceClassData).getName()
-          : ret)
-    );
-
     isWide ? sf.onReturn64(this, ret) : sf.onReturn(this, ret);
     return sf;
   }
@@ -316,25 +307,6 @@ export default class Thread {
   }
 
   invokeStackFrame(sf: StackFrame) {
-    console.debug(
-      ''.padEnd(this.stackPointer + 2, '#') +
-        sf.class.getName() +
-        '.' +
-        sf.method.getName() +
-        sf.method.getDescriptor() +
-        ': [' +
-        sf.locals
-          .map(v => {
-            return v === null
-              ? 'null'
-              : v?.getClass
-              ? (v?.getClass() as ReferenceClassData).getName()
-              : v;
-          })
-          .join(', ') +
-        ']'
-    );
-
     if (sf.method.checkSynchronized()) {
       if (sf.method.checkStatic()) {
         sf.method.getClass().getJavaObject().getMonitor().enter(this);

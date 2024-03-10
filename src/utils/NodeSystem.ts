@@ -24,11 +24,7 @@ export default class NodeSystem extends AbstractSystem {
 
     const view = new DataView(arraybuffer);
     const res = parseBin(view);
-    if (res) {
-      return res;
-    }
-
-    throw new Error('File is not a class file');
+    return res;
   }
 
   readFile(path: string): Promise<any> {

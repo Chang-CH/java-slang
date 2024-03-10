@@ -47,10 +47,6 @@ function getFieldInfo(
     const stride = typeIndexScale(compCls);
     const objBase = (obj as JvmArray).getJsArray();
 
-    assert(
-      Number(offset % BigInt(stride)) === 0,
-      `unsafeCompareAndSwap: Invalid offset for stride ${stride}: ${offset}`
-    );
     return [objBase, Math.floor(Number(offset) / stride)];
   } else {
     // normal class

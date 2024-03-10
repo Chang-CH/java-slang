@@ -2,13 +2,14 @@
 
 import BootstrapClassLoader from '#jvm/components/ClassLoader/BootstrapClassLoader';
 
-import JVM from '#jvm/index';
 import NodeSystem, { Folder } from '#utils/NodeSystem';
 import { classFileToText } from '#utils/Prettify/classfile';
 import parseBin, { a2ab } from '#utils/parseBinary';
 import * as fs from 'node:fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import setupJVM from '..';
+import JVM from '#jvm/jvm';
 
 export default function main() {
   /**
