@@ -1,5 +1,5 @@
 import { JNI } from '#jvm/components/jni';
-import { SuccessResult, checkSuccess } from '#types/Result';
+import { ResultType, SuccessResult } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
 import {
   TestSystem,
@@ -52,7 +52,7 @@ describe('JNI', () => {
     );
 
     const getResult = jni2.getNativeMethod(thread, 'test/Test', 'stdrun()V');
-    expect(checkSuccess(getResult)).toBe(true);
+    expect(getResult.status === ResultType.SUCCESS).toBe(true);
     (getResult as SuccessResult<any>).result(thread, []);
     expect(callback).toHaveBeenCalled();
   });

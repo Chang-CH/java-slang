@@ -5,7 +5,7 @@ import {
   ConstantLong,
 } from '#types/class/Constants';
 import { ReferenceClassData } from '#types/class/ClassData';
-import { checkSuccess, checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 
 export function runNop(thread: Thread): void {
   thread.offsetPc(1);
@@ -108,8 +108,8 @@ export function loadConstant(
   const constant = invoker.getConstant(index);
 
   const resolutionRes = constant.resolve(thread, invoker.getLoader());
-  if (!checkSuccess(resolutionRes)) {
-    if (checkError(resolutionRes)) {
+  if (resolutionRes.status !== ResultType.SUCCESS) {
+    if (resolutionRes.status === ResultType.ERROR) {
       thread.throwNewException(resolutionRes.exceptionCls, resolutionRes.msg);
     }
     return;
@@ -119,8 +119,8 @@ export function loadConstant(
   if (ConstantClass.check(constant)) {
     const clsRef = value as ReferenceClassData;
     const initRes = clsRef.initialize(thread);
-    if (!checkSuccess(initRes)) {
-      if (checkError(initRes)) {
+    if (initRes.status !== ResultType.SUCCESS) {
+      if (initRes.status === ResultType.ERROR) {
         thread.throwNewException(initRes.exceptionCls, initRes.msg);
       }
       return;

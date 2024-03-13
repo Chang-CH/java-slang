@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 import { JvmObject } from '#types/reference/Object';
 import { asDouble, asFloat } from '#utils/index';
 
@@ -39,7 +39,7 @@ export function runTableswitch(thread: Thread): void {
   offset += 4;
 
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const index = popResult.result;
@@ -69,7 +69,7 @@ export function runLookupswitch(thread: Thread): void {
   offset += 4;
 
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
 
@@ -107,7 +107,7 @@ function _return(thread: Thread, ret?: any, isWide?: boolean): void {
 
 export function runIreturn(thread: Thread): void {
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const ret = popResult.result;
@@ -116,7 +116,7 @@ export function runIreturn(thread: Thread): void {
 
 export function runLreturn(thread: Thread): void {
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const ret = popResult.result;
@@ -125,7 +125,7 @@ export function runLreturn(thread: Thread): void {
 
 export function runFreturn(thread: Thread): void {
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const ret = asFloat(popResult.result);
@@ -134,7 +134,7 @@ export function runFreturn(thread: Thread): void {
 
 export function runDreturn(thread: Thread): void {
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const ret = asDouble(popResult.result);
@@ -143,7 +143,7 @@ export function runDreturn(thread: Thread): void {
 
 export function runAreturn(thread: Thread): void {
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const ret = popResult.result;

@@ -32,7 +32,7 @@ import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader
 import { Field } from '#types/class/Field';
 import { JvmArray } from '#types/reference/Array';
 import { primitiveTypeToName } from '#utils/index';
-import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
+import { ImmediateResult, ResultType } from '#types/Result';
 import { CLASS_STATUS, ThreadStatus } from '#jvm/constants';
 
 export class TestClassLoader extends AbstractClassLoader {
@@ -60,15 +60,15 @@ export class TestClassLoader extends AbstractClassLoader {
   ): ImmediateResult<ArrayClassData> {
     // #region load array superclasses/interfaces
     const objRes = this.getClass('java/lang/Object');
-    if (checkError(objRes)) {
+    if (objRes.status === ResultType.ERROR) {
       return objRes;
     }
     const cloneableRes = this.getClass('java/lang/Cloneable');
-    if (checkError(cloneableRes)) {
+    if (cloneableRes.status === ResultType.ERROR) {
       return cloneableRes;
     }
     const serialRes = this.getClass('java/io/Serializable');
-    if (checkError(serialRes)) {
+    if (serialRes.status === ResultType.ERROR) {
       return serialRes;
     }
     // #endregion
@@ -82,7 +82,7 @@ export class TestClassLoader extends AbstractClassLoader {
     );
 
     this.loadClass(arrayClass);
-    return { result: arrayClass };
+    return { status: ResultType.SUCCESS, result: arrayClass };
   }
 
   load(className: string): ImmediateResult<ReferenceClassData> {
@@ -90,7 +90,10 @@ export class TestClassLoader extends AbstractClassLoader {
       className: className,
       loader: this,
     }) as ReferenceClassData;
-    return { result: this.loadClass(stubRef) as ReferenceClassData };
+    return {
+      status: ResultType.SUCCESS,
+      result: this.loadClass(stubRef) as ReferenceClassData,
+    };
   }
 
   loadTestClassRef(className: string, ref: ClassData) {
@@ -408,7 +411,7 @@ export class TestJVM extends JVM {
 
   private tnewCharArr(str: string): ImmediateResult<JvmArray> {
     const cArrRes = this.testLoader.getClass('[C');
-    if (checkError(cArrRes)) {
+    if (cArrRes.status === ResultType.ERROR) {
       return cArrRes;
     }
 
@@ -419,26 +422,26 @@ export class TestJVM extends JVM {
       jsArr.push(str.charCodeAt(i));
     }
     cArr.initArray(str.length, jsArr);
-    return { result: cArr };
+    return { status: ResultType.SUCCESS, result: cArr };
   }
 
   private tnewString(str: string): ImmediateResult<JvmObject> {
     const charArr = this.tnewCharArr(str);
 
-    if (!checkSuccess(charArr)) {
+    if (charArr.status !== ResultType.SUCCESS) {
       return charArr;
     }
 
     const strRes = this.testLoader.getClass('java/lang/String');
 
-    if (checkError(strRes)) {
+    if (strRes.status === ResultType.ERROR) {
       return strRes;
     }
     const strCls = strRes.result;
     const strObj = strCls.instantiate();
     const fieldRef = strCls.lookupField('value[C') as Field;
     strObj.putField(fieldRef as Field, charArr.result);
-    return { result: strObj };
+    return { status: ResultType.SUCCESS, result: strObj };
   }
 
   getInternedString(str: string) {
@@ -446,7 +449,7 @@ export class TestJVM extends JVM {
       return this.tinternedStrings[str];
     }
     const strRes = this.tnewString(str);
-    if (checkError(strRes)) {
+    if (strRes.status === ResultType.ERROR) {
       throw new Error('testString creation failed');
     }
 

@@ -14,9 +14,8 @@ import { ArrayClassData } from '#types/class/ClassData';
 import {
   ErrorResult,
   ImmediateResult,
+  ResultType,
   SuccessResult,
-  checkError,
-  checkSuccess,
 } from '#types/Result';
 
 export default abstract class AbstractClassLoader {
@@ -45,10 +44,13 @@ export default abstract class AbstractClassLoader {
    */
   defineClass(classFile: ClassFile): ImmediateResult<ClassData> {
     const linkResult = this.linkClass(classFile);
-    if (checkError(linkResult)) {
+    if (linkResult.status === ResultType.ERROR) {
       return linkResult;
     }
-    return { result: this.loadClass(linkResult.result) };
+    return {
+      status: ResultType.SUCCESS,
+      result: this.loadClass(linkResult.result),
+    };
   }
 
   /**
@@ -78,7 +80,7 @@ export default abstract class AbstractClassLoader {
     if (hasError) {
       return hasError;
     }
-    return { result: data };
+    return { status: ResultType.SUCCESS, result: data };
   }
 
   /**
@@ -106,7 +108,10 @@ export default abstract class AbstractClassLoader {
     initiator: AbstractClassLoader
   ): ImmediateResult<ClassData> {
     if (this.loadedClasses[className]) {
-      return { result: this.loadedClasses[className] };
+      return {
+        status: ResultType.SUCCESS,
+        result: this.loadedClasses[className],
+      };
     }
 
     if (className.startsWith('[')) {
@@ -114,13 +119,13 @@ export default abstract class AbstractClassLoader {
       let arrayObjCls;
       if (itemClsName.startsWith('L')) {
         const itemRes = this._getClass(itemClsName.slice(1, -1), initiator);
-        if (checkError(itemRes)) {
+        if (itemRes.status === ResultType.ERROR) {
           return itemRes;
         }
         arrayObjCls = itemRes.result;
       } else if (itemClsName.startsWith('[')) {
         const itemRes = this._getClass(itemClsName, initiator);
-        if (checkError(itemRes)) {
+        if (itemRes.status === ResultType.ERROR) {
           return itemRes;
         }
         arrayObjCls = itemRes.result;
@@ -134,7 +139,7 @@ export default abstract class AbstractClassLoader {
 
     if (this.parentLoader) {
       const res = this.parentLoader._getClass(className, initiator);
-      if (checkSuccess(res)) {
+      if (res.status === ResultType.SUCCESS) {
         return res;
       }
     }
@@ -178,17 +183,21 @@ export default abstract class AbstractClassLoader {
       classFile = this.nativeSystem.readFileSync(path);
     } catch (e) {
       return {
+        status: ResultType.ERROR,
         exceptionCls: 'java/lang/ClassNotFoundException',
         msg: className,
       };
     }
 
     const linkResult = this.linkClass(classFile);
-    if (checkError(linkResult)) {
+    if (linkResult.status === ResultType.ERROR) {
       return linkResult;
     }
 
-    return { result: this.loadClass(linkResult.result) };
+    return {
+      status: ResultType.SUCCESS,
+      result: this.loadClass(linkResult.result),
+    };
   }
 
   getJavaObject(): JvmObject | null {

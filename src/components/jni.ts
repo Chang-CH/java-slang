@@ -1,9 +1,9 @@
 import { ThreadStatus } from '#jvm/constants';
-import { Result } from '#types/Result';
+import { Result, ResultType } from '#types/Result';
 import AbstractSystem from '#utils/AbstractSystem';
 import Thread from './thread';
 
-type Lib = {
+export type Lib = {
   [className: string]: {
     loader?: (
       onFinish: (lib: {
@@ -96,17 +96,21 @@ export class JNI {
         this.classes[className].blocking!.push(thread);
         thread.setStatus(ThreadStatus.WAITING);
       }
-      return { isDefer: true };
+      return { status: ResultType.DEFER };
     }
 
     // native method does not exist
     if (!this.classes?.[className]?.methods?.[methodName]) {
       return {
+        status: ResultType.ERROR,
         exceptionCls: 'java/lang/UnsatisfiedLinkError',
         msg: `${className}.${methodName} implementation not found`,
       };
     }
 
-    return { result: (this.classes[className].methods as any)[methodName] };
+    return {
+      status: ResultType.SUCCESS,
+      result: (this.classes[className].methods as any)[methodName],
+    };
   }
 }

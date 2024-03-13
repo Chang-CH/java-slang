@@ -1,5 +1,5 @@
 import { ACCESS_FLAGS } from '#jvm/external/ClassFile/types';
-import { ImmediateResult, ErrorResult } from '#types/Result';
+import { ImmediateResult, ErrorResult, ResultType } from '#types/Result';
 import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, PrimitiveClassData } from '#types/class/ClassData';
 import { JavaType } from '#types/reference/Object';
@@ -31,7 +31,7 @@ export default class BootstrapClassLoader extends AbstractClassLoader {
     }
 
     this.loadClass(arrayClass);
-    return { result: arrayClass };
+    return { status: ResultType.SUCCESS, result: arrayClass };
   }
 
   getPrimitiveClass(className: string): PrimitiveClassData {

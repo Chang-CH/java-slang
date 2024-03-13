@@ -3,7 +3,7 @@ import { ConstantPool } from '#jvm/components/ConstantPool';
 import type Thread from '#jvm/components/thread';
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
-import { SuccessResult, checkError } from '#types/Result';
+import { SuccessResult } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';
 import {
   ArrayClassData,
@@ -173,7 +173,7 @@ export function getArgs(
         break; // should not happen
       case 'D':
         popResult = thread.popStack64();
-        if (checkError(popResult)) {
+        if (popResult.status === ResultType.ERROR) {
           break;
         }
         args.push(asDouble(popResult.result));
@@ -183,14 +183,14 @@ export function getArgs(
         break;
       case 'F':
         popResult = thread.popStack();
-        if (checkError(popResult)) {
+        if (popResult.status === ResultType.ERROR) {
           break;
         }
         args.push(asFloat(popResult.result));
         break;
       case 'J':
         popResult = thread.popStack64();
-        if (checkError(popResult)) {
+        if (popResult.status === ResultType.ERROR) {
           break;
         }
         args.push(popResult.result);
@@ -206,7 +206,7 @@ export function getArgs(
       case 'Z':
       default: // also references + arrays
         popResult = thread.popStack();
-        if (checkError(popResult)) {
+        if (popResult.status === ResultType.ERROR) {
           break;
         }
         args.push(popResult.result);

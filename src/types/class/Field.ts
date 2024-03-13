@@ -7,12 +7,7 @@ import Thread from '#jvm/components/thread';
 import { ConstantValue, IAttribute, NestHost } from './Attributes';
 import { ConstantPool } from '#jvm/components/ConstantPool';
 import { attrInfo2Interface, parseFieldDescriptor } from '#utils/index';
-import {
-  ImmediateResult,
-  checkError,
-  Result,
-  checkSuccess,
-} from '#types/Result';
+import { ImmediateResult, Result, ResultType } from '#types/Result';
 
 export class Field {
   private cls: ReferenceClassData;
@@ -63,7 +58,7 @@ export class Field {
       const constantValue = (
         this.attributes['ConstantValue'] as ConstantValue
       ).constantvalue.resolve(null as any, cls.getLoader()); // String resolution does not need thread
-      if (!checkSuccess(constantValue)) {
+      if (constantValue.status !== ResultType.SUCCESS) {
         return;
       }
 
@@ -107,7 +102,7 @@ export class Field {
 
   getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
     if (this.javaObject) {
-      return { result: this.javaObject };
+      return { status: ResultType.SUCCESS, result: this.javaObject };
     }
 
     if (!Field.reflectedClass) {
@@ -115,22 +110,23 @@ export class Field {
         .getClass()
         .getLoader()
         .getClass('java/lang/reflect/Field');
-      if (checkError(fRes)) {
+      if (fRes.status === ResultType.ERROR) {
         return fRes;
       }
       Field.reflectedClass = fRes.result as ReferenceClassData;
     }
 
     const fieldClsName = parseFieldDescriptor(this.fieldDesc, 0);
-    let ftRes;
+    let ftRes: ImmediateResult<ClassData>;
     if (fieldClsName.referenceCls) {
       ftRes = this.cls.getLoader().getClass(fieldClsName.referenceCls);
     } else {
       ftRes = {
+        status: ResultType.SUCCESS,
         result: this.cls.getLoader().getPrimitiveClass(fieldClsName.type),
       };
     }
-    if (checkError(ftRes)) {
+    if (ftRes.status === ResultType.ERROR) {
       return ftRes;
     }
     const fieldType = (ftRes.result as ClassData).getJavaObject() as JvmObject;
@@ -185,7 +181,7 @@ export class Field {
 
     this.javaObject.putNativeField('fieldRef', this);
 
-    return { result: this.javaObject };
+    return { status: ResultType.SUCCESS, result: this.javaObject };
   }
 
   getValue() {
@@ -280,6 +276,7 @@ export class Field {
     // logical xor
     if (isStaticAccess !== this.checkStatic()) {
       return {
+        status: ResultType.ERROR,
         exceptionCls: 'java/lang/IncompatibleClassChangeError',
         msg: '',
       };
@@ -298,7 +295,7 @@ export class Field {
         nestHostD = fieldClass;
       } else {
         const resolutionResult = nestHostAttrD.hostClass.resolve();
-        if (checkError(resolutionResult)) {
+        if (resolutionResult.status === ResultType.ERROR) {
           return resolutionResult;
         }
         nestHostD = resolutionResult.result;
@@ -309,14 +306,18 @@ export class Field {
         nestHostC = invokerClass;
       } else {
         const resolutionResult = nestHostArrC.hostClass.resolve();
-        if (checkError(resolutionResult)) {
+        if (resolutionResult.status === ResultType.ERROR) {
           return resolutionResult;
         }
         nestHostC = resolutionResult.result;
       }
 
       if (nestHostC !== nestHostD) {
-        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+        return {
+          status: ResultType.ERROR,
+          exceptionCls: 'java/lang/IllegalAccessError',
+          msg: '',
+        };
       }
     }
 
@@ -325,7 +326,11 @@ export class Field {
       !invokerClass.checkCast(fieldClass) &&
       invokerClass.getPackageName() !== this.getClass().getPackageName()
     ) {
-      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      return {
+        status: ResultType.ERROR,
+        exceptionCls: 'java/lang/IllegalAccessError',
+        msg: '',
+      };
     }
 
     const invokerMethod = thread.getMethod();
@@ -335,9 +340,13 @@ export class Field {
       (fieldClass !== invokerClass ||
         invokerMethod.getName() !== (isStaticAccess ? '<clinit>' : '<init>'))
     ) {
-      return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+      return {
+        status: ResultType.ERROR,
+        exceptionCls: 'java/lang/IllegalAccessError',
+        msg: '',
+      };
     }
 
-    return { result: this };
+    return { status: ResultType.SUCCESS, result: this };
   }
 }

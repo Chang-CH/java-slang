@@ -1,6 +1,6 @@
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
-import { checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 
@@ -16,7 +16,7 @@ const functions = {
       .getClass()
       .getLoader()
       .getClass('java/nio/DirectByteBuffer');
-    if (checkError(bbRes)) {
+    if (bbRes.status === ResultType.ERROR) {
       thread.throwNewException(bbRes.exceptionCls, bbRes.msg);
       return;
     }

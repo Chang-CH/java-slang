@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 import { ReferenceClassData, ArrayClassData } from '#types/class/ClassData';
 import { JvmObject } from '#types/reference/Object';
 
@@ -16,7 +16,7 @@ const functions = {
     let clsName = '[' + clsRef.getDescriptor();
 
     const arrClsRes = clsRef.getLoader().getClass(clsName);
-    if (checkError(arrClsRes)) {
+    if (arrClsRes.status === ResultType.ERROR) {
       console.error(
         'init(Ljava/lang/invoke/MemberName;Ljava/lang/Object;)V: Method not found'
       );

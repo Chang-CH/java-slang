@@ -2,18 +2,18 @@ import { ReferenceClassData } from '#types/class/ClassData';
 import type { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
-import { JNI } from './components/jni';
+import { JNI, Lib } from './components/jni';
 import { UnsafeHeap } from './components/UnsafeHeap';
 import {
   AbstractThreadPool,
   RoundRobinThreadPool,
 } from './components/ThreadPool';
 import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
-import { checkError, checkSuccess } from '#types/Result';
 import { js2jString } from './utils';
 import Thread from './components/thread';
 import { ApplicationClassLoader } from './components/ClassLoader/AbstractClassLoader';
 import { ThreadStatus } from './constants';
+import { ResultType } from './types/Result';
 
 export default class JVM {
   private jvmOptions: {
@@ -38,6 +38,7 @@ export default class JVM {
       javaClassPath?: string;
       userDir?: string;
       nativesPath?: string;
+      natives?: Lib;
     }
   ) {
     this.jvmOptions = {
@@ -51,7 +52,11 @@ export default class JVM {
       this.nativeSystem,
       this.jvmOptions.javaClassPath
     );
-    this.jni = new JNI(this.jvmOptions.nativesPath, nativeSystem);
+    this.jni = new JNI(
+      this.jvmOptions.nativesPath,
+      nativeSystem,
+      options?.natives
+    );
     this.threadpool = new RoundRobinThreadPool(() => {});
     this.applicationClassLoader = new ApplicationClassLoader(
       this.nativeSystem,
@@ -72,13 +77,13 @@ export default class JVM {
     const tgRes = this.bootstrapClassLoader.getClass('java/lang/ThreadGroup');
     const unsafeRes = this.bootstrapClassLoader.getClass('sun/misc/Unsafe');
     if (
-      checkError(objRes) ||
-      checkError(sysRes) ||
-      checkError(tRes) ||
-      checkError(tgRes) ||
-      checkError(clsRes) ||
-      checkError(unsafeRes) ||
-      checkError(loaderRes)
+      objRes.status === ResultType.ERROR ||
+      sysRes.status === ResultType.ERROR ||
+      tRes.status === ResultType.ERROR ||
+      tgRes.status === ResultType.ERROR ||
+      clsRes.status === ResultType.ERROR ||
+      unsafeRes.status === ResultType.ERROR ||
+      loaderRes.status === ResultType.ERROR
     ) {
       throw new Error('Initialization classes not found');
     }
@@ -182,7 +187,7 @@ export default class JVM {
 
     // convert args to Java String[]
     const mainRes = this.applicationClassLoader.getClass(className);
-    if (checkError(mainRes)) {
+    if (mainRes.status === ResultType.ERROR) {
       throw new Error('Main class not found');
     }
 

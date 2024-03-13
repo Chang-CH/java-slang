@@ -2,6 +2,7 @@ import JVM from './jvm';
 import CustomSystem from '#utils/CustomSystem';
 import parseBin from '#utils/parseBinary';
 import { ClassFile } from './external/ClassFile/types';
+import { Lib } from './components/jni';
 
 const setupJVM = (options: {
   mainClass?: string;
@@ -15,6 +16,7 @@ const setupJVM = (options: {
     stderr?: (message: string) => void;
     onFinish?: () => void;
   };
+  natives?: Lib;
 }) => {
   const sys = new CustomSystem(
     options.callbacks.readFileSync,
@@ -30,6 +32,7 @@ const setupJVM = (options: {
     javaClassPath: options.javaClassPath,
     nativesPath: options.nativesPath,
     userDir: options.userDir,
+    natives: options.natives,
   });
   return () => jvm.run(options.mainClass ?? 'Main', options.callbacks.onFinish);
 };

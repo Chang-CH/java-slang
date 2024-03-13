@@ -1,6 +1,6 @@
 import { ThreadStatus } from '#jvm/constants';
 import JVM from '#jvm/jvm';
-import { ImmediateResult, checkError, checkSuccess } from '#types/Result';
+import { ImmediateResult, ResultType } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
@@ -252,13 +252,14 @@ export default class Thread {
     ) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       return {
+        status: ResultType.ERROR,
         exceptionCls: 'java/lang/RuntimeException',
         msg: 'Stack Underflow',
       };
     }
     this.stack?.[this.stackPointer]?.operandStack?.pop();
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    return { result: value };
+    return { status: ResultType.SUCCESS, result: value };
   }
 
   /**
@@ -272,12 +273,13 @@ export default class Thread {
     ) {
       this.throwNewException('java/lang/RuntimeException', 'Stack Underflow');
       return {
+        status: ResultType.ERROR,
         exceptionCls: 'java/lang/RuntimeException',
         msg: 'Stack Underflow',
       };
     }
     const value = this.stack?.[this.stackPointer]?.operandStack?.pop();
-    return { result: value };
+    return { status: ResultType.SUCCESS, result: value };
   }
 
   private _returnSF(ret?: any, err?: JvmObject, isWide?: boolean) {
@@ -358,7 +360,7 @@ export default class Thread {
   throwNewException(className: string, msg: string) {
     // Initialize exception
     const clsRes = this.getClass().getLoader().getClass(className);
-    if (checkError(clsRes)) {
+    if (clsRes.status === ResultType.ERROR) {
       if (clsRes.exceptionCls === 'java/lang/ClassNotFoundException') {
         throw new Error(
           'Infinite loop detected: ClassNotFoundException not found'
@@ -371,8 +373,8 @@ export default class Thread {
 
     const exceptionCls = clsRes.result;
     const initRes = exceptionCls.initialize(this);
-    if (!checkSuccess(initRes)) {
-      if (checkError(initRes)) {
+    if (initRes.status !== ResultType.SUCCESS) {
+      if (initRes.status === ResultType.ERROR) {
         this.throwNewException(initRes.exceptionCls, initRes.msg);
       }
       return;
@@ -401,7 +403,7 @@ export default class Thread {
         let handlerCls: ClassData | null;
         if (handler.catchType !== null) {
           const clsResolution = handler.catchType.resolve();
-          if (checkError(clsResolution)) {
+          if (clsResolution.status === ResultType.ERROR) {
             this.throwNewException(
               clsResolution.exceptionCls,
               clsResolution.msg

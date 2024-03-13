@@ -1,6 +1,6 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
 import Thread from '#jvm/components/thread';
-import { checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 import { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
 
@@ -20,7 +20,7 @@ const functions = {
 
     const res = loader.getClass(className);
 
-    if (checkError(res)) {
+    if (res.status === ResultType.ERROR) {
       thread.throwNewException(res.exceptionCls, res.msg);
       return;
     }

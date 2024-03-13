@@ -4,7 +4,7 @@ import Thread from '#jvm/components/thread';
 import { CONSTANT_TAG } from '#jvm/external/ClassFile/constants/constants';
 import { ACCESS_FLAGS, ClassFile } from '#jvm/external/ClassFile/types';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
-import { SuccessResult, checkError, checkSuccess } from '#types/Result';
+import { ResultType, SuccessResult } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import {
@@ -716,7 +716,7 @@ describe('Classdata', () => {
       '()Ljava/lang/String;',
       cd
     );
-    expect(checkSuccess(resolutionResult)).toBe(true);
+    expect(resolutionResult.status === ResultType.SUCCESS).toBe(true);
     const resolvedMethod = (resolutionResult as SuccessResult<Method>).result;
     expect(resolvedMethod.getName()).toBe('test');
     expect(resolvedMethod.getDescriptor()).toBe('()Ljava/lang/String;');
@@ -741,7 +741,7 @@ describe('Classdata', () => {
       '()Ljava/lang/String;',
       cd
     );
-    expect(checkSuccess(resolutionResult)).toBe(true);
+    expect(resolutionResult.status === ResultType.SUCCESS).toBe(true);
     const resolvedMethod = (resolutionResult as SuccessResult<Method>).result;
     expect(resolvedMethod.getName()).toBe('test');
     expect(resolvedMethod.getDescriptor()).toBe('()Ljava/lang/String;');
@@ -768,7 +768,7 @@ describe('Classdata', () => {
       '()Ljava/lang/String;',
       cd
     );
-    expect(checkSuccess(resolutionResult)).toBe(true);
+    expect(resolutionResult.status === ResultType.SUCCESS).toBe(true);
     const resolvedMethod = (resolutionResult as SuccessResult<Method>).result;
     expect(resolvedMethod.getName()).toBe('test');
     expect(resolvedMethod.getDescriptor()).toBe('()Ljava/lang/String;');
@@ -783,7 +783,7 @@ describe('Classdata', () => {
       bscl.defineClass(testClassTemplate) as SuccessResult<ReferenceClassData>
     ).result;
     const resolutionResult = cd.resolveMethod('_', '()Ljava/lang/String;', cd);
-    expect(checkError(resolutionResult)).toBe(true);
+    expect(resolutionResult.status === ResultType.ERROR).toBe(true);
     expect((resolutionResult as any).exceptionCls).toBe(
       'java/lang/NoSuchMethodError'
     );
@@ -806,7 +806,7 @@ describe('Classdata', () => {
       '()Ljava/lang/String;',
       cd
     );
-    expect(checkSuccess(resolutionResult)).toBe(true);
+    expect(resolutionResult.status === ResultType.SUCCESS).toBe(true);
     const resolvedMethod = (resolutionResult as SuccessResult<Method>).result;
     expect(resolvedMethod.getName()).toBe('test');
     expect(resolvedMethod.getDescriptor()).toBe('()Ljava/lang/String;');

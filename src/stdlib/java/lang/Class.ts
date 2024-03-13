@@ -5,7 +5,7 @@ import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import type { JvmObject } from '#types/reference/Object';
 import { j2jsString } from '#utils/index';
-import { checkError, checkSuccess, ErrorResult } from '#types/Result';
+import { ErrorResult, ResultType } from '#types/Result';
 import { InnerClasses } from '#types/class/Attributes';
 
 const functions = {
@@ -52,7 +52,7 @@ const functions = {
 
     for (const [name, field] of Object.entries(fields)) {
       const refRes = field.getReflectedObject(thread);
-      if (checkError(refRes)) {
+      if (refRes.status === ResultType.ERROR) {
         thread.returnStackFrame();
         thread.throwNewException(refRes.exceptionCls, refRes.msg);
         return;
@@ -64,7 +64,7 @@ const functions = {
       .getClass()
       .getLoader()
       .getClass('[Ljava/lang/reflect/Field;');
-    if (checkError(faClsRes)) {
+    if (faClsRes.status === ResultType.ERROR) {
       thread.returnStackFrame();
       thread.throwNewException(faClsRes.exceptionCls, faClsRes.msg);
       return;
@@ -90,8 +90,8 @@ const functions = {
       .getLoader()
       .getPrimitiveClass(primitiveClsName);
     const initRes = cls.initialize(thread);
-    if (!checkSuccess(initRes)) {
-      if (checkError(initRes)) {
+    if (initRes.status !== ResultType.SUCCESS) {
+      if (initRes.status === ResultType.ERROR) {
         thread.throwNewException(initRes.exceptionCls, initRes.msg);
       }
       return;
@@ -152,7 +152,7 @@ const functions = {
       }
 
       const loadRes = loader.getClass(name);
-      if (checkError(loadRes)) {
+      if (loadRes.status === ResultType.ERROR) {
         thread.returnStackFrame();
         thread.throwNewException(loadRes.exceptionCls, loadRes.msg);
         return;
@@ -165,8 +165,8 @@ const functions = {
       }
 
       const initRes = loadedCls.initialize(thread);
-      if (!checkSuccess(initRes)) {
-        if (checkError(initRes)) {
+      if (initRes.status !== ResultType.SUCCESS) {
+        if (initRes.status === ResultType.ERROR) {
           thread.returnStackFrame();
           thread.throwNewException(initRes.exceptionCls, initRes.msg);
           return;
@@ -198,7 +198,7 @@ const functions = {
       }
 
       const refRes = value.getReflectedObject(thread);
-      if (checkError(refRes)) {
+      if (refRes.status === ResultType.ERROR) {
         error = refRes;
         return;
       }
@@ -216,7 +216,7 @@ const functions = {
     const caRes = clsRef
       .getLoader()
       .getClass('[Ljava/lang/reflect/Constructor;');
-    if (checkError(caRes)) {
+    if (caRes.status === ResultType.ERROR) {
       thread.returnStackFrame();
       thread.throwNewException(caRes.exceptionCls, caRes.msg);
       return;
@@ -240,7 +240,7 @@ const functions = {
     const mArrRes = classRef
       .getLoader()
       .getClass('[Ljava/lang/reflect/Method;');
-    if (checkError(mArrRes)) {
+    if (mArrRes.status === ResultType.ERROR) {
       thread.throwNewException(mArrRes.exceptionCls, mArrRes.msg);
       return;
     }
@@ -258,7 +258,7 @@ const functions = {
       }
 
       const refRes = method.getReflectedObject(thread);
-      if (checkError(refRes)) {
+      if (refRes.status === ResultType.ERROR) {
         thread.throwNewException(refRes.exceptionCls, refRes.msg);
         return;
       }
@@ -285,7 +285,7 @@ const functions = {
             thread.returnStackFrame(null);
           } else {
             const outerResolution = cls.outerClass.resolve();
-            if (checkError(outerResolution)) {
+            if (outerResolution.status === ResultType.ERROR) {
               thread.throwNewException(
                 outerResolution.exceptionCls,
                 outerResolution.msg
@@ -339,7 +339,7 @@ const functions = {
     const thisCls = jThis.getNativeField('classRef') as ClassData;
 
     const clsArrRes = thisCls.getLoader().getClass('[Ljava/lang/Class;');
-    if (checkError(clsArrRes)) {
+    if (clsArrRes.status === ResultType.ERROR) {
       thread.throwNewException(clsArrRes.exceptionCls, clsArrRes.msg);
       return;
     }
@@ -361,13 +361,13 @@ const functions = {
         if (!cls.outerClass) continue;
 
         const outerRes = cls.outerClass.resolve();
-        if (!checkSuccess(outerRes)) {
+        if (outerRes.status !== ResultType.SUCCESS) {
           continue;
         }
         if (outerRes.result !== thisCls) continue;
         const innerRes = cls.innerClass.resolve();
-        if (!checkSuccess(innerRes)) {
-          if (checkError(innerRes)) {
+        if (innerRes.status !== ResultType.SUCCESS) {
+          if (innerRes.status === ResultType.ERROR) {
             thread.throwNewException(innerRes.exceptionCls, innerRes.msg);
           }
           return;

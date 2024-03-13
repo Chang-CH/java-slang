@@ -5,20 +5,13 @@ import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import type { JvmArray } from '#types/reference/Array';
 import type { JvmObject } from '#types/reference/Object';
 import { typeIndexScale } from '#utils/index';
-import assert from 'assert';
 import parseBin from '#utils/parseBinary';
 import {
   ConstantClassInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
-import {
-  ErrorResult,
-  SuccessResult,
-  checkError,
-  checkSuccess,
-} from '#types/Result';
+import { ErrorResult, ResultType, SuccessResult } from '#types/Result';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import { classFileToText } from '#utils/Prettify/classfile';
 import { NestHost } from '#types/class/Attributes';
 import { ConstantClass, ConstantUtf8 } from '#types/class/Constants';
 
@@ -345,7 +338,7 @@ const functions = {
       );
       const classfile = parseBin(bytecode);
       const loadResult = loader.defineClass(classfile);
-      if (checkError(loadResult)) {
+      if (loadResult.status === ResultType.ERROR) {
         thread.throwNewException(
           (loadResult as ErrorResult).exceptionCls,
           (loadResult as ErrorResult).msg
@@ -364,9 +357,9 @@ const functions = {
     const cls = clsObj.getNativeField('classRef') as ClassData;
     const initRes = cls.initialize(thread);
 
-    if (checkSuccess(initRes)) {
+    if (initRes.status === ResultType.SUCCESS) {
       thread.returnStackFrame();
-    } else if (checkError(initRes)) {
+    } else if (initRes.status === ResultType.ERROR) {
       thread.throwNewException(
         (initRes as ErrorResult).exceptionCls,
         (initRes as ErrorResult).msg

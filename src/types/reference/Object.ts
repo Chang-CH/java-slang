@@ -1,6 +1,6 @@
 import Monitor from '#jvm/components/monitor';
 import type Thread from '#jvm/components/thread';
-import type { Result } from '#types/Result';
+import { ResultType, type Result } from '#types/Result';
 import type { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import type { Field } from '#types/class/Field';
 
@@ -43,13 +43,13 @@ export class JvmObject {
 
   initialize(thread: Thread, ...rest: any[]): Result<JvmObject> {
     if (this.initStatus) {
-      return { result: this };
+      return { status: ResultType.SUCCESS, result: this };
     }
 
     const initMethod = this.cls.getMethod('<init>()V');
     if (!initMethod) {
       this.initStatus = true;
-      return { result: this };
+      return { status: ResultType.SUCCESS, result: this };
     }
 
     thread._invokeInternal(
@@ -63,7 +63,7 @@ export class JvmObject {
         }
       }
     );
-    return { isDefer: true };
+    return { status: ResultType.DEFER };
   }
 
   getClass() {

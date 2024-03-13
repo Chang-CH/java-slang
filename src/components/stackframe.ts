@@ -18,7 +18,7 @@ import * as stores from '../instructions/stores';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import { Code } from '#types/class/Attributes';
 import { JNI } from './jni';
-import { checkDefer, checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 
 const overwrites: {
   [cls: string]: {
@@ -825,11 +825,11 @@ export class NativeStackFrame extends StackFrame {
       this.method.getName() + this.method.getDescriptor()
     );
 
-    if (checkDefer(methodRes)) {
+    if (methodRes.status === ResultType.DEFER) {
       return;
     }
 
-    if (checkError(methodRes)) {
+    if (methodRes.status === ResultType.ERROR) {
       thread.throwNewException(methodRes.exceptionCls, methodRes.msg);
       return;
     }

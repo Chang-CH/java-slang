@@ -1,5 +1,5 @@
 import Thread from '#jvm/components/thread';
-import { checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 import { asDouble, asFloat } from '#utils/index';
 
 const MAX_INT = 2147483647;
@@ -10,7 +10,7 @@ const MIN_LONG = BigInt('-9223372036854775808');
 export function runI2l(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const value = popResult.result;
@@ -20,7 +20,7 @@ export function runI2l(thread: Thread): void {
 export function runI2f(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const value = popResult.result;
@@ -30,7 +30,7 @@ export function runI2f(thread: Thread): void {
 export function runI2d(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const value = popResult.result;
@@ -40,7 +40,7 @@ export function runI2d(thread: Thread): void {
 export function runL2i(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const value = popResult.result;
@@ -50,7 +50,7 @@ export function runL2i(thread: Thread): void {
 export function runL2f(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const value = popResult.result;
@@ -60,7 +60,7 @@ export function runL2f(thread: Thread): void {
 export function runL2d(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const value = popResult.result;
@@ -70,7 +70,7 @@ export function runL2d(thread: Thread): void {
 export function runF2i(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   let value = popResult.result;
@@ -85,7 +85,7 @@ export function runF2i(thread: Thread): void {
 export function runF2l(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   let value = popResult.result;
@@ -105,7 +105,7 @@ export function runF2l(thread: Thread): void {
 export function runF2d(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const value = popResult.result;
@@ -115,7 +115,7 @@ export function runF2d(thread: Thread): void {
 export function runD2i(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   let value = asDouble(popResult.result);
@@ -131,7 +131,7 @@ export function runD2i(thread: Thread): void {
 export function runD2l(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   const dbl = asDouble(popResult.result);
@@ -152,7 +152,7 @@ export function runD2l(thread: Thread): void {
 export function runD2f(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack64();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   let value = asDouble(popResult.result);
@@ -163,7 +163,7 @@ export function runD2f(thread: Thread): void {
 export function runI2b(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   let value = popResult.result;
@@ -174,7 +174,7 @@ export function runI2b(thread: Thread): void {
 export function runI2c(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   let value = popResult.result;
@@ -185,7 +185,7 @@ export function runI2c(thread: Thread): void {
 export function runI2s(thread: Thread): void {
   thread.offsetPc(1);
   const popResult = thread.popStack();
-  if (checkError(popResult)) {
+  if (popResult.status === ResultType.ERROR) {
     return;
   }
   let value = popResult.result;

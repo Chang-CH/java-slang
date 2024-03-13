@@ -1,6 +1,6 @@
 import { InternalStackFrame } from '#jvm/components/stackframe';
 import Thread from '#jvm/components/thread';
-import { checkSuccess, checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
@@ -27,8 +27,8 @@ const functions = {
       }
 
       const initRes = clsRef.initialize(thread);
-      if (!checkSuccess(initRes)) {
-        if (checkError(initRes)) {
+      if (initRes.status !== ResultType.SUCCESS) {
+        if (initRes.status === ResultType.ERROR) {
           thread.throwNewException(initRes.exceptionCls, initRes.msg);
         }
         return;

@@ -24,11 +24,10 @@ import {
 } from './Attributes';
 import {
   ImmediateResult,
-  checkError,
-  checkSuccess,
   Result,
   SuccessResult,
   ErrorResult,
+  ResultType,
 } from '#types/Result';
 import { CLASS_TYPE, CLASS_STATUS, ThreadStatus } from '#jvm/constants';
 
@@ -301,23 +300,27 @@ export abstract class ClassData {
     if (result !== null) {
       const method = result;
       const accessCheckResult = method.checkAccess(accessingClass, this);
-      if (checkError(accessCheckResult)) {
+      if (accessCheckResult.status === ResultType.ERROR) {
         return accessCheckResult;
       }
-      return { result };
+      return { status: ResultType.SUCCESS, result };
     }
 
     // Otherwise, method resolution attempts to locate the referenced method in the superinterfaces of the specified class C
     result = this._resolveMethodInterface(name, descriptor);
     if (result !== null) {
       const accessCheckResult = result.checkAccess(accessingClass, this);
-      if (checkError(accessCheckResult)) {
+      if (accessCheckResult.status === ResultType.ERROR) {
         return accessCheckResult;
       }
-      return { result };
+      return { status: ResultType.SUCCESS, result };
     }
     // If method lookup fails, method resolution throws a NoSuchMethodError
-    return { exceptionCls: 'java/lang/NoSuchMethodError', msg: '' };
+    return {
+      status: ResultType.ERROR,
+      exceptionCls: 'java/lang/NoSuchMethodError',
+      msg: '',
+    };
   }
 
   private _checkOverrides(
@@ -402,12 +405,12 @@ export abstract class ClassData {
 
       let m;
       if (polySignature && (m = this._getSignaturePolyMethod(polySignature))) {
-        return { result: m };
+        return { status: ResultType.SUCCESS, result: m };
       }
 
       if (!method) {
         const interRes = interfaceCls._lookupMethodInterface(signature);
-        if (checkSuccess(interRes)) {
+        if (interRes.status === ResultType.SUCCESS) {
           method = interRes.result;
         }
       }
@@ -420,6 +423,7 @@ export abstract class ClassData {
       ) {
         if (res) {
           return {
+            status: ResultType.ERROR,
             exceptionCls: 'java/lang/IncompatibleClassChangeError',
             msg: '',
           };
@@ -429,9 +433,13 @@ export abstract class ClassData {
     }
 
     if (res) {
-      return { result: res };
+      return { status: ResultType.SUCCESS, result: res };
     }
-    return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
+    return {
+      status: ResultType.ERROR,
+      exceptionCls: 'java/lang/AbstractMethodError',
+      msg: '',
+    };
   }
 
   lookupMethod(
@@ -458,13 +466,21 @@ export abstract class ClassData {
     );
     if (methodRef) {
       if (checkInterface && !methodRef.checkPublic()) {
-        return { exceptionCls: 'java/lang/IllegalAccessError', msg: '' };
+        return {
+          status: ResultType.ERROR,
+          exceptionCls: 'java/lang/IllegalAccessError',
+          msg: '',
+        };
       }
 
       if (!acceptAbstract && methodRef.checkAbstract()) {
-        return { exceptionCls: 'java/lang/AbstractMethodError', msg: '' };
+        return {
+          status: ResultType.ERROR,
+          exceptionCls: 'java/lang/AbstractMethodError',
+          msg: '',
+        };
       }
-      return { result: methodRef };
+      return { status: ResultType.SUCCESS, result: methodRef };
     }
 
     return this._lookupMethodInterface(signature, polySignature);
@@ -620,7 +636,7 @@ export abstract class ClassData {
     onInitialized?: () => void | null
   ): Result<ClassData> {
     onInitialized && onInitialized();
-    return { result: this };
+    return { status: ResultType.SUCCESS, result: this };
   }
 
   getJavaObject(): JvmObject {
@@ -741,7 +757,7 @@ export class ReferenceClassData extends ClassData {
       const superResolution = (
         this.constantPool.get(classfile.superClass) as ConstantClass
       ).resolve();
-      if (checkError(superResolution)) {
+      if (superResolution.status === ResultType.ERROR) {
         onError(superResolution);
         return;
       }
@@ -753,7 +769,7 @@ export class ReferenceClassData extends ClassData {
       const interfaceResolution = (
         this.constantPool.get(interfaceIndex) as ConstantClass
       ).resolve();
-      if (checkError(interfaceResolution)) {
+      if (interfaceResolution.status === ResultType.ERROR) {
         onError(interfaceResolution);
         return;
       }
@@ -819,7 +835,7 @@ export class ReferenceClassData extends ClassData {
   ): Result<ClassData> {
     if (this.status === CLASS_STATUS.INITIALIZED) {
       onInitialized && onInitialized();
-      return { result: this };
+      return { status: ResultType.SUCCESS, result: this };
     }
 
     if (this.status === CLASS_STATUS.INITIALIZING) {
@@ -832,14 +848,14 @@ export class ReferenceClassData extends ClassData {
         // Object's static initializer invokes static method Object.registerNatives()
         // Invokestatic initializes Object again.
         // We return a success result so the clinit can complete.
-        return { result: this };
+        return { status: ResultType.SUCCESS, result: this };
       }
 
       this.classLock.lock(thread, () =>
         thread.setStatus(ThreadStatus.RUNNABLE)
       );
       thread.setStatus(ThreadStatus.WAITING);
-      return { isDefer: true };
+      return { status: ResultType.DEFER };
     }
 
     if (
@@ -847,7 +863,7 @@ export class ReferenceClassData extends ClassData {
       this.superClass.status !== CLASS_STATUS.INITIALIZED
     ) {
       const superInit = this.superClass.initialize(thread);
-      if (!checkSuccess(superInit)) {
+      if (superInit.status !== ResultType.SUCCESS) {
         return superInit;
       }
     }
@@ -865,13 +881,13 @@ export class ReferenceClassData extends ClassData {
           this.classLock?.release();
         })
       );
-      return { isDefer: true };
+      return { status: ResultType.DEFER };
     }
 
     this.status = CLASS_STATUS.INITIALIZED;
     onInitialized && onInitialized();
     this.classLock.release();
-    return { result: this };
+    return { status: ResultType.SUCCESS, result: this };
   }
 
   getDescriptor(): string {
@@ -933,17 +949,17 @@ export class ArrayClassData extends ClassData {
 
     // #region load array superclasses/interfaces
     const objRes = loader.getClass('java/lang/Object');
-    if (checkError(objRes)) {
+    if (objRes.status === ResultType.ERROR) {
       onError(objRes);
       return;
     }
     const cloneableRes = loader.getClass('java/lang/Cloneable');
-    if (checkError(cloneableRes)) {
+    if (cloneableRes.status === ResultType.ERROR) {
       onError(cloneableRes);
       return;
     }
     const serialRes = loader.getClass('java/io/Serializable');
-    if (checkError(serialRes)) {
+    if (serialRes.status === ResultType.ERROR) {
       onError(serialRes);
       return;
     }

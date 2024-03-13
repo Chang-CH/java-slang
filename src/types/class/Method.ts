@@ -27,9 +27,9 @@ import {
 } from './Attributes';
 import {
   ImmediateResult,
-  checkError,
   ErrorResult,
-  checkSuccess,
+  ResultType,
+  SuccessResult,
 } from '#types/Result';
 import { JvmArray } from '#types/reference/Array';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
@@ -116,12 +116,12 @@ export class Method {
    */
   getReflectedObject(thread: Thread): ImmediateResult<JvmObject> {
     if (this.javaObject) {
-      return { result: this.javaObject };
+      return { status: ResultType.SUCCESS, result: this.javaObject };
     }
 
     const loader = this.cls.getLoader();
     const caRes = loader.getClass('[Ljava/lang/Class;');
-    if (checkError(caRes)) {
+    if (caRes.status === ResultType.ERROR) {
       return caRes;
     }
     const caCls = caRes.result as ArrayClassData;
@@ -135,7 +135,7 @@ export class Method {
       args.map(arg => {
         if (arg.referenceCls) {
           const res = loader.getClass(arg.referenceCls);
-          if (checkError(res)) {
+          if (res.status === ResultType.ERROR) {
             error = res;
             return null;
           }
@@ -154,7 +154,7 @@ export class Method {
     let returnType: JvmObject;
     if (ret.referenceCls) {
       const res = loader.getClass(ret.referenceCls);
-      if (checkError(res)) {
+      if (res.status === ResultType.ERROR) {
         return res;
       }
       returnType = res.result.getJavaObject();
@@ -172,7 +172,7 @@ export class Method {
         exceptions.exceptionTable.length,
         exceptions.exceptionTable.map(exceptionClass => {
           const res = exceptionClass.resolve();
-          if (checkError(res)) {
+          if (res.status === ResultType.ERROR) {
             err = res;
             return null;
           }
@@ -200,7 +200,7 @@ export class Method {
 
     // annotations
     const baRes = loader.getClass('[B');
-    if (checkError(baRes)) {
+    if (baRes.status === ResultType.ERROR) {
       return baRes;
     }
     const baCls = baRes.result as ArrayClassData;
@@ -230,7 +230,7 @@ export class Method {
       // load constructor class
       if (!Method.reflectConstructorClass) {
         const fRes = loader.getClass('java/lang/reflect/Constructor');
-        if (checkError(fRes)) {
+        if (fRes.status === ResultType.ERROR) {
           return fRes;
         }
         Method.reflectConstructorClass = fRes.result as ReferenceClassData;
@@ -238,8 +238,8 @@ export class Method {
 
       javaObject = Method.reflectConstructorClass.instantiate();
       const initRes = javaObject.initialize(thread);
-      if (!checkSuccess(initRes)) {
-        if (checkError(initRes)) {
+      if (initRes.status !== ResultType.SUCCESS) {
+        if (initRes.status === ResultType.ERROR) {
           return initRes;
         }
         throw new Error('Reflected method should not have static initializer');
@@ -250,7 +250,7 @@ export class Method {
           .getClass()
           .getLoader()
           .getClass('java/lang/reflect/Method');
-        if (checkError(fRes)) {
+        if (fRes.status === ResultType.ERROR) {
           return fRes;
         }
         Method.reflectMethodClass = fRes.result as ReferenceClassData;
@@ -258,8 +258,8 @@ export class Method {
 
       javaObject = Method.reflectMethodClass.instantiate();
       const initRes = javaObject.initialize(thread);
-      if (!checkSuccess(initRes)) {
-        if (checkError(initRes)) {
+      if (initRes.status !== ResultType.SUCCESS) {
+        if (initRes.status === ResultType.ERROR) {
           return initRes;
         }
         throw new Error('Reflected method should not have static initializer');
@@ -357,7 +357,7 @@ export class Method {
     javaObject.putNativeField('methodRef', this);
 
     this.javaObject = javaObject;
-    return { result: javaObject };
+    return { status: ResultType.SUCCESS, result: javaObject };
   }
 
   getName() {
@@ -608,11 +608,15 @@ export class Method {
     symbolicClass: ClassData
   ): ImmediateResult<Method> {
     const declaringCls = this.getClass();
-    const illegalAccessResult = {
+    const illegalAccessResult: ErrorResult = {
+      status: ResultType.ERROR,
       exceptionCls: 'java/lang/IllegalAccessError',
       msg: '',
     };
-    const successResult = { result: this };
+    const successResult: SuccessResult<Method> = {
+      status: ResultType.SUCCESS,
+      result: this,
+    };
 
     // this is public
     if (this.checkPublic()) {
@@ -623,7 +627,9 @@ export class Method {
       declaringCls.getPackageName() === accessingClass.getPackageName();
 
     if (this.checkDefault()) {
-      return isSamePackage ? { result: this } : illegalAccessResult;
+      return isSamePackage
+        ? { status: ResultType.SUCCESS, result: this }
+        : illegalAccessResult;
     }
 
     if (this.checkProtected()) {
@@ -660,7 +666,7 @@ export class Method {
       nestHostD = declaringCls;
     } else {
       const resolutionResult = nestHostAttrD.hostClass.resolve();
-      if (checkError(resolutionResult)) {
+      if (resolutionResult.status === ResultType.ERROR) {
         return resolutionResult;
       }
       nestHostD = resolutionResult.result;
@@ -671,7 +677,7 @@ export class Method {
       nestHostC = accessingClass;
     } else {
       const resolutionResult = nestHostArrC.hostClass.resolve();
-      if (checkError(resolutionResult)) {
+      if (resolutionResult.status === ResultType.ERROR) {
         return resolutionResult;
       }
       nestHostC = resolutionResult.result;

@@ -1,6 +1,6 @@
 import Thread from '#jvm/components/thread';
 import { MemberNameFlags, MethodHandleReferenceKind } from '#jvm/constants';
-import { checkError } from '#types/Result';
+import { ResultType } from '#types/Result';
 import { ArrayClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmArray } from '#types/reference/Array';
@@ -182,7 +182,7 @@ const functions = {
           true,
           true
         );
-        if (checkError(lookupRes)) {
+        if (lookupRes.status === ResultType.ERROR) {
           thread.throwNewException(
             'java/lang/NoSuchMethodError',
             `Invalid method ${methodDesc}`
