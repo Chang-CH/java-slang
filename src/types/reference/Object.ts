@@ -1,4 +1,5 @@
 import Monitor from '#jvm/components/monitor';
+import type { InternalStackFrame } from '#jvm/components/stackframe';
 import type Thread from '#jvm/components/thread';
 import { ResultType, type Result } from '#types/Result';
 import type { ClassData, ReferenceClassData } from '#types/class/ClassData';

@@ -1,7 +1,7 @@
 import Thread from '#jvm/components/thread';
 import { MemberNameFlags, MethodHandleReferenceKind } from '#jvm/constants';
 import { ResultType } from '#types/Result';
-import { ArrayClassData, ReferenceClassData } from '#types/class/ClassData';
+import { ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';

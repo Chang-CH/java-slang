@@ -19,6 +19,7 @@ export default class Thread {
   private jvm: JVM;
   private threadId: number;
 
+  private maxRecursionDepth = 1000;
   private quantumLeft: number = 0;
   private tpool: AbstractThreadPool;
 
@@ -309,6 +310,14 @@ export default class Thread {
   }
 
   invokeStackFrame(sf: StackFrame) {
+    if (this.stackPointer > this.maxRecursionDepth) {
+      this.throwNewException(
+        'java/lang/StackOverflowError',
+        'maximum recursion depth exceeded'
+      );
+      return;
+    }
+
     if (sf.method.checkSynchronized()) {
       if (sf.method.checkStatic()) {
         sf.method.getClass().getJavaObject().getMonitor().enter(this);

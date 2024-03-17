@@ -242,7 +242,7 @@ function createMethodType(
     return {
       status: ResultType.ERROR,
       exceptionCls: 'java/lang/NoSuchMethodError',
-      msg: '',
+      msg: 'findMethodHandleType(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;',
     };
   }
   thread.invokeStackFrame(
@@ -523,7 +523,7 @@ export class ConstantInvokeDynamic extends Constant {
       return {
         status: ResultType.ERROR,
         exceptionCls: 'java/lang/ClassNotFoundException',
-        msg: '',
+        msg: '[Ljava/lang/Object;',
       };
     }
     const arrCls = objArrRes.result as ArrayClassData;
@@ -540,7 +540,7 @@ export class ConstantInvokeDynamic extends Constant {
       return {
         status: ResultType.ERROR,
         exceptionCls: 'java/lang/ClassNotFoundException',
-        msg: '',
+        msg: 'java/lang/invoke/MethodHandleNatives',
       };
     }
     const mhn = mhnRes.result as ClassData;
@@ -556,7 +556,7 @@ export class ConstantInvokeDynamic extends Constant {
       this.result = {
         status: ResultType.ERROR,
         exceptionCls: 'java/lang/NoSuchMethodError',
-        msg: '',
+        msg: 'linkCallSite(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/invoke/MemberName;',
       };
       return this.result;
     }
@@ -1097,7 +1097,7 @@ export class ConstantMethodHandle extends Constant {
         this.result = {
           status: ResultType.ERROR,
           exceptionCls: 'java/lang/NoSuchMethodError',
-          msg: '',
+          msg: 'linkMethodHandleConstant(Ljava/lang/Class;ILjava/lang/Class;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;',
         };
         return this.result;
       }

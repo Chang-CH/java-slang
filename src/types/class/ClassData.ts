@@ -319,7 +319,7 @@ export abstract class ClassData {
     return {
       status: ResultType.ERROR,
       exceptionCls: 'java/lang/NoSuchMethodError',
-      msg: '',
+      msg: name + descriptor,
     };
   }
 

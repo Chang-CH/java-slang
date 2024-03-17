@@ -3,7 +3,7 @@ import { ConstantPool } from '#jvm/components/ConstantPool';
 import type Thread from '#jvm/components/thread';
 import { ClassFile } from '#jvm/external/ClassFile/types';
 import { AttributeInfo } from '#jvm/external/ClassFile/types/attributes';
-import { SuccessResult } from '#types/Result';
+import { ResultType, SuccessResult } from '#types/Result';
 import { IAttribute, info2Attribute } from '#types/class/Attributes';
 import {
   ArrayClassData,
