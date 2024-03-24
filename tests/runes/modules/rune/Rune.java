@@ -1,4 +1,4 @@
-package modules.runes;
+package modules.rune;
 
 import java.util.function.Function;
 
@@ -17,25 +17,25 @@ public class Rune {
 
     static {
         circle = new Rune();
-        linkRune(circle, "circle");
+        linkField(circle, "circle");
         blank = new Rune();
-        linkRune(blank, "blank");
+        linkField(blank, "blank");
         corner = new Rune();
-        linkRune(corner, "corner");
+        linkField(corner, "corner");
         heart = new Rune();
-        linkRune(heart, "heart");
+        linkField(heart, "heart");
         nova = new Rune();
-        linkRune(nova, "nova");
+        linkField(nova, "nova");
         pentagram = new Rune();
-        linkRune(pentagram, "pentagram");
+        linkField(pentagram, "pentagram");
         rcross = new Rune();
-        linkRune(rcross, "rcross");
+        linkField(rcross, "rcross");
         ribbon = new Rune();
-        linkRune(ribbon, "ribbon");
+        linkField(ribbon, "ribbon");
         sail = new Rune();
-        linkRune(sail, "sail");
+        linkField(sail, "sail");
         square = new Rune();
-        linkRune(square, "square");
+        linkField(square, "square");
     }
 
     /**
@@ -43,9 +43,9 @@ public class Rune {
      * @param rune
      * @param shape
      */
-    private static native void linkRune(Rune rune, String shape);
+    private static native void linkField(Rune rune, String shape);
 
-    public static native void anaglyph(Rune rune);
+    public static native Object anaglyph(Rune rune);
     public static native Rune beside(Rune rune1, Rune rune2);
     public static native Rune beside_frac(double frac, Rune rune1, Rune rune2);
     public static native Rune black(Rune rune);
@@ -55,7 +55,7 @@ public class Rune {
     public static native Rune flip_horiz(Rune rune);
     public static native Rune flip_vert(Rune rune);
     public static native Rune green(Rune rune);
-    public static native void hollusion(Rune rune);
+    public static native Object hollusion(Rune rune);
     public static native Rune indigo(Rune rune);
     public static native Rune make_cross(Rune rune);
     public static native Rune orange(Rune rune);
@@ -79,7 +79,7 @@ public class Rune {
     public static native Rune rotate(double rad, Rune rune);
     public static native Rune scale(double ratio, Rune rune);
     public static native Rune scale_independent(double ratio_x, double ratio_y, Rune rune);
-    public static native void show(Rune rune);
+    public static native Object show(Rune rune);
     public static native Rune stack(Rune rune1, Rune rune2);
     public static native Rune stack_frac(double frac, Rune rune1, Rune rune2);
     public static native Rune stackn(int n, Rune rune);

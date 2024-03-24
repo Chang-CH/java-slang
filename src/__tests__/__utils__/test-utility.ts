@@ -25,7 +25,7 @@ import { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import { JNI } from '#jvm/components/jni';
 import Thread from '#jvm/components/thread';
-import { AbstractThreadPool } from '#jvm/components/ThreadPool';
+import { ThreadPool } from '#jvm/components/ThreadPool';
 import { OPCODE } from '#jvm/external/ClassFile/constants/instructions';
 import JVM from '#jvm/jvm';
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
@@ -363,7 +363,7 @@ export class TestSystem extends AbstractSystem {
   }
 }
 
-export class TestThreadPool extends AbstractThreadPool {
+export class TestThreadPool extends ThreadPool {
   constructor(onEmpty: () => void) {
     super(onEmpty);
   }
@@ -375,11 +375,7 @@ export class TestThreadPool extends AbstractThreadPool {
 }
 
 export class TestThread extends Thread {
-  constructor(
-    threadClass: ReferenceClassData,
-    jvm: JVM,
-    tpool: AbstractThreadPool
-  ) {
+  constructor(threadClass: ReferenceClassData, jvm: JVM, tpool: ThreadPool) {
     super(threadClass, jvm, tpool, new JvmObject(threadClass));
     this.setStatus(ThreadStatus.RUNNABLE);
   }

@@ -381,7 +381,8 @@ export class Method {
   }
 
   getMaxStack() {
-    return this.code ? this.code.maxStack : 0;
+    // we cannot determine max stack for native methods
+    return this.code ? this.code.maxStack : -1;
   }
 
   getExceptionHandlers() {

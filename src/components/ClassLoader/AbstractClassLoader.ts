@@ -11,12 +11,7 @@ import {
 import type { JvmObject } from '#types/reference/Object';
 import AbstractSystem from '#utils/AbstractSystem';
 import { ArrayClassData } from '#types/class/ClassData';
-import {
-  ErrorResult,
-  ImmediateResult,
-  ResultType,
-  SuccessResult,
-} from '#types/Result';
+import { ErrorResult, ImmediateResult, ResultType } from '#types/Result';
 
 export default abstract class AbstractClassLoader {
   protected nativeSystem: AbstractSystem;

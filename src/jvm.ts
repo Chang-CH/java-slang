@@ -4,10 +4,7 @@ import AbstractSystem from '#utils/AbstractSystem';
 import BootstrapClassLoader from './components/ClassLoader/BootstrapClassLoader';
 import { JNI, Lib } from './components/jni';
 import { UnsafeHeap } from './components/UnsafeHeap';
-import {
-  AbstractThreadPool,
-  RoundRobinThreadPool,
-} from './components/ThreadPool';
+import { ThreadPool, RoundRobinThreadPool } from './components/ThreadPool';
 import { InternalStackFrame, JavaStackFrame } from './components/stackframe';
 import { js2jString } from './utils';
 import Thread from './components/thread';
@@ -27,7 +24,7 @@ export default class JVM {
   private applicationClassLoader: ApplicationClassLoader;
   private nativeSystem: AbstractSystem;
   private jni: JNI;
-  private threadpool: AbstractThreadPool;
+  private threadpool: ThreadPool;
 
   private internedStrings: { [key: string]: JvmObject } = {};
   private unsafeHeap: UnsafeHeap = new UnsafeHeap();

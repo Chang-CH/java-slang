@@ -15,6 +15,16 @@ import { Field } from '#types/class/Field';
 import type { JvmArray } from '#types/reference/Array';
 import { JavaType, JvmObject } from '#types/reference/Object';
 
+const _ = {};
+export const INACCESSIBLE = new Proxy(_, {
+  get: () => {
+    throw new Error('Inaccessible');
+  },
+  set: () => {
+    throw new Error('Inaccessible');
+  },
+});
+
 /**
  * Converts a Java String to a JS string
  * @param str Java String object

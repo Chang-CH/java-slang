@@ -4,8 +4,9 @@ import { ImmediateResult, ResultType } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import { Method } from '#types/class/Method';
+import { INACCESSIBLE } from '#utils/index';
 import type { JvmObject } from '../types/reference/Object';
-import { AbstractThreadPool } from './ThreadPool';
+import { ThreadPool } from './ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
 
 export default class Thread {
@@ -21,14 +22,14 @@ export default class Thread {
 
   private maxRecursionDepth = 1000;
   private quantumLeft: number = 0;
-  private tpool: AbstractThreadPool;
+  private tpool: ThreadPool;
 
   private isShuttingDown = false;
 
   constructor(
     threadClass: ReferenceClassData,
     jvm: JVM,
-    tpool: AbstractThreadPool,
+    tpool: ThreadPool,
     threadObj: JvmObject
   ) {
     this.jvm = jvm;
@@ -142,7 +143,7 @@ export default class Thread {
     return this.stack[this.stackPointer].pc;
   }
 
-  getThreadPool(): AbstractThreadPool {
+  getThreadPool(): ThreadPool {
     return this.tpool;
   }
 
@@ -213,9 +214,11 @@ export default class Thread {
    */
   pushStack(value: JvmObject | number | bigint | null): boolean {
     if (
+      this.stack[this.stackPointer].maxStack >= 0 &&
       this.stack[this.stackPointer].operandStack.length + 1 >
-      this.stack[this.stackPointer].maxStack
+        this.stack[this.stackPointer].maxStack
     ) {
+      console.log(this.stack[this.stackPointer]);
       this.throwNewException('java/lang/StackOverflowError', '');
       return false;
     }
@@ -231,14 +234,15 @@ export default class Thread {
    */
   pushStack64(value: bigint | number): boolean {
     if (
+      this.stack[this.stackPointer].maxStack >= 0 &&
       this.stack[this.stackPointer].operandStack.length + 2 >
-      this.stack[this.stackPointer].maxStack
+        this.stack[this.stackPointer].maxStack
     ) {
       this.throwNewException('java/lang/StackOverflowError', '');
       return false;
     }
     this.stack[this.stackPointer].operandStack.push(value);
-    this.stack[this.stackPointer].operandStack.push(value);
+    this.stack[this.stackPointer].operandStack.push(INACCESSIBLE);
     return true;
   }
 
@@ -355,7 +359,7 @@ export default class Thread {
 
   storeLocal64(index: number, value: JvmObject | number | bigint | null) {
     this.stack[this.stackPointer].locals[index] = value;
-    this.stack[this.stackPointer].locals[index + 1] = value;
+    this.stack[this.stackPointer].locals[index + 1] = INACCESSIBLE;
   }
 
   loadLocal(index: number): JvmObject | number | bigint | null {

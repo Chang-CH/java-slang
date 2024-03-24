@@ -23,5 +23,5 @@
     "resolveFullPaths": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "*.config.ts"]
+  "exclude": ["node_modules", "*.config.ts", "__tests__/*"]
 }

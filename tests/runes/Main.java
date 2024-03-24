@@ -1,6 +1,6 @@
 import java.util.function.Function;
 
-import modules.runes.Rune;
+import modules.rune.Rune;
 
 public class Main {
     public static void main(String[] args) {

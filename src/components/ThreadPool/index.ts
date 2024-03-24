@@ -2,7 +2,7 @@ import { ThreadStatus } from '#jvm/constants';
 import Thread from '../thread';
 import { Deque } from './utils/deque';
 
-export abstract class AbstractThreadPool {
+export abstract class ThreadPool {
   protected threads: Thread[] = [];
   protected currentThread: Thread | null = null;
   protected onEmpty: () => void;
@@ -55,7 +55,7 @@ export abstract class AbstractThreadPool {
   }
 }
 
-export class RoundRobinThreadPool extends AbstractThreadPool {
+export class RoundRobinThreadPool extends ThreadPool {
   private threadQueue: Deque<Thread>;
 
   constructor(onEmpty: () => void) {
