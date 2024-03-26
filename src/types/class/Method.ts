@@ -404,6 +404,11 @@ export class Method {
     return getArgs(thread, this.descriptor, this.checkNative());
   }
 
+  /**
+   * Generates a public bridge method for this method.
+   * @todo might not be necessary, lambdafactory is currently bugged and not using the bridge anyways.
+   * @returns
+   */
   generateBridgeMethod() {
     const isStatic = this.checkStatic();
     const bridgeDescriptor = isStatic
@@ -544,9 +549,8 @@ export class Method {
     return bridge;
   }
 
-  /**
-   * flags
-   */
+  // #region access flags
+
   checkPublic() {
     return (this.accessFlags & METHOD_FLAGS.ACC_PUBLIC) !== 0;
   }
@@ -600,6 +604,8 @@ export class Method {
   checkSynthetic() {
     return (this.accessFlags & METHOD_FLAGS.ACC_SYNTHETIC) !== 0;
   }
+
+  // #endregion
 
   /**
    * Checks if this method is accessible to a given class through a symbolic reference.
@@ -657,10 +663,12 @@ export class Method {
       return successResult;
     }
 
-    // nest mate test (se11)
-    // There is currently a bug with lambdas invoking the private bytecode directly.
-    // We add nest information so the invocation succeeds.
-    // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html#jvms-5.4.4
+    /**
+     * nest mate test (se11)
+     * There is currently a bug with lambdas invoking the private bytecode directly.
+     * We add nest information so the invocation succeeds.
+     * {@link https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html#jvms-5.4.4}
+     */
     const nestHostAttrD = declaringCls.getAttribute('NestHost') as NestHost;
     let nestHostD;
     if (!nestHostAttrD) {

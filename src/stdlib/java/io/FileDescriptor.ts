@@ -1,8 +1,9 @@
 import Thread from '#jvm/components/thread';
+import { logger } from '#utils/index';
 
 const functions = {
   'initIDs()V': (thread: Thread, locals: any[]) => {
-    console.warn('FileDescriptor.initIDs()V not implemented');
+    logger.warn('FileDescriptor.initIDs()V not implemented');
     thread.returnStackFrame();
   },
 };

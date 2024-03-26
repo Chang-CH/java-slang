@@ -1,6 +1,7 @@
 import Thread from '#jvm/components/thread';
 import { JvmArray } from '#types/reference/Array';
 import { JvmObject } from '#types/reference/Object';
+import { logger } from '#utils/index';
 
 const functions = {
   'writeBytes([BIIZ)V': (thread: Thread, locals: any[]) => {
@@ -35,7 +36,7 @@ const functions = {
     throw new Error('Not implemented');
   },
   'initIDs()V': (thread: Thread, locals: any[]) => {
-    console.warn('FileOutputStream.initIDs()V not implemented');
+    logger.warn('FileOutputStream.initIDs()V not implemented');
     thread.returnStackFrame();
   },
 };

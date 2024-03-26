@@ -1,5 +1,5 @@
 import AbstractClassLoader from '#jvm/components/ClassLoader/AbstractClassLoader';
-import { primitiveNameToType } from '#utils/index';
+import { logger, primitiveNameToType } from '#utils/index';
 import Thread from '#jvm/components/thread';
 import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
@@ -14,7 +14,7 @@ const functions = {
     locals: any[]
   ) => {
     const clsObj = locals[0] as JvmObject;
-    console.warn('Class.desiredAssertionStatus0: assertions disabled');
+    logger.warn('Class.desiredAssertionStatus0: assertions disabled');
     thread.returnStackFrame(0);
   },
 

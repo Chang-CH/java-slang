@@ -5,6 +5,7 @@ import { CodeAttribute } from '#jvm/external/ClassFile/types/attributes';
 import { FIELD_FLAGS } from '#jvm/external/ClassFile/types/fields';
 import { METHOD_FLAGS } from '#jvm/external/ClassFile/types/methods';
 import { readInstruction } from '#utils/parseBinary/utils/readInstruction';
+import { logger } from '..';
 
 /**
  * Parses the class file to replace references with actual values.
@@ -18,7 +19,7 @@ export const classFileToText = (
 ) => {
   switch (format) {
     case 'verbose':
-      console.warn("jvm-slang doesn't support verbose classfile output yet");
+      logger.warn("jvm-slang doesn't support verbose classfile output yet");
       return JSON.stringify(cls, null, 2);
     case 'simplified':
       const result: any = {};
@@ -29,7 +30,7 @@ export const classFileToText = (
       for (const method of result.methods) {
         method.name = result.constantPool[method.nameIndex].value;
       }
-      console.warn("jvm-slang doesn't support simplified classfile output yet");
+      logger.warn("jvm-slang doesn't support simplified classfile output yet");
       return JSON.stringify(cls, null, 2);
     default:
       return JSON.stringify(resolveReferences(getAllFlags(cls)), null, 2)

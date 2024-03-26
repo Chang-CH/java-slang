@@ -27,7 +27,7 @@ export class JNI {
   }
 
   /**
-   * Registers a lambda function as a native method
+   * Registers a lambda function as a native method.
    * @param className
    * @param methodName
    * @param method
@@ -46,7 +46,8 @@ export class JNI {
   }
 
   /**
-   * Gets the lambda function for a native method
+   * Gets the lambda function for a native method.
+   * Sets the thread to WAITING until the method is loaded if it is not already.
    * @param thread
    * @param className
    * @param methodName

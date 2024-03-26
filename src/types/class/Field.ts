@@ -165,7 +165,7 @@ export class Field {
       this.slot
     );
 
-    console.warn('getReflectedObject: not using signature, annotations');
+    // TODO: use actual signature and annotations
     this.javaObject._putField(
       'signature',
       'Ljava/lang/String;',
@@ -285,10 +285,12 @@ export class Field {
     const invokerClass = thread.getClass();
     const fieldClass = this.getClass();
     if (this.checkPrivate() && invokerClass !== fieldClass) {
-      // nest mate test (se11)
-      // There is currently a bug with lambdas invoking the private bytecode directly.
-      // We add nest information so the invocation succeeds.
-      // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html#jvms-5.4.4
+      /**
+       * nest mate test (se11)
+       * There is currently a bug with lambdas invoking the private bytecode directly.
+       * We add nest information so the invocation succeeds.
+       * {@link https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html#jvms-5.4.4}
+       */
       const nestHostAttrD = fieldClass.getAttribute('NestHost') as NestHost;
       let nestHostD;
       if (!nestHostAttrD) {

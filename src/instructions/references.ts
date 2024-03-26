@@ -92,7 +92,6 @@ export function runPutstatic(thread: Thread): void {
   }
 
   const desc = field.getFieldDesc();
-  thread.offsetPc(3);
   let popResult;
   switch (desc) {
     case JavaType.long:
@@ -101,6 +100,7 @@ export function runPutstatic(thread: Thread): void {
         return;
       }
       field.putValue(popResult.result);
+      thread.offsetPc(3);
       return;
     case JavaType.double:
       popResult = thread.popStack64();
@@ -108,6 +108,7 @@ export function runPutstatic(thread: Thread): void {
         return;
       }
       field.putValue(asDouble(popResult.result));
+      thread.offsetPc(3);
       return;
     case JavaType.float:
       popResult = thread.popStack();
@@ -115,6 +116,7 @@ export function runPutstatic(thread: Thread): void {
         return;
       }
       field.putValue(asFloat(popResult.result));
+      thread.offsetPc(3);
       return;
     case JavaType.boolean:
       popResult = thread.popStack();
@@ -122,6 +124,7 @@ export function runPutstatic(thread: Thread): void {
         return;
       }
       field.putValue(popResult.result & 1);
+      thread.offsetPc(3);
       return;
     case JavaType.int:
     default:
@@ -130,6 +133,7 @@ export function runPutstatic(thread: Thread): void {
         return;
       }
       field.putValue(popResult.result);
+      thread.offsetPc(3);
       return;
   }
 }
@@ -221,6 +225,9 @@ export function runPutfield(thread: Thread): void {
   thread.offsetPc(3);
 }
 
+/**
+ * Helper function for code reuse
+ */
 function invokeInit(
   thread: Thread,
   constant: ConstantMethodref | ConstantInterfaceMethodref
@@ -330,8 +337,10 @@ function invokeInit(
   }
 }
 
-// looks up method for invokevirtual/invokeinterface.
-// checks interface for invokeinterface, otherwise checks override
+/**
+ * looks up method for invokevirtual/invokeinterface.
+ * checks interface for invokeinterface, otherwise checks override
+ */
 function lookupMethod(
   thread: Thread,
   methodRef: Method,
@@ -382,6 +391,10 @@ function lookupMethod(
   return { status: ResultType.SUCCESS, result: { toInvoke, objRef } };
 }
 
+/**
+ * Adapted from Doppio {@link https://github.com/plasma-umass/doppio/blob/master/src/opcodes.ts#L1482}
+ * Used for signature polymorphic methods.
+ */
 function invokePoly(
   thread: Thread,
   polyMethod: Method,
@@ -614,6 +627,10 @@ export function runInvokeinterface(thread: Thread): void {
   }
 }
 
+/**
+ * Adapted from Doppio {@link https://github.com/plasma-umass/doppio/blob/master/src/opcodes.ts#L1482}
+ * JVM docs seems vague on exactly what to do.
+ */
 export function runInvokedynamic(thread: Thread): void {
   const index = thread.getCode().getUint16(thread.getPC() + 1);
 

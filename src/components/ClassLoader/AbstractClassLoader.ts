@@ -57,7 +57,6 @@ export default abstract class AbstractClassLoader {
     cls: ClassFile,
     protectionDomain?: JvmObject
   ): ImmediateResult<ClassData> {
-    // resolve classname
     const clsInfo = cls.constantPool[cls.thisClass] as ConstantClassInfo;
     const clsName = cls.constantPool[clsInfo.nameIndex] as ConstantUtf8Info;
     const thisClass = clsName.value;
@@ -195,6 +194,11 @@ export default abstract class AbstractClassLoader {
     };
   }
 
+  /**
+   * Gets the Java object representing the classloader.
+   * Returns null for bootstrap classloader.
+   * @todo Not implemented.
+   */
   getJavaObject(): JvmObject | null {
     return null;
   }

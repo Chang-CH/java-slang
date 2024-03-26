@@ -501,6 +501,9 @@ export abstract class ClassData {
     return this.methods;
   }
 
+  /**
+   * Gets the method at the given the slot number.
+   */
   getMethodFromSlot(slot: number): Method | null {
     for (const method of Object.values(this.methods)) {
       if (method.getSlot() === slot) {
@@ -511,6 +514,9 @@ export abstract class ClassData {
     return null;
   }
 
+  /**
+   * Gets the field at the given slot number.
+   */
   getFieldFromSlot(slot: number): Field | null {
     for (const field of Object.values(this.fields)) {
       if (field.getSlot() === slot) {
@@ -521,6 +527,9 @@ export abstract class ClassData {
     return null;
   }
 
+  /**
+   * Gets the index of the field in the vmindex array
+   */
   getFieldVmIndex(field: Field): number {
     const fieldArr = this.vmIndexFields
       ? this.vmIndexFields
@@ -528,6 +537,9 @@ export abstract class ClassData {
     return fieldArr.indexOf(field);
   }
 
+  /**
+   * Gets the field at the given vmindex number.
+   */
   getFieldFromVmIndex(index: number): Field | null {
     const fieldArr = this.vmIndexFields
       ? this.vmIndexFields
@@ -535,6 +547,9 @@ export abstract class ClassData {
     return fieldArr[index] ?? null;
   }
 
+  /**
+   * Looks up a field in the current class and its superclasses/interfaces.
+   */
   lookupField(fieldName: string): Field | null {
     if (this.fields[fieldName]) {
       return this.fields[fieldName];
@@ -558,11 +573,18 @@ export abstract class ClassData {
     return superClass.lookupField(fieldName);
   }
 
+  /**
+   * Gets the constant at the given index in the constant pool.
+   */
   getConstant(constantIndex: number): Constant {
     const constItem = this.constantPool.get(constantIndex);
     return constItem;
   }
 
+  /**
+   * Gets the index of the ConstantMethodRef referencing the given method in the constant pool.
+   * @todo used by vmtargetbridge; do we really need it since we use nestmate test to bypass private access?
+   */
   getMethodConstantIndex(method: Method): number {
     const isInterface = this.checkInterface();
     for (let i = 1; i < this.constantPool.size(); i++) {
@@ -589,12 +611,16 @@ export abstract class ClassData {
     return -1;
   }
 
+  /**
+   * Inserts a constant into the constant pool and returns the index.
+   * @todo used by vmtargetbridge; do we really need it since we use nestmate test to bypass private access?
+   */
   insertConstant(con: Constant): number {
     return this.constantPool.insert(con);
   }
 
   /**
-   * Getters
+   * Gets the classloader that loaded the current class.
    */
   getLoader(): AbstractClassLoader {
     return this.loader;
@@ -639,6 +665,9 @@ export abstract class ClassData {
     return { status: ResultType.SUCCESS, result: this };
   }
 
+  /**
+   * Gets the java/lang/Class object for the current class.
+   */
   getJavaObject(): JvmObject {
     if (!this.javaClassObject) {
       // We assume that java/lang/Class has been loaded at JVM initialization
@@ -659,10 +688,19 @@ export abstract class ClassData {
     return this.javaClassObject;
   }
 
+  /**
+   * Gets the protection domain associated with this class.
+   * Returns null if absent.
+   * @todo not implemented.
+   */
   getProtectionDomain(): JvmObject | null {
     return null;
   }
 
+  /**
+   * Gets the access flags for the current class.
+   * @returns bitmask of the access flags.
+   */
   getAccessFlags(): number {
     return this.accessFlags;
   }
@@ -686,14 +724,26 @@ export abstract class ClassData {
    */
   abstract checkCast(castTo: ClassData): boolean;
 
+  /**
+   * Creates a new instance of the class.
+   */
   instantiate(): JvmObject {
     return new JvmObject(this);
   }
 
-  getAttribute(key: string) {
-    return this.attributes[key];
+  /**
+   * Gets the attribute of the attribute name.
+   * @param name attribute name, e.g. InnerClasses
+   * @returns Attribute, if any.
+   */
+  getAttribute(name: string) {
+    return this.attributes[name];
   }
 
+  /**
+   * Gets the bootstrap method at the specified index in the
+   * BootstrapMethods attribute array.
+   */
   getBootstrapMethod(methodIndex: number): BootstrapMethod | null {
     return null;
   }

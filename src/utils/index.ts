@@ -305,12 +305,12 @@ export function attrInfo2Interface(
 }
 
 export function autoBox(obj: any) {
-  console.warn('Auto boxing not implemented');
+  logger.warn('Auto boxing not implemented');
   return obj;
 }
 
 export function autoUnbox(obj: any) {
-  console.warn('Auto unboxing not implemented');
+  logger.warn('Auto unboxing not implemented');
   return obj;
 }
 
@@ -326,3 +326,11 @@ export function string2arraybuffer(str: string) {
   }
   return buf;
 }
+
+export const logger: {
+  warnings: string[];
+  warn: (msg: string) => void;
+} = {
+  warnings: [],
+  warn: (msg: string) => logger.warnings.push(msg),
+};

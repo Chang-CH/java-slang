@@ -3,6 +3,7 @@ import Thread from '#jvm/components/thread';
 import { ResultType } from '#types/Result';
 import { Method } from '#types/class/Method';
 import type { JvmObject } from '#types/reference/Object';
+import { logger } from '#utils/index';
 
 const doPrivileged = (thread: Thread, locals: any[]) => {
   const action = locals[0] as JvmObject;
@@ -94,7 +95,7 @@ const functions = {
     thread: Thread,
     locals: any[]
   ) => {
-    console.warn(
+    logger.warn(
       'getStackAccessControlContext()Ljava/security/AccessControlContext; not implemented'
     );
     thread.returnStackFrame(null);

@@ -4,7 +4,7 @@ import { ArrayClassData } from '#types/class/ClassData';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
 import type { JvmArray } from '#types/reference/Array';
 import type { JvmObject } from '#types/reference/Object';
-import { typeIndexScale } from '#utils/index';
+import { logger, typeIndexScale } from '#utils/index';
 import parseBin from '#utils/parseBinary';
 import {
   ConstantClassInfo,
@@ -147,7 +147,7 @@ const functions = {
     const field = locals[1] as JvmObject;
     const slot = field._getField('slot', 'I', 'java/lang/reflect/Field');
 
-    console.warn(
+    logger.warn(
       'objectFieldOffset: not checking if slot is used to access fields not declared in this class'
     );
 

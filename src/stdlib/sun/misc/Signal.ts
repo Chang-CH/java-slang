@@ -1,8 +1,9 @@
 import Thread from '#jvm/components/thread';
+import { logger } from '#utils/index';
 
 const functions = {
   'findSignal(Ljava/lang/String;)I': (thread: Thread, locals: any[]) => {
-    console.warn('Signal.findSignal(Ljava/lang/String;)I not implemented');
+    logger.warn('Signal.findSignal(Ljava/lang/String;)I not implemented');
     thread.returnStackFrame(-1);
   },
 };

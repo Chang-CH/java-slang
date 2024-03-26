@@ -43,11 +43,17 @@ export abstract class ThreadPool {
     return this.currentThread;
   }
 
+  /**
+   * Returns true if there are any non terminated threads in the threadpool.
+   */
   hasThreads(): boolean {
     this.clearTerminated();
     return this.currentThread !== null || this.threads.length > 0;
   }
 
+  /**
+   * Cleans up all terminated threads from the threadpool.
+   */
   clearTerminated() {
     this.threads = this.threads.filter(
       x => x.getStatus() !== ThreadStatus.TERMINATED

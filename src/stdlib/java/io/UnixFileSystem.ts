@@ -1,6 +1,6 @@
 import Thread from '#jvm/components/thread';
 import { JvmObject } from '#types/reference/Object';
-import { j2jsString, js2jString } from '#utils/index';
+import { j2jsString, js2jString, logger } from '#utils/index';
 
 const functions = {
   'canonicalize0(Ljava/lang/String;)Ljava/lang/String;': (
@@ -20,7 +20,7 @@ const functions = {
     // const unixFS = locals[0];
     // const file = locals[1] as JvmObject;
 
-    console.warn(
+    logger.warn(
       'Native method not implemented: getBooleanAttributes0(Ljava/io/File;)I'
     );
     thread.returnStackFrame(0);
@@ -33,7 +33,7 @@ const functions = {
     // const unixFS = locals[0];
     // const file = locals[1] as JvmObject;
 
-    console.warn(
+    logger.warn(
       'Native method not implemented: list(Ljava/io/File;)[Ljava/lang/String;'
     );
     thread.returnStackFrame(null);

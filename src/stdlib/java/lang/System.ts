@@ -4,6 +4,7 @@ import { SuccessResult } from '#types/Result';
 import { ReferenceClassData } from '#types/class/ClassData';
 import type { JvmArray } from '#types/reference/Array';
 import type { JvmObject } from '#types/reference/Object';
+import { logger } from '#utils/index';
 
 const functions = {
   'registerNatives()V': (thread: Thread, locals: any[]) => {
@@ -189,9 +190,7 @@ const functions = {
   },
 
   'identityHashCode(Ljava/lang/Object;)I': (thread: Thread, locals: any[]) => {
-    console.warn(
-      'System.identityHashCode(Ljava/lang/Object;)I not implemented'
-    );
+    logger.warn('System.identityHashCode(Ljava/lang/Object;)I not implemented');
     thread.returnStackFrame(0);
   },
 };

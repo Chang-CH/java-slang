@@ -169,6 +169,14 @@ export class ConstantUtf8 extends Constant {
 }
 // #endregion
 
+/**
+ * adapted from {@link https://github.com/plasma-umass/doppio/blob/master/src/util.ts#L704}
+ * @param thread
+ * @param loader
+ * @param descriptor
+ * @param cb
+ * @returns
+ */
 function createMethodType(
   thread: Thread,
   loader: AbstractClassLoader,
@@ -453,6 +461,11 @@ export class ConstantInvokeDynamic extends Constant {
     throw new Error('ConstantInvokeDynamic: get Method not implemented.');
   }
 
+  /**
+   * adapted from {@link https://github.com/plasma-umass/doppio/blob/master/src/ConstantPool.ts#L893}
+   * @param thread
+   * @returns
+   */
   public resolve(thread: Thread): Result<Array<JvmObject>> {
     if (this.result) {
       return this.result;
@@ -650,6 +663,7 @@ export class ConstantFieldref extends Constant {
 
 /**
  * Resolves the vmtarget, appendix, and appendix for invoke and invokeExact
+ * adapted from {@link https://github.com/plasma-umass/doppio/blob/master/src/util.ts#L704}
  */
 function resolveSignaturePolymorphic(
   thread: Thread,
@@ -1062,6 +1076,11 @@ export class ConstantMethodHandle extends Constant {
     throw new Error('methodhandle not resolved!');
   }
 
+  /**
+   * adapted from {@link https://github.com/plasma-umass/doppio/blob/master/src/ConstantPool.ts#L1118}
+   * @param thread
+   * @returns
+   */
   public resolve(thread: Thread): Result<JvmObject> {
     if (this.result) {
       return this.result;

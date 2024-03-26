@@ -9,6 +9,7 @@ import {
   ConstantInfo,
   ConstantUtf8Info,
 } from '#jvm/external/ClassFile/types/constants';
+import { logger } from '#utils/index';
 
 export function readAttribute(
   constPool: Array<ConstantInfo>,
@@ -295,7 +296,7 @@ function readAttributeStackMapTable(
   view: DataView,
   offset: number
 ) {
-  console.warn('readAttributeStackMapTable is not implemented!');
+  logger.warn('readAttributeStackMapTable is not implemented!');
   const info = [];
 
   for (let i = 0; i < attributeLength; i += 1) {
@@ -776,7 +777,7 @@ function readAttributeRuntimeVisibleParameterAnnotations(
   view: DataView,
   offset: number
 ) {
-  console.warn(
+  logger.warn(
     'readAttributeRuntimeVisibleParameterAnnotations is not implemented!'
   );
   const info = [];
@@ -802,7 +803,7 @@ function readAttributeRuntimeInvisibleParameterAnnotations(
   view: DataView,
   offset: number
 ) {
-  console.warn(
+  logger.warn(
     'readAttributeRuntimeInvisibleParameterAnnotations is not implemented!'
   );
   const info = [];

@@ -103,6 +103,10 @@ export default class Monitor {
     }
   }
 
+  /**
+   * Sets all threads waiting on this monitor to runnable and calls the callback if provided.
+   * @param thread
+   */
   notifyAll(thread: Thread) {
     for (const state of this.notifyArray) {
       const thread = state.thread;
