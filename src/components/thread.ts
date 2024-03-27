@@ -218,7 +218,6 @@ export default class Thread {
       this.stack[this.stackPointer].operandStack.length + 1 >
         this.stack[this.stackPointer].maxStack
     ) {
-      console.log(this.stack[this.stackPointer]);
       this.throwNewException('java/lang/StackOverflowError', '');
       return false;
     }
