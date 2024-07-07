@@ -583,7 +583,6 @@ export abstract class ClassData {
 
   /**
    * Gets the index of the ConstantMethodRef referencing the given method in the constant pool.
-   * @todo used by vmtargetbridge; do we really need it since we use nestmate test to bypass private access?
    */
   getMethodConstantIndex(method: Method): number {
     const isInterface = this.checkInterface();

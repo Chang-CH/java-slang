@@ -3,9 +3,10 @@ import JVM from '#jvm/jvm';
 import { ImmediateResult, ResultType } from '#types/Result';
 import { Code } from '#types/class/Attributes';
 import { ClassData, ReferenceClassData } from '#types/class/ClassData';
+import { Field } from '#types/class/Field';
 import { Method } from '#types/class/Method';
 import { INACCESSIBLE } from '#utils/index';
-import type { JvmObject } from '../types/reference/Object';
+import { JvmObject } from '../types/reference/Object';
 import { ThreadPool } from './ThreadPool';
 import { InternalStackFrame, JavaStackFrame, StackFrame } from './stackframe';
 
@@ -112,6 +113,13 @@ export default class Thread {
           0,
           [this.javaObject],
           () => {
+            // Reset static fields
+            // Classes are cached and not re-imported
+            // We need to reset so that the next run is clean
+            Field._exit();
+            Method._exit();
+            JvmObject._exit();
+
             monitor.notifyAll(this);
             monitor.exit(this);
             this.setStatus(ThreadStatus.TERMINATED);

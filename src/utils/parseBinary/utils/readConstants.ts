@@ -19,6 +19,7 @@ import {
   ConstantInvokeDynamicInfo,
   ConstantInfo,
 } from '#jvm/external/ClassFile/types/constants';
+
 function readConstantClass(
   view: DataView,
   offset: number,

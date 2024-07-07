@@ -20,7 +20,6 @@ export function readField(
   const attributesCount = view.getUint16(offset);
   offset += 2;
 
-  //@ts-ignore
   const attributes = [];
 
   for (let i = 0; i < attributesCount; i += 1) {

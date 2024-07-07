@@ -629,7 +629,6 @@ export function runInvokeinterface(thread: Thread): void {
 
 /**
  * Adapted from Doppio {@link https://github.com/plasma-umass/doppio/blob/master/src/opcodes.ts#L1482}
- * JVM docs seems vague on exactly what to do.
  */
 export function runInvokedynamic(thread: Thread): void {
   const index = thread.getCode().getUint16(thread.getPC() + 1);

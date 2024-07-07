@@ -102,6 +102,7 @@ export class JNI {
 
     // native method does not exist
     if (!this.classes?.[className]?.methods?.[methodName]) {
+      console.log(`${className}.${methodName} implementation not found`);
       return {
         status: ResultType.ERROR,
         exceptionCls: 'java/lang/UnsatisfiedLinkError',

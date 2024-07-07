@@ -120,10 +120,6 @@ export const info2Attribute = (
         classes: innerclasses,
       } as InnerClasses;
     case 'EnclosingMethod':
-      return {
-        name,
-        attributeInfo: info,
-      } as UnhandledAttribute;
       const cls = constantPool.get(
         (info as EnclosingMethodAttribute).classIndex
       ) as ConstantClass;
@@ -148,10 +144,6 @@ export const info2Attribute = (
     case 'SourceDebugExtension':
       return {
         name,
-        attributeInfo: info,
-      } as UnhandledAttribute;
-      return {
-        name,
         debugExtension: (info as SourceDebugExtensionAttribute).debugExtension,
       } as SourceDebugExtension;
     case 'LineNumberTable':
@@ -160,10 +152,6 @@ export const info2Attribute = (
         lineNumberTable: (info as LineNumberTableAttribute).lineNumberTable,
       } as LineNumberTable;
     case 'LocalVariableTable':
-      return {
-        name,
-        attributeInfo: info,
-      } as UnhandledAttribute;
       const localVarTable: Array<{
         startPc: number;
         length: number;
@@ -189,10 +177,6 @@ export const info2Attribute = (
         localVariableTable: localVarTable,
       } as LocalVariableTable;
     case 'LocalVariableTypeTable':
-      return {
-        name,
-        attributeInfo: info,
-      } as UnhandledAttribute;
       const localVarTypeTable: Array<{
         startPc: number;
         length: number;

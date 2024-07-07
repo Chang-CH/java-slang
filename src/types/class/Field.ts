@@ -351,4 +351,8 @@ export class Field {
 
     return { status: ResultType.SUCCESS, result: this };
   }
+
+  static _exit() {
+    Field.reflectedClass = null;
+  }
 }

@@ -469,14 +469,9 @@ export class Method {
       const nc = new ConstantUtf8(this.cls, this.name);
       const dc = new ConstantUtf8(this.cls, this.descriptor);
       const nt = new ConstantNameAndType(this.cls, nc, dc);
-      this.cls.insertConstant(nc);
-      this.cls.insertConstant(dc);
-      this.cls.insertConstant(nt);
 
       const cnc = new ConstantUtf8(this.cls, this.cls.getName());
       const cc = ConstantClass.asResolved(this.cls, cnc, this.cls);
-      this.cls.insertConstant(cnc);
-      this.cls.insertConstant(cc);
 
       const mc = ConstantMethodref.asResolved(this.cls, cc, nt, this);
       index = this.cls.insertConstant(mc);
@@ -700,5 +695,10 @@ export class Method {
 
   _getCode() {
     return this.code;
+  }
+
+  static _exit() {
+    Method.reflectMethodClass = null;
+    Method.reflectConstructorClass = null;
   }
 }
